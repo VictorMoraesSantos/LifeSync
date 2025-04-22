@@ -1,33 +1,27 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
 using TaskManager.Application.DTOs;
-using TaskManager.Application.Mapping;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetById
 {
-    public class GetByIdQueryHandler : IRequestHandler<GetByIdQuery, TaskItemDTO>
+    public class GetByIdQueryHandler : IRequestHandler<GetByIdQuery, GetByIdResponse>
     {
-        private readonly ITaskItemRepository _taskItemRepository;
+        private readonly ITaskItemService _taskItemService;
 
-        public GetByIdQueryHandler(ITaskItemRepository taskItemRepository)
+        public GetByIdQueryHandler(ITaskItemService taskItemService)
         {
-            _taskItemRepository = taskItemRepository;
+            _taskItemService = taskItemService;
         }
 
-        public async Task<TaskItemDTO> Handle(GetByIdQuery query, CancellationToken cancellationToken)
+        public async Task<GetByIdResponse> Handle(GetByIdQuery query, CancellationToken cancellationToken)
         {
             if (query == null)
                 throw new BadRequestException("Query cannot be null");
 
-            TaskItem? taskItem = await _taskItemRepository.GetById(query.Id, cancellationToken);
-            if (taskItem == null)
-                throw new NotFoundException(nameof(taskItem), query.Id);
-
-            TaskItemDTO taskItemDTIO = taskItem.ToDTO();
-
-            return taskItemDTIO;
+            TaskItemDTO result = await _taskItemService.GetTaskItemByIdAsync(query.Id, cancellationToken);
+            GetByIdResponse response = new(result);
+            return response;
         }
     }
 }

@@ -1,30 +1,26 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
+using TaskManager.Application.Interfaces;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Repositories;
 
 namespace TaskManager.Application.TaskItems.Commands.DeleteTaskItem
 {
-    public class DeleteTaskItemCommandHandler : IRequestHandler<DeleteTaskItemCommand, bool>
+    public class DeleteTaskItemCommandHandler : IRequestHandler<DeleteTaskItemCommand, DeleteTaskItemResponse>
     {
-        private readonly ITaskItemRepository _taskItemRepository;
+        private readonly ITaskItemService _taskItemService;
 
-        public DeleteTaskItemCommandHandler(ITaskItemRepository taskItemRepository)
+        public DeleteTaskItemCommandHandler(ITaskItemService taskItemService)
         {
-            _taskItemRepository = taskItemRepository;
+            _taskItemService = taskItemService;
         }
 
-        public async Task<bool> Handle(DeleteTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<DeleteTaskItemResponse> Handle(DeleteTaskItemCommand command, CancellationToken cancellationToken)
         {
-            TaskItem? taskItem = await _taskItemRepository.GetById(command.Id, cancellationToken);
-            if (taskItem == null)
-                throw new NotFoundException(nameof(TaskItem), command.Id);
 
-            taskItem.MarkAsDeleted();
-
-            await _taskItemRepository.Update(taskItem, cancellationToken);
-
-            return true;
+            bool result = await _taskItemService.DeleteTaskItemAsync(command.Id, cancellationToken);
+            DeleteTaskItemResponse response = new(result);
+            return response;
         }
     }
 }

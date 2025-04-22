@@ -1,28 +1,34 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
 {
-    public class CreateTaskItemCommandHandler : IRequestHandler<CreateTaskItemCommand, int>
+    public class CreateTaskItemCommandHandler : IRequestHandler<CreateTaskItemCommand, CreateTaskItemResponse>
     {
-        private readonly ITaskItemRepository _taskItemRepository;
+        private readonly ITaskItemService _taskItemService;
 
-        public CreateTaskItemCommandHandler(ITaskItemRepository taskItemRepository)
+        public CreateTaskItemCommandHandler(ITaskItemService taskItemService)
         {
-            _taskItemRepository = taskItemRepository;
+            _taskItemService = taskItemService;
         }
 
-        public async Task<int> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<CreateTaskItemResponse> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
             if (command == null)
                 throw new BadRequestException(nameof(command), "Command cannot be null");
 
-            TaskItem taskItem = new(command.Title, command.Description, command.Priority, command.DueDate, command.UserId);
-            await _taskItemRepository.Create(taskItem, cancellationToken);
+            int result = await _taskItemService.CreateTaskItemAsync(
+                command.Title,
+                command.Description,
+                (int)command.Priority,
+                command.DueDate,
+                command.UserId,
+                cancellationToken
+            );
 
-            return taskItem.Id;
+            CreateTaskItemResponse response = new(result);
+            return response;
         }
     }
 }

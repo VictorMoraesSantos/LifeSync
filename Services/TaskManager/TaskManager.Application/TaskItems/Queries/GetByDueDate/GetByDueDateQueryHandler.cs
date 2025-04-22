@@ -1,33 +1,27 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
 using TaskManager.Application.DTOs;
-using TaskManager.Application.Mapping;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetByDueDate
 {
-    public class GetByDueDateQueryHandler : IRequestHandler<GetByDueDateQuery, IEnumerable<TaskItemDTO>>
+    public class GetByDueDateQueryHandler : IRequestHandler<GetByDueDateQuery, GetByDueDateResponse>
     {
-        private readonly ITaskItemRepository _taskItemRepository;
+        private readonly ITaskItemService _taskItemService;
 
-        public GetByDueDateQueryHandler(ITaskItemRepository taskItemRepository)
+        public GetByDueDateQueryHandler(ITaskItemService taskItemService)
         {
-            _taskItemRepository = taskItemRepository;
+            _taskItemService = taskItemService;
         }
 
-        public async Task<IEnumerable<TaskItemDTO>> Handle(GetByDueDateQuery query, CancellationToken cancellationToken)
+        public async Task<GetByDueDateResponse> Handle(GetByDueDateQuery query, CancellationToken cancellationToken)
         {
             if (query == null)
                 throw new BadRequestException(nameof(query), "Query cannot be null");
 
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetByDueDate(query.UserId, query.DueDate, cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
-
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-
-            return taskItemDTOs;
+            IEnumerable<TaskItemDTO> result = await _taskItemService.GetTaskItemsByDueDateAsync(query.UserId, query.DueDate, cancellationToken);
+            GetByDueDateResponse response = new(result);
+            return response;
         }
     }
 }

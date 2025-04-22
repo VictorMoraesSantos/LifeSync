@@ -60,12 +60,14 @@ namespace TaskManager.Infrastructure.Repositories
             return taskItems;
         }
 
-        public async Task<IEnumerable<TaskItem?>> GetByLabel(int userId, TaskLabel label, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TaskItem>> GetByLabel(int userId, int labelId, CancellationToken cancellationToken = default)
         {
             IEnumerable<TaskItem> taskItems = await _context.TaskItems
                 .AsNoTracking()
                 .Include(x => x.Labels)
-                .Where(x => x.UserId == userId && x.Labels == label && !x.IsDeleted)
+                .Where(x => x.UserId == userId
+                    && x.Labels.Any(l => l.Id == labelId)
+                    && !x.IsDeleted)
                 .ToListAsync(cancellationToken);
 
             return taskItems;

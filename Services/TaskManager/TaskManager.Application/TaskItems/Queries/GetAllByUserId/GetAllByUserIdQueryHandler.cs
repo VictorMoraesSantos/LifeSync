@@ -1,30 +1,27 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
 using TaskManager.Application.DTOs;
-using TaskManager.Application.Mapping;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetAllByUserId
 {
-    public class GetAllByUserIdQueryHandler : IRequestHandler<GetAllByUserIdQuery, IEnumerable<TaskItemDTO>>
+    public class GetAllByUserIdQueryHandler : IRequestHandler<GetAllByUserIdQuery, GetAllByUserIdResponse>
     {
-        private readonly ITaskItemRepository _taskItemRepository;
+        private readonly ITaskItemService _taskItemService;
 
-        public GetAllByUserIdQueryHandler(ITaskItemRepository taskItemRepository)
+        public GetAllByUserIdQueryHandler(ITaskItemService taskItemService)
         {
-            _taskItemRepository = taskItemRepository;
+            _taskItemService = taskItemService;
         }
 
-        public async Task<IEnumerable<TaskItemDTO>> Handle(GetAllByUserIdQuery query, CancellationToken cancellationToken)
+        public async Task<GetAllByUserIdResponse> Handle(GetAllByUserIdQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetByUserId(query.UserId, cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
+            if (query == null)
+                throw new BadRequestException(nameof(query), "Query cannot be null");
 
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-
-            return taskItemDTOs;
+            IEnumerable<TaskItemDTO> result = await _taskItemService.GetTaskItemsByUserIdAsync(query.UserId, cancellationToken);
+            GetAllByUserIdResponse response = new(result);
+            return response;
         }
     }
 

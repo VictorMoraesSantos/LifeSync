@@ -1,33 +1,34 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Commands.UpdateTaskItem
 {
-    public class UpdateTaskItemCommandHandler : IRequestHandler<UpdateTaskItemCommand, bool>
+    public class UpdateTaskItemCommandHandler : IRequestHandler<UpdateTaskItemCommand, UpdateTaskItemCommandResponse>
     {
-        private readonly ITaskItemRepository _taskItemRepository;
+        private readonly ITaskItemService _taskItemService;
 
-        public UpdateTaskItemCommandHandler(ITaskItemRepository taskItemRepository)
+        public UpdateTaskItemCommandHandler(ITaskItemService taskItemService)
         {
-            _taskItemRepository = taskItemRepository;
+            _taskItemService = taskItemService;
         }
 
-        public async Task<bool> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<UpdateTaskItemCommandResponse> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
             if (command == null)
                 throw new BadRequestException(nameof(command), "Command cannot be null");
 
-            TaskItem? taskItem = await _taskItemRepository.GetById(command.Id, cancellationToken);
-            if (taskItem == null)
-                throw new NotFoundException(nameof(taskItem), command.Id);
+            bool result = await _taskItemService.UpdateTaskItemAsync(
+                command.Id,
+                command.Title,
+                command.Description,
+                (int)command.Status,
+                (int)command.Priority,
+                command.DueDate,
+                cancellationToken);
 
-            taskItem.Update(command.Title, command.Description, command.Priority, command.DueDate);
-
-            await _taskItemRepository.Update(taskItem, cancellationToken);
-
-            return true;
+            UpdateTaskItemCommandResponse response = new(result);
+            return response;
         }
     }
 }

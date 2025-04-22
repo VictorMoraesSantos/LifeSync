@@ -1,35 +1,27 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
 using TaskManager.Application.DTOs;
-using TaskManager.Application.Mapping;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetByLabel
 {
-    public class GetByLabelQueryHandler : IRequestHandler<GetByLabelQuery, IEnumerable<TaskItemDTO>>
+    public class GetByLabelQueryHandler : IRequestHandler<GetByLabelQuery, GetByLabelResponse>
     {
-        private readonly ITaskItemRepository _taskItemRepository;
+        private readonly ITaskItemService _taskItemService;
 
-        public GetByLabelQueryHandler(ITaskItemRepository taskItemRepository)
+        public GetByLabelQueryHandler(ITaskItemService taskItemService)
         {
-            _taskItemRepository = taskItemRepository;
+            _taskItemService = taskItemService;
         }
 
-        public async Task<IEnumerable<TaskItemDTO>> Handle(GetByLabelQuery query, CancellationToken cancellationToken)
+        public async Task<GetByLabelResponse> Handle(GetByLabelQuery query, CancellationToken cancellationToken)
         {
             if (query == null)
                 throw new BadRequestException(nameof(query), "Query cannot be null");
 
-            TaskLabel label = query.Label.ToEntity();
-
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetByLabel(query.UserId, label, cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
-
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-
-            return taskItemDTOs;
+            IEnumerable<TaskItemDTO> result = await _taskItemService.GetTaskItemsByLabelIdAsync(query.UserId, query.LabelId, cancellationToken);
+            GetByLabelResponse response = new(result);
+            return response;
         }
     }
 }

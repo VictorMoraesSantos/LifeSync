@@ -9,5 +9,7 @@ namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
         Priority Priority,
         DateOnly DueDate,
         int UserId
-    ) : IRequest<int>;
+    ) : IRequest<CreateTaskItemResponse>;
+
+    public record CreateTaskItemResponse(int TaskId);
 }

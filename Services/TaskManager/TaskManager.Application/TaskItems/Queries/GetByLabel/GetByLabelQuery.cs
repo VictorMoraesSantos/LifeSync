@@ -3,5 +3,6 @@ using TaskManager.Application.DTOs;
 
 namespace TaskManager.Application.TaskItems.Queries.GetByLabel
 {
-    public record GetByLabelQuery(int UserId, TaskLabelDTO Label) : IRequest<IEnumerable<TaskItemDTO>>;
+    public record GetByLabelQuery(int UserId, int LabelId) : IRequest<GetByLabelResponse>;
+    public record GetByLabelResponse(IEnumerable<TaskItemDTO> TaskItems);
 }

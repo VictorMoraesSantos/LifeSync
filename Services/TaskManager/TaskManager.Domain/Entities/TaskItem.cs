@@ -28,10 +28,11 @@ namespace TaskManager.Domain.Entities
             UserId = userId;
         }
 
-        public void Update(string title, string description, Priority priority, DateOnly dueDate)
+        public void Update(string title, string description, Status status, Priority priority, DateOnly dueDate)
         {
             SetTitle(title);
             SetDescription(description);
+            Status = status;
             Priority = priority;
             MarkAsUpdated();
         }
