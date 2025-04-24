@@ -1,30 +1,23 @@
-﻿using BuildingBlocks.Exceptions;
-using MediatR;
+﻿using MediatR;
 using TaskManager.Application.DTOs;
-using TaskManager.Application.Mapping;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskLabels.Queries.GetAll
 {
-    public class GetAllTaskLabelsQueryHandler : IRequestHandler<GetAllTaskLabelsQuery, IEnumerable<TaskLabelDTO>>
+    public class GetAllTaskLabelsQueryHandler : IRequestHandler<GetAllTaskLabelsQuery, GetAllTaskLabelsResponse>
     {
-        private readonly ITaskLabelRepository _taskLabelRepository;
+        private readonly ITaskLabelService _taskLabelService;
 
-        public GetAllTaskLabelsQueryHandler(ITaskLabelRepository taskLabelRepository)
+        public GetAllTaskLabelsQueryHandler(ITaskLabelService taskLabelService)
         {
-            _taskLabelRepository = taskLabelRepository;
+            _taskLabelService = taskLabelService;
         }
 
-        public async Task<IEnumerable<TaskLabelDTO>> Handle(GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
+        public async Task<GetAllTaskLabelsResponse> Handle(GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabel?> taskLabels = await _taskLabelRepository.GetAll(cancellationToken);
-            if (taskLabels == null)
-                throw new NotFoundException("TaskLabel was not found");
-
-            IEnumerable<TaskLabelDTO> taskLabelDTOs = taskLabels.Select(tl => tl.ToDTO());
-
-            return taskLabelDTOs;
+            IEnumerable<TaskLabelDTO> result = await _taskLabelService.GetAllTaskLabelsAsync(cancellationToken);
+            GetAllTaskLabelsResponse response = new(result);
+            return response;
         }
     }
 }

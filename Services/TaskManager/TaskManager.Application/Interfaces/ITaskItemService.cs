@@ -1,5 +1,4 @@
 ﻿using TaskManager.Application.DTOs;
-using TaskManager.Application.TaskItems.Commands.CreateTaskItem;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Interfaces

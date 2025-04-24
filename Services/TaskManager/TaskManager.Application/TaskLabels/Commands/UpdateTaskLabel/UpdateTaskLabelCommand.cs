@@ -3,11 +3,7 @@ using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.TaskLabels.Commands.UpdateTaskLabel
 {
-    public record UpdateTaskLabelCommand(
-        int Id,
-        string Name,
-        LabelColor LabelColor,
-        int UserId,
-        int TaskItemId)
-        : IRequest<bool>;
+    public record UpdateTaskLabelCommand(int Id, string Name, LabelColor LabelColor, int UserId, int TaskItemId)
+        : IRequest<UpdateTaskLabelResponse>;
+    public record UpdateTaskLabelResponse(bool IsUpdated);
 }

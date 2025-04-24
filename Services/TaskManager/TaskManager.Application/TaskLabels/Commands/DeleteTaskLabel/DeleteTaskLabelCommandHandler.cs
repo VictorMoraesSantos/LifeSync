@@ -1,30 +1,26 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskLabels.Commands.DeleteTaskLabel
 {
-    public class DeleteTaskLabelCommandHandler : IRequestHandler<DeleteTaskLabelCommand, bool>
+    public class DeleteTaskLabelCommandHandler : IRequestHandler<DeleteTaskLabelCommand, DeleteTaskLabelResponse>
     {
-        private readonly ITaskLabelRepository _taskLabelRepository;
+        private readonly ITaskLabelService _taskLabelService;
 
-        public DeleteTaskLabelCommandHandler(ITaskLabelRepository taskLabelRepository)
+        public DeleteTaskLabelCommandHandler(ITaskLabelService taskLabelService)
         {
-            _taskLabelRepository = taskLabelRepository;
+            _taskLabelService = taskLabelService;
         }
 
-        public async Task<bool> Handle(DeleteTaskLabelCommand command, CancellationToken cancellationToken)
+        public async Task<DeleteTaskLabelResponse> Handle(DeleteTaskLabelCommand command, CancellationToken cancellationToken)
         {
-            TaskLabel? taskLabel = await _taskLabelRepository.GetById(command.Id, cancellationToken);
-            if (taskLabel == null)
-                throw new NotFoundException(nameof(TaskLabel), command.Id);
+            if(command == null)
+                throw new BadRequestException("Command cannot be null");
 
-            taskLabel.MarkAsDeleted();
-
-            await _taskLabelRepository.Update(taskLabel, cancellationToken);
-
-            return true;
+            bool result = await _taskLabelService.DeleteTaskLabelAsync(command.Id, cancellationToken);
+            DeleteTaskLabelResponse response = new(result);
+            return response;
         }
     }
 }

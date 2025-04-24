@@ -23,38 +23,38 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpGet("id")]
-        public async Task<HttpResult<TaskLabelDTO?>> GetById([FromQuery] GetByIdQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetTaskLabelByIdResponse>> GetById([FromQuery] GetTaskLabelByIdQuery query, CancellationToken cancellationToken)
         {
-            TaskLabelDTO? result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<TaskLabelDTO?>.Ok(result);
+            GetTaskLabelByIdResponse result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetTaskLabelByIdResponse>.Ok(result);
         }
 
         [HttpGet("all")]
-        public async Task<HttpResult<IEnumerable<TaskLabelDTO>>> GetAll([FromQuery] GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetAllTaskLabelsResponse>> GetAll([FromQuery] GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabelDTO> result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<IEnumerable<TaskLabelDTO>>.Ok(result);
+            GetAllTaskLabelsResponse result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetAllTaskLabelsResponse>.Ok(result);
         }
 
         [HttpGet("user-id")]
-        public async Task<HttpResult<IEnumerable<TaskLabelDTO?>>> GetAllByUserId([FromQuery] GetByUserIdQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetTaskLabelByUserIdResponse>> GetAllByUserId([FromQuery] GetTaskLabelByUserIdQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabelDTO>? result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<IEnumerable<TaskLabelDTO?>>.Ok(result);
+            GetTaskLabelByUserIdResponse result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetTaskLabelByUserIdResponse>.Ok(result);
         }
 
         [HttpGet("name")]
-        public async Task<HttpResult<IEnumerable<TaskLabelDTO?>>> GetByName([FromQuery] GetByNameQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetTaskLabelByNameResponse>> GetByName([FromQuery] GetTaskLabelByNameQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabelDTO>? result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<IEnumerable<TaskLabelDTO?>>.Ok(result);
+            GetTaskLabelByNameResponse result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetTaskLabelByNameResponse>.Ok(result);
         }
 
         [HttpPost("create")]
-        public async Task<HttpResult<int>> Create([FromBody] CreateTaskLabelCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<CreateTaskLabelResponse>> Create([FromBody] CreateTaskLabelCommand command, CancellationToken cancellationToken)
         {
-            int result = await _mediator.Send(command, cancellationToken);
-            return HttpResult<int>.Created(result);
+            CreateTaskLabelResponse result = await _mediator.Send(command, cancellationToken);
+            return HttpResult<CreateTaskLabelResponse>.Created(result);
         }
 
         [HttpPost("batch")]
@@ -67,17 +67,17 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<HttpResult<bool>> Update([FromBody] UpdateTaskLabelCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<UpdateTaskLabelResponse>> Update([FromBody] UpdateTaskLabelCommand command, CancellationToken cancellationToken)
         {
-            bool result = await _mediator.Send(command, cancellationToken);
-            return HttpResult<bool>.Updated(result);
+            UpdateTaskLabelResponse result = await _mediator.Send(command, cancellationToken);
+            return HttpResult<UpdateTaskLabelResponse>.Updated(result);
         }
 
         [HttpDelete("delete")]
-        public async Task<HttpResult<bool>> Delete([FromBody] DeleteTaskLabelCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<DeleteTaskLabelResponse>> Delete([FromBody] DeleteTaskLabelCommand command, CancellationToken cancellationToken)
         {
-            bool result = await _mediator.Send(command, cancellationToken);
-            return HttpResult<bool>.Deleted(result);
+            DeleteTaskLabelResponse result = await _mediator.Send(command, cancellationToken);
+            return HttpResult<DeleteTaskLabelResponse>.Deleted(result);
         }
 
         [HttpGet("search")]

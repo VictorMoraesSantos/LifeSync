@@ -16,9 +16,6 @@ namespace TaskManager.Application.TaskItems.Queries.GetAll
 
         public async Task<GetAllTaskItemsResponse> Handle(GetAllTaskItemsQuery query, CancellationToken cancellationToken)
         {
-            if (query == null)
-                throw new BadRequestException(nameof(query), "Query cannot be null");
-
             IEnumerable<TaskItemDTO?> result = await _taskItemService.GetAllTaskItemsAsync(cancellationToken);
             GetAllTaskItemsResponse response = new(result);
             return response;

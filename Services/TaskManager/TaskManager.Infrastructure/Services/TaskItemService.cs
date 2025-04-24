@@ -94,9 +94,6 @@ namespace TaskManager.Infrastructure.Services
         public async Task<IEnumerable<TaskItemDTO>> GetAllTaskItemsAsync(CancellationToken cancellationToken)
         {
             IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetAll(cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
-
             IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
             return taskItemDTOs;
         }

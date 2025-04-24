@@ -1,28 +1,26 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
-using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
+using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskLabels.Commands.CreateTaskLabel
 {
-    public class CreateTaskLabelCommandHandler : IRequestHandler<CreateTaskLabelCommand, int>
+    public class CreateTaskLabelCommandHandler : IRequestHandler<CreateTaskLabelCommand, CreateTaskLabelResponse>
     {
-        private readonly ITaskLabelRepository _taskLabelRepository;
+        private readonly ITaskLabelService _taskLabelService;
 
-        public CreateTaskLabelCommandHandler(ITaskLabelRepository taskLabelRepository)
+        public CreateTaskLabelCommandHandler(ITaskLabelService taskLabelService)
         {
-            _taskLabelRepository = taskLabelRepository;
+            _taskLabelService = taskLabelService;
         }
 
-        public async Task<int> Handle(CreateTaskLabelCommand command, CancellationToken cancellationToken)
+        public async Task<CreateTaskLabelResponse> Handle(CreateTaskLabelCommand command, CancellationToken cancellationToken)
         {
             if (command == null)
                 throw new BadRequestException("Command cannot be null");
 
-            TaskLabel taskLabel = new(command.Name, command.LabelColor, command.UserId, command.TaskItemId);
-            await _taskLabelRepository.Create(taskLabel, cancellationToken);
-
-            return taskLabel.Id;
+            int result = await _taskLabelService.CreateTaskLabelAsync(command.Name, (int)command.LabelColor, command.UserId, command.TaskItemId, cancellationToken);
+            CreateTaskLabelResponse response = new(result);
+            return response;
         }
     }
 }
