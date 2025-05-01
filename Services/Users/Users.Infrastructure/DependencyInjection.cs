@@ -28,7 +28,7 @@ namespace Users.Infrastructure
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
-            
+
             services.AddAuthorization();
 
             services.AddIdentity<User, IdentityRole<int>>()
@@ -75,6 +75,7 @@ namespace Users.Infrastructure
 
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
             services.AddScoped<ITokenGenerator, TokenGenerator>();
+            services.AddScoped<IIdentityService, IdentityService>();
 
             services.AddAuthorization();
 

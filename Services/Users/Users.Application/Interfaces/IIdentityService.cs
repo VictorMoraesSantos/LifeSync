@@ -7,8 +7,8 @@ namespace Users.Application.Interfaces
     {
         // User section
         Task<string> CreateUserAsync(string userName, string password, string email, string firstName, string lastName, IList<string> roles);
-        Task<bool> SignInUserAsync(string userName, string password);
-        Task<string> GetUserIdAsync(string userName);
+        Task<bool> SignInUserAsync(string email, string password);
+        Task<string> GetUserIdAsync(string email);
         Task<UserDetailsDTO> GetUserDetailsAsync(string userId);
         Task<UserDetailsDTO> GetUserDetailsByUserNameAsync(string userName);
         Task<string> GetUserNameAsync(string userId);
@@ -30,6 +30,11 @@ namespace Users.Application.Interfaces
         Task<IList<string>> GetUserRolesAsync(string userId);
         Task<bool> AssignUserToRolesAsync(string userName, IList<string> roles);
         Task<bool> UpdateUserRolesAsync(string userName, IList<string> roles);
+
+        // Refresh Token section
+        Task<bool> UpdateUserRefreshTokenAsync(string userId, string refreshToken, DateTime expiryTime);
+        Task<bool> RevokeUserRefreshTokenAsync(string userId);
+        Task<string> GetUserRefreshTokenAsync(string userId);
     }
 }
 

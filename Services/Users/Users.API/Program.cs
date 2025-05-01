@@ -3,15 +3,17 @@ using Users.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplicationServices()
-                .AddIdentityServices(builder.Configuration)
-                .AddDbContext(builder.Configuration);
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 
+builder.Services
+    .AddApplicationServices()
+    .AddIdentityServices(builder.Configuration)
+    .AddDbContext(builder.Configuration);
 
 var app = builder.Build();
 

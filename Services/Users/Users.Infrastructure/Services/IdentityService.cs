@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace Users.Infrastructure.Services
         // User section
         public async Task<string> CreateUserAsync(string userName, string password, string email, string firstName, string lastName, IList<string> roles)
         {
-            var user = new User(firstName, lastName, email, userName);
+            User user = new User(userName, firstName, lastName, email);
 
             var result = await _userManager.CreateAsync(user, password);
             if (!result.Succeeded)
@@ -37,7 +38,7 @@ namespace Users.Infrastructure.Services
 
             if (roles != null && roles.Any())
             {
-                var roleResult = await _userManager.AddToRolesAsync(user, roles);
+                IdentityResult roleResult = await _userManager.AddToRolesAsync(user, roles);
                 if (!roleResult.Succeeded)
                     throw new IdentityException(roleResult.Errors);
             }
@@ -45,22 +46,25 @@ namespace Users.Infrastructure.Services
             return user.Id.ToString();
         }
 
-        public async Task<bool> SignInUserAsync(string userName, string password)
+        public async Task<bool> SignInUserAsync(string email, string password)
         {
-            var user = await _userManager.FindByNameAsync(userName);
+            User? user = await _userManager.FindByEmailAsync(email);
             if (user == null)
                 return false;
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
-            if (result.Succeeded)
-                user.UpdateLastLogin();
+            SignInResult resultSignIn = await _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false);
+            if (!resultSignIn.Succeeded)
+                return false;
 
-            return result.Succeeded;
+            user.UpdateLastLogin();
+            await _userManager.UpdateAsync(user);
+
+            return true;
         }
 
-        public async Task<string> GetUserIdAsync(string userName)
+        public async Task<string> GetUserIdAsync(string email)
         {
-            var user = await _userManager.FindByNameAsync(userName);
+            User? user = await _userManager.FindByEmailAsync(email);
             return user?.Id.ToString();
         }
 
@@ -154,7 +158,7 @@ namespace Users.Infrastructure.Services
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
 
-            user.UpdateProfile(firstName, lastName, email, user.DocumentNumber, user.BirthDate);
+            user.UpdateProfile(firstName, lastName, email);
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded) return false;
@@ -255,6 +259,35 @@ namespace Users.Infrastructure.Services
 
             var addResult = await _userManager.AddToRolesAsync(user, roles);
             return addResult.Succeeded;
+        }
+
+        // Refresh Token section
+        public async Task<bool> UpdateUserRefreshTokenAsync(string userId, string refreshToken, DateTime expiryTime)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = expiryTime;
+            var result = await _userManager.UpdateAsync(user);
+            return result.Succeeded;
+        }
+
+        public async Task<bool> RevokeUserRefreshTokenAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.MinValue;
+            var result = await _userManager.UpdateAsync(user);
+            return result.Succeeded;
+        }
+
+        public async Task<string> GetUserRefreshTokenAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            return user?.RefreshToken;
         }
     }
 
