@@ -10,6 +10,7 @@ using Users.Domain.Entities;
 using Users.Infrastructure.Data;
 using Users.Infrastructure.Jwt;
 using Users.Infrastructure.Services;
+using Users.Infrastructure.Smtp;
 
 namespace Users.Infrastructure
 {
@@ -80,6 +81,13 @@ namespace Users.Infrastructure
 
             services.AddAuthorization();
 
+            return services;
+        }
+
+        public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
+            services.AddScoped<IEmailService, EmailService>();
             return services;
         }
     }

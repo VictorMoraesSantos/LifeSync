@@ -20,6 +20,7 @@ namespace Users.Application.Interfaces
         // Esqueci/Resetar senha
         Task<bool> SendPasswordResetAsync(string email);
         Task<bool> ResetPasswordAsync(string userId, string token, string newPassword);
+        Task<bool> ChangePasswordAsync(ClaimsPrincipal user, string currentPassword, string newPassword);
     }
 }
 

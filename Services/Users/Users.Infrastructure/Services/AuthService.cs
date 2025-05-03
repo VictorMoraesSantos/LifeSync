@@ -63,6 +63,12 @@ namespace Users.Infrastructure.Services
         public async Task SignOutAsync(ClaimsPrincipal user)
         {
             await _signInManager.SignOutAsync();
+
+            User currentUser = await _userManager.GetUserAsync(user);
+            currentUser.RefreshToken = null;
+            currentUser.RefreshTokenExpiryTime = DateTime.MinValue;
+
+            IdentityResult result = await _userManager.UpdateAsync(currentUser);
         }
 
         public async Task<bool> ConfirmEmailAsync(string userId, string token)
@@ -134,6 +140,15 @@ namespace Users.Infrastructure.Services
             // await _emailService.SendPasswordResetAsync(user.Email, token);
 
             return true;
+        }
+
+        public async Task<bool> ChangePasswordAsync(ClaimsPrincipal user, string currentPassword, string newPassword)
+        {
+            User currentUser = await _userManager.GetUserAsync(user);
+            if (currentUser == null) return false;
+
+            IdentityResult result = await _userManager.ChangePasswordAsync(currentUser, currentPassword, newPassword);
+            return result.Succeeded;
         }
     }
 }

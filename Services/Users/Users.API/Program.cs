@@ -13,7 +13,8 @@ builder.Services.AddAuthorization();
 builder.Services
     .AddApplicationServices()
     .AddIdentityServices(builder.Configuration)
-    .AddDbContext(builder.Configuration);
+    .AddDbContext(builder.Configuration)
+    .AddEmailService(builder.Configuration);
 
 var app = builder.Build();
 
