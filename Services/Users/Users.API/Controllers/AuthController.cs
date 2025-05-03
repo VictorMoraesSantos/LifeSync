@@ -65,8 +65,9 @@ namespace Users.API.Controllers
         }
 
         [HttpPost("change-password")]
-        public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
+        public async Task<ActionResult> ChangePassword([FromBody] ChangePassword request)
         {
+            ChangePasswordCommand command = new ChangePasswordCommand(User, request.CurrentPassword, request.NewPassword);
             await _mediator.Send(command);
             return NoContent();
         }

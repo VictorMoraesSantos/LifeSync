@@ -17,7 +17,7 @@ namespace Users.Application.Users.Commands.ForgotPassword
         public async Task<bool> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
         {
             string token = await _authService.SendPasswordResetAsync(command.Email);
-            await _emailService.SendConfirmationEmailAsync(command.Email, token, subject: "Redefinição de Senha");
+            await _emailService.SendForgotPasswordEmailAsync(command.Email, token);
 
             return true;
         }

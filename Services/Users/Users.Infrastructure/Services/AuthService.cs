@@ -99,6 +99,9 @@ namespace Users.Infrastructure.Services
             if (user == null) return false;
 
             IdentityResult result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            if(!result.Succeeded)
+                throw new BadRequestException("Invalid token", result.Errors.Select(e => e.Description));
+
             return result.Succeeded;
         }
 

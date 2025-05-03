@@ -19,7 +19,7 @@ namespace Users.Infrastructure.Services
 
             _smtpClient = new SmtpClient(_smtpSettings.Host, _smtpSettings.Port)
             {
-                Credentials = new NetworkCredential(_smtpSettings.User, _smtpSettings.Password),
+                Credentials = string.IsNullOrEmpty(_smtpSettings.User) ? null : new NetworkCredential(_smtpSettings.User, _smtpSettings.Password),
                 EnableSsl = _smtpSettings.EnableSsl
             };
         }
@@ -85,6 +85,20 @@ namespace Users.Infrastructure.Services
             {
                 attachment.ContentStream.Dispose();
             }
+        }
+
+        public async Task SendForgotPasswordEmailAsync(string email, string resetToken)
+        {
+            string subject = "Redefinição de Senha";
+            string resetLink = $"https://seusite.com/reset-password?email={WebUtility.UrlEncode(email)}&token={WebUtility.UrlEncode(resetToken)}";
+
+            string body = $@"
+                <p>Olá,</p>
+                <p>Você solicitou a redefinição de sua senha. Clique no link abaixo para criar uma nova senha:</p>
+                <p><a href='{resetLink}'>Redefinir Senha</a></p>
+                <p>Se você não solicitou essa alteração, ignore este e-mail.</p>";
+
+            await SendEmailHtmlAsync(email, subject, body);
         }
     }
 }
