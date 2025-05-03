@@ -128,18 +128,14 @@ namespace Users.Infrastructure.Services
             return true;
         }
 
-        public async Task<bool> SendPasswordResetAsync(string email)
+        public async Task<string> SendPasswordResetAsync(string email)
         {
             User user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return false;
+            if (user == null)
+                throw new BadRequestException("User not found");
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-            // Aqui você deve enviar o token por email (ex: via serviço de email)
-            // Exemplo fictício:
-            // await _emailService.SendPasswordResetAsync(user.Email, token);
-
-            return true;
+            string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            return token;
         }
 
         public async Task<bool> ChangePasswordAsync(ClaimsPrincipal user, string currentPassword, string newPassword)

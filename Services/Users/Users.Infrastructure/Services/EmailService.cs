@@ -24,6 +24,20 @@ namespace Users.Infrastructure.Services
             };
         }
 
+        public async Task SendConfirmationEmailAsync(string email, string token, string subject = null, string body = null)
+        {
+            subject ??= "Confirmação de E-mail";
+            string confirmationLink = $"https://seusite.com/confirm-email?email={WebUtility.UrlEncode(email)}&token={WebUtility.UrlEncode(token)}";
+
+            body ??= $@"
+                <p>Olá,</p>
+                <p>Por favor, confirme seu e-mail clicando no link abaixo:</p>
+                <p><a href='{confirmationLink}'>Confirmar E-mail</a></p>
+                <p>Se você não solicitou este e-mail, ignore-o.</p>";
+
+            await SendEmailHtmlAsync(email, subject, body);
+        }
+
         public async Task SendEmailAsync(string to, string subject, string body)
         {
             var mailMessage = new MailMessage(_fromAddress, to, subject, body)
@@ -67,7 +81,6 @@ namespace Users.Infrastructure.Services
 
             await _smtpClient.SendMailAsync(mailMessage);
 
-            // Dispose attachments streams after sending
             foreach (var attachment in mailMessage.Attachments)
             {
                 attachment.ContentStream.Dispose();
