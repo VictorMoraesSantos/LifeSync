@@ -36,6 +36,7 @@ namespace Users.Infrastructure.Services
                 new Claim(ClaimTypes.Email, email),
                 new Claim("UserId", userId)
             };
+
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var token = new JwtSecurityToken(

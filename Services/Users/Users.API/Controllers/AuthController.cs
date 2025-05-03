@@ -17,14 +17,14 @@ namespace Users.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterUserCommand command)
+        public async Task<ActionResult<AuthResponse>> Register([FromBody] SignUpCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(result);
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> LogIn([FromBody] LogInCommand command)
+        public async Task<ActionResult<AuthResponse>> LogIn([FromBody] SignInCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(result);

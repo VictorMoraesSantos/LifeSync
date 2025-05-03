@@ -2,5 +2,5 @@
 
 namespace Users.Application.DTOs.Auth
 {
-    public record AuthResponse(string AccessToken, string RefreshToken, UserSummaryDTO User);
+    public record AuthResponse(string AccessToken, string RefreshToken, UserDTO User);
 }

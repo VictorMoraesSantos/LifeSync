@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Users.Domain.ValueObjects;
 
 namespace Users.Domain.Entities
 {
     public class User : IdentityUser<int>
     {
-        public string FirstName { get; private set; }
-        public string LastName { get; private set; }
-        public string FullName => $"{FirstName} {LastName}";
+        public Name Name { get; private set; }
+        public Contact Contact { get; private set; }
         public DateOnly? BirthDate { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime? LastLoginAt { get; private set; }
@@ -16,21 +16,20 @@ namespace Users.Domain.Entities
 
         protected User() { }
 
-        public User(string userName, string firstName, string lastName, string email)
+        public User(Name name, Contact contact)
         {
-            UserName = userName;
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
+            Name = name;
+            Contact = contact;
+            Email = contact.Email;
+            UserName = contact.Email;
             CreatedAt = DateTime.UtcNow;
             IsActive = true;
         }
 
-        public void UpdateProfile(string firstName, string lastName, string email)
+        public void UpdateProfile(Name name, Contact contact)
         {
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
+            Name = name;
+            Contact = contact;
         }
 
         public void Deactivate()

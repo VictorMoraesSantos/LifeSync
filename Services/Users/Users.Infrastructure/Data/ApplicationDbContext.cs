@@ -11,6 +11,26 @@ namespace Users.Infrastructure.Data
             : base(options)
         { }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
 
+            builder.Entity<User>(b =>
+            {
+                b.OwnsOne(u => u.Name, n =>
+                {
+                    n.Property(p => p.FirstName).HasColumnName("FirstName").IsRequired();
+                    n.Property(p => p.LastName).HasColumnName("LastName").IsRequired();
+                    n.Ignore(p => p.FullName); // Propriedade calculada, não mapeada
+                });
+
+                b.OwnsOne(u => u.Contact, c =>
+                {
+                    c.Property(p => p.Email).HasColumnName("Email");
+                });
+
+                // Outras configurações do User...
+            });
+        }
     }
 }
