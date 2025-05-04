@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Users.Application.Interfaces;
 
-namespace Users.Application.Users.Commands.ResetPassword
+namespace Users.Application.Auth.Commands.ResetPassword
 {
     public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, bool>
     {

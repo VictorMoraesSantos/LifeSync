@@ -4,22 +4,22 @@ using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
 
-namespace Users.Application.Users.Commands.LogIn
+namespace Users.Application.Auth.Commands.Login
 {
-    public class SignInCommandHandler : IRequestHandler<SignInCommand, AuthResponse>
+    public class LogInCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
     {
         private readonly IAuthService _authService;
         private readonly ITokenGenerator _tokenGenerator;
 
-        public SignInCommandHandler(IAuthService identityService, ITokenGenerator tokenGenerator)
+        public LogInCommandHandler(IAuthService identityService, ITokenGenerator tokenGenerator)
         {
             _authService = identityService;
             _tokenGenerator = tokenGenerator;
         }
 
-        public async Task<AuthResponse> Handle(SignInCommand command, CancellationToken cancellationToken)
+        public async Task<AuthResponse> Handle(LoginCommand command, CancellationToken cancellationToken)
         {
-            UserDTO userDTO = await _authService.SignInAsync(command.Email, command.Password);
+            UserDTO userDTO = await _authService.LoginAsync(command.Email, command.Password);
 
             string accessToken = _tokenGenerator.GenerateTokenAsync(
                 userDTO.Id,

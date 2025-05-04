@@ -100,6 +100,7 @@ namespace Users.Infrastructure.Services
 
             IList<string> roles = await _userManager.GetRolesAsync(user);
             UserDTO userDTO = UserMapper.ToDto(user);
+            userDTO = userDTO with { Roles = roles.ToList() };
 
             return userDTO;
         }
@@ -134,13 +135,13 @@ namespace Users.Infrastructure.Services
             return result.Succeeded;
         }
 
-        public async Task<bool> UpdateUserProfileAsync(string userId, string firstName, string lastName, string email)
+        public async Task<bool> UpdateUserProfileAsync(UpdateUserDTO dto)
         {
-            User user = await _userManager.FindByIdAsync(userId);
+            User user = await _userManager.FindByIdAsync(dto.Id);
             if (user == null) return false;
 
-            Name name = new Name(firstName, lastName);
-            Contact contact = new Contact(email);
+            Name name = new Name(dto.FirstName, dto.LastName);
+            Contact contact = new Contact(dto.Email);
 
             user.UpdateProfile(name, contact);
             IdentityResult result = await _userManager.UpdateAsync(user);

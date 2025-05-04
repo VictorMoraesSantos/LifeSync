@@ -3,6 +3,7 @@ using System.Net.Mail;
 using System.Net;
 using Users.Application.Interfaces;
 using Users.Infrastructure.Smtp;
+using BuildingBlocks.Exceptions;
 
 namespace Users.Infrastructure.Services
 {
@@ -89,6 +90,9 @@ namespace Users.Infrastructure.Services
 
         public async Task SendForgotPasswordEmailAsync(string email, string resetToken)
         {
+            if (resetToken == null)
+                throw new BadRequestException("Invalid credentials");
+
             string subject = "Redefinição de Senha";
             string resetLink = $"https://seusite.com/reset-password?email={WebUtility.UrlEncode(email)}&token={WebUtility.UrlEncode(resetToken)}";
 
@@ -96,6 +100,7 @@ namespace Users.Infrastructure.Services
                 <p>Olá,</p>
                 <p>Você solicitou a redefinição de sua senha. Clique no link abaixo para criar uma nova senha:</p>
                 <p><a href='{resetLink}'>Redefinir Senha</a></p>
+                <p>token: {resetToken}</p>
                 <p>Se você não solicitou essa alteração, ignore este e-mail.</p>";
 
             await SendEmailHtmlAsync(email, subject, body);

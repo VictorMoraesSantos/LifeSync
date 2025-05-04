@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Users.Application.DTOs.Auth;
 
-namespace Users.Application.Users.Commands.Register
+namespace Users.Application.Auth.Commands.SignUp
 {
     public record SignUpCommand(
         string FirstName,

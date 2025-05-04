@@ -16,7 +16,7 @@ namespace Users.Application.Interfaces
         Task<IList<UserDTO>> GetAllUsersAsync();
         Task<IList<UserDTO>> GetAllUsersDetailsAsync();
         Task<bool> IsUserEmailUniqueAsync(string email);
-        Task<bool> UpdateUserProfileAsync(string userId, string firstName, string lastName, string email);
+        Task<bool> UpdateUserProfileAsync(UpdateUserDTO dto);
         Task<bool> DeleteUserAsync(string userId);
 
         // Roles

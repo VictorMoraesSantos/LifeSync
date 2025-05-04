@@ -17,13 +17,13 @@ namespace Users.Infrastructure.Services
 
         public AuthService(
             UserManager<User> userManager,
-            SignInManager<User> signInManager)
+            SignInManager<User> SignInManager)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
+            _signInManager = SignInManager;
         }
 
-        public async Task<UserDTO> SignInAsync(string email, string password)
+        public async Task<UserDTO> LoginAsync(string email, string password)
         {
             User user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -60,7 +60,7 @@ namespace Users.Infrastructure.Services
             return userDTO;
         }
 
-        public async Task SignOutAsync(ClaimsPrincipal user)
+        public async Task LogoutAsync(ClaimsPrincipal user)
         {
             await _signInManager.SignOutAsync();
 
@@ -117,25 +117,22 @@ namespace Users.Infrastructure.Services
             return result.Succeeded;
         }
 
-        public async Task<bool> SendEmailConfirmationAsync(string email)
+        public async Task<string> SendEmailConfirmationAsync(string email)
         {
             User user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return false;
+            if (user == null)
+                throw new BadRequestException("Invalid request");
 
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            // Aqui você deve enviar o token por email (ex: via serviço de email)
-            // Exemplo fictício:
-            // await _emailService.SendEmailConfirmationAsync(user.Email, token);
-
-            return true;
+            return token;
         }
 
         public async Task<string> SendPasswordResetAsync(string email)
         {
             User user = await _userManager.FindByEmailAsync(email);
             if (user == null)
-                throw new BadRequestException("User not found");
+                throw new BadRequestException("Invalid request");
 
             string token = await _userManager.GeneratePasswordResetTokenAsync(user);
             return token;
@@ -144,7 +141,8 @@ namespace Users.Infrastructure.Services
         public async Task<bool> ChangePasswordAsync(ClaimsPrincipal user, string currentPassword, string newPassword)
         {
             User currentUser = await _userManager.GetUserAsync(user);
-            if (currentUser == null) return false;
+            if (currentUser == null || !user.Identity.IsAuthenticated)
+                throw new BadRequestException("InvalidRequest");
 
             IdentityResult result = await _userManager.ChangePasswordAsync(currentUser, currentPassword, newPassword);
             return result.Succeeded;

@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Users\Queries\" />
+    <Folder Include="Auth\Queries\" />
   </ItemGroup>
 
   <ItemGroup>

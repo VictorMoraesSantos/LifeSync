@@ -3,7 +3,7 @@ using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
 
-namespace Users.Application.Users.Commands.Register
+namespace Users.Application.Auth.Commands.SignUp
 {
     public class SignUpCommandHandler : IRequestHandler<SignUpCommand, AuthResponse>
     {

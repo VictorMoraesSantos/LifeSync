@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Users.Application.Interfaces;
 
-namespace Users.Application.Users.Commands.ForgotPassword
+namespace Users.Application.Auth.Commands.ForgotPassword
 {
-    public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand, bool>
+    public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand>
     {
         private readonly IAuthService _authService;
         private readonly IEmailService _emailService;
@@ -14,12 +14,10 @@ namespace Users.Application.Users.Commands.ForgotPassword
             _emailService = emailService;
         }
 
-        public async Task<bool> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
+        public async Task Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
         {
             string token = await _authService.SendPasswordResetAsync(command.Email);
             await _emailService.SendForgotPasswordEmailAsync(command.Email, token);
-
-            return true;
         }
     }
 }

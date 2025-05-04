@@ -10,6 +10,5 @@
         DateTime CreatedAt,
         DateTime? LastLoginAt,
         bool IsActive,
-        IList<string> Roles
-    );
+        IList<string> Roles);
 }

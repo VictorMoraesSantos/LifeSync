@@ -1,14 +1,15 @@
 ﻿using Core.API.Controllers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Users.Application.Auth.Commands.ChangePassword;
+using Users.Application.Auth.Commands.ForgotPassword;
+using Users.Application.Auth.Commands.Login;
+using Users.Application.Auth.Commands.Logout;
+using Users.Application.Auth.Commands.ResetPassword;
+using Users.Application.Auth.Commands.SendEmailConfirmation;
+using Users.Application.Auth.Commands.SignUp;
 using Users.Application.DTOs.Auth;
-using Users.Application.Users.Commands.ChangePassword;
-using Users.Application.Users.Commands.ForgotPassword;
-using Users.Application.Users.Commands.LogIn;
-using Users.Application.Users.Commands.LogOut;
-using Users.Application.Users.Commands.Register;
-using Users.Application.Users.Commands.ResendEmailConfirmation;
-using Users.Application.Users.Commands.ResetPassword;
 
 namespace Users.API.Controllers
 {
@@ -22,7 +23,7 @@ namespace Users.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> LogIn([FromBody] SignInCommand command)
+        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(result);
@@ -35,16 +36,16 @@ namespace Users.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("logout")]
-        public async Task<ActionResult> LogOut()
+        [HttpPost("Logout")]
+        public async Task<ActionResult> Logout()
         {
-            SignOutCommand command = new SignOutCommand(User);
+            LogoutCommand command = new LogoutCommand(User);
             await _mediator.Send(command);
             return NoContent();
         }
 
-        [HttpPost("resend-email-confirmation")]
-        public async Task<ActionResult> ResendEmailConfirmation([FromBody] ResendEmailConfirmationCommand command)
+        [HttpPost("send-email-confirmation")]
+        public async Task<ActionResult> SendEmailConfirmation([FromBody] SendEmailConfirmationCommand command)
         {
             await _mediator.Send(command);
             return NoContent();
@@ -64,6 +65,7 @@ namespace Users.API.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpPost("change-password")]
         public async Task<ActionResult> ChangePassword([FromBody] ChangePassword request)
         {
