@@ -22,15 +22,6 @@ namespace Users.Infrastructure.Services
             _roleManager = roleManager;
         }
 
-        public async Task<bool> AssignUserToRolesAsync(string email, IList<string> roles)
-        {
-            User user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return false;
-
-            IdentityResult result = await _userManager.AddToRolesAsync(user, roles);
-            return result.Succeeded;
-        }
-
         public async Task<bool> ChangeCurrentUserPasswordAsync(ClaimsPrincipal userPrincipal, string currentPassword, string newPassword)
         {
             User user = await _userManager.GetUserAsync(userPrincipal);
@@ -83,16 +74,6 @@ namespace Users.Infrastructure.Services
             return userDTO;
         }
 
-        public async Task<IList<string>> GetCurrentUserRolesAsync(ClaimsPrincipal userPrincipal)
-        {
-            User user = await _userManager.GetUserAsync(userPrincipal);
-            if (user == null) return new List<string>();
-
-            IList<string> roles = await _userManager.GetRolesAsync(user);
-
-            return roles;
-        }
-
         public async Task<UserDTO> GetUserDetailsAsync(string userId)
         {
             User user = await _userManager.FindByIdAsync(userId);
@@ -105,15 +86,6 @@ namespace Users.Infrastructure.Services
             return userDTO;
         }
 
-        public async Task<IList<string>> GetUserRolesAsync(string userId)
-        {
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return new List<string>();
-
-            IList<string> roles = await _userManager.GetRolesAsync(user);
-
-            return roles;
-        }
 
         public async Task<bool> IsUserEmailUniqueAsync(string email)
         {
@@ -149,17 +121,6 @@ namespace Users.Infrastructure.Services
             return result.Succeeded;
         }
 
-        public async Task<bool> UpdateUserRolesAsync(string email, IList<string> roles)
-        {
-            User user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return false;
-
-            IList<string> currentRoles = await _userManager.GetRolesAsync(user);
-            IdentityResult removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            if (!removeResult.Succeeded) return false;
-
-            IdentityResult result = await _userManager.AddToRolesAsync(user, roles);
-            return result.Succeeded;
-        }
+        
     }
 }

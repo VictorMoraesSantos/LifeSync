@@ -18,11 +18,5 @@ namespace Users.Application.Interfaces
         Task<bool> IsUserEmailUniqueAsync(string email);
         Task<bool> UpdateUserProfileAsync(UpdateUserDTO dto);
         Task<bool> DeleteUserAsync(string userId);
-
-        // Roles
-        Task<IList<string>> GetUserRolesAsync(string userId);
-        Task<IList<string>> GetCurrentUserRolesAsync(ClaimsPrincipal user);
-        Task<bool> AssignUserToRolesAsync(string email, IList<string> roles);
-        Task<bool> UpdateUserRolesAsync(string email, IList<string> roles);
     }
 }

@@ -78,6 +78,7 @@ namespace Users.Infrastructure
             services.AddScoped<ITokenGenerator, TokenGenerator>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             services.AddAuthorization();
 
