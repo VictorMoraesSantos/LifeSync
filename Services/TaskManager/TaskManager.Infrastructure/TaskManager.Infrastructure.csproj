@@ -15,7 +15,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\Core\Core.Infrastructure\Core.Infrastructure.csproj" />
 		<ProjectReference Include="..\TaskManager.Application\TaskManager.Application.csproj" />
 	</ItemGroup>
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace TaskManager.Application
+namespace Nutrition.Application
 {
     public static class DependencyInjection
     {

@@ -1,4 +1,5 @@
 ﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
 
 namespace Nutrition.Domain.Entities
 {
@@ -6,71 +7,52 @@ namespace Nutrition.Domain.Entities
     {
         public string Name { get; private set; }
         public string Description { get; private set; }
-        public int DiaryId { get; private set; } // ID do diário ao qual esta refeição pertence
+        public int DiaryId { get; private set; }
+        public int TotalCalories => _mealFoods.Sum(i => i.CaloriesPerUnit * i.Quantity);
 
         private readonly List<MealFood> _mealFoods = new();
         public IReadOnlyCollection<MealFood> MealFoods => _mealFoods.AsReadOnly();
 
-        public int TotalCalories => CalculateTotalCalories();
-
         public Meal(string name, string description)
         {
-            SetName(name);
-            SetDescription(description);
+            Validate(name);
+            Validate(description);
+            Name = name;
+            Description = description;
         }
 
-        // Atualiza o nome da refeição com validação
-        public void SetName(string name)
+        public void UpdateName(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be empty.", nameof(name));
-            Name = name.Trim();
+            Validate(name);
+            Name = name;
         }
 
-        // Atualiza a descrição da refeição
-        public void SetDescription(string description)
+        public void UpdateDescription(string description)
         {
-            Description = description?.Trim() ?? string.Empty;
+            Validate(description);
+            Description = description;
         }
 
-        // Adiciona um ingrediente à refeição
-        public void AddMealFood(MealFood ingredient)
+        public void AddMealFood(MealFood mealFood)
         {
-            if (ingredient == null)
-                throw new ArgumentNullException(nameof(ingredient));
-
-            _mealFoods.Add(ingredient);
+            if (mealFood == null)
+                throw new DomainException("MealFood cannot be null");
+            _mealFoods.Add(mealFood);
         }
 
-        // Remove um ingrediente da refeição
-        public void RemoveMealFood(MealFood ingredient)
+        public void RemoveMealFood(MealFood mealFood)
         {
-            if (ingredient == null)
-                throw new ArgumentNullException(nameof(ingredient));
+            if (mealFood == null)
+                throw new DomainException("MealFood cannot be null");
 
-            if (!_mealFoods.Remove(ingredient))
+            if (!_mealFoods.Remove(mealFood))
                 throw new InvalidOperationException("MealFood not found in meal.");
         }
 
-        // Atualiza um ingrediente existente (por exemplo, quantidade)
-        public void UpdateMealFood(MealFood oldMealFood, MealFood newMealFood)
+        public void Validate(string value)
         {
-            if (oldMealFood == null)
-                throw new ArgumentNullException(nameof(oldMealFood));
-            if (newMealFood == null)
-                throw new ArgumentNullException(nameof(newMealFood));
-
-            var index = _mealFoods.IndexOf(oldMealFood);
-            if (index == -1)
-                throw new InvalidOperationException("MealFood to update not found.");
-
-            _mealFoods[index] = newMealFood;
-        }
-
-        // Calcula as calorias totais somando as calorias de cada ingrediente
-        private int CalculateTotalCalories()
-        {
-            return _mealFoods.Sum(i => i.CaloriesPerUnit*i.Quantity);
+            if (string.IsNullOrWhiteSpace(value))
+                throw new DomainException($"{nameof(value)} cannot be empty.");
         }
     }
 }

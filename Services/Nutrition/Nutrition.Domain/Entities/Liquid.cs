@@ -1,16 +1,18 @@
-﻿namespace Nutrition.Domain.Entities
+﻿using Core.Domain.Entities;
+
+namespace Nutrition.Domain.Entities
 {
-    public class Liquid
+    public class Liquid : BaseEntity<int>
     {
-        public int Id { get; private set; }  // Opcional, caso queira controlar Id
         public string Name { get; private set; }
         public int QuantityMl { get; private set; }
-        public int CaloriesPerMl { get; private set; }
+        public int CaloriesPerMl { get; private set; } = 0;
+        public int DiaryId { get; private set; }
+        public int TotalCalories => QuantityMl * CaloriesPerMl;
 
-        public int TotalCalories => CalculateTotalCalories();
-
-        public Liquid(string name, int quantityMl, int caloriesPerMl = 0)
+        public Liquid(int diaryId, string name, int quantityMl, int caloriesPerMl)
         {
+            DiaryId = diaryId;
             SetName(name);
             SetQuantityMl(quantityMl);
             SetCaloriesPerMl(caloriesPerMl);
@@ -35,11 +37,6 @@
             if (caloriesPerMl < 0)
                 throw new ArgumentOutOfRangeException(nameof(caloriesPerMl), "Calories per ml cannot be negative.");
             CaloriesPerMl = caloriesPerMl;
-        }
-
-        private int CalculateTotalCalories()
-        {
-            return QuantityMl * CaloriesPerMl;
         }
     }
 }

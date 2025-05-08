@@ -5,31 +5,18 @@ namespace Nutrition.Domain.Entities
     public class MealFood : BaseEntity<int>
     {
         public string Name { get; private set; }
-        public string Description { get; private set; }
-        public int Quantity { get; private set; } // Quantidade em gramas ou ml
-        public int CaloriesPerUnit { get; private set; } // Calorias por grama ou ml
-        public int MealId { get; private set; } // ID da refeição à qual este ingrediente pertence
+        public int Quantity { get; private set; }
+        public int CaloriesPerUnit { get; private set; }
+        public int MealId { get; private set; }
+        public int TotalCalories => Quantity * CaloriesPerUnit;
 
-        public int TotalCalories => CalculateTotalCalories();
-
-        public MealFood(string name, int quantity, int caloriesPerUnit, string description = "")
+        public MealFood(int mealId, string name, int quantity, int caloriesPerUnit)
         {
-            SetName(name);
+            Validate(name);
+            MealId = mealId;
+            Name = name;
             SetQuantity(quantity);
             SetCaloriesPerUnit(caloriesPerUnit);
-            SetDescription(description);
-        }
-
-        public void SetName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be empty.", nameof(name));
-            Name = name.Trim();
-        }
-
-        public void SetDescription(string description)
-        {
-            Description = description?.Trim() ?? string.Empty;
         }
 
         public void SetQuantity(int quantity)
@@ -46,9 +33,10 @@ namespace Nutrition.Domain.Entities
             CaloriesPerUnit = caloriesPerUnit;
         }
 
-        private int CalculateTotalCalories()
+        private void Validate(string value)
         {
-            return Quantity * CaloriesPerUnit;
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException($"{nameof(value)} cannot be empty.");
         }
     }
 }

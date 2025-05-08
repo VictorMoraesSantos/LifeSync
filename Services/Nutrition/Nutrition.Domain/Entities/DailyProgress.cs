@@ -1,65 +1,95 @@
-﻿using Nutrition.Domain.ValueObjects;
-using System;
+﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
+using Nutrition.Domain.ValueObjects;
 
 namespace Nutrition.Domain.Entities
 {
-    public class DailyProgress
+    public class DailyProgress : BaseEntity<int>
     {
         public int UserId { get; private set; }
         public DateOnly Date { get; private set; }
-
-        public int CaloriesConsumed { get; private set; }
-        public int LiquidsConsumedMl { get; private set; }
+        public int CaloriesConsumed { get; private set; } = 0;
+        public int LiquidsConsumedMl { get; private set; } = 0;
 
         public DailyGoal Goal { get; private set; }
 
-        public DailyProgress(int userId, DateOnly date, int caloriesGoal, int liquidsGoalMl)
+        public DailyProgress(int userId, DateOnly date, int caloriesConsumed, int liquidsConsumedMl, DailyGoal goal)
         {
             if (userId <= 0)
-                throw new ArgumentException("UserId must be positive.", nameof(userId));
-            if (caloriesGoal < 0)
-                throw new ArgumentOutOfRangeException(nameof(caloriesGoal), "Calories goal cannot be negative.");
-            if (liquidsGoalMl < 0)
-                throw new ArgumentOutOfRangeException(nameof(liquidsGoalMl), "Liquids goal cannot be negative.");
-
+                throw new DomainException($"{nameof(userId)} must be valid.");
+            Validate(caloriesConsumed);
+            Validate(liquidsConsumedMl);
             UserId = userId;
             Date = date;
-            Goal = new DailyGoal(caloriesGoal, liquidsGoalMl);
-            CaloriesConsumed = 0;
-            LiquidsConsumedMl = 0;
+            Goal = goal;
+            CaloriesConsumed = caloriesConsumed;
+            LiquidsConsumedMl = liquidsConsumedMl;
         }
 
-        // Atualiza as calorias consumidas (incremental)
-        public void AddCalories(int calories)
+        public DailyProgress(int userId, DateOnly date, DailyGoal goal)
         {
-            if (calories < 0)
-                throw new ArgumentOutOfRangeException(nameof(calories), "Calories to add cannot be negative.");
-            CaloriesConsumed += calories;
+            if (userId <= 0)
+                throw new DomainException($"{nameof(userId)} must be valid.");
+            UserId = userId;
+            Date = date;
+            Goal = goal;
         }
 
-        // Atualiza os líquidos consumidos (incremental)
-        public void AddLiquids(int quantityMl)
+        public DailyProgress(int userId, DateOnly date)
         {
-            if (quantityMl < 0)
-                throw new ArgumentOutOfRangeException(nameof(quantityMl), "Liquids to add cannot be negative.");
-            LiquidsConsumedMl += quantityMl;
+            if (userId <= 0)
+                throw new DomainException($"{nameof(userId)} must be valid.");
+            UserId = userId;
+            Date = date;
+            Goal = new DailyGoal(0, 0);
         }
 
-        // Percentual de calorias consumidas em relação à meta (0 a 100)
+        public void SetGoal(DailyGoal goal)
+        {
+            if (goal == null)
+                throw new DomainException($"{nameof(goal)} cannot be null.");
+            Goal = goal;
+        }
+
+        public void UpdateGoal(DailyGoal goal)
+        {
+            if (goal == null)
+                throw new DomainException($"{nameof(goal)} cannot be null.");
+            Goal = goal;
+        }
+
+        public void ResetGoal()
+        {
+            Goal = new DailyGoal(0, 0);
+        }
+
+        public void SetConsumed(int caloriesConsumed, int liquidsConsumedMl)
+        {
+            Validate(caloriesConsumed);
+            Validate(liquidsConsumedMl);
+            if (CaloriesConsumed == 0)
+                CaloriesConsumed = caloriesConsumed;
+            if (LiquidsConsumedMl == 0)
+                LiquidsConsumedMl = liquidsConsumedMl;
+        }
+
         public int GetCaloriesProgressPercentage()
         {
             if (Goal.Calories == 0) return 0;
             return Math.Min((int)((CaloriesConsumed / (float)Goal.Calories) * 100), 100);
         }
 
-        // Percentual de líquidos consumidos em relação à meta (0 a 100)
         public int GetLiquidsProgressPercentage()
         {
             if (Goal.QuantityMl == 0) return 0;
             return Math.Min((int)((LiquidsConsumedMl / (float)Goal.QuantityMl) * 100), 100);
         }
 
-        // Verifica se as metas foram atingidas
+        public bool IsGoalMet()
+        {
+            return (IsCaloriesGoalMet() && IsLiquidsGoalMet());
+        }
+
         public bool IsCaloriesGoalMet()
         {
             return CaloriesConsumed >= Goal.Calories;
@@ -70,15 +100,10 @@ namespace Nutrition.Domain.Entities
             return LiquidsConsumedMl >= Goal.QuantityMl;
         }
 
-        // Permite redefinir metas (se necessário)
-        public void UpdateGoals(int newCaloriesGoal, int newLiquidsGoalMl)
+        private void Validate(int value)
         {
-            if (newCaloriesGoal < 0)
-                throw new ArgumentOutOfRangeException(nameof(newCaloriesGoal), "Calories goal cannot be negative.");
-            if (newLiquidsGoalMl < 0)
-                throw new ArgumentOutOfRangeException(nameof(newLiquidsGoalMl), "Liquids goal cannot be negative.");
-
-            Goal = new DailyGoal(newCaloriesGoal, newLiquidsGoalMl);
+            if (value < 0)
+                throw new ArgumentOutOfRangeException($"{nameof(value)} cannot be negative.");
         }
     }
 }

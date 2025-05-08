@@ -7,7 +7,7 @@ namespace Nutrition.Domain.Entities
     {
         public int UserId { get; private set; }
         public DateOnly Date { get; private set; }
-        public int Calories { get; private set; }
+        public int TotalCalories => _liquids.Sum(l => l.TotalCalories) + _meals.Sum(m => m.TotalCalories);
 
         private readonly List<Meal> _meals = new();
         public IReadOnlyCollection<Meal> Meals => _meals.AsReadOnly();
@@ -15,75 +15,57 @@ namespace Nutrition.Domain.Entities
         private readonly List<Liquid> _liquids = new();
         public IReadOnlyCollection<Liquid> Liquids => _liquids.AsReadOnly();
 
-        public int TotalCalories => CalculateTotalCalories();
-        public int TotalLiquidsMl => CalculateTotalLiquids();
-
         protected Diary()
         { }
 
-        public Diary(int userId, DateOnly date)
+        public Diary(int userId, DateOnly? date)
         {
             if (userId <= 0)
                 throw new DomainException("UserId must be positive.");
 
+            Date = DateOnly.MinValue;
             UserId = userId;
-            Date = date;
         }
 
         public void AddMeal(Meal meal)
         {
             Validate(meal.Id.ToString());
             if (meal == null)
-                throw new ArgumentNullException(nameof(meal));
+                throw new DomainException("Meal cannot be null");
 
             _meals.Add(meal);
         }
 
-        // Método para remover refeição
         public void RemoveMeal(Meal meal)
         {
             if (meal == null)
-                throw new ArgumentNullException(nameof(meal));
+                throw new DomainException("Meal cannot be null");
 
             if (!_meals.Remove(meal))
-                throw new InvalidOperationException("Meal not found in diary.");
+                throw new DomainException("Meal not found in diary.");
         }
 
-        // Método para adicionar líquido
         public void AddLiquid(Liquid liquid)
         {
             if (liquid == null)
-                throw new ArgumentNullException(nameof(liquid));
+                throw new DomainException("Liquid cannot be null");
 
             _liquids.Add(liquid);
         }
 
-        // Método para remover líquido
         public void RemoveLiquid(Liquid liquid)
         {
             if (liquid == null)
-                throw new ArgumentNullException(nameof(liquid));
+                throw new DomainException("Liquid cannot be null");
 
             if (!_liquids.Remove(liquid))
-                throw new InvalidOperationException("Liquid not found in diary.");
+                throw new DomainException("Liquid not found in diary.");
         }
 
-        // Cálculo automático das calorias totais
-        private int CalculateTotalCalories()
-        {
-            return _meals.Sum(m => m.TotalCalories);
-        }
-
-        // Cálculo automático do total de líquidos em ml
-        private int CalculateTotalLiquids()
-        {
-            return _liquids.Sum(l => l.QuantityMl);
-        }
-
-        // Atualizar data (se necessário)
         public void UpdateDate(DateOnly newDate)
         {
             Date = newDate;
+            MarkAsUpdated();
         }
 
         private void Validate(string value)
