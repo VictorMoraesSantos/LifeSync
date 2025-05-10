@@ -13,12 +13,13 @@ namespace Nutrition.Domain.Entities
         private readonly List<MealFood> _mealFoods = new();
         public IReadOnlyCollection<MealFood> MealFoods => _mealFoods.AsReadOnly();
 
-        public Meal(string name, string description)
+        public Meal(int diaryId ,string name, string description)
         {
             Validate(name);
             Validate(description);
             Name = name;
             Description = description;
+            DiaryId = diaryId;
         }
 
         public void UpdateName(string name)

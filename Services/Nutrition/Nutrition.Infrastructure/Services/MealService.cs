@@ -3,6 +3,7 @@ using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
+using Nutrition.Infrastructure.Repositories;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services
@@ -22,9 +23,14 @@ namespace Nutrition.Infrastructure.Services
             return all.Count();
         }
 
-        public Task<bool> CreateAsync(CreateMealDTO dto, CancellationToken cancellationToken = default)
+        public async Task<bool> CreateAsync(CreateMealDTO dto, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            if (dto == null) return false;
+
+            Meal entity = MealMapper.ToEntity(dto);
+
+            await _mealRepository.Create(entity, cancellationToken);
+            return true;
         }
 
         public async Task<bool> CreateRangeAsync(IEnumerable<CreateMealDTO> dto, CancellationToken cancellationToken = default)

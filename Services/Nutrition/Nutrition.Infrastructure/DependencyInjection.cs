@@ -19,12 +19,14 @@ namespace Nutrition.Infrastructure
                 options.UseNpgsql(connectionString));
 
             services.AddScoped<IDiaryRepository, DiaryRepository>();
-            services.AddScoped<ILiquidRepository, LiquidRepository>();
             services.AddScoped<IMealRepository, MealRepository>();
             services.AddScoped<IMealFoodRepository, MealFoodRepository>();
+            services.AddScoped<ILiquidRepository, LiquidRepository>();
             services.AddScoped<IDailyProgressRepository, DailyProgressRepository>();
 
             services.AddScoped<IDiaryService, DiaryService>();
+            services.AddScoped<IMealService, MealService>();
+            services.AddScoped<IMealFoodService, MealFoodService>();
 
             return services;
         }

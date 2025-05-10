@@ -1,4 +1,5 @@
-﻿using Nutrition.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Data;
 using System.Linq.Expressions;
@@ -14,39 +15,56 @@ namespace Nutrition.Infrastructure.Repositories
             _context = context;
         }
 
-        public Task<MealFood?> GetById(int id, CancellationToken cancellationToken = default)
+        public async Task<MealFood?> GetById(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            MealFood? food = await _context.MealFoods
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            return food;
         }
 
-        public Task<IEnumerable<MealFood?>> GetAll(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<MealFood?>> GetAll(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            IEnumerable<MealFood?> foods = await _context.MealFoods
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return foods;
         }
 
-        public Task<IEnumerable<MealFood?>> Find(Expression<Func<MealFood, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<MealFood?>> Find(Expression<Func<MealFood, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            IEnumerable<MealFood?> foods = await _context.MealFoods
+                .AsNoTracking()
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
+
+            return foods;
         }
 
-        public Task Create(MealFood entity, CancellationToken cancellationToken = default)
+        public async Task Create(MealFood entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Added;
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task CreateRange(IEnumerable<MealFood> entities, CancellationToken cancellationToken = default)
+        public async Task CreateRange(IEnumerable<MealFood> entities, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _context.MealFoods.AddRangeAsync(entities, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Update(MealFood entity, CancellationToken cancellationToken = default)
+        public async Task Update(MealFood entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Modified;
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Delete(MealFood entity, CancellationToken cancellationToken = default)
+        public async Task Delete(MealFood entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Deleted;
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

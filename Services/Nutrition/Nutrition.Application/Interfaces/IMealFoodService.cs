@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.Application.Interfaces;
+using Nutrition.Application.DTOs.MealFoods;
 
 namespace Nutrition.Application.Interfaces
 {
-    internal interface IMealFoodService
+    public interface IMealFoodService
+        : IReadService<MealFoodDTO, int>,
+        ICreateService<CreateMealFoodDTO>,
+        IUpdateService<UpdateMealFoodDTO>,
+        IDeleteService<int>
     {
     }
 }

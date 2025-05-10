@@ -12,11 +12,16 @@ namespace Nutrition.Domain.Entities
 
         public MealFood(int mealId, string name, int quantity, int caloriesPerUnit)
         {
-            Validate(name);
             MealId = mealId;
-            Name = name;
+            SetName(name);
             SetQuantity(quantity);
             SetCaloriesPerUnit(caloriesPerUnit);
+        }
+
+        public void SetName(string name)
+        {
+            Validate(name);
+            Name = name;
         }
 
         public void SetQuantity(int quantity)

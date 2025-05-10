@@ -1,4 +1,4 @@
 ﻿namespace Nutrition.Application.DTOs.Meals
 {
-    public record CreateMealDTO(string Name, string Description);
+    public record CreateMealDTO(int DiaryId, string Name, string Description);
 }

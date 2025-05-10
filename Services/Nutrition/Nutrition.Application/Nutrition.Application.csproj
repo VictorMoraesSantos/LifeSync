@@ -12,9 +12,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="DailyProgresses\" />
-		<Folder Include="Liquids\" />
-		<Folder Include="Meals\" />
+		<Folder Include="UseCases\DailyProgresses\" />
+		<Folder Include="UseCases\Liquids\" />
+		<Folder Include="UseCases\MealFoods\Queries\" />
 	</ItemGroup>
 
 	<ItemGroup>
