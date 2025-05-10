@@ -4,7 +4,6 @@ using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services
@@ -28,6 +27,9 @@ namespace Nutrition.Infrastructure.Services
         public async Task<bool> CreateAsync(CreateDiaryDTO dto, CancellationToken cancellationToken = default)
         {
             if (dto == null) return false;
+
+            Diary? existingDiary = await _diaryRepository.GetByDate(dto.userId, dto.date, cancellationToken);
+            if (existingDiary != null) return false;
 
             Diary entity = DiaryMapper.ToEntity(dto);
 
@@ -93,8 +95,8 @@ namespace Nutrition.Infrastructure.Services
         {
             if (userId <= 0) throw new BadRequestException($"{nameof(userId)} must be positive.");
 
-            IEnumerable<Diary> entities = await _diaryRepository.GetAllByUserId(userId, cancellationToken);
-            IEnumerable<DiaryDTO> dtos = entities.Select(DiaryMapper.ToDTO);
+            IEnumerable<Diary?> entities = await _diaryRepository.GetAllByUserId(userId, cancellationToken);
+            IEnumerable<DiaryDTO> dtos = entities.Select(DiaryMapper.ToDTO!);
             return dtos;
         }
 
@@ -107,7 +109,7 @@ namespace Nutrition.Infrastructure.Services
             return dto;
         }
 
-        public async Task<(IEnumerable<DiaryDTO> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<(IEnumerable<DiaryDTO?> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             IEnumerable<Diary?> all = await _diaryRepository.GetAll(cancellationToken);
             int totalCount = all.Count();
@@ -115,7 +117,7 @@ namespace Nutrition.Infrastructure.Services
             IEnumerable<DiaryDTO?> items = all
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(DiaryMapper.ToDTO);
+                .Select(DiaryMapper.ToDTO!);
 
             return (items, totalCount);
         }
@@ -127,7 +129,9 @@ namespace Nutrition.Infrastructure.Services
             Diary? entity = await _diaryRepository.GetById(dto.Id, cancellationToken);
             if (entity == null) return false;
 
-            // Atualiza propriedades básicas
+            Diary? existingDiary = await _diaryRepository.GetByDate(entity.UserId, dto.Date, cancellationToken);
+            if (existingDiary != null) return false;
+
             entity.UpdateDate(dto.Date);
 
             // Atualizar refeições e líquidos pode ser complexo e depende da regra de negócio

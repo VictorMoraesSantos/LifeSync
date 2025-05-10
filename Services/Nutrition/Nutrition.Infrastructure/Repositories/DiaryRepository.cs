@@ -52,6 +52,19 @@ namespace Nutrition.Infrastructure.Repositories
             return diaries;
         }
 
+        public async Task<Diary?> GetByDate(int userId, DateOnly date, CancellationToken cancellationToken = default)
+        {
+            Diary? diary = await _context.Diaries
+                .AsNoTracking()
+                .Where(d => d.UserId == userId && d.Date == date)
+                .Include(d => d.Meals)
+                    .ThenInclude(m => m.MealFoods)
+                .Include(d => d.Liquids)
+                .FirstOrDefaultAsync(d => d.Date == date);
+
+            return diary;
+        }
+
         public async Task<IEnumerable<Diary?>> Find(Expression<Func<Diary, bool>> predicate, CancellationToken cancellationToken = default)
         {
             IEnumerable<Diary?> diaries = await _context.Diaries

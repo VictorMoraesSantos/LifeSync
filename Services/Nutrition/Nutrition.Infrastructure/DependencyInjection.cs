@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nutrition.Application.Interfaces;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Data;
 using Nutrition.Infrastructure.Repositories;
+using Nutrition.Infrastructure.Services;
 
 namespace Nutrition.Infrastructure
 {
@@ -21,6 +23,8 @@ namespace Nutrition.Infrastructure
             services.AddScoped<IMealRepository, MealRepository>();
             services.AddScoped<IMealFoodRepository, MealFoodRepository>();
             services.AddScoped<IDailyProgressRepository, DailyProgressRepository>();
+
+            services.AddScoped<IDiaryService, DiaryService>();
 
             return services;
         }

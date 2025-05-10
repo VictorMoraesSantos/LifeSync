@@ -15,9 +15,10 @@ namespace Nutrition.Application.Diaries.Commands.CreateDiary
 
         public async Task<CreateDiaryCommandResult> Handle(CreateDiaryCommand command, CancellationToken cancellationToken)
         {
-            CreateDiaryDTO diaryDTO = new(command.userId, command.date);
-            var result = await _diaryService.CreateAsync(diaryDTO, cancellationToken);
-            throw new NotImplementedException();
+            CreateDiaryDTO dto = new(command.userId, command.date);
+            bool result = await _diaryService.CreateAsync(dto, cancellationToken);
+            CreateDiaryCommandResult response = new(result);
+            return response;
         }
     }
 }

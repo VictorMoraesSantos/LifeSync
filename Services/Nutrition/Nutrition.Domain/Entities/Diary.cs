@@ -18,12 +18,12 @@ namespace Nutrition.Domain.Entities
         protected Diary()
         { }
 
-        public Diary(int userId, DateOnly? date)
+        public Diary(int userId, DateOnly date)
         {
             if (userId <= 0)
                 throw new DomainException("UserId must be positive.");
 
-            Date = DateOnly.MinValue;
+            Date = date;
             UserId = userId;
         }
 

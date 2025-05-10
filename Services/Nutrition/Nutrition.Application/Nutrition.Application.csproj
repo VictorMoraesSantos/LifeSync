@@ -13,7 +13,6 @@
 
 	<ItemGroup>
 		<Folder Include="DailyProgresses\" />
-		<Folder Include="Diaries\Queries\" />
 		<Folder Include="Liquids\" />
 		<Folder Include="Meals\" />
 	</ItemGroup>

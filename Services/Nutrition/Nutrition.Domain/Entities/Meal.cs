@@ -8,7 +8,7 @@ namespace Nutrition.Domain.Entities
         public string Name { get; private set; }
         public string Description { get; private set; }
         public int DiaryId { get; private set; }
-        public int TotalCalories => _mealFoods.Sum(i => i.CaloriesPerUnit * i.Quantity);
+        public int TotalCalories => _mealFoods?.Sum(i => i.CaloriesPerUnit * i.Quantity) ?? 0;
 
         private readonly List<MealFood> _mealFoods = new();
         public IReadOnlyCollection<MealFood> MealFoods => _mealFoods.AsReadOnly();

@@ -18,11 +18,10 @@ namespace Nutrition.Application.Mapping
                 entity.MealFoods.Select(mf => mf.ToDTO()).ToList());
         }
 
-        //public static Meal ToEntity(this CreateMealDTO dto)
-        //{
-        //    var meal = new Meal(dto.Name, dto.Description);
-        //    // Se desejar, pode adicionar MealFoods depois
-        //    return meal;
-        //}
+        public static Meal ToEntity(this CreateMealDTO dto)
+        {
+            Meal meal = new(dto.Name, dto.Description);
+            return meal;
+        }
     }
 }

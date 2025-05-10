@@ -5,7 +5,8 @@ namespace Nutrition.Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base()
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         { }
 
         public DbSet<Diary> Diaries { get; set; }

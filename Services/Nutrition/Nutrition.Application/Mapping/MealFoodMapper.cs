@@ -20,13 +20,13 @@ namespace Nutrition.Application.Mapping
             return dto;
         }
 
-        //public static MealFood ToEntity(this CreateMealFoodDTO dto)
-        //{
-        //    return new MealFood(
-        //        dto.MealId,
-        //        dto.Name,
-        //        dto.QuantityInGrams,
-        //        dto.CaloriesPerUnit);
-        //}
+        public static MealFood ToEntity(this CreateMealFoodDTO dto)
+        {
+            return new MealFood(
+                dto.MealId,
+                dto.Name,
+                dto.QuantityInGrams,
+                dto.CaloriesPerUnit);
+        }
     }
 }
