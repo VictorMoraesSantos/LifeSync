@@ -4,7 +4,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskLabels.Queries.GetAll
 {
-    public class GetAllTaskLabelsQueryHandler : IRequestHandler<GetAllTaskLabelsQuery, GetAllTaskLabelsResponse>
+    public class GetAllTaskLabelsQueryHandler : IRequestHandler<GetAllTaskLabelsQuery, GetAllTaskLabelsResult>
     {
         private readonly ITaskLabelService _taskLabelService;
 
@@ -13,10 +13,10 @@ namespace TaskManager.Application.TaskLabels.Queries.GetAll
             _taskLabelService = taskLabelService;
         }
 
-        public async Task<GetAllTaskLabelsResponse> Handle(GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
+        public async Task<GetAllTaskLabelsResult> Handle(GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
         {
             IEnumerable<TaskLabelDTO> result = await _taskLabelService.GetAllTaskLabelsAsync(cancellationToken);
-            GetAllTaskLabelsResponse response = new(result);
+            GetAllTaskLabelsResult response = new(result);
             return response;
         }
     }

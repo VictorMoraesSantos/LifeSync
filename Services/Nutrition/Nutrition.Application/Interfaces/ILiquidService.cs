@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.Application.Interfaces;
+using Nutrition.Application.DTOs.Liquid;
 
 namespace Nutrition.Application.Interfaces
 {
-    internal interface ILiquidService
+    public interface ILiquidService
+        : IReadService<LiquidDTO, int>,
+        ICreateService<CreateLiquidDTO>,
+        IUpdateService<UpdateLiquidDTO>,
+        IDeleteService<int>
     {
     }
 }

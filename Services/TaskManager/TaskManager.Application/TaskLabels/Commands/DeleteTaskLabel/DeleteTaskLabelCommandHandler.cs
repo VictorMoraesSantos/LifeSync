@@ -4,7 +4,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskLabels.Commands.DeleteTaskLabel
 {
-    public class DeleteTaskLabelCommandHandler : IRequestHandler<DeleteTaskLabelCommand, DeleteTaskLabelResponse>
+    public class DeleteTaskLabelCommandHandler : IRequestHandler<DeleteTaskLabelCommand, DeleteTaskLabelResult>
     {
         private readonly ITaskLabelService _taskLabelService;
 
@@ -13,13 +13,13 @@ namespace TaskManager.Application.TaskLabels.Commands.DeleteTaskLabel
             _taskLabelService = taskLabelService;
         }
 
-        public async Task<DeleteTaskLabelResponse> Handle(DeleteTaskLabelCommand command, CancellationToken cancellationToken)
+        public async Task<DeleteTaskLabelResult> Handle(DeleteTaskLabelCommand command, CancellationToken cancellationToken)
         {
             if(command == null)
                 throw new BadRequestException("Command cannot be null");
 
             bool result = await _taskLabelService.DeleteTaskLabelAsync(command.Id, cancellationToken);
-            DeleteTaskLabelResponse response = new(result);
+            DeleteTaskLabelResult response = new(result);
             return response;
         }
     }

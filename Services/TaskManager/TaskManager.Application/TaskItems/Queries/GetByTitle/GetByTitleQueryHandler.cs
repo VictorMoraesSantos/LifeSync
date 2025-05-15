@@ -5,7 +5,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetByTitle
 {
-    public class GetByTitleQueryHandler : IRequestHandler<GetByTitleQuery, GetByTitleResponse>
+    public class GetByTitleQueryHandler : IRequestHandler<GetByTitleQuery, GetByTitleResult>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -14,13 +14,13 @@ namespace TaskManager.Application.TaskItems.Queries.GetByTitle
             _taskItemService = taskItemService;
         }
 
-        public async Task<GetByTitleResponse> Handle(GetByTitleQuery query, CancellationToken cancellationToken)
+        public async Task<GetByTitleResult> Handle(GetByTitleQuery query, CancellationToken cancellationToken)
         {
             if (query == null)
                 throw new BadRequestException(nameof(query), "Query cannot be null");
 
             IEnumerable<TaskItemDTO> result = await _taskItemService.GetTaskItemsTitleAsync(query.UserId, query.Title, cancellationToken);
-            GetByTitleResponse response = new(result);
+            GetByTitleResult response = new(result);
             return response;
         }
     }

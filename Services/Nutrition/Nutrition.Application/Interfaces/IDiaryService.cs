@@ -1,5 +1,5 @@
 ﻿using Core.Application.Interfaces;
-using Nutrition.Application.DTOs.Diaries;
+using Nutrition.Application.DTOs.Diary;
 
 namespace Nutrition.Application.Interfaces
 {

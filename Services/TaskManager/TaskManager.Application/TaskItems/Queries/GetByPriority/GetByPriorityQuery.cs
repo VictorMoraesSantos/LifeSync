@@ -4,6 +4,6 @@ using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.TaskItems.Queries.GetByPriority
 {
-    public record GetByPriorityQuery(int UserId, Priority Priority) : IRequest<GetByPriorityResponse>;
-    public record GetByPriorityResponse(IEnumerable<TaskItemDTO> TaskItems);
+    public record GetByPriorityQuery(int UserId, Priority Priority) : IRequest<GetByPriorityResult>;
+    public record GetByPriorityResult(IEnumerable<TaskItemDTO> TaskItems);
 }

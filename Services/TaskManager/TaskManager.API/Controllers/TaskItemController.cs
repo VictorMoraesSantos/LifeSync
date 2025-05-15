@@ -27,66 +27,66 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpGet("id")]
-        public async Task<HttpResult<GetByIdResponse>> GetById([FromQuery] GetByIdQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetByIdResult>> GetById([FromQuery] GetByIdQuery query, CancellationToken cancellationToken)
         {
-            GetByIdResponse result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<GetByIdResponse>.Ok(result);
+            GetByIdResult result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetByIdResult>.Ok(result);
         }
 
         [HttpGet("all")]
-        public async Task<HttpResult<GetAllTaskItemsResponse>> GetAll([FromQuery] GetAllTaskItemsQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetAllTaskItemsResult>> GetAll([FromQuery] GetAllTaskItemsQuery query, CancellationToken cancellationToken)
         {
-            GetAllTaskItemsResponse result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<GetAllTaskItemsResponse>.Ok(result);
+            GetAllTaskItemsResult result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetAllTaskItemsResult>.Ok(result);
         }
 
         [HttpGet("user-id")]
-        public async Task<HttpResult<GetAllByUserIdResponse>> GetAllByUserId([FromQuery] GetAllByUserIdQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetAllByUserIdResult>> GetAllByUserId([FromQuery] GetAllByUserIdQuery query, CancellationToken cancellationToken)
         {
-            GetAllByUserIdResponse result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<GetAllByUserIdResponse>.Ok(result);
+            GetAllByUserIdResult result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetAllByUserIdResult>.Ok(result);
         }
 
         [HttpGet("due-date")]
-        public async Task<HttpResult<GetByDueDateResponse>> GetByDueDate([FromQuery] GetByDueDateQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetByDueDateResult>> GetByDueDate([FromQuery] GetByDueDateQuery query, CancellationToken cancellationToken)
         {
-            GetByDueDateResponse result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<GetByDueDateResponse>.Ok(result);
+            GetByDueDateResult result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetByDueDateResult>.Ok(result);
         }
 
         [HttpGet("label")]
-        public async Task<HttpResult<GetByLabelResponse>> GetByLabel([FromQuery] GetByLabelQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetByLabelResult>> GetByLabel([FromQuery] GetByLabelQuery query, CancellationToken cancellationToken)
         {
-            GetByLabelResponse result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<GetByLabelResponse>.Ok(result);
+            GetByLabelResult result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetByLabelResult>.Ok(result);
         }
 
         [HttpGet("priority")]
-        public async Task<HttpResult<GetByPriorityResponse>> GetByPriority([FromQuery] GetByPriorityQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetByPriorityResult>> GetByPriority([FromQuery] GetByPriorityQuery query, CancellationToken cancellationToken)
         {
-            GetByPriorityResponse result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<GetByPriorityResponse>.Ok(result);
+            GetByPriorityResult result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetByPriorityResult>.Ok(result);
         }
 
         [HttpGet("status")]
-        public async Task<HttpResult<GetByStatusResponse>> GetByStatus([FromQuery] GetByStatusQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetByStatusResult>> GetByStatus([FromQuery] GetByStatusQuery query, CancellationToken cancellationToken)
         {
-            GetByStatusResponse result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<GetByStatusResponse>.Ok(result);
+            GetByStatusResult result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetByStatusResult>.Ok(result);
         }
 
         [HttpGet("title")]
-        public async Task<HttpResult<GetByTitleResponse>> GetByTitle([FromQuery] GetByTitleQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetByTitleResult>> GetByTitle([FromQuery] GetByTitleQuery query, CancellationToken cancellationToken)
         {
-            GetByTitleResponse result = await _mediator.Send(query, cancellationToken);
-            return HttpResult<GetByTitleResponse>.Ok(result);
+            GetByTitleResult result = await _mediator.Send(query, cancellationToken);
+            return HttpResult<GetByTitleResult>.Ok(result);
         }
 
         [HttpPost("create")]
-        public async Task<HttpResult<CreateTaskItemResponse>> Create([FromBody] CreateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<CreateTaskItemResult>> Create([FromBody] CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            CreateTaskItemResponse result = await _mediator.Send(command, cancellationToken);
-            return HttpResult<CreateTaskItemResponse>.Created(result);
+            CreateTaskItemResult result = await _mediator.Send(command, cancellationToken);
+            return HttpResult<CreateTaskItemResult>.Created(result);
         }
 
         [HttpPost("batch")]
@@ -99,17 +99,17 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<HttpResult<UpdateTaskItemCommandResponse>> Update([FromBody] UpdateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<UpdateTaskItemCommandResult>> Update([FromBody] UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            UpdateTaskItemCommandResponse result = await _mediator.Send(command, cancellationToken);
-            return HttpResult<UpdateTaskItemCommandResponse>.Updated(result);
+            UpdateTaskItemCommandResult result = await _mediator.Send(command, cancellationToken);
+            return HttpResult<UpdateTaskItemCommandResult>.Updated();
         }
 
         [HttpDelete("delete")]
-        public async Task<HttpResult<DeleteTaskItemResponse>> Delete([FromBody] DeleteTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<DeleteTaskItemResult>> Delete([FromBody] DeleteTaskItemCommand command, CancellationToken cancellationToken)
         {
-            DeleteTaskItemResponse result = await _mediator.Send(command, cancellationToken);
-            return HttpResult<DeleteTaskItemResponse>.Deleted(result);
+            DeleteTaskItemResult result = await _mediator.Send(command, cancellationToken);
+            return HttpResult<DeleteTaskItemResult>.Deleted();
         }
 
         [HttpGet("search")]

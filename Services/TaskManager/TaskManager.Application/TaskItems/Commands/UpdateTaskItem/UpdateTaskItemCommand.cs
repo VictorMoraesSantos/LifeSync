@@ -10,6 +10,6 @@ namespace TaskManager.Application.TaskItems.Commands.UpdateTaskItem
         Status Status,
         Priority Priority,
         DateOnly DueDate
-    ) : IRequest<UpdateTaskItemCommandResponse>;
-    public record UpdateTaskItemCommandResponse(bool IsUpdated);
+    ) : IRequest<UpdateTaskItemCommandResult>;
+    public record UpdateTaskItemCommandResult(bool IsUpdated);
 }

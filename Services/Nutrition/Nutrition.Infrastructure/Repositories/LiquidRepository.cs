@@ -1,4 +1,5 @@
-﻿using Nutrition.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Data;
 using System.Linq.Expressions;
@@ -14,39 +15,56 @@ namespace Nutrition.Infrastructure.Repositories
             _context = context;
         }
 
-        public Task<Liquid?> GetById(int id, CancellationToken cancellationToken = default)
+        public async Task<Liquid?> GetById(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            Liquid? liquid = await _context.Liquids
+                .AsNoTracking()
+                .FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
+
+            return liquid;
         }
 
-        public Task<IEnumerable<Liquid?>> GetAll(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Liquid?>> GetAll(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            IEnumerable<Liquid?> liquids = await _context.Liquids
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return liquids;
         }
 
-        public Task<IEnumerable<Liquid?>> Find(Expression<Func<Liquid, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Liquid?>> Find(Expression<Func<Liquid, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            IEnumerable<Liquid?> liquids = await _context.Liquids
+                .AsNoTracking()
+                .Where(predicate)
+                .ToListAsync();
+
+            return liquids;
         }
 
-        public Task Create(Liquid entity, CancellationToken cancellationToken = default)
+        public async Task Create(Liquid entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Added;
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task CreateRange(IEnumerable<Liquid> entities, CancellationToken cancellationToken = default)
+        public async Task CreateRange(IEnumerable<Liquid> entities, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Liquids.AddRange(entities);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Update(Liquid entity, CancellationToken cancellationToken = default)
+        public async Task Update(Liquid entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Modified;
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Delete(Liquid entity, CancellationToken cancellationToken = default)
+        public async Task Delete(Liquid entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Deleted;
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

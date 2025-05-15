@@ -3,6 +3,6 @@ using TaskManager.Application.DTOs;
 
 namespace TaskManager.Application.TaskItems.Queries.GetById
 {
-    public record GetByIdQuery(int Id) : IRequest<GetByIdResponse>;
-    public record GetByIdResponse(TaskItemDTO TaskItem);
+    public record GetByIdQuery(int Id) : IRequest<GetByIdResult>;
+    public record GetByIdResult(TaskItemDTO TaskItem);
 }

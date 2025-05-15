@@ -12,9 +12,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="UseCases\DailyProgresses\" />
-		<Folder Include="UseCases\Liquids\" />
-		<Folder Include="UseCases\MealFoods\Queries\" />
+		<Folder Include="UseCases\DailyProgress\" />
+		<Folder Include="UseCases\Liquid\Commands\Create\" />
+		<Folder Include="UseCases\Liquid\Commands\Delete\" />
+		<Folder Include="UseCases\Liquid\Commands\Update\" />
+		<Folder Include="UseCases\Liquid\Queries\GetAll\" />
+		<Folder Include="UseCases\Liquid\Queries\GetByDiary\" />
+		<Folder Include="UseCases\Liquid\Queries\GetByName\" />
+		<Folder Include="UseCases\Liquid\Queries\Get\" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -5,7 +5,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetAll
 {
-    public class GetAllTaskItemsQueryHandler : IRequestHandler<GetAllTaskItemsQuery, GetAllTaskItemsResponse>
+    public class GetAllTaskItemsQueryHandler : IRequestHandler<GetAllTaskItemsQuery, GetAllTaskItemsResult>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -14,10 +14,10 @@ namespace TaskManager.Application.TaskItems.Queries.GetAll
             _taskItemService = taskItemService;
         }
 
-        public async Task<GetAllTaskItemsResponse> Handle(GetAllTaskItemsQuery query, CancellationToken cancellationToken)
+        public async Task<GetAllTaskItemsResult> Handle(GetAllTaskItemsQuery query, CancellationToken cancellationToken)
         {
             IEnumerable<TaskItemDTO?> result = await _taskItemService.GetAllTaskItemsAsync(cancellationToken);
-            GetAllTaskItemsResponse response = new(result);
+            GetAllTaskItemsResult response = new(result);
             return response;
         }
     }

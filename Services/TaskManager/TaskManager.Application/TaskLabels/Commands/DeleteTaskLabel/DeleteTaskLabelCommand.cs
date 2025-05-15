@@ -2,6 +2,6 @@
 
 namespace TaskManager.Application.TaskLabels.Commands.DeleteTaskLabel
 {
-    public record DeleteTaskLabelCommand(int Id) : IRequest<DeleteTaskLabelResponse>;
-    public record DeleteTaskLabelResponse(bool IsDeleted);
+    public record DeleteTaskLabelCommand(int Id) : IRequest<DeleteTaskLabelResult>;
+    public record DeleteTaskLabelResult(bool IsDeleted);
 }

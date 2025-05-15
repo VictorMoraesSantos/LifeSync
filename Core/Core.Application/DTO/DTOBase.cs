@@ -1,7 +1,9 @@
-﻿namespace Core.Application.DTO
+﻿using System.Text.Json.Serialization;
+
+namespace Core.Application.DTO
 {
     public record DTOBase(
-        int Id,
-        DateTime CreatedAt,
-        DateTime? UpdatedAt);
+        [property: JsonPropertyOrder(-3)] int Id,
+        [property: JsonPropertyOrder(-2)] DateTime CreatedAt,
+        [property: JsonPropertyOrder(-1)] DateTime? UpdatedAt);
 }

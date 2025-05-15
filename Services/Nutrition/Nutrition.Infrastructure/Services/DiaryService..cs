@@ -1,5 +1,5 @@
 ﻿using BuildingBlocks.Exceptions;
-using Nutrition.Application.DTOs.Diaries;
+using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;

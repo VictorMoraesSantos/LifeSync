@@ -6,7 +6,7 @@ using TaskManager.Domain.Repositories;
 
 namespace TaskManager.Application.TaskItems.Commands.DeleteTaskItem
 {
-    public class DeleteTaskItemCommandHandler : IRequestHandler<DeleteTaskItemCommand, DeleteTaskItemResponse>
+    public class DeleteTaskItemCommandHandler : IRequestHandler<DeleteTaskItemCommand, DeleteTaskItemResult>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -15,11 +15,11 @@ namespace TaskManager.Application.TaskItems.Commands.DeleteTaskItem
             _taskItemService = taskItemService;
         }
 
-        public async Task<DeleteTaskItemResponse> Handle(DeleteTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<DeleteTaskItemResult> Handle(DeleteTaskItemCommand command, CancellationToken cancellationToken)
         {
 
             bool result = await _taskItemService.DeleteTaskItemAsync(command.Id, cancellationToken);
-            DeleteTaskItemResponse response = new(result);
+            DeleteTaskItemResult response = new(result);
             return response;
         }
     }

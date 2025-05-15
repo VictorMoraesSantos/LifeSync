@@ -3,7 +3,7 @@ using TaskManager.Application.DTOs;
 
 namespace TaskManager.Application.TaskLabels.Queries.GetAll
 {
-    public record GetAllTaskLabelsQuery() : IRequest<GetAllTaskLabelsResponse>;
-    public record GetAllTaskLabelsResponse(IEnumerable<TaskLabelDTO> TaskLabelDTOs);
+    public record GetAllTaskLabelsQuery() : IRequest<GetAllTaskLabelsResult>;
+    public record GetAllTaskLabelsResult(IEnumerable<TaskLabelDTO> TaskLabelDTOs);
 
 }

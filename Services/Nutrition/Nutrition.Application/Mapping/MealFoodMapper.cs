@@ -1,4 +1,4 @@
-﻿using Nutrition.Application.DTOs.MealFoods;
+﻿using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Domain.Entities;
 
 namespace Nutrition.Application.Mapping

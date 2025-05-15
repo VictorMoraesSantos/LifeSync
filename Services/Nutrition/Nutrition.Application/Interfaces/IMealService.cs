@@ -1,5 +1,5 @@
 ﻿using Core.Application.Interfaces;
-using Nutrition.Application.DTOs.Meals;
+using Nutrition.Application.DTOs.Meal;
 
 namespace Nutrition.Application.Interfaces
 {

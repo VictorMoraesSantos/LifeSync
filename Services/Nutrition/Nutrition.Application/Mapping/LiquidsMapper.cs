@@ -1,4 +1,4 @@
-﻿using Nutrition.Application.DTOs.Liquids;
+﻿using Nutrition.Application.DTOs.Liquid;
 using Nutrition.Domain.Entities;
 
 namespace Nutrition.Application.Mapping
@@ -20,13 +20,15 @@ namespace Nutrition.Application.Mapping
             return dto;
         }
 
-        //public static Liquid ToEntity(this CreateLiquidDTO dto)
-        //{
-        //    return new Liquid(
-        //        dto.DiaryId,
-        //        dto.Name,
-        //        dto.QuantityMl,
-        //        dto.CaloriesPerMl);
-        //}
+        public static Liquid ToEntity(this CreateLiquidDTO dto)
+        {
+            Liquid liquid = new(
+                dto.DiaryId,
+                dto.Name,
+                dto.QuantityMl,
+                dto.CaloriesPerMl);
+
+            return liquid;
+        }
     }
 }

@@ -5,7 +5,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetByStatus
 {
-    public class GetByStatusQueryHandler : IRequestHandler<GetByStatusQuery, GetByStatusResponse>
+    public class GetByStatusQueryHandler : IRequestHandler<GetByStatusQuery, GetByStatusResult>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -14,13 +14,13 @@ namespace TaskManager.Application.TaskItems.Queries.GetByStatus
             _taskItemService = taskItemService;
         }
 
-        public async Task<GetByStatusResponse> Handle(GetByStatusQuery query, CancellationToken cancellationToken)
+        public async Task<GetByStatusResult> Handle(GetByStatusQuery query, CancellationToken cancellationToken)
         {
             if (query == null)
                 throw new BadRequestException(nameof(query), "Query cannot be null");
 
             IEnumerable<TaskItemDTO> result = await _taskItemService.GetTaskItemsByStatusAsync(query.UserId, query.Status, cancellationToken);
-            GetByStatusResponse response = new(result);
+            GetByStatusResult response = new(result);
             return response;
         }
     }

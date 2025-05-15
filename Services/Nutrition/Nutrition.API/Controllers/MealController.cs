@@ -1,13 +1,14 @@
-﻿using Core.API.Controllers;
+﻿using BuildingBlocks.Results;
+using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.DTOs.Meals;
-using Nutrition.Application.UseCases.Meals.Commands.Create;
-using Nutrition.Application.UseCases.Meals.Commands.Delete;
-using Nutrition.Application.UseCases.Meals.Commands.Update;
-using Nutrition.Application.UseCases.Meals.Queries.Get;
-using Nutrition.Application.UseCases.Meals.Queries.GetAll;
-using Nutrition.Application.UseCases.Meals.Queries.GetByDiary;
+using Nutrition.Application.UseCases.Meal.Commands.Create;
+using Nutrition.Application.UseCases.Meal.Commands.Delete;
+using Nutrition.Application.UseCases.Meal.Commands.Update;
+using Nutrition.Application.UseCases.Meal.Queries.Get;
+using Nutrition.Application.UseCases.Meal.Queries.GetAll;
+using Nutrition.Application.UseCases.Meal.Queries.GetByDiary;
 
 namespace Nutrition.API.Controllers
 {
@@ -21,48 +22,48 @@ namespace Nutrition.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<MealDTO>> Get(int id)
+        public async Task<HttpResult<GetMealQueryResponse>> Get(int id)
         {
             GetMealQuery query = new(id);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return HttpResult<GetMealQueryResponse>.Ok(result);
         }
 
         [HttpGet("diary/{id}")]
-        public async Task<ActionResult<IEnumerable<MealDTO>>> GetByDiary(int id)
+        public async Task<HttpResult<GetByDiaryResponse>> GetByDiary(int id)
         {
             GetByDiaryQuery query = new(id);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return HttpResult<GetByDiaryResponse>.Ok(result);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MealDTO>>> GetAll([FromQuery] GetMealsQuery query)
+        public async Task<HttpResult<GetMealsQueryResponse>> GetAll([FromQuery] GetMealsQuery query)
         {
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return HttpResult<GetMealsQueryResponse>.Ok(result);
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult<CreateMealResponse>> Create([FromBody] CreateMealCommand command)
+        public async Task<HttpResult<CreateMealResponse>> Create([FromBody] CreateMealCommand command)
         {
             var result = await _mediator.Send(command);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return HttpResult<CreateMealResponse>.Created(result);
         }
 
         [HttpPut("update")]
-        public async Task<ActionResult<UpdateMealResponse>> Update([FromBody] UpdateMealCommand command)
+        public async Task<HttpResult<UpdateMealResponse>> Update([FromBody] UpdateMealCommand command)
         {
             var result = await _mediator.Send(command);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return HttpResult<UpdateMealResponse>.Updated();
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult<DeleteMealResponse>> Delete(int id)
+        public async Task<HttpResult<DeleteMealResponse>> Delete(int id)
         {
             DeleteMealCommand command = new(id);
             var result = await _mediator.Send(command);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            return HttpResult<DeleteMealResponse>.Deleted();
         }
     }
 }

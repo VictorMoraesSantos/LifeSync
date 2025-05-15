@@ -4,7 +4,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
 {
-    public class CreateTaskItemCommandHandler : IRequestHandler<CreateTaskItemCommand, CreateTaskItemResponse>
+    public class CreateTaskItemCommandHandler : IRequestHandler<CreateTaskItemCommand, CreateTaskItemResult>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -13,7 +13,7 @@ namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
             _taskItemService = taskItemService;
         }
 
-        public async Task<CreateTaskItemResponse> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<CreateTaskItemResult> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
             if (command == null)
                 throw new BadRequestException(nameof(command), "Command cannot be null");
@@ -27,7 +27,7 @@ namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
                 cancellationToken
             );
 
-            CreateTaskItemResponse response = new(result);
+            CreateTaskItemResult response = new(result);
             return response;
         }
     }

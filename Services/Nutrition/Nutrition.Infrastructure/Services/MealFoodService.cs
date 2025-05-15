@@ -1,4 +1,4 @@
-﻿using Nutrition.Application.DTOs.MealFoods;
+﻿using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.DTOs.Meals;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;

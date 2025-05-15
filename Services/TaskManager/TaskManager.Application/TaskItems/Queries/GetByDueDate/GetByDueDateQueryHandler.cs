@@ -5,7 +5,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetByDueDate
 {
-    public class GetByDueDateQueryHandler : IRequestHandler<GetByDueDateQuery, GetByDueDateResponse>
+    public class GetByDueDateQueryHandler : IRequestHandler<GetByDueDateQuery, GetByDueDateResult>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -14,13 +14,13 @@ namespace TaskManager.Application.TaskItems.Queries.GetByDueDate
             _taskItemService = taskItemService;
         }
 
-        public async Task<GetByDueDateResponse> Handle(GetByDueDateQuery query, CancellationToken cancellationToken)
+        public async Task<GetByDueDateResult> Handle(GetByDueDateQuery query, CancellationToken cancellationToken)
         {
             if (query == null)
                 throw new BadRequestException(nameof(query), "Query cannot be null");
 
             IEnumerable<TaskItemDTO> result = await _taskItemService.GetTaskItemsByDueDateAsync(query.UserId, query.DueDate, cancellationToken);
-            GetByDueDateResponse response = new(result);
+            GetByDueDateResult response = new(result);
             return response;
         }
     }
