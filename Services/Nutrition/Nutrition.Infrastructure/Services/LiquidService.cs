@@ -1,11 +1,8 @@
 ﻿using Nutrition.Application.DTOs.Liquid;
-using Nutrition.Application.DTOs.Meals;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
-using Nutrition.Infrastructure.Data;
-using Nutrition.Infrastructure.Repositories;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services
@@ -121,6 +118,8 @@ namespace Nutrition.Infrastructure.Services
                 entity.SetQuantityMl(dto.QuantityMl);
             if (dto.CaloriesPerMl != null)
                 entity.SetCaloriesPerMl(dto.CaloriesPerMl);
+
+            entity.MarkAsUpdated();
 
             await _liquidRepository.Update(entity, cancellationToken);
             return true;

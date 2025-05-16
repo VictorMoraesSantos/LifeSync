@@ -1,10 +1,8 @@
 ﻿using Nutrition.Application.DTOs.MealFood;
-using Nutrition.Application.DTOs.Meals;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
-using Nutrition.Infrastructure.Repositories;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services
@@ -126,6 +124,8 @@ namespace Nutrition.Infrastructure.Services
 
             if (dto.CaloriesPerUnit > 0)
                 entity.SetCaloriesPerUnit(dto.CaloriesPerUnit);
+
+            entity.MarkAsUpdated();
 
             // Atualizar refeições e líquidos pode ser complexo e depende da regra de negócio
             // Aqui você pode implementar lógica para atualizar as coleções conforme necessário

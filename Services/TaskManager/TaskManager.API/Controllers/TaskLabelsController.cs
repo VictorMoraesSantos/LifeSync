@@ -13,11 +13,11 @@ using TaskManager.Application.TaskLabels.Queries.GetByUserId;
 
 namespace TaskManager.API.Controllers
 {
-    public class TaskLabelController : ApiController
+    public class TaskLabelsController : ApiController
     {
         private readonly IMediator _mediator;
 
-        public TaskLabelController(IMediator mediator)
+        public TaskLabelsController(IMediator mediator)
         {
             _mediator = mediator;
         }

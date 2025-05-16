@@ -2,7 +2,6 @@
 using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Nutrition.Application.DTOs.Diaries;
 using Nutrition.Application.UseCases.Diary.Commands.Create;
 using Nutrition.Application.UseCases.Diary.Commands.Delete;
 using Nutrition.Application.UseCases.Diary.Commands.Update;
@@ -12,11 +11,11 @@ using Nutrition.Application.UseCases.Diary.Queries.GetByUser;
 
 namespace Nutrition.API.Controllers
 {
-    public class DiaryController : ApiController
+    public class DiariesController : ApiController
     {
         private readonly IMediator _mediator;
 
-        public DiaryController(IMediator mediator)
+        public DiariesController(IMediator mediator)
         {
             _mediator = mediator;
         }

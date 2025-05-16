@@ -2,7 +2,6 @@
 using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Nutrition.Application.DTOs.Meals;
 using Nutrition.Application.UseCases.Meal.Commands.Create;
 using Nutrition.Application.UseCases.Meal.Commands.Delete;
 using Nutrition.Application.UseCases.Meal.Commands.Update;
@@ -12,11 +11,11 @@ using Nutrition.Application.UseCases.Meal.Queries.GetByDiary;
 
 namespace Nutrition.API.Controllers
 {
-    public class MealController : ApiController
+    public class MealsController : ApiController
     {
         private readonly IMediator _mediator;
 
-        public MealController(IMediator mediator)
+        public MealsController(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -30,11 +29,11 @@ namespace Nutrition.API.Controllers
         }
 
         [HttpGet("diary/{id}")]
-        public async Task<HttpResult<GetByDiaryResponse>> GetByDiary(int id)
+        public async Task<HttpResult<GetByDiaryResult>> GetByDiary(int id)
         {
             GetByDiaryQuery query = new(id);
             var result = await _mediator.Send(query);
-            return HttpResult<GetByDiaryResponse>.Ok(result);
+            return HttpResult<GetByDiaryResult>.Ok(result);
         }
 
         [HttpGet]

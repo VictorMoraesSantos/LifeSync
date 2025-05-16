@@ -133,7 +133,7 @@ namespace Nutrition.Infrastructure.Services
             if (existingDiary != null) return false;
 
             entity.UpdateDate(dto.Date);
-
+            entity.MarkAsUpdated();
             // Atualizar refeições e líquidos pode ser complexo e depende da regra de negócio
             // Aqui você pode implementar lógica para atualizar as coleções conforme necessário
 

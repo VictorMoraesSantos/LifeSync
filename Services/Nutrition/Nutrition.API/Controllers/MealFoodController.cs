@@ -2,7 +2,6 @@
 using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Nutrition.Application.DTOs.MealFoods;
 using Nutrition.Application.UseCases.MealFood.Commands.Create;
 using Nutrition.Application.UseCases.MealFood.Commands.Delete;
 using Nutrition.Application.UseCases.MealFood.Commands.Update;

@@ -123,6 +123,8 @@ namespace Nutrition.Infrastructure.Services
             if (!string.IsNullOrWhiteSpace(dto.Description))
                 entity.UpdateDescription(dto.Description);
 
+            entity.MarkAsUpdated();
+
             // Atualizar refeições e líquidos pode ser complexo e depende da regra de negócio
             // Aqui você pode implementar lógica para atualizar as coleções conforme necessário
 

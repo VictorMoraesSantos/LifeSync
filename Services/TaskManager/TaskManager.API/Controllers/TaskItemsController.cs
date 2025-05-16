@@ -17,11 +17,11 @@ using TaskManager.Application.TaskItems.Queries.GetByTitle;
 
 namespace TaskManager.API.Controllers
 {
-    public class TaskItemController : ApiController
+    public class TaskItemsController : ApiController
     {
         private readonly IMediator _mediator;
 
-        public TaskItemController(IMediator mediator)
+        public TaskItemsController(IMediator mediator)
         {
             _mediator = mediator;
         }
