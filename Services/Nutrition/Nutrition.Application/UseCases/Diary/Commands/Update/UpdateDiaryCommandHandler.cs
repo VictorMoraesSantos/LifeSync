@@ -4,7 +4,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.Diary.Commands.Update
 {
-    public class UpdateDiaryCommandHandler : IRequestHandler<UpdateDiaryCommand, UpdateDiaryCommandResult>
+    public class UpdateDiaryCommandHandler : IRequestHandler<UpdateDiaryCommand, UpdateDiaryResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -13,11 +13,11 @@ namespace Nutrition.Application.UseCases.Diary.Commands.Update
             _diaryService = diaryService;
         }
 
-        public async Task<UpdateDiaryCommandResult> Handle(UpdateDiaryCommand command, CancellationToken cancellationToken)
+        public async Task<UpdateDiaryResult> Handle(UpdateDiaryCommand command, CancellationToken cancellationToken)
         {
             UpdateDiaryDTO dto = new(command.Id, command.Date);
             bool result = await _diaryService.UpdateAsync(dto, cancellationToken);
-            UpdateDiaryCommandResult response = new(result);
+            UpdateDiaryResult response = new(result);
             return response;
         }
     }

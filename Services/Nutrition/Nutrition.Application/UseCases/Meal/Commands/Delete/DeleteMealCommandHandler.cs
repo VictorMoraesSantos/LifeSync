@@ -3,7 +3,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.Meal.Commands.Delete
 {
-    public class DeleteMealCommandHandler : IRequestHandler<DeleteMealCommand, DeleteMealResponse>
+    public class DeleteMealCommandHandler : IRequestHandler<DeleteMealCommand, DeleteMealResult>
     {
         private readonly IMealService _mealService;
      
@@ -12,10 +12,10 @@ namespace Nutrition.Application.UseCases.Meal.Commands.Delete
             _mealService = mealService;
         }
         
-        public async Task<DeleteMealResponse> Handle(DeleteMealCommand command, CancellationToken cancellationToken)
+        public async Task<DeleteMealResult> Handle(DeleteMealCommand command, CancellationToken cancellationToken)
         {
             bool result = await _mealService.DeleteAsync(command.Id, cancellationToken);
-            DeleteMealResponse response = new(result);
+            DeleteMealResult response = new(result);
             return response;
         }
     }

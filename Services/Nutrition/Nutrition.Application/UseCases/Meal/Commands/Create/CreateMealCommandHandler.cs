@@ -5,7 +5,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.Meal.Commands.Create
 {
-    public class CreateMealCommandHandler : IRequestHandler<CreateMealCommand, CreateMealResponse>
+    public class CreateMealCommandHandler : IRequestHandler<CreateMealCommand, CreateMealResult>
     {
         private readonly IMealService _mealService;
         private readonly IDiaryService _diaryService;
@@ -16,15 +16,15 @@ namespace Nutrition.Application.UseCases.Meal.Commands.Create
             _diaryService = diaryService;
         }
 
-        public async Task<CreateMealResponse> Handle(CreateMealCommand command, CancellationToken cancellationToken)
+        public async Task<CreateMealResult> Handle(CreateMealCommand command, CancellationToken cancellationToken)
         {
             DiaryDTO? diary = await _diaryService.GetByIdAsync(command.DiaryId, cancellationToken);
             if (diary == null)
-                return new CreateMealResponse(false);
+                return new CreateMealResult(false);
 
             CreateMealDTO dto = new(command.DiaryId, command.Name, command.Description);
             bool result = await _mealService.CreateAsync(dto, cancellationToken);
-            CreateMealResponse response = new(result);
+            CreateMealResult response = new(result);
             return response;
         }
     }

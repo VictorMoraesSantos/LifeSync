@@ -20,49 +20,50 @@ namespace Nutrition.API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("{id}")]
-        public async Task<HttpResult<GetDiaryQueryResult>> Get(int id)
+        [HttpGet("{id:int}")]
+        public async Task<HttpResult<GetDiaryResult>> Get(int id)
         {
             GetDiaryQuery query = new(id);
-            var result = await _mediator.Send(query);
-            return HttpResult<GetDiaryQueryResult>.Ok(result);
+            GetDiaryResult result = await _mediator.Send(query);
+            return HttpResult<GetDiaryResult>.Ok(result);
         }
 
-        [HttpGet("user/{userId}")]
+        [HttpGet("user/{userId:int}")]
         public async Task<HttpResult<GetAllDiariesByUserIdResult>> GetByUserId(int userId)
         {
             GetAllDiariesByUserIdQuery query = new(userId);
-            var result = await _mediator.Send(query);
+            GetAllDiariesByUserIdResult result = await _mediator.Send(query);
             return HttpResult<GetAllDiariesByUserIdResult>.Ok(result);
         }
 
         [HttpGet]
-        public async Task<HttpResult<GetDiariesQueryResult>> GetAll([FromQuery] GetDiariesQuery query)
+        public async Task<HttpResult<GetDiariesResult>> GetAll([FromQuery] GetDiariesQuery query)
         {
-            var result = await _mediator.Send(query);
-            return HttpResult<GetDiariesQueryResult>.Ok(result);
+            GetDiariesResult result = await _mediator.Send(query);
+            return HttpResult<GetDiariesResult>.Ok(result);
         }
 
-        [HttpPost("create")]
-        public async Task<HttpResult<CreateDiaryCommandResult>> Create([FromBody] CreateDiaryCommand command)
-        {
-            var result = await _mediator.Send(command);
-            return HttpResult<CreateDiaryCommandResult>.Created(result);
-        }
-
-        [HttpPut]
-        public async Task<HttpResult<UpdateDiaryCommandResult>> Update([FromBody] UpdateDiaryCommand command)
+        [HttpPost]
+        public async Task<HttpResult<CreateDiaryResult>> Create([FromBody] CreateDiaryCommand command)
         {
             var result = await _mediator.Send(command);
-            return HttpResult<UpdateDiaryCommandResult>.Updated();
+            return HttpResult<CreateDiaryResult>.Created(result);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<HttpResult<DeleteDiaryCommandResult>> Delete(int id)
+        [HttpPut("{id:int}")]
+        public async Task<HttpResult<UpdateDiaryResult>> Update(int id, [FromBody] UpdateDiaryCommand command)
+        {
+            UpdateDiaryCommand updateDiary = new(id, command.Date);
+            UpdateDiaryResult result = await _mediator.Send(updateDiary);
+            return HttpResult<UpdateDiaryResult>.Updated();
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<HttpResult<DeleteDiaryResult>> Delete(int id)
         {
             DeleteDiaryCommand command = new(id);
-            var result = await _mediator.Send(command);
-            return HttpResult<DeleteDiaryCommandResult>.Deleted();
+            DeleteDiaryResult result = await _mediator.Send(command);
+            return HttpResult<DeleteDiaryResult>.Deleted();
         }
     }
 }

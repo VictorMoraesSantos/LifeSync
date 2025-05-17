@@ -4,7 +4,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.MealFood.Commands.Update
 {
-    public class UpdateMealFoodCommandHandler : IRequestHandler<UpdateMealFoodCommand, UpdateMealFoodResponse>
+    public class UpdateMealFoodCommandHandler : IRequestHandler<UpdateMealFoodCommand, UpdateMealFoodResult>
     {
         private readonly IMealFoodService _mealFoodService;
 
@@ -13,7 +13,7 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Update
             _mealFoodService = mealFoodService;
         }
 
-        public async Task<UpdateMealFoodResponse> Handle(UpdateMealFoodCommand command, CancellationToken cancellationToken)
+        public async Task<UpdateMealFoodResult> Handle(UpdateMealFoodCommand command, CancellationToken cancellationToken)
         {
             UpdateMealFoodDTO mealFood = new (
                 command.Id,
@@ -22,7 +22,7 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Update
                 command.CaloriesPerUnit);
 
             bool result =await _mealFoodService.UpdateAsync(mealFood);
-            UpdateMealFoodResponse response = new(result);
+            UpdateMealFoodResult response = new(result);
             return response;
         }
     }

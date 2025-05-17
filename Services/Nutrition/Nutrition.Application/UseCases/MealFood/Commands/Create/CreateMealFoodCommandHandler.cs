@@ -5,7 +5,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.MealFood.Commands.Create
 {
-    public class CreateMealFoodCommandHandler : IRequestHandler<CreateMealFoodCommand, CreateMealFoodResponse>
+    public class CreateMealFoodCommandHandler : IRequestHandler<CreateMealFoodCommand, CreateMealFoodResult>
     {
         private readonly IMealFoodService _mealFoodService;
         private readonly IMealService _mealService;
@@ -16,11 +16,11 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Create
             _mealService = mealService;
         }
 
-        public async Task<CreateMealFoodResponse> Handle(CreateMealFoodCommand command, CancellationToken cancellationToken)
+        public async Task<CreateMealFoodResult> Handle(CreateMealFoodCommand command, CancellationToken cancellationToken)
         {
             MealDTO? meal = await _mealService.GetByIdAsync(command.MealId, cancellationToken);
             if (meal == null)
-                return new CreateMealFoodResponse(false);
+                return new CreateMealFoodResult(false);
 
             CreateMealFoodDTO dto = new(
                 command.MealId,
@@ -29,7 +29,7 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Create
                 command.CaloriesPerUnit);
 
             bool result = await _mealFoodService.CreateAsync(dto, cancellationToken);
-            CreateMealFoodResponse response = new(result);
+            CreateMealFoodResult response = new(result);
             return response;
         }
     }

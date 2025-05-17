@@ -7,6 +7,6 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Create
         string Name,
         int QuantityInGrams,
         int CaloriesPerUnit)
-        : IRequest<CreateMealFoodResponse>;
-    public record CreateMealFoodResponse(bool IsSuccess);
+        : IRequest<CreateMealFoodResult>;
+    public record CreateMealFoodResult(bool IsSuccess);
 }

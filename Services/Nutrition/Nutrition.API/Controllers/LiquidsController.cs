@@ -25,14 +25,14 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<GetLiquidResult>> Get(int id)
         {
             GetLiquidQuery query = new(id);
-            var result = await _mediator.Send(query);
+            GetLiquidResult result = await _mediator.Send(query);
             return HttpResult<GetLiquidResult>.Ok(result);
         }
 
         [HttpGet]
         public async Task<HttpResult<GetAllLiquidsResult>> GetAll([FromQuery] GetAllLiquidsQuery query)
         {
-            var result = await _mediator.Send(query);
+            GetAllLiquidsResult result = await _mediator.Send(query);
             return HttpResult<GetAllLiquidsResult>.Ok(result);
         }
 
@@ -40,14 +40,14 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<GetLiquidsByDiaryResult>> GetByDiary(int diaryId)
         {
             GetLiquidsByDiaryQuery query = new(diaryId);
-            var result = await _mediator.Send(query);
+            GetLiquidsByDiaryResult result = await _mediator.Send(query);
             return HttpResult<GetLiquidsByDiaryResult>.Ok(result);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateLiquidResult>> Create([FromBody] CreateLiquidCommand command)
         {
-            var result = await _mediator.Send(command);
+            CreateLiquidResult result = await _mediator.Send(command);
             return HttpResult<CreateLiquidResult>.Created(result);
         }
 
@@ -60,7 +60,7 @@ namespace Nutrition.API.Controllers
                 command.QuantityMl,
                 command.CaloriesPerMl
             );
-            var result = await _mediator.Send(updateLiquidCommand);
+            UpdateLiquidResult result = await _mediator.Send(updateLiquidCommand);
             return HttpResult<UpdateLiquidResult>.Ok(result);
         }
 

@@ -4,7 +4,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.Diary.Queries.Get
 {
-    public class GetDiaryQueryHandler : IRequestHandler<GetDiaryQuery, GetDiaryQueryResult>
+    public class GetDiaryQueryHandler : IRequestHandler<GetDiaryQuery, GetDiaryResult>
     {
         private readonly IDiaryService _diaryService;
      
@@ -13,10 +13,10 @@ namespace Nutrition.Application.UseCases.Diary.Queries.Get
             _diaryService = diaryService;
         }
         
-        public async Task<GetDiaryQueryResult> Handle(GetDiaryQuery query, CancellationToken cancellationToken)
+        public async Task<GetDiaryResult> Handle(GetDiaryQuery query, CancellationToken cancellationToken)
         {
             DiaryDTO? result = await _diaryService.GetByIdAsync(query.Id, cancellationToken);
-            GetDiaryQueryResult response = new(result);
+            GetDiaryResult response = new(result);
             return response;
         }
     }

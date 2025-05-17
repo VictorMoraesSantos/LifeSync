@@ -4,7 +4,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.MealFood.Queries.GetAll
 {
-    public class GetMealFoodsQueryHandler : IRequestHandler<GetMealFoodsQuery, GetMealFoodsResponse>
+    public class GetMealFoodsQueryHandler : IRequestHandler<GetMealFoodsQuery, GetMealFoodsResult>
     {
         private readonly IMealFoodService _mealFoodService;
      
@@ -13,10 +13,10 @@ namespace Nutrition.Application.UseCases.MealFood.Queries.GetAll
             _mealFoodService = mealFoodService;
         }
         
-        public async Task<GetMealFoodsResponse> Handle(GetMealFoodsQuery query, CancellationToken cancellationToken)
+        public async Task<GetMealFoodsResult> Handle(GetMealFoodsQuery query, CancellationToken cancellationToken)
         {
             IEnumerable<MealFoodDTO> result = await _mealFoodService.GetAllAsync(cancellationToken);
-            GetMealFoodsResponse response = new(result);
+            GetMealFoodsResult response = new(result);
             return response;
         }
     }

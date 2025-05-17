@@ -4,7 +4,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.MealFood.Queries.GetByMeal
 {
-    public class GetByMealQueryHandler : IRequestHandler<GetByMealQuery, GetByMealResponse>
+    public class GetByMealQueryHandler : IRequestHandler<GetByMealQuery, GetByMealResult>
     {
         private readonly IMealService _mealService;
      
@@ -13,10 +13,10 @@ namespace Nutrition.Application.UseCases.MealFood.Queries.GetByMeal
             _mealService = mealService;
         }
         
-        public async Task<GetByMealResponse> Handle(GetByMealQuery query, CancellationToken cancellationToken)
+        public async Task<GetByMealResult> Handle(GetByMealQuery query, CancellationToken cancellationToken)
         {
             MealDTO? result = await _mealService.GetByIdAsync(query.MealId, cancellationToken);
-            GetByMealResponse response = new(result.MealFoods);
+            GetByMealResult response = new(result.MealFoods);
             return response;
         }
     }

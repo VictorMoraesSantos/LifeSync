@@ -4,7 +4,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.Diary.Commands.Create
 {
-    public class CreateDiaryCommandHandler : IRequestHandler<CreateDiaryCommand, CreateDiaryCommandResult>
+    public class CreateDiaryCommandHandler : IRequestHandler<CreateDiaryCommand, CreateDiaryResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -13,11 +13,11 @@ namespace Nutrition.Application.UseCases.Diary.Commands.Create
             _diaryService = diaryService;
         }
 
-        public async Task<CreateDiaryCommandResult> Handle(CreateDiaryCommand command, CancellationToken cancellationToken)
+        public async Task<CreateDiaryResult> Handle(CreateDiaryCommand command, CancellationToken cancellationToken)
         {
             CreateDiaryDTO dto = new(command.userId, command.date);
             bool result = await _diaryService.CreateAsync(dto, cancellationToken);
-            CreateDiaryCommandResult response = new(result);
+            CreateDiaryResult response = new(result);
             return response;
         }
     }

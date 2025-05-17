@@ -3,7 +3,7 @@ using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.UseCases.Diary.Commands.Delete
 {
-    public class DeleteDiaryCommandHandler : IRequestHandler<DeleteDiaryCommand, DeleteDiaryCommandResult>
+    public class DeleteDiaryCommandHandler : IRequestHandler<DeleteDiaryCommand, DeleteDiaryResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -12,10 +12,10 @@ namespace Nutrition.Application.UseCases.Diary.Commands.Delete
             _diaryService = diaryService;
         }
 
-        public async Task<DeleteDiaryCommandResult> Handle(DeleteDiaryCommand command, CancellationToken cancellationToken)
+        public async Task<DeleteDiaryResult> Handle(DeleteDiaryCommand command, CancellationToken cancellationToken)
         {
             bool result = await _diaryService.DeleteAsync(command.Id);
-            DeleteDiaryCommandResult response = new(true);
+            DeleteDiaryResult response = new(true);
             return response;
         }
     }

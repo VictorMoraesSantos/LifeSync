@@ -2,6 +2,6 @@
 
 namespace Nutrition.Application.UseCases.Diary.Commands.Update
 {
-    public record UpdateDiaryCommand(int Id, DateOnly Date) : IRequest<UpdateDiaryCommandResult>;
-    public record UpdateDiaryCommandResult(bool IsSuccess);
+    public record UpdateDiaryCommand(int Id, DateOnly Date) : IRequest<UpdateDiaryResult>;
+    public record UpdateDiaryResult(bool IsSuccess);
 }

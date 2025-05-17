@@ -2,6 +2,6 @@
 
 namespace Nutrition.Application.UseCases.MealFood.Commands.Delete
 {
-    public record DeleteMealFoodCommand(int Id) : IRequest<DeleteMealFoodResponse>;
-    public record DeleteMealFoodResponse(bool IsSuccess);
+    public record DeleteMealFoodCommand(int Id) : IRequest<DeleteMealFoodResult>;
+    public record DeleteMealFoodResult(bool IsSuccess);
 }

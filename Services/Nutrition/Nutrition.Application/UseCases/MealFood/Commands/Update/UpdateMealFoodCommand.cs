@@ -7,6 +7,6 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Update
         string Name,
         int QuantityInGrams,
         int CaloriesPerUnit)
-        : IRequest<UpdateMealFoodResponse>;
-    public record UpdateMealFoodResponse(bool IsSuccess);
+        : IRequest<UpdateMealFoodResult>;
+    public record UpdateMealFoodResult(bool IsSuccess);
 }
