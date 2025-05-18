@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
 using TaskManager.Domain.Repositories;
+using TaskManager.Domain.ValueObjects;
 using TaskManager.Infrastructure.Data;
 
 namespace TaskManager.Infrastructure.Repositories
@@ -26,6 +27,35 @@ namespace TaskManager.Infrastructure.Repositories
             return taskItem;
         }
 
+        public async Task<IEnumerable<TaskItem?>> FindByFilter(TaskItemFilter filter, CancellationToken cancellationToken = default)
+        {
+            var query = _context.TaskItems
+                .AsNoTracking()
+                .Include(t => t.Labels)
+                .Where(t => !t.IsDeleted)
+                .AsQueryable();
+
+            if (filter.UserId.HasValue)
+                query = query.Where(t => t.UserId == filter.UserId.Value);
+
+            if (!string.IsNullOrEmpty(filter.TitleContains))
+                query = query.Where(t => t.Title.Contains(filter.TitleContains));
+
+            if (filter.LabelId.HasValue)
+                query = query.Where(t => t.Labels.Any(l => l.Id == filter.LabelId.Value));
+
+            if (filter.Priority.HasValue)
+                query = query.Where(t => t.Priority == filter.Priority.Value);
+
+            if (filter.Status.HasValue)
+                query = query.Where(t => t.Status == filter.Status.Value);
+
+            if (filter.DueDate.HasValue)
+                query = query.Where(t => t.DueDate == filter.DueDate.Value);
+
+            return await query.ToListAsync(cancellationToken);
+        }
+
         public async Task<IEnumerable<TaskItem?>> GetAll(CancellationToken cancellationToken = default)
         {
             IEnumerable<TaskItem> taskItems = await _context.TaskItems
@@ -44,74 +74,6 @@ namespace TaskManager.Infrastructure.Repositories
                 .Include(x => x.Labels)
                 .Where(x => !x.IsDeleted)
                 .Where(predicate)
-                .ToListAsync(cancellationToken);
-
-            return taskItems;
-        }
-
-        public async Task<IEnumerable<TaskItem?>> GetByUserId(int userId, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskItem> taskItems = await _context.TaskItems
-                .AsNoTracking()
-                .Include(x => x.Labels)
-                .Where(x => x.UserId == userId && !x.IsDeleted)
-                .ToListAsync(cancellationToken);
-
-            return taskItems;
-        }
-
-        public async Task<IEnumerable<TaskItem>> GetByLabel(int userId, int labelId, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskItem> taskItems = await _context.TaskItems
-                .AsNoTracking()
-                .Include(x => x.Labels)
-                .Where(x => x.UserId == userId
-                    && x.Labels.Any(l => l.Id == labelId)
-                    && !x.IsDeleted)
-                .ToListAsync(cancellationToken);
-
-            return taskItems;
-        }
-
-        public async Task<IEnumerable<TaskItem?>> GetByPriority(int userId, Priority priority, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskItem> taskItems = await _context.TaskItems
-                .AsNoTracking()
-                .Include(x => x.Labels)
-                .Where(x => x.UserId == userId && x.Priority == priority && !x.IsDeleted)
-                .ToListAsync(cancellationToken);
-
-            return taskItems;
-        }
-
-        public async Task<IEnumerable<TaskItem?>> GetByStatus(int userId, Status status, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskItem> taskItems = await _context.TaskItems
-                .AsNoTracking()
-                .Include(x => x.Labels)
-                .Where(x => x.UserId == userId && x.Status == status && !x.IsDeleted)
-                .ToListAsync(cancellationToken);
-
-            return taskItems;
-        }
-
-        public async Task<IEnumerable<TaskItem?>> GetByDueDate(int userId, DateOnly dueDate, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskItem> taskItems = await _context.TaskItems
-                .AsNoTracking()
-                .Include(x => x.Labels)
-                .Where(x => x.UserId == userId && x.DueDate == dueDate && !x.IsDeleted)
-                .ToListAsync(cancellationToken);
-
-            return taskItems;
-        }
-
-        public async Task<IEnumerable<TaskItem?>> GetTitleContains(int userId, string title, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskItem> taskItems = await _context.TaskItems
-                .AsNoTracking()
-                .Include(x => x.Labels)
-                .Where(x => x.UserId == userId && x.Title.Contains(title) && !x.IsDeleted)
                 .ToListAsync(cancellationToken);
 
             return taskItems;

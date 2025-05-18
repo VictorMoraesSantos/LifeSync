@@ -12,8 +12,8 @@ using TaskManager.Infrastructure.Data;
 namespace TaskManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250419232955_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250517172251_initialcreat1")]
+    partial class initialcreat1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,6 +66,9 @@ namespace TaskManager.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -104,11 +107,21 @@ namespace TaskManager.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("TaskItemId")
+                    b.Property<int>("LabelColor")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TaskItemId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -128,34 +141,15 @@ namespace TaskManager.Infrastructure.Migrations
                         .HasForeignKey("TaskLabelId");
                 });
 
-            modelBuilder.Entity("TaskManager.Domain.Entities.TaskItem", b =>
-                {
-                    b.OwnsOne("TaskManager.Domain.ValueObjects.DueDate", "DueDate", b1 =>
-                        {
-                            b1.Property<int>("TaskItemId")
-                                .HasColumnType("integer");
-
-                            b1.Property<DateOnly>("Value")
-                                .HasColumnType("date")
-                                .HasColumnName("DueDate");
-
-                            b1.HasKey("TaskItemId");
-
-                            b1.ToTable("TaskItems");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TaskItemId");
-                        });
-
-                    b.Navigation("DueDate")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("TaskManager.Domain.Entities.TaskLabel", b =>
                 {
-                    b.HasOne("TaskManager.Domain.Entities.TaskItem", null)
+                    b.HasOne("TaskManager.Domain.Entities.TaskItem", "TaskItem")
                         .WithMany("Labels")
-                        .HasForeignKey("TaskItemId");
+                        .HasForeignKey("TaskItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TaskItem");
                 });
 
             modelBuilder.Entity("TaskManager.Domain.Entities.TaskItem", b =>

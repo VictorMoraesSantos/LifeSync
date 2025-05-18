@@ -1,4 +1,4 @@
-﻿using TaskManager.Application.DTOs;
+﻿using TaskManager.Application.DTOs.TaskLabel;
 using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Mapping

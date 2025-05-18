@@ -1,13 +1,13 @@
 ﻿using BuildingBlocks.Exceptions;
-using System.Reflection.Emit;
-using System.Threading;
-using TaskManager.Application.DTOs;
+using System.Linq.Expressions;
+using TaskManager.Application.DTOs.Filters;
+using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
 using TaskManager.Domain.Repositories;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using TaskManager.Domain.ValueObjects;
 
 namespace TaskManager.Infrastructure.Services
 {
@@ -20,7 +20,7 @@ namespace TaskManager.Infrastructure.Services
             _taskItemRepository = taskItemRepository;
         }
 
-        public async Task<TaskItemDTO> GetTaskItemByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<TaskItemDTO> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             TaskItem? taskItem = await _taskItemRepository.GetById(id, cancellationToken);
             if (taskItem == null)
@@ -30,75 +30,36 @@ namespace TaskManager.Infrastructure.Services
             return taskItemDTIO;
         }
 
-        public async Task<IEnumerable<TaskItemDTO?>> GetTaskItemsByUserIdAsync(int userId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TaskItemDTO>> GetByFilterAsync(TaskItemFilterDTO filter, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetByUserId(userId, cancellationToken);
-            if (taskItems == null)
-                throw new NotFoundException(nameof(taskItems), userId);
+            TaskItemFilter? domainFilter = new(
+                filter.UserId,
+                filter.TitleContains,
+                filter.Status,
+                filter.Priority,
+                filter.DueDate,
+                filter.LabelId);
 
-            IEnumerable<TaskItemDTO> taskItemsDTO = taskItems.Select(TaskItemMapper.ToDTO);
-            return taskItemsDTO;
+            IEnumerable<TaskItem?> entities = await _taskItemRepository.FindByFilter(domainFilter, cancellationToken);
+            IEnumerable<TaskItemDTO> dtos = entities.Select(TaskItemMapper.ToDTO);
+            return dtos;
         }
 
-        public async Task<IEnumerable<TaskItemDTO>> GetTaskItemsByDueDateAsync(int userId, DateOnly dueDate, CancellationToken cancellationToken)
-        {
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetByDueDate(userId, dueDate, cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
-
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-            return taskItemDTOs;
-        }
-
-        public async Task<IEnumerable<TaskItemDTO>> GetTaskItemsByLabelIdAsync(int userId, int labelId, CancellationToken cancellationToken)
-        {
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetByLabel(userId, labelId, cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
-
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-            return taskItemDTOs;
-        }
-
-        public async Task<IEnumerable<TaskItemDTO>> GetTaskItemsByPriorityAsync(int userId, Priority priority, CancellationToken cancellationToken)
-        {
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetByPriority(userId, priority, cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
-
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-            return taskItemDTOs;
-        }
-
-        public async Task<IEnumerable<TaskItemDTO>> GetTaskItemsByStatusAsync(int userId, Status status, CancellationToken cancellationToken)
-        {
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetByStatus(userId, status, cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
-
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-            return taskItemDTOs;
-        }
-
-        public async Task<IEnumerable<TaskItemDTO>> GetTaskItemsTitleAsync(int userId, string title, CancellationToken cancellationToken)
-        {
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetTitleContains(userId, title, cancellationToken);
-            if (taskItems == null || !taskItems.Any())
-                throw new NotFoundException("TaskItems was not found");
-
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-            return taskItemDTOs;
-        }
-
-
-        public async Task<IEnumerable<TaskItemDTO>> GetAllTaskItemsAsync(CancellationToken cancellationToken)
+        public async Task<IEnumerable<TaskItemDTO>> GetAllAsync(CancellationToken cancellationToken)
         {
             IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetAll(cancellationToken);
             IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
             return taskItemDTOs;
         }
 
-        public async Task<bool> UpdateTaskItemAsync(int id, string title, string description, int status, int priority, DateOnly dueDate, CancellationToken cancellationToken)
+        public async Task<bool> CreateAsync(CreateTaskItemDTO dto, CancellationToken cancellationToken)
+        {
+            TaskItem entity = new(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId);
+            await _taskItemRepository.Create(entity, cancellationToken);
+            return true;
+        }
+
+        public async Task<bool> UpdateAsync(int id, string title, string description, int status, int priority, DateOnly dueDate, CancellationToken cancellationToken)
         {
             TaskItem? taskItem = await _taskItemRepository.GetById(id, cancellationToken);
             if (taskItem == null)
@@ -109,14 +70,7 @@ namespace TaskManager.Infrastructure.Services
             return true;
         }
 
-        public async Task<int> CreateTaskItemAsync(string title, string description, int priority, DateOnly dueDate, int userId, CancellationToken cancellationToken)
-        {
-            TaskItem taskItem = new(title, description, (Priority)priority, dueDate, userId);
-            await _taskItemRepository.Create(taskItem, cancellationToken);
-            return taskItem.Id;
-        }
-
-        public async Task<bool> DeleteTaskItemAsync(int id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             TaskItem? taskItem = await _taskItemRepository.GetById(id, cancellationToken);
             if (taskItem == null)
@@ -124,6 +78,79 @@ namespace TaskManager.Infrastructure.Services
 
             taskItem.MarkAsDeleted();
             await _taskItemRepository.Update(taskItem, cancellationToken);
+            return true;
+        }
+
+        public async Task<(IEnumerable<TaskItemDTO> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            IEnumerable<TaskItem?> all = await _taskItemRepository.GetAll(cancellationToken);
+            int totalCount = all.Count();
+
+            IEnumerable<TaskItemDTO?> items = all
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(TaskItemMapper.ToDTO!);
+
+            return (items, totalCount);
+        }
+
+        public async Task<IEnumerable<TaskItemDTO>> FindAsync(Expression<Func<TaskItemDTO, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            IEnumerable<TaskItem?> entities = await _taskItemRepository.GetAll(cancellationToken);
+            IEnumerable<TaskItemDTO?> dtos = entities.Select(TaskItemMapper.ToDTO!);
+            return dtos;
+        }
+
+        public async Task<int> CountAsync(Expression<Func<TaskItemDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
+        {
+            var all = await _taskItemRepository.GetAll(cancellationToken);
+            return all.Count();
+        }
+
+        public async Task<bool> CreateRangeAsync(IEnumerable<CreateTaskItemDTO> dto, CancellationToken cancellationToken = default)
+        {
+            if (dto == null) return false;
+
+            IEnumerable<TaskItem> entities = dto.Select(TaskItemMapper.ToEntity);
+
+            await _taskItemRepository.CreateRange(entities, cancellationToken);
+            return true;
+        }
+
+        public async Task<bool> UpdateAsync(UpdateTaskItemDTO dto, CancellationToken cancellationToken = default)
+        {
+            if (dto == null) return false;
+
+            TaskItem? entity = await _taskItemRepository.GetById(dto.Id, cancellationToken);
+            if (entity == null) return false;
+
+            entity.Update(dto.Title, dto.Description, (Status)dto.Status, (Priority)dto.Priority, dto.DueDate);
+            entity.MarkAsUpdated();
+
+            // Atualizar refeições e líquidos pode ser complexo e depende da regra de negócio
+            // Aqui você pode implementar lógica para atualizar as coleções conforme necessário
+
+            await _taskItemRepository.Update(entity, cancellationToken);
+            return true;
+        }
+
+        public async Task<bool> DeleteRangeAsync(IEnumerable<int> dtos, CancellationToken cancellationToken = default)
+        {
+            if (dtos == null || !dtos.Any()) return false;
+
+            List<TaskItem?> entities = new();
+            foreach (var id in dtos)
+            {
+                TaskItem? entity = await _taskItemRepository.GetById(id, cancellationToken);
+                if (entity != null)
+                    entities.Add(entity);
+            }
+
+            if (!entities.Any()) return false;
+
+            foreach (var entity in entities)
+                await _taskItemRepository.Delete(entity, cancellationToken);
+
             return true;
         }
     }

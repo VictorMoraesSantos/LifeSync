@@ -1,35 +1,35 @@
-﻿using TaskManager.Application.DTOs;
+﻿using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Mapping
 {
     public static class TaskItemMapper
     {
-        public static TaskItemDTO ToDTO(this TaskItem taskItem)
+        public static TaskItemDTO ToDTO(this TaskItem entity)
         {
-            TaskItemDTO taskItemDTO = new(
-                taskItem.Id,
-                taskItem.CreatedAt,
-                taskItem.UpdatedAt,
-                taskItem.Title,
-                taskItem.Description,
-                taskItem.Status,
-                taskItem.Priority,
-                taskItem.DueDate,
-                taskItem.UserId,
-                taskItem.Labels.Select(l => l.ToDTO()).ToList());
-            return taskItemDTO;
+            TaskItemDTO dto = new(
+                entity.Id,
+                entity.CreatedAt,
+                entity.UpdatedAt,
+                entity.Title,
+                entity.Description,
+                entity.Status,
+                entity.Priority,
+                entity.DueDate,
+                entity.UserId,
+                entity.Labels.Select(l => l.ToDTO()).ToList());
+            return dto;
         }
 
-        public static TaskItem ToEntity(this TaskItemDTO taskItemDTO)
+        public static TaskItem ToEntity(this CreateTaskItemDTO dto)
         {
-            TaskItem taskItem = new(
-                taskItemDTO.Title,
-                taskItemDTO.Description,
-                taskItemDTO.Priority,
-                taskItemDTO.DueDate,
-                taskItemDTO.UserId);
-            return taskItem;
+            TaskItem entity = new(
+                dto.Title,
+                dto.Description,
+                dto.Priority,
+                dto.DueDate,
+                dto.UserId);
+            return entity;
         }
     }
 }

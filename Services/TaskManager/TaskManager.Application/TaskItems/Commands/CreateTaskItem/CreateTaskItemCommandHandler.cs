@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
+using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
@@ -15,17 +16,14 @@ namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
 
         public async Task<CreateTaskItemResult> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            if (command == null)
-                throw new BadRequestException(nameof(command), "Command cannot be null");
-
-            int result = await _taskItemService.CreateTaskItemAsync(
+            CreateTaskItemDTO dto = new(
                 command.Title,
                 command.Description,
-                (int)command.Priority,
+                command.Priority,
                 command.DueDate,
-                command.UserId,
-                cancellationToken
-            );
+                command.UserId);
+
+            bool result = await _taskItemService.CreateAsync(dto, cancellationToken);
 
             CreateTaskItemResult response = new(result);
             return response;

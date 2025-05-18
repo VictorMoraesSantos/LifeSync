@@ -2,7 +2,7 @@
 using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Application.DTOs;
+using TaskManager.Application.DTOs.TaskLabel;
 using TaskManager.Application.TaskLabels.Commands.CreateTaskLabel;
 using TaskManager.Application.TaskLabels.Commands.DeleteTaskLabel;
 using TaskManager.Application.TaskLabels.Commands.UpdateTaskLabel;

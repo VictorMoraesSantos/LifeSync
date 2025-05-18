@@ -1,6 +1,8 @@
-﻿using TaskManager.Domain.Enums;
+﻿using Core.Application.DTO;
+using TaskManager.Application.DTOs.TaskLabel;
+using TaskManager.Domain.Enums;
 
-namespace TaskManager.Application.DTOs
+namespace TaskManager.Application.DTOs.TaskItem
 {
     public record TaskItemDTO(
         int Id,
@@ -13,6 +15,6 @@ namespace TaskManager.Application.DTOs
         DateOnly DueDate,
         int UserId,
         List<TaskLabelDTO> Labels
-    );
+        ) : DTOBase(Id, CreatedAt, UpdatedAt);
 }
 

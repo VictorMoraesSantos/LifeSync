@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
+using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Commands.UpdateTaskItem
@@ -15,17 +16,15 @@ namespace TaskManager.Application.TaskItems.Commands.UpdateTaskItem
 
         public async Task<UpdateTaskItemCommandResult> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            if (command == null)
-                throw new BadRequestException(nameof(command), "Command cannot be null");
-
-            bool result = await _taskItemService.UpdateTaskItemAsync(
+            UpdateTaskItemDTO dto = new(
                 command.Id,
                 command.Title,
                 command.Description,
-                (int)command.Status,
-                (int)command.Priority,
-                command.DueDate,
-                cancellationToken);
+                command.Status,
+                command.Priority,
+                command.DueDate);
+
+            bool result = await _taskItemService.UpdateAsync(dto, cancellationToken);
 
             UpdateTaskItemCommandResult response = new(result);
             return response;

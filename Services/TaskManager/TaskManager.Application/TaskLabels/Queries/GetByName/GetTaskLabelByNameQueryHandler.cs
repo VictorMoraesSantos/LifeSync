@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
-using TaskManager.Application.DTOs;
+using TaskManager.Application.DTOs.TaskLabel;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskLabels.Queries.GetByName

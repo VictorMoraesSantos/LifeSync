@@ -1,6 +1,6 @@
 ﻿using TaskManager.Domain.Enums;
 
-namespace TaskManager.Application.DTOs
+namespace TaskManager.Application.DTOs.TaskLabel
 {
     public record TaskLabelDTO
     {

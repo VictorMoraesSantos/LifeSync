@@ -12,8 +12,8 @@ using TaskManager.Infrastructure.Data;
 namespace TaskManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250419233544_InitialCreate1")]
-    partial class InitialCreate1
+    [Migration("20250517172137_initialcreate")]
+    partial class initialcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,11 +107,21 @@ namespace TaskManager.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("TaskItemId")
+                    b.Property<int>("LabelColor")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TaskItemId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -133,9 +143,13 @@ namespace TaskManager.Infrastructure.Migrations
 
             modelBuilder.Entity("TaskManager.Domain.Entities.TaskLabel", b =>
                 {
-                    b.HasOne("TaskManager.Domain.Entities.TaskItem", null)
+                    b.HasOne("TaskManager.Domain.Entities.TaskItem", "TaskItem")
                         .WithMany("Labels")
-                        .HasForeignKey("TaskItemId");
+                        .HasForeignKey("TaskItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TaskItem");
                 });
 
             modelBuilder.Entity("TaskManager.Domain.Entities.TaskItem", b =>

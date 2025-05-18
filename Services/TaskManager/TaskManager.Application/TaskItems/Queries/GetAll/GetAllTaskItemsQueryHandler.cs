@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.Exceptions;
 using MediatR;
-using TaskManager.Application.DTOs;
+using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskItems.Queries.GetAll
@@ -16,7 +16,7 @@ namespace TaskManager.Application.TaskItems.Queries.GetAll
 
         public async Task<GetAllTaskItemsResult> Handle(GetAllTaskItemsQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskItemDTO?> result = await _taskItemService.GetAllTaskItemsAsync(cancellationToken);
+            IEnumerable<TaskItemDTO?> result = await _taskItemService.GetAllAsync(cancellationToken);
             GetAllTaskItemsResult response = new(result);
             return response;
         }
