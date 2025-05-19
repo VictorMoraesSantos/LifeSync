@@ -16,10 +16,7 @@ namespace TaskManager.Application.TaskLabels.Queries.GetById
 
         public async Task<GetTaskLabelByIdResult> Handle(GetTaskLabelByIdQuery query, CancellationToken cancellationToken)
         {
-            if(query == null)
-                throw new BadRequestException("Query cannot be null");
-
-            TaskLabelDTO result = await _taskLabelService.GetTaskLabelByIdAsync(query.Id, cancellationToken);
+            TaskLabelDTO? result = await _taskLabelService.GetByIdAsync(query.Id, cancellationToken);
             GetTaskLabelByIdResult response = new(result);
             return response;
         }

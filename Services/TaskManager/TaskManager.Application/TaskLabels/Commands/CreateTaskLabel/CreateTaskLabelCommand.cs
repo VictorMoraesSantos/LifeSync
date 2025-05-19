@@ -5,5 +5,5 @@ namespace TaskManager.Application.TaskLabels.Commands.CreateTaskLabel
 {
     public record CreateTaskLabelCommand(string Name, LabelColor LabelColor, int UserId, int TaskItemId)
         : IRequest<CreateTaskLabelResult>;
-    public record CreateTaskLabelResult(int id);
+    public record CreateTaskLabelResult(bool IsSuccess);
 }

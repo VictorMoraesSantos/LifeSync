@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.DTOs.TaskLabel.TaskLabel
 {
-    internal class UpdateTaskLabelDTO
-    {
-    }
+    public record UpdateTaskLabelDTO(int Id, string Name, LabelColor LabelColor);
 }

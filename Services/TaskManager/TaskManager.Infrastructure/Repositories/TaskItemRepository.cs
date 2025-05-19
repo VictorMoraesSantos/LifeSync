@@ -19,17 +19,17 @@ namespace TaskManager.Infrastructure.Repositories
 
         public async Task<TaskItem?> GetById(int id, CancellationToken cancellationToken = default)
         {
-            TaskItem? taskItem = await _context.TaskItems
+            TaskItem? entity = await _context.TaskItems
                 .AsNoTracking()
                 .Include(x => x.Labels)
                 .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
 
-            return taskItem;
+            return entity;
         }
 
         public async Task<IEnumerable<TaskItem?>> FindByFilter(TaskItemFilter filter, CancellationToken cancellationToken = default)
         {
-            var query = _context.TaskItems
+            IQueryable<TaskItem> query = _context.TaskItems
                 .AsNoTracking()
                 .Include(t => t.Labels)
                 .Where(t => !t.IsDeleted)
@@ -53,30 +53,31 @@ namespace TaskManager.Infrastructure.Repositories
             if (filter.DueDate.HasValue)
                 query = query.Where(t => t.DueDate == filter.DueDate.Value);
 
-            return await query.ToListAsync(cancellationToken);
+            IEnumerable<TaskItem> entities = await query.ToListAsync(cancellationToken);
+            return entities;
         }
 
         public async Task<IEnumerable<TaskItem?>> GetAll(CancellationToken cancellationToken = default)
         {
-            IEnumerable<TaskItem> taskItems = await _context.TaskItems
+            IEnumerable<TaskItem> entities = await _context.TaskItems
                 .AsNoTracking()
                 .Include(x => x.Labels)
                 .Where(x => !x.IsDeleted)
                 .ToListAsync(cancellationToken);
 
-            return taskItems;
+            return entities;
         }
 
         public async Task<IEnumerable<TaskItem?>> Find(Expression<Func<TaskItem, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            IEnumerable<TaskItem> taskItems = await _context.TaskItems
+            IEnumerable<TaskItem> entities = await _context.TaskItems
                 .AsNoTracking()
                 .Include(x => x.Labels)
                 .Where(x => !x.IsDeleted)
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
 
-            return taskItems;
+            return entities;
         }
 
         public async Task Create(TaskItem entity, CancellationToken cancellationToken = default)

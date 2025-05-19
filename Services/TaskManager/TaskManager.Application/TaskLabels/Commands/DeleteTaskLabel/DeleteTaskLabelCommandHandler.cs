@@ -18,7 +18,7 @@ namespace TaskManager.Application.TaskLabels.Commands.DeleteTaskLabel
             if(command == null)
                 throw new BadRequestException("Command cannot be null");
 
-            bool result = await _taskLabelService.DeleteTaskLabelAsync(command.Id, cancellationToken);
+            bool result = await _taskLabelService.DeleteAsync(command.Id, cancellationToken);
             DeleteTaskLabelResult response = new(result);
             return response;
         }

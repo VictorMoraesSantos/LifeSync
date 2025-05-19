@@ -1,5 +1,5 @@
-﻿using BuildingBlocks.Exceptions;
-using MediatR;
+﻿using MediatR;
+using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.TaskLabels.Commands.CreateTaskLabel
@@ -15,10 +15,13 @@ namespace TaskManager.Application.TaskLabels.Commands.CreateTaskLabel
 
         public async Task<CreateTaskLabelResult> Handle(CreateTaskLabelCommand command, CancellationToken cancellationToken)
         {
-            if (command == null)
-                throw new BadRequestException("Command cannot be null");
+            CreateTaskLabelDTO dto = new(
+                command.Name,
+                command.LabelColor,
+                command.UserId,
+                command.TaskItemId);
 
-            int result = await _taskLabelService.CreateTaskLabelAsync(command.Name, (int)command.LabelColor, command.UserId, command.TaskItemId, cancellationToken);
+            bool result = await _taskLabelService.CreateAsync(dto, cancellationToken);
             CreateTaskLabelResult response = new(result);
             return response;
         }

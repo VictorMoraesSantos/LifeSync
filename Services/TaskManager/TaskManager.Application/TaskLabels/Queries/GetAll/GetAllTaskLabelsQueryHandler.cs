@@ -15,7 +15,7 @@ namespace TaskManager.Application.TaskLabels.Queries.GetAll
 
         public async Task<GetAllTaskLabelsResult> Handle(GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabelDTO> result = await _taskLabelService.GetAllTaskLabelsAsync(cancellationToken);
+            IEnumerable<TaskLabelDTO> result = await _taskLabelService.GetAllAsync(cancellationToken);
             GetAllTaskLabelsResult response = new(result);
             return response;
         }

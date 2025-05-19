@@ -1,20 +1,32 @@
 ﻿using TaskManager.Application.DTOs.TaskLabel;
+using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Mapping
 {
     public static class TaskLabelMapper
     {
-        public static TaskLabelDTO ToDTO(this TaskLabel taskLabel)
+        public static TaskLabelDTO ToDTO(this TaskLabel entity)
         {
-            TaskLabelDTO taskLabelDTO = new(taskLabel.Id, taskLabel.CreatedAt, taskLabel.UpdatedAt, taskLabel.Name, taskLabel.LabelColor, taskLabel.UserId, taskLabel.TaskItemId);
-            return taskLabelDTO;
+            TaskLabelDTO dto = new(
+                entity.Id,
+                entity.CreatedAt,
+                entity.UpdatedAt,
+                entity.Name,
+                entity.LabelColor,
+                entity.UserId,
+                entity.TaskItemId);
+            return dto;
         }
 
-        public static TaskLabel ToEntity(this TaskLabelDTO taskLabelDTO)
+        public static TaskLabel ToEntity(this CreateTaskLabelDTO dto)
         {
-            TaskLabel taskLabel = new(taskLabelDTO.Name, taskLabelDTO.Color, taskLabelDTO.UserId, taskLabelDTO.TaskItemId);
-            return taskLabel;
+            TaskLabel entity = new(
+                dto.Name,
+                dto.LabelColor,
+                dto.UserId,
+                dto.TaskItemId);
+            return entity;
         }
     }
 }

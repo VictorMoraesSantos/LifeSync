@@ -23,8 +23,7 @@ namespace TaskManager.Infrastructure.Services
         public async Task<TaskItemDTO> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             TaskItem? taskItem = await _taskItemRepository.GetById(id, cancellationToken);
-            if (taskItem == null)
-                throw new NotFoundException(nameof(taskItem), id);
+            if (taskItem == null) return null;
 
             TaskItemDTO taskItemDTIO = taskItem.ToDTO();
             return taskItemDTIO;
@@ -47,9 +46,9 @@ namespace TaskManager.Infrastructure.Services
 
         public async Task<IEnumerable<TaskItemDTO>> GetAllAsync(CancellationToken cancellationToken)
         {
-            IEnumerable<TaskItem?> taskItems = await _taskItemRepository.GetAll(cancellationToken);
-            IEnumerable<TaskItemDTO> taskItemDTOs = taskItems.Select(TaskItemMapper.ToDTO);
-            return taskItemDTOs;
+            IEnumerable<TaskItem?> entities = await _taskItemRepository.GetAll(cancellationToken);
+            IEnumerable<TaskItemDTO> dtos = entities.Select(TaskItemMapper.ToDTO);
+            return dtos;
         }
 
         public async Task<bool> CreateAsync(CreateTaskItemDTO dto, CancellationToken cancellationToken)
@@ -61,23 +60,21 @@ namespace TaskManager.Infrastructure.Services
 
         public async Task<bool> UpdateAsync(int id, string title, string description, int status, int priority, DateOnly dueDate, CancellationToken cancellationToken)
         {
-            TaskItem? taskItem = await _taskItemRepository.GetById(id, cancellationToken);
-            if (taskItem == null)
-                throw new NotFoundException(nameof(taskItem), id);
+            TaskItem? entity = await _taskItemRepository.GetById(id, cancellationToken);
+            if (entity == null) return false;
 
-            taskItem.Update(title, description, (Status)status, (Priority)priority, dueDate);
-            await _taskItemRepository.Update(taskItem, cancellationToken);
+            entity.Update(title, description, (Status)status, (Priority)priority, dueDate);
+            await _taskItemRepository.Update(entity, cancellationToken);
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            TaskItem? taskItem = await _taskItemRepository.GetById(id, cancellationToken);
-            if (taskItem == null)
-                throw new NotFoundException(nameof(taskItem), id);
+            TaskItem? entity = await _taskItemRepository.GetById(id, cancellationToken);
+            if (entity == null) return false;
 
-            taskItem.MarkAsDeleted();
-            await _taskItemRepository.Update(taskItem, cancellationToken);
+            entity.MarkAsDeleted();
+            await _taskItemRepository.Update(entity, cancellationToken);
             return true;
         }
 

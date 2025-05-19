@@ -4,8 +4,8 @@ using TaskManager.Application.DTOs.TaskItem;
 
 namespace TaskManager.Application.Interfaces
 {
-    public interface ITaskItemService :
-        IReadService<TaskItemDTO, int>,
+    public interface ITaskItemService
+        : IReadService<TaskItemDTO, int>,
         ICreateService<CreateTaskItemDTO>,
         IUpdateService<UpdateTaskItemDTO>,
         IDeleteService<int>

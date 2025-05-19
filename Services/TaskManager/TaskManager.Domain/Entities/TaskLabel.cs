@@ -9,7 +9,7 @@ namespace TaskManager.Domain.Entities
         public LabelColor LabelColor { get; private set; }
         public int UserId { get; private set; }
         public int TaskItemId { get; private set; }
-        public TaskItem TaskItem { get; private set; } 
+        public TaskItem TaskItem { get; private set; }
 
         protected TaskLabel() { }
 
@@ -22,12 +22,11 @@ namespace TaskManager.Domain.Entities
             TaskItemId = taskItemId;
         }
 
-        public void Update(string name, LabelColor labelColor, int taskItemId)
+        public void Update(string name, LabelColor labelColor)
         {
             Validate(name);
             Name = name;
             LabelColor = labelColor;
-            TaskItemId = taskItemId;
             MarkAsUpdated();
         }
 

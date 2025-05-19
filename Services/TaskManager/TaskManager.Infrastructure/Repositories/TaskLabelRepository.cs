@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Repositories;
+using TaskManager.Domain.ValueObjects;
 using TaskManager.Infrastructure.Data;
 
 namespace TaskManager.Infrastructure.Repositories
@@ -17,52 +18,55 @@ namespace TaskManager.Infrastructure.Repositories
 
         public async Task<TaskLabel?> GetById(int id, CancellationToken cancellationToken = default)
         {
-            TaskLabel? taskLabel = await _context.TaskLabels
+            TaskLabel? entity = await _context.TaskLabels
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
 
-            return taskLabel;
+            return entity;
         }
 
-        public async Task<IEnumerable<TaskLabel?>> GetByUserId(int userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TaskLabel?>> FindByFilter(TaskLabelFilter filter, CancellationToken cancellationToken = default)
         {
-            IEnumerable<TaskLabel> taskLabels = await _context.TaskLabels
+            IQueryable<TaskLabel> query = _context.TaskLabels
                 .AsNoTracking()
-                .Where(x => x.UserId == userId && !x.IsDeleted)
-                .ToListAsync(cancellationToken);
+                .Where(x => !x.IsDeleted)
+                .AsQueryable();
 
-            return taskLabels;
+            if (filter.UserId.HasValue)
+                query = query.Where(x => x.UserId == filter.UserId.Value);
+
+            if (filter.TaskItemId.HasValue)
+                query = query.Where(x => x.TaskItemId == filter.TaskItemId.Value);
+
+            if (!string.IsNullOrWhiteSpace(filter.NameContains))
+                query = query.Where(x => x.Name.Contains(filter.NameContains));
+
+            if (filter.LabelColor.HasValue)
+                query = query.Where(x => x.LabelColor == filter.LabelColor.Value);
+
+            IEnumerable<TaskLabel> entities = await query.ToListAsync(cancellationToken);
+            return entities;
         }
 
         public async Task<IEnumerable<TaskLabel?>> GetAll(CancellationToken cancellationToken = default)
         {
-            IEnumerable<TaskLabel> taskLabels = await _context.TaskLabels
+            IEnumerable<TaskLabel> entities = await _context.TaskLabels
                 .AsNoTracking()
                 .Where(x => !x.IsDeleted)
                 .ToListAsync(cancellationToken);
 
-            return taskLabels;
+            return entities;
         }
 
         public async Task<IEnumerable<TaskLabel?>> Find(Expression<Func<TaskLabel, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            IEnumerable<TaskLabel> taskLabels = await _context.TaskLabels
+            IEnumerable<TaskLabel> entities = await _context.TaskLabels
                 .AsNoTracking()
                 .Where(x => !x.IsDeleted)
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
 
-            return taskLabels;
-        }
-
-        public async Task<IEnumerable<TaskLabel?>> GetByName(int userId, string name, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskLabel> taskLabels = await _context.TaskLabels
-                .AsNoTracking()
-                .Where(x => x.UserId == userId && x.Name.Contains(name) && !x.IsDeleted)
-                .ToListAsync(cancellationToken);
-
-            return taskLabels;
+            return entities;
         }
 
         public async Task Create(TaskLabel entity, CancellationToken cancellationToken = default)

@@ -1,13 +1,14 @@
 ﻿using BuildingBlocks.Exceptions;
-using MediatR;
+using System.Linq.Expressions;
+using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskLabel;
+using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;
 using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
-using TaskManager.Domain.Enums;
 using TaskManager.Domain.Repositories;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using TaskManager.Domain.ValueObjects;
+using TaskManager.Infrastructure.Repositories;
 
 namespace TaskManager.Infrastructure.Services
 {
@@ -20,74 +21,117 @@ namespace TaskManager.Infrastructure.Services
             _taskLabelRepository = taskLabelRepository;
         }
 
-        public async Task<IEnumerable<TaskLabelDTO>> GetAllTaskLabelsAsync(CancellationToken cancellationToken)
+        public async Task<IEnumerable<TaskLabelDTO>> GetAllAsync(CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabel?> taskLabels = await _taskLabelRepository.GetAll(cancellationToken);
-            IEnumerable<TaskLabelDTO> taskLabelDTOs = taskLabels.Select(tl => tl.ToDTO());
-            return taskLabelDTOs;
+            IEnumerable<TaskLabel?> entities = await _taskLabelRepository.GetAll(cancellationToken);
+            IEnumerable<TaskLabelDTO> dtos = entities.Select(tl => tl.ToDTO());
+            return dtos;
         }
 
-        public async Task<TaskLabelDTO> GetTaskLabelByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TaskLabelDTO>> GetByFilterAsync(TaskLabelFilterDTO filter, CancellationToken cancellationToken)
         {
-            TaskLabel? taskLabel = await _taskLabelRepository.GetById(id, cancellationToken);
-            if (taskLabel == null)
-                throw new NotFoundException(nameof(TaskLabel), id);
+            TaskLabelFilter? domainFilter = new(
+                filter.UserId,
+                filter.TaskItemId,
+                filter.NameContains,
+                filter.LabelColor);
 
-            TaskLabelDTO taskLabelDTO = TaskLabelMapper.ToDTO(taskLabel);
-            return taskLabelDTO;
+            IEnumerable<TaskLabel?> entities = await _taskLabelRepository.FindByFilter(domainFilter, cancellationToken);
+            IEnumerable<TaskLabelDTO> dtos = entities.Select(TaskLabelMapper.ToDTO);
+            return dtos;
         }
 
-        public async Task<IEnumerable<TaskLabelDTO>> GetTaskLabelsByNameAsync(int userId, string name, CancellationToken cancellationToken)
+        public async Task<TaskLabelDTO?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabel?> taskLabels = await _taskLabelRepository.GetByName(userId, name, cancellationToken);
-            if (taskLabels == null || !taskLabels.Any())
-                throw new NotFoundException("TaskLabel cannot be found");
+            TaskLabel? entities = await _taskLabelRepository.GetById(id, cancellationToken);
+            if (entities == null)
+                return null;
 
-            IEnumerable<TaskLabelDTO> taskLabelDTOs = taskLabels.Select(t => t.ToDTO());
-            return taskLabelDTOs;
+            TaskLabelDTO dtos = TaskLabelMapper.ToDTO(entities);
+            return dtos;
         }
 
-        public Task<IEnumerable<TaskLabelDTO>> GetTaskLabelsByTaskItemIdAsync(int userId, int taskItemId, CancellationToken cancellationToken)
+        public async Task<bool> CreateAsync(CreateTaskLabelDTO dto, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<TaskLabelDTO>> GetTaskLabelsByUserIdAsync(int userId, CancellationToken cancellationToken)
-        {
-            IEnumerable<TaskLabel?> taskLabels = await _taskLabelRepository.GetByUserId(userId, cancellationToken);
-            if (taskLabels == null || !taskLabels.Any())
-                throw new NotFoundException("TaskLabel cannot be found");
-
-            IEnumerable<TaskLabelDTO> taskLabelDTOs = taskLabels.Select(t => t.ToDTO());
-            return taskLabelDTOs;
-        }
-
-        public async Task<int> CreateTaskLabelAsync(string name, int labelColor, int userId, int taskItemId, CancellationToken cancellationToken)
-        {
-            TaskLabel taskLabel = new(name, (LabelColor)labelColor, userId, taskItemId);
-            await _taskLabelRepository.Create(taskLabel, cancellationToken);
-            return taskLabel.Id;
-        }
-
-        public async Task<bool> UpdateTaskLabelAsync(int id, string name, int labelColor, int userId, int taskItemId, CancellationToken cancellationToken)
-        {
-            TaskLabel? taskLabel = await _taskLabelRepository.GetById(id, cancellationToken);
-            if (taskLabel == null)
-                throw new NotFoundException(nameof(taskLabel), id);
-
-            taskLabel.Update(name, (LabelColor)labelColor, taskItemId);
-            await _taskLabelRepository.Update(taskLabel, cancellationToken);
+            TaskLabel entity = new(dto.Name, dto.LabelColor, dto.UserId, dto.TaskItemId);
+            await _taskLabelRepository.Create(entity, cancellationToken);
             return true;
         }
 
-        public async Task<bool> DeleteTaskLabelAsync(int id, CancellationToken cancellationToken)
+        public async Task<bool> UpdateAsync(UpdateTaskLabelDTO dto, CancellationToken cancellationToken)
         {
-            TaskLabel? taskLabel = await _taskLabelRepository.GetById(id, cancellationToken);
-            if (taskLabel == null)
-                throw new NotFoundException(nameof(TaskLabel), id);
+            TaskLabel? entity = await _taskLabelRepository.GetById(dto.Id, cancellationToken);
+            if (entity == null)
+                throw new NotFoundException(nameof(entity), dto.Id);
 
-            taskLabel.MarkAsDeleted();
-            await _taskLabelRepository.Update(taskLabel, cancellationToken);
+            entity.Update(dto.Name, dto.LabelColor);
+            await _taskLabelRepository.Update(entity, cancellationToken);
+            return true;
+        }
+
+        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
+        {
+            TaskLabel? entity = await _taskLabelRepository.GetById(id, cancellationToken);
+            if (entity == null) return false;
+
+            entity.MarkAsDeleted();
+            await _taskLabelRepository.Update(entity, cancellationToken);
+            return true;
+        }
+
+        public async Task<(IEnumerable<TaskLabelDTO?> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            IEnumerable<TaskLabel?> all = await _taskLabelRepository.GetAll(cancellationToken);
+            int totalCount = all.Count();
+
+            IEnumerable<TaskLabelDTO?> items = all
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(TaskLabelMapper.ToDTO!);
+
+            return (items, totalCount);
+        }
+
+        public async Task<IEnumerable<TaskLabelDTO?>> FindAsync(Expression<Func<TaskLabelDTO, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            IEnumerable<TaskLabel?> entities = await _taskLabelRepository.GetAll(cancellationToken);
+            IEnumerable<TaskLabelDTO?> dtos = entities.Select(TaskLabelMapper.ToDTO!);
+            return dtos;
+        }
+
+        public async Task<int> CountAsync(Expression<Func<TaskLabelDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
+        {
+            var all = await _taskLabelRepository.GetAll(cancellationToken);
+            return all.Count();
+        }
+
+        public async Task<bool> CreateRangeAsync(IEnumerable<CreateTaskLabelDTO> dto, CancellationToken cancellationToken = default)
+        {
+            if (dto == null) return false;
+
+            IEnumerable<TaskLabel> entities = dto.Select(TaskLabelMapper.ToEntity);
+
+            await _taskLabelRepository.CreateRange(entities, cancellationToken);
+            return true;
+        }
+
+        public async Task<bool> DeleteRangeAsync(IEnumerable<int> dtos, CancellationToken cancellationToken = default)
+        {
+            if (dtos == null || !dtos.Any()) return false;
+
+            List<TaskLabel?> entities = new();
+            foreach (var id in dtos)
+            {
+                TaskLabel? entity = await _taskLabelRepository.GetById(id, cancellationToken);
+                if (entity != null)
+                    entities.Add(entity);
+            }
+
+            if (!entities.Any()) return false;
+
+            foreach (var entity in entities)
+                await _taskLabelRepository.Delete(entity, cancellationToken);
+
             return true;
         }
     }

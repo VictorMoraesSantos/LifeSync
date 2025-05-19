@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.DTOs.TaskLabel.TaskLabel
 {
-    internal class CreateTaskLabelDTO
-    {
-    }
+    public record CreateTaskLabelDTO(
+        string Name,
+        LabelColor LabelColor,
+        int UserId,
+        int TaskItemId);
 }
