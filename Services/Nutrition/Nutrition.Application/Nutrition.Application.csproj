@@ -12,7 +12,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="UseCases\DailyProgress\" />
+		<Folder Include="UseCases\DailyProgress\Commands\" />
+		<Folder Include="UseCases\DailyProgress\Queries\" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -8,8 +8,8 @@ namespace Nutrition.Domain.Entities
     {
         public int UserId { get; private set; }
         public DateOnly Date { get; private set; }
-        public int CaloriesConsumed { get; private set; } = 0;
-        public int LiquidsConsumedMl { get; private set; } = 0;
+        public int? CaloriesConsumed { get; private set; } = 0;
+        public int? LiquidsConsumedMl { get; private set; } = 0;
 
         public DailyGoal Goal { get; private set; }
 
@@ -51,19 +51,12 @@ namespace Nutrition.Domain.Entities
             Goal = goal;
         }
 
-        public void UpdateGoal(DailyGoal goal)
-        {
-            if (goal == null)
-                throw new DomainException($"{nameof(goal)} cannot be null.");
-            Goal = goal;
-        }
-
         public void ResetGoal()
         {
             Goal = new DailyGoal(0, 0);
         }
 
-        public void SetConsumed(int caloriesConsumed, int liquidsConsumedMl)
+        public void SetConsumed(int? caloriesConsumed, int? liquidsConsumedMl)
         {
             Validate(caloriesConsumed);
             Validate(liquidsConsumedMl);
@@ -71,6 +64,14 @@ namespace Nutrition.Domain.Entities
                 CaloriesConsumed = caloriesConsumed;
             if (LiquidsConsumedMl == 0)
                 LiquidsConsumedMl = liquidsConsumedMl;
+        }
+
+        public void AddConsumed(int calories, int liquidsMl)
+        {
+            Validate(calories);
+            Validate(liquidsMl);
+            CaloriesConsumed += calories;
+            LiquidsConsumedMl += liquidsMl;
         }
 
         public int GetCaloriesProgressPercentage()
@@ -100,7 +101,7 @@ namespace Nutrition.Domain.Entities
             return LiquidsConsumedMl >= Goal.QuantityMl;
         }
 
-        private void Validate(int value)
+        private void Validate(int? value)
         {
             if (value < 0)
                 throw new ArgumentOutOfRangeException($"{nameof(value)} cannot be negative.");

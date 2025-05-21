@@ -1,4 +1,5 @@
-﻿using Nutrition.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Data;
 using System.Linq.Expressions;
@@ -14,39 +15,59 @@ namespace Nutrition.Infrastructure.Repositories
             _context = context;
         }
 
-        public Task<DailyProgress?> GetById(int id, CancellationToken cancellationToken = default)
+        public async Task<DailyProgress?> GetById(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            DailyProgress? dailyProgress = await _context.DailyProgresses
+                .AsNoTracking()
+                .Include(dp => dp.Goal)
+                .FirstOrDefaultAsync(dp => dp.Id == id, cancellationToken);
+
+            return dailyProgress;
         }
 
-        public Task<IEnumerable<DailyProgress?>> GetAll(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<DailyProgress?>> GetAll(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            IEnumerable<DailyProgress> dailyProgresses = await _context.DailyProgresses
+                .AsNoTracking()
+                .Include(dp => dp.Goal)
+                .ToListAsync(cancellationToken);
+
+            return dailyProgresses;
         }
 
-        public Task<IEnumerable<DailyProgress?>> Find(Expression<Func<DailyProgress, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<DailyProgress?>> Find(Expression<Func<DailyProgress, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            IEnumerable<DailyProgress?> dailyProgresses = await _context.DailyProgresses
+                .AsNoTracking()
+                .Include(dp => dp.Goal)
+                .Where(predicate)
+                .ToListAsync(cancellationToken);
+
+            return dailyProgresses;
         }
 
-        public Task Create(DailyProgress entity, CancellationToken cancellationToken = default)
+        public async Task Create(DailyProgress entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Added;
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task CreateRange(IEnumerable<DailyProgress> entities, CancellationToken cancellationToken = default)
+        public async Task CreateRange(IEnumerable<DailyProgress> entities, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _context.AddRangeAsync(entities, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Update(DailyProgress entity, CancellationToken cancellationToken = default)
+        public async Task Update(DailyProgress entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Modified;
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Delete(DailyProgress entity, CancellationToken cancellationToken = default)
+        public async Task Delete(DailyProgress entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Entry(entity).State = EntityState.Deleted;
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }
