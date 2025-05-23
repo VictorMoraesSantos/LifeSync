@@ -95,6 +95,13 @@ namespace Nutrition.Infrastructure.Services
             return dto;
         }
 
+        public async Task<IEnumerable<DailyProgressDTO>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
+        {
+            var entities = await _dailyProgressRepository.GetAllByUserId(userId, cancellationToken);
+            var dtos = entities.Select(DailyProgressMapper.ToDTO);
+            return dtos;
+        }
+
         public async Task<(IEnumerable<DailyProgressDTO> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             var all = await _dailyProgressRepository.GetAll(cancellationToken);

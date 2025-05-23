@@ -4,6 +4,5 @@
         int UserId,
         DateOnly Date,
         int? CaloriesConsumed,
-        int? LiquidsConsumedMl,
-        DailyGoalDTO? Goal);
+        int? LiquidsConsumedMl);
 }

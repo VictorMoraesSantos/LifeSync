@@ -28,6 +28,7 @@ namespace Nutrition.Infrastructure
             services.AddScoped<IMealService, MealService>();
             services.AddScoped<IMealFoodService, MealFoodService>();
             services.AddScoped<ILiquidService, LiquidService>();
+            services.AddScoped<IDailyProgressService, DailyProgressService>();
 
             return services;
         }

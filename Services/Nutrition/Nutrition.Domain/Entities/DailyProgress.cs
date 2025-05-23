@@ -11,9 +11,11 @@ namespace Nutrition.Domain.Entities
         public int? CaloriesConsumed { get; private set; } = 0;
         public int? LiquidsConsumedMl { get; private set; } = 0;
 
-        public DailyGoal Goal { get; private set; }
+        public DailyGoal? Goal { get; private set; } = new(0, 0);
 
-        public DailyProgress(int userId, DateOnly date, int caloriesConsumed, int liquidsConsumedMl, DailyGoal goal)
+        protected DailyProgress() { }
+
+        public DailyProgress(int userId, DateOnly date, int caloriesConsumed, int liquidsConsumedMl)
         {
             if (userId <= 0)
                 throw new DomainException($"{nameof(userId)} must be valid.");
@@ -21,27 +23,8 @@ namespace Nutrition.Domain.Entities
             Validate(liquidsConsumedMl);
             UserId = userId;
             Date = date;
-            Goal = goal;
             CaloriesConsumed = caloriesConsumed;
             LiquidsConsumedMl = liquidsConsumedMl;
-        }
-
-        public DailyProgress(int userId, DateOnly date, DailyGoal goal)
-        {
-            if (userId <= 0)
-                throw new DomainException($"{nameof(userId)} must be valid.");
-            UserId = userId;
-            Date = date;
-            Goal = goal;
-        }
-
-        public DailyProgress(int userId, DateOnly date)
-        {
-            if (userId <= 0)
-                throw new DomainException($"{nameof(userId)} must be valid.");
-            UserId = userId;
-            Date = date;
-            Goal = new DailyGoal(0, 0);
         }
 
         public void SetGoal(DailyGoal goal)
@@ -60,9 +43,9 @@ namespace Nutrition.Domain.Entities
         {
             Validate(caloriesConsumed);
             Validate(liquidsConsumedMl);
-            if (CaloriesConsumed == 0)
+            if (CaloriesConsumed != 0)
                 CaloriesConsumed = caloriesConsumed;
-            if (LiquidsConsumedMl == 0)
+            if (LiquidsConsumedMl != 0)
                 LiquidsConsumedMl = liquidsConsumedMl;
         }
 

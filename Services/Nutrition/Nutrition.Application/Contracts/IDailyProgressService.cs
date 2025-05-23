@@ -9,6 +9,7 @@ namespace Nutrition.Application.Interfaces
         IUpdateService<UpdateDailyProgressDTO>,
         IDeleteService<int>
     {
+        Task<IEnumerable<DailyProgressDTO>> GetByUserIdAsync(int userId, CancellationToken cancellationToken);
         Task SetGoalAsync(int id, DailyGoalDTO goalDto, CancellationToken cancellationToken);
         Task SetConsumedAsync(int id, int calories, int liquidsMl, CancellationToken cancellationToken);
     }

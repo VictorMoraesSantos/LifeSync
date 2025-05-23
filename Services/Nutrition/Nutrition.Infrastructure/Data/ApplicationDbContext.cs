@@ -24,12 +24,10 @@ namespace Nutrition.Infrastructure.Data
                 entity.OwnsOne(dp => dp.Goal, goal =>
                 {
                     goal.Property(g => g.Calories)
-                        .HasColumnName("CaloriesGoal")
-                        .IsRequired();
+                        .HasColumnName("CaloriesGoal");
 
                     goal.Property(g => g.QuantityMl)
-                        .HasColumnName("LiquidsGoalMl")
-                        .IsRequired();
+                        .HasColumnName("LiquidsGoalMl");
                 });
             });
         }

@@ -1,0 +1,86 @@
+﻿using BuildingBlocks.Results;
+using Core.API.Controllers;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Nutrition.Application.DTOs.DailyProgress;
+using Nutrition.Application.UseCases.DailyProgress.Commands.Create;
+using Nutrition.Application.UseCases.DailyProgress.Commands.Delete;
+using Nutrition.Application.UseCases.DailyProgress.Commands.SetGoal;
+using Nutrition.Application.UseCases.DailyProgress.Commands.Update;
+using Nutrition.Application.UseCases.DailyProgress.Queries.Get;
+using Nutrition.Application.UseCases.DailyProgress.Queries.GetAll;
+using Nutrition.Application.UseCases.DailyProgress.Queries.GetByUser;
+
+namespace Nutrition.API.Controllers
+{
+    [Route("api/daily-progresses")]
+    public class DailyProgressesController : ApiController
+    {
+        private readonly IMediator _mediator;
+
+        public DailyProgressesController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<HttpResult<GetDailyProgressResult>> Get(int id)
+        {
+            GetDailyProgressQuery query = new(id);
+            GetDailyProgressResult result = await _mediator.Send(query);
+            return HttpResult<GetDailyProgressResult>.Ok(result);
+        }
+
+        [HttpGet("user/{userId:int}")]
+        public async Task<HttpResult<GetAllDailyProgressesByUserIdResult>> GetByUserId(int userId)
+        {
+            GetAllDailyProgressesByUserIdQuery query = new(userId);
+            GetAllDailyProgressesByUserIdResult result = await _mediator.Send(query);
+            return HttpResult<GetAllDailyProgressesByUserIdResult>.Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<HttpResult<GetDailyProgressesResult>> GetAll()
+        {
+            GetDailyProgressesQuery query = new();
+            GetDailyProgressesResult result = await _mediator.Send(query);
+            return HttpResult<GetDailyProgressesResult>.Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<HttpResult<CreateDailyProgressResult>> Create([FromBody] CreateDailyProgressCommand command)
+        {
+            CreateDailyProgressResult result = await _mediator.Send(command);
+            return HttpResult<CreateDailyProgressResult>.Created(result);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<HttpResult<UpdateDailyProgressResult>> Update(int id, [FromBody] UpdateDailyProgressCommand command)
+        {
+            UpdateDailyProgressCommand updateCommand = new(
+                id,
+                command.CaloriesConsumed,
+                command.LiquidsConsumedMl,
+                command.Goal);
+            UpdateDailyProgressResult result = await _mediator.Send(updateCommand);
+            return HttpResult<UpdateDailyProgressResult>.Ok(result);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<HttpResult<DeleteDailyProgressResult>> Delete(int id)
+        {
+            DeleteDailyProgressCommand command = new(id);
+            DeleteDailyProgressResult result = await _mediator.Send(command);
+            return HttpResult<DeleteDailyProgressResult>.Deleted();
+        }
+
+        [HttpPost("{id:int}/set-goal")]
+        public async Task<HttpResult<SetGoalResult>> SetConsumed(int id, [FromBody] SetGoalCommand command)
+        {
+            DailyGoalDTO goal = command.Goal;
+            SetGoalCommand setConsumedCommand = new(id, goal);
+            SetGoalResult result = await _mediator.Send(setConsumedCommand);
+            return HttpResult<SetGoalResult>.Ok(result);
+        }
+    }
+}

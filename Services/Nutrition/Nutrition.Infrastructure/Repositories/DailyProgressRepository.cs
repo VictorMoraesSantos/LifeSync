@@ -18,7 +18,6 @@ namespace Nutrition.Infrastructure.Repositories
         public async Task<DailyProgress?> GetById(int id, CancellationToken cancellationToken = default)
         {
             DailyProgress? dailyProgress = await _context.DailyProgresses
-                .AsNoTracking()
                 .Include(dp => dp.Goal)
                 .FirstOrDefaultAsync(dp => dp.Id == id, cancellationToken);
 
@@ -48,7 +47,7 @@ namespace Nutrition.Infrastructure.Repositories
 
         public async Task Create(DailyProgress entity, CancellationToken cancellationToken = default)
         {
-            _context.Entry(entity).State = EntityState.Added;
+            await _context.DailyProgresses.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
@@ -68,6 +67,17 @@ namespace Nutrition.Infrastructure.Repositories
         {
             _context.Entry(entity).State = EntityState.Deleted;
             await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<DailyProgress?>> GetAllByUserId(int userId, CancellationToken cancellationToken)
+        {
+            IEnumerable<DailyProgress?> dailyProgresses = await _context.DailyProgresses
+                .AsNoTracking()
+                .Where(d => d.UserId == userId)
+                .Include(d => d.Goal)
+                .ToListAsync(cancellationToken);
+
+            return dailyProgresses;
         }
     }
 }
