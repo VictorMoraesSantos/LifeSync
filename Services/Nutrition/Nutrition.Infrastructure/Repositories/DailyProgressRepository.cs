@@ -79,5 +79,13 @@ namespace Nutrition.Infrastructure.Repositories
 
             return dailyProgresses;
         }
+
+        public async Task<DailyProgress?> GetByUserIdAndDateAsync(int userId, DateOnly date, CancellationToken cancellationToken = default)
+        {
+            DailyProgress? dailyProgress = await _context.DailyProgresses
+                .Include(dp => dp.Goal)
+                .FirstOrDefaultAsync(dp => dp.UserId == userId && dp.Date == date, cancellationToken);
+            return dailyProgress;
+        }
     }
 }

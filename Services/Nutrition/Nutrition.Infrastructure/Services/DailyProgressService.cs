@@ -145,11 +145,6 @@ namespace Nutrition.Infrastructure.Services
 
             // Atualize os campos necessários
             entity.SetConsumed(dto.CaloriesConsumed, dto.LiquidsConsumedMl);
-            if (dto.Goal != null)
-            {
-                var goal = DailyGoalMapper.ToEntity(dto.Goal);
-                entity.SetGoal(goal);
-            }
 
             await _dailyProgressRepository.Update(entity, cancellationToken);
             return true;

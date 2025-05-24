@@ -2,6 +2,8 @@
 using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Nutrition.Application.DTOs.MealFood;
+using Nutrition.Application.UseCases.Meal.Commands.AddMealFood;
 using Nutrition.Application.UseCases.Meal.Commands.Create;
 using Nutrition.Application.UseCases.Meal.Commands.Delete;
 using Nutrition.Application.UseCases.Meal.Commands.Update;
@@ -41,6 +43,14 @@ namespace Nutrition.API.Controllers
         {
             GetMealsResult result = await _mediator.Send(query);
             return HttpResult<GetMealsResult>.Ok(result);
+        }
+
+        [HttpPost("{mealId}/foods")]
+        public async Task<HttpResult<AddMealFoodResult>> AddMealFood(int mealId, [FromBody] CreateMealFoodDTO dto, CancellationToken cancellationToken)
+        {
+            AddMealFoodCommand command = new(mealId, dto);
+            AddMealFoodResult result = await _mediator.Send(command, cancellationToken);
+            return HttpResult<AddMealFoodResult>.Ok(result);
         }
 
         [HttpPost]

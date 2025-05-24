@@ -23,7 +23,6 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Create
                 return new CreateMealFoodResult(false);
 
             CreateMealFoodDTO dto = new(
-                command.MealId,
                 command.Name,
                 command.QuantityInGrams,
                 command.CaloriesPerUnit);

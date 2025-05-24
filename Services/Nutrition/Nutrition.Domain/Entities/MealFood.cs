@@ -10,12 +10,18 @@ namespace Nutrition.Domain.Entities
         public int MealId { get; private set; }
         public int TotalCalories => Quantity * CaloriesPerUnit;
 
-        public MealFood(int mealId, string name, int quantity, int caloriesPerUnit)
+        public MealFood(string name, int quantity, int caloriesPerUnit)
         {
-            MealId = mealId;
             SetName(name);
             SetQuantity(quantity);
             SetCaloriesPerUnit(caloriesPerUnit);
+        }
+
+        public void SetMeal(int mealId)
+        {
+            if (mealId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(mealId), "MealId must be positive.");
+            MealId = mealId;
         }
 
         public void SetName(string name)

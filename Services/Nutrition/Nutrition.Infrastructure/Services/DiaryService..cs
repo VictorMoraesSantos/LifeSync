@@ -1,5 +1,7 @@
 ﻿using BuildingBlocks.Exceptions;
+using MediatR;
 using Nutrition.Application.DTOs.Diary;
+using Nutrition.Application.DTOs.Meal;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
@@ -11,10 +13,12 @@ namespace Nutrition.Infrastructure.Services
     public class DiaryService : IDiaryService
     {
         private readonly IDiaryRepository _diaryRepository;
+        private readonly IMediator _mediator;
 
-        public DiaryService(IDiaryRepository diaryRepository)
+        public DiaryService(IDiaryRepository diaryRepository, IMediator mediator)
         {
             _diaryRepository = diaryRepository;
+            _mediator = mediator;
         }
 
         public async Task<int> CountAsync(Expression<Func<DiaryDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
@@ -138,6 +142,26 @@ namespace Nutrition.Infrastructure.Services
             // Aqui você pode implementar lógica para atualizar as coleções conforme necessário
 
             await _diaryRepository.Update(entity, cancellationToken);
+            return true;
+        }
+
+        public async Task<bool> AddMealToDiaryAsync(int diaryId, CreateMealDTO dto, CancellationToken cancellationToken = default)
+        {
+            Diary? diary = await _diaryRepository.GetById(diaryId, cancellationToken);
+            if (diary == null) return false;
+
+            Meal meal = MealMapper.ToEntity(dto);
+            meal.SetDiaryId(diaryId);
+            diary.AddMeal(meal);
+
+            await _diaryRepository.Update(diary, cancellationToken);
+
+            foreach (var domainEvent in diary.DomainEvents)
+            {
+                await _mediator.Publish(domainEvent, cancellationToken);
+            }
+            diary.ClearDomainEvents();
+
             return true;
         }
     }

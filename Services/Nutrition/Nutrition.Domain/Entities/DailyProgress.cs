@@ -8,8 +8,8 @@ namespace Nutrition.Domain.Entities
     {
         public int UserId { get; private set; }
         public DateOnly Date { get; private set; }
-        public int? CaloriesConsumed { get; private set; } = 0;
-        public int? LiquidsConsumedMl { get; private set; } = 0;
+        public int CaloriesConsumed { get; private set; } = 0;
+        public int LiquidsConsumedMl { get; private set; } = 0;
 
         public DailyGoal? Goal { get; private set; } = new(0, 0);
 
@@ -39,21 +39,23 @@ namespace Nutrition.Domain.Entities
             Goal = new DailyGoal(0, 0);
         }
 
-        public void SetConsumed(int? caloriesConsumed, int? liquidsConsumedMl)
+        public void SetConsumed(int caloriesConsumed, int liquidsConsumedMl)
         {
             Validate(caloriesConsumed);
             Validate(liquidsConsumedMl);
-            if (CaloriesConsumed != 0)
-                CaloriesConsumed = caloriesConsumed;
-            if (LiquidsConsumedMl != 0)
-                LiquidsConsumedMl = liquidsConsumedMl;
+            CaloriesConsumed = caloriesConsumed;
+            LiquidsConsumedMl = liquidsConsumedMl;
         }
 
-        public void AddConsumed(int calories, int liquidsMl)
+        public void AddCalories(int calories)
         {
             Validate(calories);
-            Validate(liquidsMl);
             CaloriesConsumed += calories;
+        }
+
+        public void AddLiquidsQuantity(int liquidsMl)
+        {
+            Validate(liquidsMl);
             LiquidsConsumedMl += liquidsMl;
         }
 

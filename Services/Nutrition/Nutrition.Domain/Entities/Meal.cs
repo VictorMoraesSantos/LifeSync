@@ -1,5 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Exceptions;
+using Nutrition.Domain.Events;
 
 namespace Nutrition.Domain.Entities
 {
@@ -13,12 +14,18 @@ namespace Nutrition.Domain.Entities
         private readonly List<MealFood> _mealFoods = new();
         public IReadOnlyCollection<MealFood> MealFoods => _mealFoods.AsReadOnly();
 
-        public Meal(int diaryId ,string name, string description)
+        public Meal(string name, string description)
         {
             Validate(name);
             Validate(description);
             Name = name;
             Description = description;
+        }
+
+        public void SetDiaryId(int diaryId)
+        {
+            if (diaryId <= 0)
+                throw new DomainException("DiaryId must be positive.");
             DiaryId = diaryId;
         }
 
@@ -39,6 +46,7 @@ namespace Nutrition.Domain.Entities
             if (mealFood == null)
                 throw new DomainException("MealFood cannot be null");
             _mealFoods.Add(mealFood);
+            AddDomainEvent(new MealFoodAddedEvent(Id, mealFood.TotalCalories));
         }
 
         public void RemoveMealFood(MealFood mealFood)

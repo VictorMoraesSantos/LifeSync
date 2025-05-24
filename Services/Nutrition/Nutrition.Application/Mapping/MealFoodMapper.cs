@@ -23,7 +23,6 @@ namespace Nutrition.Application.Mapping
         public static MealFood ToEntity(this CreateMealFoodDTO dto)
         {
             return new MealFood(
-                dto.MealId,
                 dto.Name,
                 dto.QuantityInGrams,
                 dto.CaloriesPerUnit);

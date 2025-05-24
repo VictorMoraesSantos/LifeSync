@@ -15,12 +15,10 @@ namespace Nutrition.Application.UseCases.DailyProgress.Commands.Update
 
         public async Task<UpdateDailyProgressResult> Handle(UpdateDailyProgressCommand command, CancellationToken cancellationToken)
         {
-            DailyGoalDTO goalDTO = new(command.Goal.Calories, command.Goal.QuantityMl);
             UpdateDailyProgressDTO dto = new(
                 command.Id,
                 command.CaloriesConsumed,
-                command.LiquidsConsumedMl,
-                goalDTO);
+                command.LiquidsConsumedMl);
 
             bool result = await _dailyProgressService.UpdateAsync(dto, cancellationToken);
             UpdateDailyProgressResult response = new(result);

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nutrition.Infrastructure.Data;
@@ -11,9 +12,11 @@ using Nutrition.Infrastructure.Data;
 namespace Nutrition.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250523222623_updatedb")]
+    partial class updatedb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,47 @@ namespace Nutrition.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Core.Domain.Events.DomainEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("DailyProgressId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("DiaryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("LiquidId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MealFoodId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MealId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("OccuredOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DailyProgressId");
+
+                    b.HasIndex("DiaryId");
+
+                    b.HasIndex("LiquidId");
+
+                    b.HasIndex("MealFoodId");
+
+                    b.HasIndex("MealId");
+
+                    b.ToTable("DomainEvent");
+                });
 
             modelBuilder.Entity("Nutrition.Domain.Entities.DailyProgress", b =>
                 {
@@ -30,7 +74,7 @@ namespace Nutrition.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CaloriesConsumed")
+                    b.Property<int?>("CaloriesConsumed")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
@@ -42,7 +86,7 @@ namespace Nutrition.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("LiquidsConsumedMl")
+                    b.Property<int?>("LiquidsConsumedMl")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -193,6 +237,29 @@ namespace Nutrition.Infrastructure.Migrations
                     b.ToTable("MealFoods");
                 });
 
+            modelBuilder.Entity("Core.Domain.Events.DomainEvent", b =>
+                {
+                    b.HasOne("Nutrition.Domain.Entities.DailyProgress", null)
+                        .WithMany("DomainEvents")
+                        .HasForeignKey("DailyProgressId");
+
+                    b.HasOne("Nutrition.Domain.Entities.Diary", null)
+                        .WithMany("DomainEvents")
+                        .HasForeignKey("DiaryId");
+
+                    b.HasOne("Nutrition.Domain.Entities.Liquid", null)
+                        .WithMany("DomainEvents")
+                        .HasForeignKey("LiquidId");
+
+                    b.HasOne("Nutrition.Domain.Entities.MealFood", null)
+                        .WithMany("DomainEvents")
+                        .HasForeignKey("MealFoodId");
+
+                    b.HasOne("Nutrition.Domain.Entities.Meal", null)
+                        .WithMany("DomainEvents")
+                        .HasForeignKey("MealId");
+                });
+
             modelBuilder.Entity("Nutrition.Domain.Entities.DailyProgress", b =>
                 {
                     b.OwnsOne("Nutrition.Domain.ValueObjects.DailyGoal", "Goal", b1 =>
@@ -246,16 +313,35 @@ namespace Nutrition.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Nutrition.Domain.Entities.DailyProgress", b =>
+                {
+                    b.Navigation("DomainEvents");
+                });
+
             modelBuilder.Entity("Nutrition.Domain.Entities.Diary", b =>
                 {
+                    b.Navigation("DomainEvents");
+
                     b.Navigation("Liquids");
 
                     b.Navigation("Meals");
                 });
 
+            modelBuilder.Entity("Nutrition.Domain.Entities.Liquid", b =>
+                {
+                    b.Navigation("DomainEvents");
+                });
+
             modelBuilder.Entity("Nutrition.Domain.Entities.Meal", b =>
                 {
+                    b.Navigation("DomainEvents");
+
                     b.Navigation("MealFoods");
+                });
+
+            modelBuilder.Entity("Nutrition.Domain.Entities.MealFood", b =>
+                {
+                    b.Navigation("DomainEvents");
                 });
 #pragma warning restore 612, 618
         }

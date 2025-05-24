@@ -1,6 +1,8 @@
-﻿namespace Core.Domain.Events
+﻿using MediatR;
+
+namespace Core.Domain.Events
 {
-    public interface IDomainEvent
+    public interface IDomainEvent : INotification
     {
         int Id { get; set; }
         DateTime OccuredOn { get; }

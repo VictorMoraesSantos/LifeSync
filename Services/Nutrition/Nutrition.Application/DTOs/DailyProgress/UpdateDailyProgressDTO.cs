@@ -2,7 +2,6 @@
 {
     public record UpdateDailyProgressDTO(
         int Id,
-        int? CaloriesConsumed,
-        int? LiquidsConsumedMl,
-        DailyGoalDTO? Goal);
+        int CaloriesConsumed,
+        int LiquidsConsumedMl);
 }

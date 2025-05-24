@@ -20,7 +20,7 @@ namespace Nutrition.Application.Mapping
 
         public static Meal ToEntity(this CreateMealDTO dto)
         {
-            Meal meal = new(dto.DiaryId, dto.Name, dto.Description);
+            Meal meal = new(dto.Name, dto.Description);
             return meal;
         }
     }

@@ -8,11 +8,11 @@ namespace Core.Domain.Entities
         DateTime CreatedAt { get; }
         DateTime? UpdatedAt { get; }
         bool IsDeleted { get; }
-        IReadOnlyCollection<DomainEvent> DomainEvents { get; }
+        IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
 
         void MarkAsUpdated();
         void MarkAsDeleted();
-        void AddDomainEvent(DomainEvent domainEvent);
+        void AddDomainEvent(IDomainEvent domainEvent);
         void ClearDomainEvents();
     }
 
@@ -23,8 +23,8 @@ namespace Core.Domain.Entities
         public DateTime? UpdatedAt { get; protected set; }
         public bool IsDeleted { get; protected set; }
 
-        private readonly List<DomainEvent> _domainEvents = new();
-        public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+        private readonly List<IDomainEvent> _domainEvents = new();
+        public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
         public virtual void MarkAsUpdated()
         {
@@ -39,7 +39,7 @@ namespace Core.Domain.Entities
             MarkAsUpdated();
         }
 
-        public virtual void AddDomainEvent(DomainEvent domainEvent)
+        public virtual void AddDomainEvent(IDomainEvent domainEvent)
         {
             if (domainEvent == null)
                 throw new ArgumentNullException(nameof(domainEvent));

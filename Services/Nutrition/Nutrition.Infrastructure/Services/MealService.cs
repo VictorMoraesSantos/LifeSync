@@ -1,7 +1,10 @@
-﻿using Nutrition.Application.DTOs.Meal;
+﻿using MediatR;
+using Nutrition.Application.DTOs.Meal;
+using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
+using Nutrition.Domain.Events;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Repositories;
 using System.Linq.Expressions;
@@ -11,10 +14,31 @@ namespace Nutrition.Infrastructure.Services
     public class MealService : IMealService
     {
         private readonly IMealRepository _mealRepository;
+        private readonly IMediator _mediator;
 
-        public MealService(IMealRepository mealRepository)
+        public MealService(IMealRepository mealRepository, IMediator mediator)
         {
             _mealRepository = mealRepository;
+            _mediator = mediator;
+        }
+
+        public async Task<bool> AddMealFoodAsync(int mealId, CreateMealFoodDTO mealFood, CancellationToken cancellationToken)
+        {
+            Meal? meal = await _mealRepository.GetById(mealId, cancellationToken);
+            if (meal == null) return false;
+
+            MealFood? mealFoodEntity = MealFoodMapper.ToEntity(mealFood);
+
+            meal.AddMealFood(mealFoodEntity);
+            await _mealRepository.Update(meal, cancellationToken);
+
+            foreach (var domainEvent in meal.DomainEvents)
+            {
+                await _mediator.Publish(domainEvent, cancellationToken);
+            }
+            meal.ClearDomainEvents();
+
+            return true;
         }
 
         public async Task<int> CountAsync(Expression<Func<MealDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)

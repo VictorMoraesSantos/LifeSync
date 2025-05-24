@@ -1,5 +1,7 @@
 ﻿using Core.Application.Interfaces;
 using Nutrition.Application.DTOs.Diary;
+using Nutrition.Application.DTOs.Meal;
+using Nutrition.Domain.Entities;
 
 namespace Nutrition.Application.Interfaces
 {
@@ -10,5 +12,6 @@ namespace Nutrition.Application.Interfaces
         IDeleteService<int>
     {
         Task<IEnumerable<DiaryDTO>> GetAllByUserIdAsync(int userId, CancellationToken cancellationToken);
+        Task<bool> AddMealToDiaryAsync(int diaryId, CreateMealDTO meal, CancellationToken cancellationToken = default);
     }
 }

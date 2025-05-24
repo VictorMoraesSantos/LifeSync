@@ -22,9 +22,11 @@ namespace Nutrition.Application.UseCases.Meal.Commands.Create
             if (diary == null)
                 return new CreateMealResult(false);
 
-            CreateMealDTO dto = new(command.DiaryId, command.Name, command.Description);
-            bool result = await _mealService.CreateAsync(dto, cancellationToken);
+            CreateMealDTO dto = new(command.Name, command.Description);
+
+            bool result = await _diaryService.AddMealToDiaryAsync(command.DiaryId, dto, cancellationToken);
             CreateMealResult response = new(result);
+            
             return response;
         }
     }
