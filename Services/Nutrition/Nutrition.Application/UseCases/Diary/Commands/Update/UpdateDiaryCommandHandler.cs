@@ -16,9 +16,10 @@ namespace Nutrition.Application.UseCases.Diary.Commands.Update
         public async Task<UpdateDiaryResult> Handle(UpdateDiaryCommand command, CancellationToken cancellationToken)
         {
             UpdateDiaryDTO dto = new(command.Id, command.Date);
+
             bool result = await _diaryService.UpdateAsync(dto, cancellationToken);
-            UpdateDiaryResult response = new(result);
-            return response;
+
+            return new UpdateDiaryResult(result);
         }
     }
 }

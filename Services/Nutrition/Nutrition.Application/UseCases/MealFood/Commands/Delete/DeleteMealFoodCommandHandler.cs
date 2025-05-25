@@ -15,8 +15,8 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Delete
         public async Task<DeleteMealFoodResult> Handle(DeleteMealFoodCommand command, CancellationToken cancellationToken)
         {
             bool result = await _mealFoodService.DeleteAsync(command.Id);
-            DeleteMealFoodResult response = new(result);
-            return response;
+
+            return new DeleteMealFoodResult(result);
         }
     }
 }

@@ -28,27 +28,27 @@ namespace Nutrition.Infrastructure.Services
             return all.Count();
         }
 
-        public async Task<bool> CreateAsync(CreateDiaryDTO dto, CancellationToken cancellationToken = default)
+        public async Task<int> CreateAsync(CreateDiaryDTO dto, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             Diary? existingDiary = await _diaryRepository.GetByDate(dto.userId, dto.date, cancellationToken);
-            if (existingDiary != null) return false;
+            if (existingDiary != null) throw new ArgumentNullException(nameof(existingDiary));
 
             Diary entity = DiaryMapper.ToEntity(dto);
 
             await _diaryRepository.Create(entity, cancellationToken);
-            return true;
+            return entity.Id;
         }
 
-        public async Task<bool> CreateRangeAsync(IEnumerable<CreateDiaryDTO> dtos, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateDiaryDTO> dtos, CancellationToken cancellationToken = default)
         {
-            if (dtos == null || !dtos.Any()) return false;
+            if (dtos == null || !dtos.Any()) throw new ArgumentNullException(nameof(dtos));
 
             IEnumerable<Diary> entities = dtos.Select(DiaryMapper.ToEntity);
 
             await _diaryRepository.CreateRange(entities, cancellationToken);
-            return true;
+            return entities.Select(entity => entity.Id).ToList();
         }
 
         public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)

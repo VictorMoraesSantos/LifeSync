@@ -23,8 +23,8 @@ namespace Nutrition.Application.UseCases.Liquid.Commands.Update
             );
 
             bool result = await _liquidService.UpdateAsync(dto, cancellationToken);
-            UpdateLiquidResult response = new(result);
-            return response;
+
+            return new UpdateLiquidResult(result);
         }
     }
 }

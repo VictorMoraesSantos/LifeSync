@@ -16,9 +16,10 @@ namespace Nutrition.Application.UseCases.Meal.Commands.Update
         public async Task<UpdateMealResult> Handle(UpdateMealCommand command, CancellationToken cancellationToken)
         {
             UpdateMealDTO dto = new(command.Id, command.Name, command.Description);
+
             bool result = await _mealService.UpdateAsync(dto, cancellationToken);
-            UpdateMealResult response = new(result);
-            return response;
+
+            return new UpdateMealResult(result);
         }
     }
 }

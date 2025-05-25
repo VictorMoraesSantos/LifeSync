@@ -9,5 +9,5 @@ namespace Nutrition.Application.UseCases.DailyProgress.Commands.Create
         int? CaloriesConsumed,
         int? LiquidsConsumedMl)
         : IRequest<CreateDailyProgressResult>;
-    public record CreateDailyProgressResult(bool IsSuccess);
+    public record CreateDailyProgressResult(int Id);
 }

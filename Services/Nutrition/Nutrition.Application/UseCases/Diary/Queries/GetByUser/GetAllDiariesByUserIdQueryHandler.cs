@@ -16,8 +16,8 @@ namespace Nutrition.Application.UseCases.Diary.Queries.GetByUser
         public async Task<GetAllDiariesByUserIdResult> Handle(GetAllDiariesByUserIdQuery query, CancellationToken cancellationToken)
         {
             IEnumerable<DiaryDTO> result = await _diaryService.GetAllByUserIdAsync(query.UserId, cancellationToken);
-            GetAllDiariesByUserIdResult response = new(result);
-            return response;
+
+            return new GetAllDiariesByUserIdResult(result);
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     public interface ICreateService<TCreate>
     {
-        Task<bool> CreateAsync(TCreate dto, CancellationToken cancellationToken = default);
-        Task<bool> CreateRangeAsync(IEnumerable<TCreate> dto, CancellationToken cancellationToken = default);
+        Task<int> CreateAsync(TCreate dto, CancellationToken cancellationToken = default);
+        Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<TCreate> dto, CancellationToken cancellationToken = default);
     }
 }

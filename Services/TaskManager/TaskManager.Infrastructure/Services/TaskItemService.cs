@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Exceptions;
 using System.Linq.Expressions;
+using System.Reflection.Metadata;
 using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
@@ -51,11 +52,15 @@ namespace TaskManager.Infrastructure.Services
             return dtos;
         }
 
-        public async Task<bool> CreateAsync(CreateTaskItemDTO dto, CancellationToken cancellationToken)
+        public async Task<int> CreateAsync(CreateTaskItemDTO dto, CancellationToken cancellationToken)
         {
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
+
             TaskItem entity = new(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId);
+
             await _taskItemRepository.Create(entity, cancellationToken);
-            return true;
+
+            return entity.Id;
         }
 
         public async Task<bool> UpdateAsync(int id, string title, string description, int status, int priority, DateOnly dueDate, CancellationToken cancellationToken)
@@ -104,14 +109,15 @@ namespace TaskManager.Infrastructure.Services
             return all.Count();
         }
 
-        public async Task<bool> CreateRangeAsync(IEnumerable<CreateTaskItemDTO> dto, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateTaskItemDTO> dto, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             IEnumerable<TaskItem> entities = dto.Select(TaskItemMapper.ToEntity);
 
             await _taskItemRepository.CreateRange(entities, cancellationToken);
-            return true;
+
+            return entities.Select(e => e.Id).ToList();
         }
 
         public async Task<bool> UpdateAsync(UpdateTaskItemDTO dto, CancellationToken cancellationToken = default)

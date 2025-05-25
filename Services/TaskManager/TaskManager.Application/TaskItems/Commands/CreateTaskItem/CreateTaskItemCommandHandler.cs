@@ -23,10 +23,9 @@ namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
                 command.DueDate,
                 command.UserId);
 
-            bool result = await _taskItemService.CreateAsync(dto, cancellationToken);
+            int result = await _taskItemService.CreateAsync(dto, cancellationToken);
 
-            CreateTaskItemResult response = new(result);
-            return response;
+            return new CreateTaskItemResult(result);
         }
     }
 }

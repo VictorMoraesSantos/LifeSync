@@ -12,12 +12,12 @@ namespace Nutrition.Application.UseCases.DailyProgress.Queries.GetByUser
         {
             _dailyProgressService = dailyProgressService;
         }
-        
+
         public async Task<GetAllDailyProgressesByUserIdResult> Handle(GetAllDailyProgressesByUserIdQuery query, CancellationToken cancellationToken)
         {
             IEnumerable<DailyProgressDTO> result = await _dailyProgressService.GetByUserIdAsync(query.UserId, cancellationToken);
-            GetAllDailyProgressesByUserIdResult response = new(result);
-            return response;
+
+            return new GetAllDailyProgressesByUserIdResult(result);
         }
     }
 }

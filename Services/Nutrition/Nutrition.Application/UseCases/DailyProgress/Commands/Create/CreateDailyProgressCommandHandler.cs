@@ -21,9 +21,8 @@ namespace Nutrition.Application.UseCases.DailyProgress.Commands.Create
                 command.CaloriesConsumed,
                 command.LiquidsConsumedMl);
 
-            bool result = await _dailyProgressService.CreateAsync(dto, cancellationToken);
-            CreateDailyProgressResult response = new(result);
-            return response;
+            int result = await _dailyProgressService.CreateAsync(dto, cancellationToken);
+            return new CreateDailyProgressResult(result);
         }
     }
 }

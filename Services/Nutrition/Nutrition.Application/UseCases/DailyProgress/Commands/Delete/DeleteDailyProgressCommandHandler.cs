@@ -15,8 +15,8 @@ namespace Nutrition.Application.UseCases.DailyProgress.Commands.Delete
         public async Task<DeleteDailyProgressResult> Handle(DeleteDailyProgressCommand command, CancellationToken cancellationToken)
         {
             bool result = await _dailyProgressService.DeleteAsync(command.Id, cancellationToken);
-            DeleteDailyProgressResult response = new(result);
-            return response;
+
+            return new DeleteDailyProgressResult(result);
         }
     }
 }

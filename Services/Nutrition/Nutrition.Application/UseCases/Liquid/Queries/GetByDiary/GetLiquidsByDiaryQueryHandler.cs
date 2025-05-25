@@ -17,8 +17,8 @@ namespace Nutrition.Application.UseCases.Liquid.Queries.GetByDiary
         public async Task<GetLiquidsByDiaryResult> Handle(GetLiquidsByDiaryQuery query, CancellationToken cancellationToken)
         {
             DiaryDTO? result = await _diaryService.GetByIdAsync(query.DiaryId, cancellationToken);
-            GetLiquidsByDiaryResult response = new GetLiquidsByDiaryResult(result.Liquids);
-            return response;
+
+            return new GetLiquidsByDiaryResult(result.Liquids);
         }
     }
 }

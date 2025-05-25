@@ -22,24 +22,25 @@ namespace Nutrition.Infrastructure.Services
             return all.Count();
         }
 
-        public async Task<bool> CreateAsync(CreateLiquidDTO dto, CancellationToken cancellationToken = default)
+        public async Task<int> CreateAsync(CreateLiquidDTO dto, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             Liquid entity = LiquidMapper.ToEntity(dto);
 
             await _liquidRepository.Create(entity, cancellationToken);
-            return true;
+            return entity.Id;
         }
 
-        public async Task<bool> CreateRangeAsync(IEnumerable<CreateLiquidDTO> dto, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateLiquidDTO> dtos, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dtos == null) throw new ArgumentNullException(nameof(dtos));
 
-            IEnumerable<Liquid> entities = dto.Select(LiquidMapper.ToEntity);
+            IEnumerable<Liquid> entities = dtos.Select(LiquidMapper.ToEntity);
 
             await _liquidRepository.CreateRange(entities, cancellationToken);
-            return true;
+
+            return entities.Select(e => e.Id).ToList();
         }
 
         public async Task<bool> DeleteAsync(int dto, CancellationToken cancellationToken = default)

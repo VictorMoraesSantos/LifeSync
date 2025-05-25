@@ -25,9 +25,8 @@ namespace Nutrition.Application.UseCases.Meal.Commands.Create
             CreateMealDTO dto = new(command.Name, command.Description);
 
             bool result = await _diaryService.AddMealToDiaryAsync(command.DiaryId, dto, cancellationToken);
-            CreateMealResult response = new(result);
-            
-            return response;
+
+            return new CreateMealResult(result);
         }
     }
 }

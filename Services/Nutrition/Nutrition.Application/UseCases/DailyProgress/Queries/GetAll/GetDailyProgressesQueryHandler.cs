@@ -16,8 +16,8 @@ namespace Nutrition.Application.UseCases.DailyProgress.Queries.GetAll
         public async Task<GetDailyProgressesResult> Handle(GetDailyProgressesQuery query, CancellationToken cancellationToken)
         {
             IEnumerable<DailyProgressDTO> result = await _dailyProgressService.GetAllAsync(cancellationToken);
-            GetDailyProgressesResult response = new(result);
-            return response;
+
+            return new GetDailyProgressesResult(result);
         }
     }
 }

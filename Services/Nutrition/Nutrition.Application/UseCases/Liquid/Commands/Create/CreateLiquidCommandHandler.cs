@@ -21,9 +21,9 @@ namespace Nutrition.Application.UseCases.Liquid.Commands.Create
                 command.QuantityMl,
                 command.CaloriesPerMl);
 
-            bool result = await _liquidService.CreateAsync(liquid, cancellationToken);
-            CreateLiquidResult response = new(result);
-            return response;
+            int result = await _liquidService.CreateAsync(liquid, cancellationToken);
+
+            return new CreateLiquidResult(result);
         }
     }
 }

@@ -24,22 +24,24 @@ namespace Nutrition.Infrastructure.Services
             return all.Count();
         }
 
-        public async Task<bool> CreateAsync(CreateDailyProgressDTO dto, CancellationToken cancellationToken = default)
+        public async Task<int> CreateAsync(CreateDailyProgressDTO dto, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             var entity = DailyProgressMapper.ToEntity(dto);
             await _dailyProgressRepository.Create(entity, cancellationToken);
-            return true;
+
+            return entity.Id;
         }
 
-        public async Task<bool> CreateRangeAsync(IEnumerable<CreateDailyProgressDTO> dtos, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateDailyProgressDTO> dtos, CancellationToken cancellationToken = default)
         {
-            if (dtos == null || !dtos.Any()) return false;
+            if (dtos == null || !dtos.Any()) throw new ArgumentNullException(nameof(dtos));
 
             var entities = dtos.Select(DailyProgressMapper.ToEntity);
             await _dailyProgressRepository.CreateRange(entities, cancellationToken);
-            return true;
+
+            return entities.Select(entity => entity.Id).ToList();
         }
 
         public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
@@ -48,6 +50,7 @@ namespace Nutrition.Infrastructure.Services
             if (entity == null) return false;
 
             await _dailyProgressRepository.Delete(entity, cancellationToken);
+
             return true;
         }
 

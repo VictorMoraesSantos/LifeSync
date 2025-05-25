@@ -20,16 +20,16 @@ namespace Nutrition.Application.UseCases.MealFood.Commands.Create
         {
             MealDTO? meal = await _mealService.GetByIdAsync(command.MealId, cancellationToken);
             if (meal == null)
-                return new CreateMealFoodResult(false);
+                throw new ArgumentNullException(nameof(meal));
 
             CreateMealFoodDTO dto = new(
                 command.Name,
                 command.QuantityInGrams,
                 command.CaloriesPerUnit);
 
-            bool result = await _mealFoodService.CreateAsync(dto, cancellationToken);
-            CreateMealFoodResult response = new(result);
-            return response;
+            int result = await _mealFoodService.CreateAsync(dto, cancellationToken);
+
+            return new CreateMealFoodResult(result);
         }
     }
 }

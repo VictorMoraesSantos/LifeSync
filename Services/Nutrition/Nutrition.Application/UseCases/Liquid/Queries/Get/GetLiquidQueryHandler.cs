@@ -16,8 +16,8 @@ namespace Nutrition.Application.UseCases.Liquid.Queries.Get
         public async Task<GetLiquidResult> Handle(GetLiquidQuery query, CancellationToken cancellationToken)
         {
             LiquidDTO? result = await _liquidService.GetByIdAsync(query.Id, cancellationToken);
-            GetLiquidResult response = new(result);
-            return response;
+
+            return new GetLiquidResult(result);
         }
     }
 }

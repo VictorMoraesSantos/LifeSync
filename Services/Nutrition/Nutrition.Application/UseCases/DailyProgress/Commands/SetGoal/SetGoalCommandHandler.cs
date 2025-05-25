@@ -16,9 +16,10 @@ namespace Nutrition.Application.UseCases.DailyProgress.Commands.SetGoal
         public async Task<SetGoalResult> Handle(SetGoalCommand command, CancellationToken cancellationToken)
         {
             DailyGoalDTO dto = command.Goal;
+            
             await _dailyProgressService.SetGoalAsync(command.DailyProgressId, dto, cancellationToken);
-            SetGoalResult response = new(true);
-            return response;
+
+            return new SetGoalResult(true);
         }
     }
 }

@@ -15,8 +15,8 @@ namespace Nutrition.Application.UseCases.Diary.Commands.Delete
         public async Task<DeleteDiaryResult> Handle(DeleteDiaryCommand command, CancellationToken cancellationToken)
         {
             bool result = await _diaryService.DeleteAsync(command.Id);
-            DeleteDiaryResult response = new(true);
-            return response;
+
+            return new DeleteDiaryResult(result);
         }
     }
 }

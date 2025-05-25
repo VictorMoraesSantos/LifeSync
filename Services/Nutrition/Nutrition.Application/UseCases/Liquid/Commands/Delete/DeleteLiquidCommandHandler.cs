@@ -15,8 +15,8 @@ namespace Nutrition.Application.UseCases.Liquid.Commands.Delete
         public async Task<DeleteLiquidResult> Handle(DeleteLiquidCommand command, CancellationToken cancellationToken)
         {
             bool result = await _liquidService.DeleteAsync(command.Id, cancellationToken);
-            DeleteLiquidResult response = new(result);
-            return response;
+
+            return new DeleteLiquidResult(result);
         }
     }
 }

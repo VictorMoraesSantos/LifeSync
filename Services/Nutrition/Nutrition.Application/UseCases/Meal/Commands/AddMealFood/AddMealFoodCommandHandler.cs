@@ -15,6 +15,7 @@ namespace Nutrition.Application.UseCases.Meal.Commands.AddMealFood
         public async Task<AddMealFoodResult> Handle(AddMealFoodCommand command, CancellationToken cancellationToken)
         {
             bool result = await _mealService.AddMealFoodAsync(command.MealId, command.MealFood, cancellationToken);
+
             return new AddMealFoodResult(result);
         }
     }

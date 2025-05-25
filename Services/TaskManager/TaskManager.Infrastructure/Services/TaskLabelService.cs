@@ -51,11 +51,15 @@ namespace TaskManager.Infrastructure.Services
             return dtos;
         }
 
-        public async Task<bool> CreateAsync(CreateTaskLabelDTO dto, CancellationToken cancellationToken)
+        public async Task<int> CreateAsync(CreateTaskLabelDTO dto, CancellationToken cancellationToken)
         {
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
+
             TaskLabel entity = new(dto.Name, dto.LabelColor, dto.UserId, dto.TaskItemId);
+
             await _taskLabelRepository.Create(entity, cancellationToken);
-            return true;
+
+            return entity.Id;
         }
 
         public async Task<bool> UpdateAsync(UpdateTaskLabelDTO dto, CancellationToken cancellationToken)
@@ -105,14 +109,14 @@ namespace TaskManager.Infrastructure.Services
             return all.Count();
         }
 
-        public async Task<bool> CreateRangeAsync(IEnumerable<CreateTaskLabelDTO> dto, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateTaskLabelDTO> dtos, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dtos == null) throw new ArgumentNullException(nameof(dtos));
 
-            IEnumerable<TaskLabel> entities = dto.Select(TaskLabelMapper.ToEntity);
+            IEnumerable<TaskLabel> entities = dtos.Select(TaskLabelMapper.ToEntity);
 
             await _taskLabelRepository.CreateRange(entities, cancellationToken);
-            return true;
+            return entities.Select(e => e.Id).ToList();
         }
 
         public async Task<bool> DeleteRangeAsync(IEnumerable<int> dtos, CancellationToken cancellationToken = default)

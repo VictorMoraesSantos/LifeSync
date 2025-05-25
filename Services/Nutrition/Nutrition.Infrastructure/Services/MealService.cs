@@ -47,24 +47,25 @@ namespace Nutrition.Infrastructure.Services
             return all.Count();
         }
 
-        public async Task<bool> CreateAsync(CreateMealDTO dto, CancellationToken cancellationToken = default)
+        public async Task<int> CreateAsync(CreateMealDTO dto, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             Meal entity = MealMapper.ToEntity(dto);
 
             await _mealRepository.Create(entity, cancellationToken);
-            return true;
+
+            return entity.Id;
         }
 
-        public async Task<bool> CreateRangeAsync(IEnumerable<CreateMealDTO> dto, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateMealDTO> dtos, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dtos == null) throw new ArgumentNullException(nameof(dtos));
 
-            IEnumerable<Meal> entities = dto.Select(MealMapper.ToEntity);
+            IEnumerable<Meal> entities = dtos.Select(MealMapper.ToEntity);
 
             await _mealRepository.CreateRange(entities, cancellationToken);
-            return true;
+            return entities.Select(e => e.Id).ToList();
         }
 
         public async Task<bool> DeleteAsync(int dto, CancellationToken cancellationToken = default)

@@ -15,9 +15,9 @@ namespace Nutrition.Application.UseCases.MealFood.Queries.Get
 
         public async Task<GetMealFoodResult> Handle(GetMealFoodQuery query, CancellationToken cancellationToken)
         {
-            MealFoodDTO result = await _mealFoodService.GetByIdAsync(query.Id, cancellationToken);
-            GetMealFoodResult response = new(result);
-            return response;
+            MealFoodDTO? result = await _mealFoodService.GetByIdAsync(query.Id, cancellationToken);
+
+            return new GetMealFoodResult(result);
         }
     }
 }

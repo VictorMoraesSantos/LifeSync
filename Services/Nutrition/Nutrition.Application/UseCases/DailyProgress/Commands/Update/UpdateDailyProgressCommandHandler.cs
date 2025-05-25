@@ -21,8 +21,8 @@ namespace Nutrition.Application.UseCases.DailyProgress.Commands.Update
                 command.LiquidsConsumedMl);
 
             bool result = await _dailyProgressService.UpdateAsync(dto, cancellationToken);
-            UpdateDailyProgressResult response = new(result);
-            return response;
+
+            return new UpdateDailyProgressResult(result);
         }
     }
 }

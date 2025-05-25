@@ -22,24 +22,25 @@ namespace Nutrition.Infrastructure.Services
             return all.Count();
         }
 
-        public async Task<bool> CreateAsync(CreateMealFoodDTO dto, CancellationToken cancellationToken = default)
+        public async Task<int> CreateAsync(CreateMealFoodDTO dto, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             MealFood entity = MealFoodMapper.ToEntity(dto);
 
             await _mealFoodRepository.Create(entity, cancellationToken);
-            return true;
+            return entity.Id;
         }
 
-        public async Task<bool> CreateRangeAsync(IEnumerable<CreateMealFoodDTO> dto, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateMealFoodDTO> dtos, CancellationToken cancellationToken = default)
         {
-            if (dto == null) return false;
+            if (dtos == null || !dtos.Any()) throw new ArgumentNullException(nameof(dtos));
 
-            IEnumerable<MealFood> entities = dto.Select(MealFoodMapper.ToEntity);
+            IEnumerable<MealFood> entities = dtos.Select(MealFoodMapper.ToEntity);
 
             await _mealFoodRepository.CreateRange(entities, cancellationToken);
-            return true;
+
+            return entities.Select(entity => entity.Id).ToList();
         }
 
         public async Task<bool> DeleteAsync(int dto, CancellationToken cancellationToken = default)

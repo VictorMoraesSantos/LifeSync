@@ -11,5 +11,5 @@ namespace TaskManager.Application.TaskItems.Commands.CreateTaskItem
         int UserId
     ) : IRequest<CreateTaskItemResult>;
 
-    public record CreateTaskItemResult(bool IsSuccess);
+    public record CreateTaskItemResult(int Id);
 }
