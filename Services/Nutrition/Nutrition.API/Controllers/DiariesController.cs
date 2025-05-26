@@ -2,12 +2,12 @@
 using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Nutrition.Application.UseCases.Diary.Commands.Create;
-using Nutrition.Application.UseCases.Diary.Commands.Delete;
-using Nutrition.Application.UseCases.Diary.Commands.Update;
-using Nutrition.Application.UseCases.Diary.Queries.Get;
-using Nutrition.Application.UseCases.Diary.Queries.GetAll;
-using Nutrition.Application.UseCases.Diary.Queries.GetByUser;
+using Nutrition.Application.Features.Diary.Commands.Create;
+using Nutrition.Application.Features.Diary.Commands.Delete;
+using Nutrition.Application.Features.Diary.Commands.Update;
+using Nutrition.Application.Features.Diary.Queries.Get;
+using Nutrition.Application.Features.Diary.Queries.GetAll;
+using Nutrition.Application.Features.Diary.Queries.GetByUser;
 
 namespace Nutrition.API.Controllers
 {

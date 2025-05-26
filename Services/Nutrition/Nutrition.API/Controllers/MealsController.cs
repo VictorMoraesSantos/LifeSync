@@ -3,13 +3,13 @@ using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.DTOs.MealFood;
-using Nutrition.Application.UseCases.Meal.Commands.AddMealFood;
-using Nutrition.Application.UseCases.Meal.Commands.Create;
-using Nutrition.Application.UseCases.Meal.Commands.Delete;
-using Nutrition.Application.UseCases.Meal.Commands.Update;
-using Nutrition.Application.UseCases.Meal.Queries.Get;
-using Nutrition.Application.UseCases.Meal.Queries.GetAll;
-using Nutrition.Application.UseCases.Meal.Queries.GetByDiary;
+using Nutrition.Application.Features.Meal.Commands.AddMealFood;
+using Nutrition.Application.Features.Meal.Commands.Create;
+using Nutrition.Application.Features.Meal.Commands.Delete;
+using Nutrition.Application.Features.Meal.Commands.Update;
+using Nutrition.Application.Features.Meal.Queries.Get;
+using Nutrition.Application.Features.Meal.Queries.GetAll;
+using Nutrition.Application.Features.Meal.Queries.GetByDiary;
 
 namespace Nutrition.API.Controllers
 {

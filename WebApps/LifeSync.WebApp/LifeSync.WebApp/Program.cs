@@ -1,4 +1,3 @@
-using LifeSync.WebApp.Client.Pages;
 using LifeSync.WebApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);

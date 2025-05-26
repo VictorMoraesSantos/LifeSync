@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Exceptions;
-using MediatR;
+﻿using MediatR;
 using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;

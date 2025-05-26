@@ -2,7 +2,6 @@
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Data;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Repositories

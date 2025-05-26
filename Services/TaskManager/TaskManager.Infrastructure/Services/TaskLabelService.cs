@@ -8,7 +8,6 @@ using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Repositories;
 using TaskManager.Domain.ValueObjects;
-using TaskManager.Infrastructure.Repositories;
 
 namespace TaskManager.Infrastructure.Services
 {

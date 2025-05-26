@@ -1,6 +1,5 @@
 ﻿using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Domain.Entities;
-using Nutrition.Domain.ValueObjects;
 
 namespace Nutrition.Application.Mapping
 {

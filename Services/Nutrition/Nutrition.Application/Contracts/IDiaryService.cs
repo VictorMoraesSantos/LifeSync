@@ -1,7 +1,6 @@
 ﻿using Core.Application.Interfaces;
 using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.DTOs.Meal;
-using Nutrition.Domain.Entities;
 
 namespace Nutrition.Application.Interfaces
 {

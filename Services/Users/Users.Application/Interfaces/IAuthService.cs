@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 
 namespace Users.Application.Interfaces

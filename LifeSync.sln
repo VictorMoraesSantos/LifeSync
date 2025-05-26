@@ -57,6 +57,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nutrition.Application", "Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nutrition.Infrastructure", "Services\Nutrition\Nutrition.Infrastructure\Nutrition.Infrastructure.csproj", "{BFBA1AB0-FE2F-409D-AEF1-122FA7C63150}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Messaging", "BuildingBlocks\BuildingBlocks.Messaging\BuildingBlocks.Messaging.csproj", "{735851DB-BAE4-4A50-95AF-D4954A9899CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,10 @@ Global
 		{BFBA1AB0-FE2F-409D-AEF1-122FA7C63150}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFBA1AB0-FE2F-409D-AEF1-122FA7C63150}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFBA1AB0-FE2F-409D-AEF1-122FA7C63150}.Release|Any CPU.Build.0 = Release|Any CPU
+		{735851DB-BAE4-4A50-95AF-D4954A9899CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{735851DB-BAE4-4A50-95AF-D4954A9899CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{735851DB-BAE4-4A50-95AF-D4954A9899CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{735851DB-BAE4-4A50-95AF-D4954A9899CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -167,6 +173,7 @@ Global
 		{B5AA1922-6D10-4E7C-8FE6-4D68158200A2} = {61BE77B0-A277-4EE5-9C3F-9B692357F8B5}
 		{A53645FC-36A5-4D69-A7A5-EE247529156A} = {61BE77B0-A277-4EE5-9C3F-9B692357F8B5}
 		{BFBA1AB0-FE2F-409D-AEF1-122FA7C63150} = {61BE77B0-A277-4EE5-9C3F-9B692357F8B5}
+		{735851DB-BAE4-4A50-95AF-D4954A9899CE} = {C29C205D-79C7-49D8-8DF5-F8CBB7A77150}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {90F61289-0F19-4DB5-90AE-F995F0E1AD79}

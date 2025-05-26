@@ -4,9 +4,7 @@ using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
-using Nutrition.Domain.Events;
 using Nutrition.Domain.Repositories;
-using Nutrition.Infrastructure.Repositories;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services

@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Options;
-using System.Net.Mail;
+﻿using BuildingBlocks.Exceptions;
+using Microsoft.Extensions.Options;
 using System.Net;
+using System.Net.Mail;
 using Users.Application.Interfaces;
 using Users.Infrastructure.Smtp;
-using BuildingBlocks.Exceptions;
 
 namespace Users.Infrastructure.Services
 {

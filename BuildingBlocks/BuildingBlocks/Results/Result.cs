@@ -5,6 +5,7 @@
         public bool IsSuccess { get; }
         public bool IsFailure => !IsSuccess;
         public string Error { get; }
+
         protected Result(bool isSuccess, string error = null)
         {
             IsSuccess = isSuccess;
@@ -12,8 +13,9 @@
         }
 
         public static Result Success() => new(true);
-        public static Result Failure(string error) => new(false, error);
         public static Result<T> Success<T>(T value) => new(value, true);
+
+        public static Result Failure(string error) => new(false, error);
         public static Result<T> Failure<T>(string error) => new(default, false, error);
     }
 

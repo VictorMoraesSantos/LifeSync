@@ -16,7 +16,7 @@ namespace Nutrition.Application.Mapping
                 entity.Quantity,
                 entity.CaloriesPerUnit,
                 entity.TotalCalories);
-            
+
             return dto;
         }
 

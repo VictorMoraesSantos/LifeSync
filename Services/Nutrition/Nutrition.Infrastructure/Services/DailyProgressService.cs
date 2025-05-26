@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Exceptions;
-using Core.Domain.Exceptions;
 using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;

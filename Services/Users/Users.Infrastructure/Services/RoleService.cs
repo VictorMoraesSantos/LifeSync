@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Security.Claims;
 using Users.Application.Interfaces;
 using Users.Domain.Entities;

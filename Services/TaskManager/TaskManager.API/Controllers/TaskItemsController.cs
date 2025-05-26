@@ -3,13 +3,12 @@ using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs.Filters;
-using TaskManager.Application.DTOs.TaskItem;
-using TaskManager.Application.TaskItems.Commands.CreateTaskItem;
-using TaskManager.Application.TaskItems.Commands.DeleteTaskItem;
-using TaskManager.Application.TaskItems.Commands.UpdateTaskItem;
-using TaskManager.Application.TaskItems.Queries.GetAll;
-using TaskManager.Application.TaskItems.Queries.GetByFilter;
-using TaskManager.Application.TaskItems.Queries.GetById;
+using TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem;
+using TaskManager.Application.Features.TaskItems.Commands.DeleteTaskItem;
+using TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem;
+using TaskManager.Application.Features.TaskItems.Queries.GetAll;
+using TaskManager.Application.Features.TaskItems.Queries.GetByFilter;
+using TaskManager.Application.Features.TaskItems.Queries.GetById;
 
 namespace TaskManager.API.Controllers
 {

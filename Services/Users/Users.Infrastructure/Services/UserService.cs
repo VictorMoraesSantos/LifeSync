@@ -121,6 +121,6 @@ namespace Users.Infrastructure.Services
             return result.Succeeded;
         }
 
-        
+
     }
 }

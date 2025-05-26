@@ -3,7 +3,7 @@
     public class BadRequestException : Exception
     {
         public string? Details { get; }
-        public IEnumerable<string>? Errors { get; } 
+        public IEnumerable<string>? Errors { get; }
 
         public BadRequestException()
         { }

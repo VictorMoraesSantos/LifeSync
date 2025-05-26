@@ -3,13 +3,13 @@ using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.DTOs.DailyProgress;
-using Nutrition.Application.UseCases.DailyProgress.Commands.Create;
-using Nutrition.Application.UseCases.DailyProgress.Commands.Delete;
-using Nutrition.Application.UseCases.DailyProgress.Commands.SetGoal;
-using Nutrition.Application.UseCases.DailyProgress.Commands.Update;
-using Nutrition.Application.UseCases.DailyProgress.Queries.Get;
-using Nutrition.Application.UseCases.DailyProgress.Queries.GetAll;
-using Nutrition.Application.UseCases.DailyProgress.Queries.GetByUser;
+using Nutrition.Application.Features.DailyProgress.Commands.Create;
+using Nutrition.Application.Features.DailyProgress.Commands.Delete;
+using Nutrition.Application.Features.DailyProgress.Commands.SetGoal;
+using Nutrition.Application.Features.DailyProgress.Commands.Update;
+using Nutrition.Application.Features.DailyProgress.Queries.Get;
+using Nutrition.Application.Features.DailyProgress.Queries.GetAll;
+using Nutrition.Application.Features.DailyProgress.Queries.GetByUser;
 
 namespace Nutrition.API.Controllers
 {

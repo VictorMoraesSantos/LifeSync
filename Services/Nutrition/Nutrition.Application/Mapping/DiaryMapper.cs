@@ -1,6 +1,5 @@
 ﻿using Nutrition.Application.DTOs.Diary;
 using Nutrition.Domain.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nutrition.Application.Mapping
 {

@@ -1,7 +1,6 @@
 ﻿using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Users.Application.DTOs.User;
 using Users.Application.Users.Commands.UpdateUser;
 using Users.Application.Users.Queries.GetUser;
 using Users.Application.Users.Queries.GetUsers;
