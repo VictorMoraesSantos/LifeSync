@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Financial.Domain\Financial.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Behaviors\" />
+    <Folder Include="Contracts\" />
+    <Folder Include="DTOs\" />
+    <Folder Include="Features\Accounts\" />
+    <Folder Include="Features\Categories\" />
+    <Folder Include="Features\Reports\" />
+    <Folder Include="Features\Transactions\" />
+    <Folder Include="Mappings\" />
+  </ItemGroup>
+
+</Project>
