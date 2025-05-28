@@ -11,5 +11,6 @@ namespace Nutrition.Application.Interfaces
         IDeleteService<int>
     {
         Task<bool> AddMealFoodAsync(int mealId, CreateMealFoodDTO mealFood, CancellationToken cancellationToken);
+        Task<bool> RemoveMealFoodAsync(int mealId, int foodId, CancellationToken cancellationToken);
     }
 }

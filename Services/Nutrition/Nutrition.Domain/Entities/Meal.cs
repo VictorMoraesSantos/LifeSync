@@ -46,16 +46,18 @@ namespace Nutrition.Domain.Entities
             if (mealFood == null)
                 throw new DomainException("MealFood cannot be null");
             _mealFoods.Add(mealFood);
-            AddDomainEvent(new MealFoodAddedEvent(Id, mealFood.TotalCalories));
+            AddDomainEvent(new MealFoodAddedEvent(DiaryId, mealFood.TotalCalories));
         }
 
-        public void RemoveMealFood(MealFood mealFood)
+        public void RemoveMealFood(int mealFoodId)
         {
-            if (mealFood == null)
+            if (mealFoodId == null)
                 throw new DomainException("MealFood cannot be null");
 
-            if (!_mealFoods.Remove(mealFood))
-                throw new InvalidOperationException("MealFood not found in meal.");
+            var mealFood = _mealFoods.FirstOrDefault(mf => mf.Id == mealFoodId);
+
+            _mealFoods.Remove(mealFood);
+            AddDomainEvent(new MealFoodRemovedEvent(DiaryId, mealFood.TotalCalories));
         }
 
         public void Validate(string value)

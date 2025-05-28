@@ -39,6 +39,23 @@ namespace Nutrition.Infrastructure.Services
             return true;
         }
 
+        public async Task<bool> RemoveMealFoodAsync(int mealId, int foodId, CancellationToken cancellationToken)
+        {
+            Meal? meal = await _mealRepository.GetById(mealId, cancellationToken);
+            if (meal == null) return false;
+
+            meal.RemoveMealFood(foodId);
+            await _mealRepository.Update(meal, cancellationToken);
+
+            foreach (var domainEvent in meal.DomainEvents)
+            {
+                await _mediator.Publish(domainEvent, cancellationToken);
+            }
+            meal.ClearDomainEvents();
+
+            return true;
+        }
+
         public async Task<int> CountAsync(Expression<Func<MealDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
         {
             var all = await _mealRepository.GetAll(cancellationToken);

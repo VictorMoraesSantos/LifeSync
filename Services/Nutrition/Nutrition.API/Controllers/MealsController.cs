@@ -6,6 +6,7 @@ using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Features.Meal.Commands.AddMealFood;
 using Nutrition.Application.Features.Meal.Commands.Create;
 using Nutrition.Application.Features.Meal.Commands.Delete;
+using Nutrition.Application.Features.Meal.Commands.RemoveMealFood;
 using Nutrition.Application.Features.Meal.Commands.Update;
 using Nutrition.Application.Features.Meal.Queries.Get;
 using Nutrition.Application.Features.Meal.Queries.GetAll;
@@ -51,6 +52,14 @@ namespace Nutrition.API.Controllers
             AddMealFoodCommand command = new(mealId, dto);
             AddMealFoodResult result = await _mediator.Send(command, cancellationToken);
             return HttpResult<AddMealFoodResult>.Ok(result);
+        }
+
+        [HttpPost("{mealId}/foods/{foodId}")]
+        public async Task<HttpResult<RemoveMealFoodResult>> RemoveMealFood(int mealId, int foodId, CancellationToken cancellationToken)
+        {
+            RemoveMealFoodCommand command = new(mealId, foodId);
+            RemoveMealFoodResult result = await _mediator.Send(command, cancellationToken);
+            return HttpResult<RemoveMealFoodResult>.Ok(result);
         }
 
         [HttpPost]

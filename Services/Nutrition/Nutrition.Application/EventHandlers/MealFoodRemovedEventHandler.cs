@@ -1,23 +1,26 @@
 ﻿using MediatR;
 using Nutrition.Domain.Events;
 using Nutrition.Domain.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Nutrition.Application.EventHandlers
 {
-    public class MealFoodAddedEventHandler : INotificationHandler<MealFoodAddedEvent>
+    public class MealFoodRemovedEventHandler : INotificationHandler<MealFoodRemovedEvent>
     {
         private readonly IDiaryRepository _diaryRepository;
         private readonly IDailyProgressRepository _dailyProgressRepository;
 
-        public MealFoodAddedEventHandler(
-            IDiaryRepository diaryRepository,
-            IDailyProgressRepository dailyProgressRepository)
-        {
+        public MealFoodRemovedEventHandler(IDiaryRepository diaryRepository, IDailyProgressRepository dailyProgressRepository)
+        {   
             _diaryRepository = diaryRepository;
             _dailyProgressRepository = dailyProgressRepository;
         }
 
-        public async Task Handle(MealFoodAddedEvent notification, CancellationToken cancellationToken)
+        public async Task Handle(MealFoodRemovedEvent notification, CancellationToken cancellationToken)
         {
             var diary = await _diaryRepository.GetById(notification.DiaryId, cancellationToken);
             if (diary == null) return;

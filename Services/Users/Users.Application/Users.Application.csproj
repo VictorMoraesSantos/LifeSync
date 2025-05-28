@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Auth\Queries\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MediatR" Version="12.5.0" />
   </ItemGroup>
 

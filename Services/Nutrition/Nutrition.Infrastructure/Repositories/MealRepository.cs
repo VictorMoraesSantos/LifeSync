@@ -18,7 +18,6 @@ namespace Nutrition.Infrastructure.Repositories
         public async Task<Meal?> GetById(int id, CancellationToken cancellationToken = default)
         {
             Meal? meal = await _context.Meals
-                .AsNoTracking()
                 .Include(m => m.MealFoods)
                 .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
 

@@ -2,12 +2,12 @@
 
 namespace Nutrition.Domain.Events
 {
-    public class MealFoodAddedEvent : DomainEvent
+    public class MealFoodRemovedEvent : DomainEvent
     {
         public int DiaryId { get; }
         public int TotalCalories { get; }
 
-        public MealFoodAddedEvent(int diaryId, int totalCalories)
+        public MealFoodRemovedEvent(int diaryId, int totalCalories)
         {
             DiaryId = diaryId;
             TotalCalories = totalCalories;

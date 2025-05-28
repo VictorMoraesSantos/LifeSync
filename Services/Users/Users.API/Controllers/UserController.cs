@@ -1,9 +1,9 @@
 ﻿using Core.API.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Users.Application.Users.Commands.UpdateUser;
-using Users.Application.Users.Queries.GetUser;
-using Users.Application.Users.Queries.GetUsers;
+using Users.Application.Features.Users.Commands.UpdateUser;
+using Users.Application.Features.Users.Queries.GetAllUsers;
+using Users.Application.Features.Users.Queries.GetUser;
 
 namespace Users.API.Controllers
 {

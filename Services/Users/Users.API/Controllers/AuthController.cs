@@ -2,14 +2,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Users.Application.Auth.Commands.ChangePassword;
-using Users.Application.Auth.Commands.ForgotPassword;
-using Users.Application.Auth.Commands.Login;
-using Users.Application.Auth.Commands.Logout;
-using Users.Application.Auth.Commands.ResetPassword;
-using Users.Application.Auth.Commands.SendEmailConfirmation;
-using Users.Application.Auth.Commands.SignUp;
 using Users.Application.DTOs.Auth;
+using Users.Application.Features.Auth.Commands.ChangePassword;
+using Users.Application.Features.Auth.Commands.ForgotPassword;
+using Users.Application.Features.Auth.Commands.Login;
+using Users.Application.Features.Auth.Commands.Logout;
+using Users.Application.Features.Auth.Commands.ResetPassword;
+using Users.Application.Features.Auth.Commands.SendEmailConfirmation;
+using Users.Application.Features.Auth.Commands.SignUp;
 
 namespace Users.API.Controllers
 {
