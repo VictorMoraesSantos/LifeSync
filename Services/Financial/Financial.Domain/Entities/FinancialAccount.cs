@@ -9,7 +9,7 @@ namespace Financial.Domain.Entities
         public int UserId { get; private set; }
         public string Name { get; private set; }
         public string AccountType { get; private set; }
-        public Money InitialBalance { get; private set; }
+        public Money Balance { get; private set; }
         public Currency Currency { get; private set; }
 
         private readonly List<Transaction> _transactions = new();
@@ -17,18 +17,18 @@ namespace Financial.Domain.Entities
 
         private FinancialAccount() { }
 
-        public FinancialAccount(int userId, string name, string accountType, Money initialBalance)
+        public FinancialAccount(int userId, string name, string accountType, Money balance)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             if (string.IsNullOrWhiteSpace(accountType)) throw new ArgumentNullException(nameof(accountType));
-            ArgumentNullException.ThrowIfNull(initialBalance);
+            ArgumentNullException.ThrowIfNull(balance);
 
             UserId = userId;
             Name = name;
             AccountType = accountType;
-            InitialBalance = initialBalance;
-            Currency = initialBalance.Currency;
+            Balance = balance;
+            Currency = balance.Currency;
         }
 
         public void UpdateDetails(string name, string accountType)

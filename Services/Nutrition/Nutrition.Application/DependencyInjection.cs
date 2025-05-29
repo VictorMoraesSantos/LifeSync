@@ -11,6 +11,7 @@ namespace Nutrition.Application
             {
                 cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
+
             return services;
         }
     }

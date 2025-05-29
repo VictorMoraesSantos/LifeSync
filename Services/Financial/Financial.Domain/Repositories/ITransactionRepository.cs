@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.Domain.Repositories;
+using Financial.Domain.Entities;
 
 namespace Financial.Domain.Repositories
 {
-    internal interface ITransactionRepository
+    public interface ITransactionRepository : IRepository<Transaction, int>
     {
+        Task<IEnumerable<Transaction?>> GetAllByAccountIdAsync(int accountId, int userId, DateTime startDate, DateTime endDate);
+        Task<IEnumerable<Transaction?>> GetByUserIdAsync(int userId, DateTime startDate, DateTime endDate, int? categoryId, Enums.TransactionType? type);
     }
 }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.Domain.Repositories;
+using Financial.Domain.Entities;
 
 namespace Financial.Domain.Repositories
 {
-    internal interface ICategoryRepository
+    public interface ICategoryRepository : IRepository<Category, int>
     {
+        Task<IEnumerable<Category?>> GetAllByUserIdAsync(int userId);
     }
 }

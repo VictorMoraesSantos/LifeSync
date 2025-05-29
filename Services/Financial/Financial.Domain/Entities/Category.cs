@@ -8,14 +8,12 @@ namespace Financial.Domain.Entities
         public string Name { get; private set; }
         public string? Description { get; private set; }
 
-        // For EF Core
         private Category() { }
 
         public Category(int userId, string name, string? description = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
 
             UserId = userId;
             Name = name;
@@ -24,11 +22,8 @@ namespace Financial.Domain.Entities
 
         public void Update(string name, string? description)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name));
-
-            if (string.IsNullOrWhiteSpace(description))
-                throw new ArgumentNullException(nameof(description));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(description);
 
             Name = name;
             Description = description;

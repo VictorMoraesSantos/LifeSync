@@ -1,24 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Financial.Domain\Financial.Domain.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+		<PackageReference Include="MediatR" Version="12.5.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Behaviors\" />
-    <Folder Include="Contracts\" />
-    <Folder Include="DTOs\" />
-    <Folder Include="Features\Accounts\" />
-    <Folder Include="Features\Categories\" />
-    <Folder Include="Features\Reports\" />
-    <Folder Include="Features\Transactions\" />
-    <Folder Include="Mappings\" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Core\Core.Application\Core.Application.csproj" />
+		<ProjectReference Include="..\Financial.Domain\Financial.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Behaviors\" />
+		<Folder Include="Contracts\" />
+		<Folder Include="Features\Accounts\" />
+		<Folder Include="Features\Categories\" />
+		<Folder Include="Features\Reports\" />
+		<Folder Include="Features\Transactions\" />
+		<Folder Include="Mappings\" />
+	</ItemGroup>
 
 </Project>
