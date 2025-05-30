@@ -50,7 +50,7 @@ namespace Financial.Infrastructure.Persistence.Repositories
             return entities;
         }
 
-        public async Task<IEnumerable<Category?>> GetAllByUserIdAsync(int userId)
+        public async Task<IEnumerable<Category?>> GetAllByUserId(int userId, CancellationToken cancellationToken = default)
         {
             IEnumerable<Category?> entities = await _context.Categories
                 .Where(c => c.UserId == userId)
@@ -67,6 +67,16 @@ namespace Financial.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
             return entity;
+        }
+
+        public async Task<IEnumerable<Category?>> GetByNameContains(string name, CancellationToken cancellationToken = default)
+        {
+            IEnumerable<Category> entities = await _context.Categories
+                .Where(c => c.Name.Contains(name))
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return entities;
         }
 
         public async Task Update(Category entity, CancellationToken cancellationToken = default)

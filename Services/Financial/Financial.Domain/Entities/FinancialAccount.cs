@@ -20,9 +20,10 @@ namespace Financial.Domain.Entities
         public FinancialAccount(int userId, string name, string accountType, Money balance)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
+            ArgumentNullException.ThrowIfNull(balance);
+
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             if (string.IsNullOrWhiteSpace(accountType)) throw new ArgumentNullException(nameof(accountType));
-            ArgumentNullException.ThrowIfNull(balance);
 
             UserId = userId;
             Name = name;

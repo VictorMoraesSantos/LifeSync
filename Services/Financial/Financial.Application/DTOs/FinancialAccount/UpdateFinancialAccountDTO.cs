@@ -1,12 +1,10 @@
 ﻿using Financial.Domain.Enums;
-using FinancialControl.Domain.ValueObjects;
 
 namespace Financial.Application.DTOs.FinancialAccount
 {
-    public record CreateAccountDTO(
-        int UserId,
+    public record UpdateFinancialAccountDTO(
+        int Id,
         string Name,
         string AccountType,
-        Money Balance,
         Currency Currency);
 }

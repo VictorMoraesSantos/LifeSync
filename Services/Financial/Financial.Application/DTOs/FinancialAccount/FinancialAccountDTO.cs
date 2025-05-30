@@ -4,8 +4,9 @@ using FinancialControl.Domain.ValueObjects;
 
 namespace Financial.Application.DTOs.FinancialAccount
 {
-    public record AccountDTO(
+    public record FinancialAccountDTO(
         int Id,
+        int UserId,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
         string Name,

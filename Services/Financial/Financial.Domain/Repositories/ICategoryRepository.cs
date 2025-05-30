@@ -5,6 +5,7 @@ namespace Financial.Domain.Repositories
 {
     public interface ICategoryRepository : IRepository<Category, int>
     {
-        Task<IEnumerable<Category?>> GetAllByUserIdAsync(int userId);
+        Task<IEnumerable<Category?>> GetAllByUserId(int userId, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Category>> GetByNameContains(string name, CancellationToken cancellationToken = default);
     }
 }

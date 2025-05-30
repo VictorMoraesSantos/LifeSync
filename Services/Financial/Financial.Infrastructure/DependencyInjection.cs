@@ -12,7 +12,7 @@ namespace Financial.Infrastructure
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("Database")));
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IFinancialAccountRepository, FinancialAccountRepository>();

@@ -18,12 +18,10 @@
 
 	<ItemGroup>
 		<Folder Include="Behaviors\" />
-		<Folder Include="Contracts\" />
 		<Folder Include="Features\Accounts\" />
 		<Folder Include="Features\Categories\" />
 		<Folder Include="Features\Reports\" />
 		<Folder Include="Features\Transactions\" />
-		<Folder Include="Mappings\" />
 	</ItemGroup>
 
 </Project>

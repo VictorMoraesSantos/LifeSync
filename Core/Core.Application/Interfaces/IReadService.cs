@@ -6,9 +6,9 @@ namespace Core.Application.Interfaces
     public interface IReadService<TRead, TId> where TRead : DTOBase
     {
         Task<TRead?> GetByIdAsync(TId id, CancellationToken cancellationToken = default);
-        Task<IEnumerable<TRead>> GetAllAsync(CancellationToken cancellationToken = default);
-        Task<(IEnumerable<TRead> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default);
-        Task<IEnumerable<TRead>> FindAsync(Expression<Func<TRead, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TRead?>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<(IEnumerable<TRead?> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TRead?>> FindAsync(Expression<Func<TRead, bool>> predicate, CancellationToken cancellationToken = default);
         Task<int> CountAsync(Expression<Func<TRead, bool>>? predicate = null, CancellationToken cancellationToken = default);
     }
 }

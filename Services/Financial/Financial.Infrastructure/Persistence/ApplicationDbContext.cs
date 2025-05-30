@@ -1,10 +1,6 @@
 ﻿using Financial.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Financial.Infrastructure.Persistence
 {
@@ -17,5 +13,11 @@ namespace Financial.Infrastructure.Persistence
         public DbSet<Category> Categories { get; set; }
         public DbSet<FinancialAccount> FinancialAccounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            base.OnModelCreating(builder);
+        }
     }
 }

@@ -13,17 +13,18 @@ namespace Financial.Domain.Entities
         public Category(int userId, string name, string? description = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Name cannot be null or whitespace.");
 
             UserId = userId;
             Name = name;
             Description = description;
         }
 
-        public void Update(string name, string? description)
+        public void Update(string name, string? description = null)
         {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(description);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Name cannot be null or whitespace.");
 
             Name = name;
             Description = description;

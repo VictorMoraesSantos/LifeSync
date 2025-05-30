@@ -14,6 +14,10 @@ namespace FinancialControl.Domain.ValueObjects
             Currency = currency;
         }
 
+        protected Money()
+        {
+        }
+
         public static Money Create(int amount, string currency)
         {
             if (string.IsNullOrWhiteSpace(currency))
