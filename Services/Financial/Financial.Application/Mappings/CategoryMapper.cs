@@ -15,6 +15,7 @@ namespace Financial.Application.Mappings
         {
             CategoryDTO dto = new(
                 entity.Id,
+                entity.UserId,
                 entity.CreatedAt,
                 entity.UpdatedAt,
                 entity.Name,

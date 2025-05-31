@@ -1,6 +1,8 @@
-﻿using Financial.Domain.Repositories;
+﻿using Financial.Application.Contracts;
+using Financial.Domain.Repositories;
 using Financial.Infrastructure.Persistence;
 using Financial.Infrastructure.Persistence.Repositories;
+using Financial.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +19,10 @@ namespace Financial.Infrastructure
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IFinancialAccountRepository, FinancialAccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IFinancialAccountService, FinancialAccountService>();
+            services.AddScoped<ITransactionService, TransactionService>();
 
             return services;
         }

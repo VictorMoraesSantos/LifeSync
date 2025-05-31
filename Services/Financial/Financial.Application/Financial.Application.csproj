@@ -18,10 +18,21 @@
 
 	<ItemGroup>
 		<Folder Include="Behaviors\" />
-		<Folder Include="Features\Accounts\" />
-		<Folder Include="Features\Categories\" />
-		<Folder Include="Features\Reports\" />
-		<Folder Include="Features\Transactions\" />
+		<Folder Include="Features\FinancialAccounts\Commands\Create\" />
+		<Folder Include="Features\FinancialAccounts\Commands\Delete\" />
+		<Folder Include="Features\FinancialAccounts\Commands\Update\" />
+		<Folder Include="Features\FinancialAccounts\Queries\GetAll\" />
+		<Folder Include="Features\FinancialAccounts\Queries\GetById\" />
+		<Folder Include="Features\Reports\Commands\Create\" />
+		<Folder Include="Features\Reports\Commands\Delete\" />
+		<Folder Include="Features\Reports\Commands\Update\" />
+		<Folder Include="Features\Reports\Queries\GetAll\" />
+		<Folder Include="Features\Reports\Queries\GetById\" />
+		<Folder Include="Features\Transactions\Commands\Create\" />
+		<Folder Include="Features\Transactions\Commands\Delete\" />
+		<Folder Include="Features\Transactions\Commands\Update\" />
+		<Folder Include="Features\Transactions\Queries\GetAll\" />
+		<Folder Include="Features\Transactions\Queries\GetById\" />
 	</ItemGroup>
 
 </Project>
