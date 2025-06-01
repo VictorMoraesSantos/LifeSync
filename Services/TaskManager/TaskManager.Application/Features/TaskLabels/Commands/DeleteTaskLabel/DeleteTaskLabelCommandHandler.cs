@@ -1,5 +1,5 @@
 ﻿using BuildingBlocks.Exceptions;
-using MediatR;
+using BuildingBlocks.CQRS.Request;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.DeleteTaskLabel

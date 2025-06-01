@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;

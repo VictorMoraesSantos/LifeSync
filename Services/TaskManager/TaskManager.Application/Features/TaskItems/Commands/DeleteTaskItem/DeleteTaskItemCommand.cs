@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.DeleteTaskItem
 {

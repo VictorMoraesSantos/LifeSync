@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.Results;
 using Core.API.Controllers;
-using MediatR;
+using BuildingBlocks.CQRS.Request;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Features.DailyProgress.Commands.Create;
@@ -10,24 +10,25 @@ using Nutrition.Application.Features.DailyProgress.Commands.Update;
 using Nutrition.Application.Features.DailyProgress.Queries.Get;
 using Nutrition.Application.Features.DailyProgress.Queries.GetAll;
 using Nutrition.Application.Features.DailyProgress.Queries.GetByUser;
+using BuildingBlocks.CQRS.Sender;
 
 namespace Nutrition.API.Controllers
 {
     [Route("api/daily-progresses")]
     public class DailyProgressesController : ApiController
     {
-        private readonly IMediator _mediator;
+        private readonly ISender _sender;
 
-        public DailyProgressesController(IMediator mediator)
+        public DailyProgressesController(ISender sender)
         {
-            _mediator = mediator;
+            _sender = sender;
         }
 
         [HttpGet("{id:int}")]
         public async Task<HttpResult<GetDailyProgressResult>> Get(int id)
         {
             GetDailyProgressQuery query = new(id);
-            GetDailyProgressResult result = await _mediator.Send(query);
+            GetDailyProgressResult result = await _sender.Send(query);
             return HttpResult<GetDailyProgressResult>.Ok(result);
         }
 
@@ -35,7 +36,7 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<GetAllDailyProgressesByUserIdResult>> GetByUserId(int userId)
         {
             GetAllDailyProgressesByUserIdQuery query = new(userId);
-            GetAllDailyProgressesByUserIdResult result = await _mediator.Send(query);
+            GetAllDailyProgressesByUserIdResult result = await _sender.Send(query);
             return HttpResult<GetAllDailyProgressesByUserIdResult>.Ok(result);
         }
 
@@ -43,14 +44,14 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<GetDailyProgressesResult>> GetAll()
         {
             GetDailyProgressesQuery query = new();
-            GetDailyProgressesResult result = await _mediator.Send(query);
+            GetDailyProgressesResult result = await _sender.Send(query);
             return HttpResult<GetDailyProgressesResult>.Ok(result);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateDailyProgressResult>> Create([FromBody] CreateDailyProgressCommand command)
         {
-            CreateDailyProgressResult result = await _mediator.Send(command);
+            CreateDailyProgressResult result = await _sender.Send(command);
             return HttpResult<CreateDailyProgressResult>.Created(result);
         }
 
@@ -62,7 +63,7 @@ namespace Nutrition.API.Controllers
                 command.CaloriesConsumed,
                 command.LiquidsConsumedMl,
                 command.Goal);
-            UpdateDailyProgressResult result = await _mediator.Send(updateCommand);
+            UpdateDailyProgressResult result = await _sender.Send(updateCommand);
             return HttpResult<UpdateDailyProgressResult>.Ok(result);
         }
 
@@ -70,7 +71,7 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<DeleteDailyProgressResult>> Delete(int id)
         {
             DeleteDailyProgressCommand command = new(id);
-            DeleteDailyProgressResult result = await _mediator.Send(command);
+            DeleteDailyProgressResult result = await _sender.Send(command);
             return HttpResult<DeleteDailyProgressResult>.Deleted();
         }
 
@@ -79,7 +80,7 @@ namespace Nutrition.API.Controllers
         {
             DailyGoalDTO goal = command.Goal;
             SetGoalCommand setConsumedCommand = new(id, goal);
-            SetGoalResult result = await _mediator.Send(setConsumedCommand);
+            SetGoalResult result = await _sender.Send(setConsumedCommand);
             return HttpResult<SetGoalResult>.Ok(result);
         }
     }

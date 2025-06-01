@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using Nutrition.Application.DTOs.Diary;
 
 namespace Nutrition.Application.Features.Diary.Queries.Get

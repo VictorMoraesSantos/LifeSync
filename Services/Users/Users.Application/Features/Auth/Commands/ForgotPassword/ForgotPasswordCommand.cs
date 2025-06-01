@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 
 namespace Users.Application.Features.Auth.Commands.ForgotPassword
 {

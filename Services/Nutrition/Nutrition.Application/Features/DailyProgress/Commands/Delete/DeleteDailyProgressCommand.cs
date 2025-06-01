@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 
 namespace Nutrition.Application.Features.DailyProgress.Commands.Delete
 {

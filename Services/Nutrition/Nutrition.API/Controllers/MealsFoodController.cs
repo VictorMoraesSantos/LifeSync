@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.Results;
 using Core.API.Controllers;
-using MediatR;
+using BuildingBlocks.CQRS.Request;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.Features.Meal.MealFood.Commands.Create;
 using Nutrition.Application.Features.Meal.MealFood.Commands.Delete;
@@ -8,23 +8,24 @@ using Nutrition.Application.Features.Meal.MealFood.Commands.Update;
 using Nutrition.Application.Features.Meal.MealFood.Queries.Get;
 using Nutrition.Application.Features.Meal.MealFood.Queries.GetAll;
 using Nutrition.Application.Features.Meal.MealFood.Queries.GetByMeal;
+using BuildingBlocks.CQRS.Sender;
 
 namespace Nutrition.API.Controllers
 {
     public class MealsFoodController : ApiController
     {
-        private readonly IMediator _mediator;
+        private readonly ISender _sender;
 
-        public MealsFoodController(IMediator mediator)
+        public MealsFoodController(ISender sender)
         {
-            _mediator = mediator;
+            _sender = sender;
         }
 
         [HttpGet("{id:int}")]
         public async Task<HttpResult<GetMealFoodResult>> Get(int id)
         {
             GetMealFoodQuery query = new(id);
-            GetMealFoodResult result = await _mediator.Send(query);
+            GetMealFoodResult result = await _sender.Send(query);
             return HttpResult<GetMealFoodResult>.Ok(result);
         }
 
@@ -32,21 +33,21 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<GetByMealResult>> GetByMeal(int id)
         {
             GetByMealQuery query = new(id);
-            GetByMealResult result = await _mediator.Send(query);
+            GetByMealResult result = await _sender.Send(query);
             return HttpResult<GetByMealResult>.Ok(result);
         }
 
         [HttpGet]
         public async Task<HttpResult<GetMealFoodsResult>> GetAll([FromQuery] GetMealFoodsQuery query)
         {
-            GetMealFoodsResult result = await _mediator.Send(query);
+            GetMealFoodsResult result = await _sender.Send(query);
             return HttpResult<GetMealFoodsResult>.Ok(result);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateMealFoodResult>> Create([FromBody] CreateMealFoodCommand command)
         {
-            CreateMealFoodResult result = await _mediator.Send(command);
+            CreateMealFoodResult result = await _sender.Send(command);
             return HttpResult<CreateMealFoodResult>.Created(result);
         }
 
@@ -58,7 +59,7 @@ namespace Nutrition.API.Controllers
                 command.Name,
                 command.QuantityInGrams,
                 command.CaloriesPerUnit);
-            UpdateMealFoodResult result = await _mediator.Send(updateMealFoodCommand);
+            UpdateMealFoodResult result = await _sender.Send(updateMealFoodCommand);
             return HttpResult<UpdateMealFoodResult>.Updated();
         }
 
@@ -66,7 +67,7 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<DeleteMealFoodResult>> Delete(int id)
         {
             DeleteMealFoodCommand command = new(id);
-            DeleteMealFoodResult result = await _mediator.Send(command);
+            DeleteMealFoodResult result = await _sender.Send(command);
             return HttpResult<DeleteMealFoodResult>.Deleted();
         }
     }

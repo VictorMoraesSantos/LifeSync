@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.Results;
 using Core.API.Controllers;
-using MediatR;
+using BuildingBlocks.CQRS.Request;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Features.Meal.Commands.AddMealFood;
@@ -11,23 +11,24 @@ using Nutrition.Application.Features.Meal.Commands.Update;
 using Nutrition.Application.Features.Meal.Queries.Get;
 using Nutrition.Application.Features.Meal.Queries.GetAll;
 using Nutrition.Application.Features.Meal.Queries.GetByDiary;
+using BuildingBlocks.CQRS.Sender;
 
 namespace Nutrition.API.Controllers
 {
     public class MealsController : ApiController
     {
-        private readonly IMediator _mediator;
+        private readonly ISender _sender;
 
-        public MealsController(IMediator mediator)
+        public MealsController(ISender sender)
         {
-            _mediator = mediator;
+            _sender = sender;
         }
 
         [HttpGet("{id:int}")]
         public async Task<HttpResult<GetMealResult>> Get(int id)
         {
             GetMealQuery query = new(id);
-            GetMealResult result = await _mediator.Send(query);
+            GetMealResult result = await _sender.Send(query);
             return HttpResult<GetMealResult>.Ok(result);
         }
 
@@ -35,14 +36,14 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<GetByDiaryResult>> GetByDiary(int id)
         {
             GetByDiaryQuery query = new(id);
-            GetByDiaryResult result = await _mediator.Send(query);
+            GetByDiaryResult result = await _sender.Send(query);
             return HttpResult<GetByDiaryResult>.Ok(result);
         }
 
         [HttpGet]
         public async Task<HttpResult<GetMealsResult>> GetAll([FromQuery] GetMealsQuery query)
         {
-            GetMealsResult result = await _mediator.Send(query);
+            GetMealsResult result = await _sender.Send(query);
             return HttpResult<GetMealsResult>.Ok(result);
         }
 
@@ -50,7 +51,7 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<AddMealFoodResult>> AddMealFood(int mealId, [FromBody] CreateMealFoodDTO dto, CancellationToken cancellationToken)
         {
             AddMealFoodCommand command = new(mealId, dto);
-            AddMealFoodResult result = await _mediator.Send(command, cancellationToken);
+            AddMealFoodResult result = await _sender.Send(command, cancellationToken);
             return HttpResult<AddMealFoodResult>.Ok(result);
         }
 
@@ -58,14 +59,14 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<RemoveMealFoodResult>> RemoveMealFood(int mealId, int foodId, CancellationToken cancellationToken)
         {
             RemoveMealFoodCommand command = new(mealId, foodId);
-            RemoveMealFoodResult result = await _mediator.Send(command, cancellationToken);
+            RemoveMealFoodResult result = await _sender.Send(command, cancellationToken);
             return HttpResult<RemoveMealFoodResult>.Ok(result);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateMealResult>> Create([FromBody] CreateMealCommand command)
         {
-            CreateMealResult result = await _mediator.Send(command);
+            CreateMealResult result = await _sender.Send(command);
             return HttpResult<CreateMealResult>.Created(result);
         }
 
@@ -76,7 +77,7 @@ namespace Nutrition.API.Controllers
                 id,
                 command.Name,
                 command.Description);
-            UpdateMealResult result = await _mediator.Send(updateMealCommand);
+            UpdateMealResult result = await _sender.Send(updateMealCommand);
             return HttpResult<UpdateMealResult>.Updated();
         }
 
@@ -84,7 +85,7 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<DeleteMealResult>> Delete(int id)
         {
             DeleteMealCommand command = new(id);
-            DeleteMealResult result = await _mediator.Send(command);
+            DeleteMealResult result = await _sender.Send(command);
             return HttpResult<DeleteMealResult>.Deleted();
         }
     }

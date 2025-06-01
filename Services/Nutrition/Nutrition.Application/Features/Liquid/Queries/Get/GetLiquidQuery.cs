@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using Nutrition.Application.DTOs.Liquid;
 
 namespace Nutrition.Application.Features.Liquid.Queries.Get

@@ -18,5 +18,12 @@ namespace BuildingBlocks.CQRS.Sender
             dynamic handler = _serviceProvider.GetRequiredService(handlerType);
             return handler.Handle((dynamic)request, cancellationToken);
         }
+
+        public Task Send(IRequest request, CancellationToken cancellationToken = default)
+        {
+            var handlerType = typeof(IRequestHandler<>).MakeGenericType(request.GetType());
+            dynamic handler = _serviceProvider.GetRequiredService(handlerType);
+            return handler.Handle((dynamic)request, cancellationToken);
+        }
     }
 }

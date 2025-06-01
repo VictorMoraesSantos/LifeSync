@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+using BuildingBlocks.CQRS.Extensions;
 
 namespace Users.Application
 {
@@ -7,7 +7,7 @@ namespace Users.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            services.AddMediatorService();
 
             return services;
         }

@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.DTOs.Meal;
 using Nutrition.Application.Interfaces;

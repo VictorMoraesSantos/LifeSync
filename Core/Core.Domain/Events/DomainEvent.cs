@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Notification;
 
 namespace Core.Domain.Events
 {

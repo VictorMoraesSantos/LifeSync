@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Publisher;
 using Nutrition.Application.DTOs.Meal;
 using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Interfaces;
@@ -12,12 +12,12 @@ namespace Nutrition.Infrastructure.Services
     public class MealService : IMealService
     {
         private readonly IMealRepository _mealRepository;
-        private readonly IMediator _mediator;
+        private readonly IPublisher _publisher;
 
-        public MealService(IMealRepository mealRepository, IMediator mediator)
+        public MealService(IMealRepository mealRepository, IPublisher publisher)
         {
             _mealRepository = mealRepository;
-            _mediator = mediator;
+            _publisher = publisher;
         }
 
         public async Task<bool> AddMealFoodAsync(int mealId, CreateMealFoodDTO mealFood, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ namespace Nutrition.Infrastructure.Services
 
             foreach (var domainEvent in meal.DomainEvents)
             {
-                await _mediator.Publish(domainEvent, cancellationToken);
+                await _publisher.Publish(domainEvent, cancellationToken);
             }
             meal.ClearDomainEvents();
 
@@ -49,7 +49,7 @@ namespace Nutrition.Infrastructure.Services
 
             foreach (var domainEvent in meal.DomainEvents)
             {
-                await _mediator.Publish(domainEvent, cancellationToken);
+                await _publisher.Publish(domainEvent, cancellationToken);
             }
             meal.ClearDomainEvents();
 

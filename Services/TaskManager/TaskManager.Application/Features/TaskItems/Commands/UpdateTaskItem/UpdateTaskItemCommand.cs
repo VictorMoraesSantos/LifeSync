@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem

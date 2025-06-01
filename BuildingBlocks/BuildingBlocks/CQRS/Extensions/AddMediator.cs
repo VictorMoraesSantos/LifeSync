@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace BuildingBlocks.CQRS.Extensions
 {
-    public static class AddMediator
+    public static class Addsender
     {
         public static IServiceCollection AddMediatorService(this IServiceCollection services, Assembly? assembly = null)
         {

@@ -1,9 +1,8 @@
 ﻿using Core.Domain.Events;
-using MediatR;
 
 namespace Nutrition.Domain.Events
 {
-    public class MealAddedToDiaryEvent : DomainEvent, INotification
+    public class MealAddedToDiaryEvent : DomainEvent
     {
         public int UserId { get; }
         public DateOnly Date { get; }

@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Auth.Commands.ChangePassword

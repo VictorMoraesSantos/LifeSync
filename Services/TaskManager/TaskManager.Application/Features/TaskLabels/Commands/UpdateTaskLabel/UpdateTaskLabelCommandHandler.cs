@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;
 

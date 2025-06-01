@@ -5,4 +5,10 @@
     {
         Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken);
     }
+
+    public interface IRequestHandler<TRequest>
+        where TRequest : IRequest
+    {
+        Task Handle(TRequest request, CancellationToken cancellationToken);
+    }
 }

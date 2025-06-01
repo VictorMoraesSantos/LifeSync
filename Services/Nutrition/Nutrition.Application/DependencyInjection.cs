@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+﻿using BuildingBlocks.CQRS.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Nutrition.Application
 {
@@ -7,10 +7,7 @@ namespace Nutrition.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            });
+            services.AddMediatorService();
 
             return services;
         }

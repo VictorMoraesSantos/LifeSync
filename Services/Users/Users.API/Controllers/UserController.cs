@@ -1,19 +1,19 @@
 ﻿using Core.API.Controllers;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.Features.Users.Commands.UpdateUser;
 using Users.Application.Features.Users.Queries.GetAllUsers;
 using Users.Application.Features.Users.Queries.GetUser;
+using BuildingBlocks.CQRS.Sender;
 
 namespace Users.API.Controllers
 {
     public class UserController : ApiController
     {
-        private readonly IMediator _mediator;
+        private readonly ISender _sender;
 
-        public UserController(IMediator mediator)
+        public UserController(ISender sender)
         {
-            _mediator = mediator;
+            _sender = sender;
         }
 
         [HttpGet("{userId}")]
@@ -22,7 +22,7 @@ namespace Users.API.Controllers
         public async Task<IActionResult> GetUser(string userId)
         {
             GetUserQuery request = new(userId);
-            GetUserQueryResponse result = await _mediator.Send(request);
+            GetUserQueryResponse result = await _sender.Send(request);
             return Ok(result);
         }
 
@@ -32,7 +32,7 @@ namespace Users.API.Controllers
         public async Task<IActionResult> GetAllUsers()
         {
             GetAllUsersQuery request = new();
-            GetAllUsersQueryResponse result = await _mediator.Send(request);
+            GetAllUsersQueryResponse result = await _sender.Send(request);
             return Ok(result);
         }
 
@@ -42,7 +42,7 @@ namespace Users.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserCommand request)
         {
-            UpdateUserCommandResponse result = await _mediator.Send(request);
+            UpdateUserCommandResponse result = await _sender.Send(request);
             return Ok(result);
         }
     }

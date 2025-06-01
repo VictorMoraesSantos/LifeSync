@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using TaskManager.Application.DTOs.TaskItem;
 
 namespace TaskManager.Application.Features.TaskItems.Queries.GetById

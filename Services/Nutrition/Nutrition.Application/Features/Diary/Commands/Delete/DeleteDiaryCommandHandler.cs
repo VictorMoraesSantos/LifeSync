@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Diary.Commands.Delete

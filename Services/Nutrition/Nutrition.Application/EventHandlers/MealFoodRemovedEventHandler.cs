@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Notification;
 using Nutrition.Domain.Events;
 using Nutrition.Domain.Repositories;
 

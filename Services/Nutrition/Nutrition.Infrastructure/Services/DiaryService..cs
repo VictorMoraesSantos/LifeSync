@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Exceptions;
-using MediatR;
 using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.DTOs.Meal;
 using Nutrition.Application.Interfaces;
@@ -7,18 +6,19 @@ using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
 using System.Linq.Expressions;
+using BuildingBlocks.CQRS.Publisher;
 
 namespace Nutrition.Infrastructure.Services
 {
     public class DiaryService : IDiaryService
     {
         private readonly IDiaryRepository _diaryRepository;
-        private readonly IMediator _mediator;
+        private readonly IPublisher _publisher;
 
-        public DiaryService(IDiaryRepository diaryRepository, IMediator mediator)
+        public DiaryService(IDiaryRepository diaryRepository, IPublisher publisher)
         {
             _diaryRepository = diaryRepository;
-            _mediator = mediator;
+            _publisher = publisher;
         }
 
         public async Task<int> CountAsync(Expression<Func<DiaryDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
@@ -158,7 +158,7 @@ namespace Nutrition.Infrastructure.Services
 
             foreach (var domainEvent in diary.DomainEvents)
             {
-                await _mediator.Publish(domainEvent, cancellationToken);
+                await _publisher.Publish(domainEvent, cancellationToken);
             }
             diary.ClearDomainEvents();
 
