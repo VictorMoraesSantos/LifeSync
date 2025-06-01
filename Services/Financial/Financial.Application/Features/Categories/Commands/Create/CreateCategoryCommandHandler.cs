@@ -1,6 +1,6 @@
-﻿using Financial.Application.Contracts;
+﻿using BuildingBlocks.CQRS.Request;
+using Financial.Application.Contracts;
 using Financial.Application.DTOs.Category;
-using MediatR;
 
 namespace Financial.Application.Features.Categories.Commands.Create
 {

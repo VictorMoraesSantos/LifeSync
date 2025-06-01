@@ -1,5 +1,5 @@
-﻿using Financial.Application.Contracts;
-using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
+using Financial.Application.Contracts;
 
 namespace Financial.Application.Features.Categories.Queries.GetById
 {

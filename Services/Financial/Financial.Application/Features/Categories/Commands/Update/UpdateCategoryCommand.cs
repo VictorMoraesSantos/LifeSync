@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
 
 namespace Financial.Application.Features.Categories.Commands.Update
 {

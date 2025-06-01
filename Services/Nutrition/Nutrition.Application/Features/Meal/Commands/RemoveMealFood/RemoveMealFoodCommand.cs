@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Nutrition.Application.DTOs.MealFood;
 
 namespace Nutrition.Application.Features.Meal.Commands.RemoveMealFood
 {

@@ -3,7 +3,6 @@ using Financial.Application.DTOs.FinancialAccount;
 using Financial.Application.Mappings;
 using Financial.Domain.Entities;
 using Financial.Domain.Repositories;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace Financial.Infrastructure.Services
@@ -113,14 +112,14 @@ namespace Financial.Infrastructure.Services
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (dto.Id <= 0) throw new ArgumentOutOfRangeException(nameof(dto.Id), "ID must be greater than zero.");
-            
+
             var entity = await _financialAccountRepository.GetById(dto.Id, cancellationToken);
             if (entity == null) return false;
 
             entity.UpdateDetails(dto.Name, dto.AccountType);
 
             await _financialAccountRepository.Update(entity, cancellationToken);
-            
+
             return true;
         }
     }

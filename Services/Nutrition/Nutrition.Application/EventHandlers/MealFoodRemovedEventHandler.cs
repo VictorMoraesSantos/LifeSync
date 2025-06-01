@@ -1,11 +1,6 @@
 ﻿using MediatR;
 using Nutrition.Domain.Events;
 using Nutrition.Domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nutrition.Application.EventHandlers
 {
@@ -15,7 +10,7 @@ namespace Nutrition.Application.EventHandlers
         private readonly IDailyProgressRepository _dailyProgressRepository;
 
         public MealFoodRemovedEventHandler(IDiaryRepository diaryRepository, IDailyProgressRepository dailyProgressRepository)
-        {   
+        {
             _diaryRepository = diaryRepository;
             _dailyProgressRepository = dailyProgressRepository;
         }

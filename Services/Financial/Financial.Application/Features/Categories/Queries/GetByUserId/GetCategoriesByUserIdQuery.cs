@@ -1,5 +1,5 @@
-﻿using Financial.Application.DTOs.Category;
-using MediatR;
+﻿using BuildingBlocks.CQRS.Request;
+using Financial.Application.DTOs.Category;
 
 namespace Financial.Application.Features.Categories.Queries.GetByUserId
 {

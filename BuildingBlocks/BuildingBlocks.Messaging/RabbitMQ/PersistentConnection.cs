@@ -1,5 +1,4 @@
 ﻿using RabbitMQ.Client;
-using System;
 
 public class PersistentConnection : IDisposable
 {

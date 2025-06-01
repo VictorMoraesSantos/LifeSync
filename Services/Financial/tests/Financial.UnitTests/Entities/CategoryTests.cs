@@ -122,7 +122,7 @@ namespace Financial.UnitTests.Entities
             var name = "Nova Categoria";
             var description = "Descrição";
             var category = new Category(1, name, description);
-            var updatedName= "Nova Categoria";
+            var updatedName = "Nova Categoria";
 
             // Act & Assert
             category.Update(updatedName, nullDescription);

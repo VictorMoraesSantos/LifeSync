@@ -1,5 +1,4 @@
 ﻿using RabbitMQ.Client;
-using System.Collections.Generic;
 
 namespace BuildingBlocks.Messaging.Options
 {
