@@ -17,11 +17,6 @@
 
 	<ItemGroup>
 		<Folder Include="Behaviors\" />
-		<Folder Include="Features\FinancialAccounts\Commands\Create\" />
-		<Folder Include="Features\FinancialAccounts\Commands\Delete\" />
-		<Folder Include="Features\FinancialAccounts\Commands\Update\" />
-		<Folder Include="Features\FinancialAccounts\Queries\GetAll\" />
-		<Folder Include="Features\FinancialAccounts\Queries\GetById\" />
 		<Folder Include="Features\Reports\Commands\Create\" />
 		<Folder Include="Features\Reports\Commands\Delete\" />
 		<Folder Include="Features\Reports\Commands\Update\" />

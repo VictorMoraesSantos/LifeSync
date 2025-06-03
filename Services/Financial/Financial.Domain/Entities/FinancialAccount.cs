@@ -10,7 +10,6 @@ namespace Financial.Domain.Entities
         public string Name { get; private set; }
         public string AccountType { get; private set; }
         public Money Balance { get; private set; }
-        public Currency Currency { get; private set; }
 
         private readonly List<Transaction> _transactions = new();
         public IReadOnlyCollection<Transaction> Transactions => _transactions.AsReadOnly();
@@ -29,7 +28,6 @@ namespace Financial.Domain.Entities
             Name = name;
             AccountType = accountType;
             Balance = balance;
-            Currency = balance.Currency;
         }
 
         public void UpdateDetails(string name, string accountType)

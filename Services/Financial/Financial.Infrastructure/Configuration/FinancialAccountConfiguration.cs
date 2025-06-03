@@ -8,7 +8,7 @@ namespace Financial.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<FinancialAccount> builder)
         {
-            builder.ComplexProperty(
+            builder.OwnsOne(
                 o => o.Balance, balanceBuilder =>
                 {
                     balanceBuilder.Property(m => m.Amount);

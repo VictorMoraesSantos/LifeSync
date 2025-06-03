@@ -1,5 +1,4 @@
 ﻿using Core.Application.DTO;
-using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
 
 namespace Financial.Application.DTOs.FinancialAccount
@@ -11,7 +10,9 @@ namespace Financial.Application.DTOs.FinancialAccount
         DateTime? UpdatedAt,
         string Name,
         string AccountType,
-        Money Balance,
-        Currency Currency)
-        : DTOBase(Id, CreatedAt, UpdatedAt);
+        Money Balance)
+        : DTOBase(Id, CreatedAt, UpdatedAt)
+    {
+
+    };
 }

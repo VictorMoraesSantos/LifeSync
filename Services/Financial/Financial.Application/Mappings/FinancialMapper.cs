@@ -1,5 +1,6 @@
 ﻿using Financial.Application.DTOs.FinancialAccount;
 using Financial.Domain.Entities;
+using FinancialControl.Domain.ValueObjects;
 
 namespace Financial.Application.Mappings
 {
@@ -7,7 +8,8 @@ namespace Financial.Application.Mappings
     {
         public static FinancialAccount ToEntity(CreateFinancialAccountDTO dto)
         {
-            FinancialAccount entity = new(dto.UserId, dto.Name, dto.AccountType, dto.Balance);
+            Money balance = Money.Create(dto.Balance.Amount, dto.Balance.Currency);
+            FinancialAccount entity = new(dto.UserId, dto.Name, dto.AccountType, balance);
             return entity;
         }
 
@@ -20,8 +22,7 @@ namespace Financial.Application.Mappings
                 entity.UpdatedAt,
                 entity.Name,
                 entity.AccountType,
-                entity.Balance,
-                entity.Currency);
+                entity.Balance);
             return dto;
         }
     }

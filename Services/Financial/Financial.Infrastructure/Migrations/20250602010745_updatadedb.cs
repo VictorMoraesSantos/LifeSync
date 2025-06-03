@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Financial.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialcreate : Migration
+    public partial class updatadedb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,7 +39,6 @@ namespace Financial.Infrastructure.Migrations
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     AccountType = table.Column<string>(type: "text", nullable: false),
-                    Currency = table.Column<int>(type: "integer", nullable: false),
                     Balance_Amount = table.Column<int>(type: "integer", nullable: false),
                     Balance_Currency = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -51,15 +51,6 @@ namespace Financial.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Money",
-                columns: table => new
-                {
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -69,11 +60,11 @@ namespace Financial.Infrastructure.Migrations
                     FinancialAccountId = table.Column<int>(type: "integer", nullable: false),
                     CategoryId = table.Column<int>(type: "integer", nullable: true),
                     Type = table.Column<int>(type: "integer", nullable: false),
+                    Amount_Amount = table.Column<int>(type: "integer", nullable: false),
+                    Amount_Currency = table.Column<int>(type: "integer", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsRecurring = table.Column<bool>(type: "boolean", nullable: false),
-                    Amount_Amount = table.Column<int>(type: "integer", nullable: false),
-                    Amount_Currency = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
@@ -108,9 +99,6 @@ namespace Financial.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Money");
-
             migrationBuilder.DropTable(
                 name: "Transactions");
 

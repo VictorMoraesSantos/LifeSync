@@ -7,6 +7,5 @@ namespace Financial.Application.DTOs.FinancialAccount
         int UserId,
         string Name,
         string AccountType,
-        Money Balance,
-        Currency Currency);
+        Money Balance);
 }

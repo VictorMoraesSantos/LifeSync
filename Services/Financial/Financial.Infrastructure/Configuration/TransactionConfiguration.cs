@@ -8,12 +8,11 @@ namespace Financial.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<Transaction> builder)
         {
-            builder.ComplexProperty(
-                o => o.Amount, amountBuilder =>
-                {
-                    amountBuilder.Property(m => m.Amount);
-                    amountBuilder.Property(m => m.Currency);
-                });
+            builder.OwnsOne(o => o.Amount, amountBuilder =>
+            {
+                amountBuilder.Property(m => m.Amount);
+                amountBuilder.Property(m => m.Currency);
+            });
         }
     }
 }
