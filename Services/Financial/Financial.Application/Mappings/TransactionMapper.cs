@@ -10,11 +10,11 @@ namespace Financial.Application.Mappings
             Transaction entity = new(
                 dto.UserId,
                 dto.FinancialAccountId,
+                dto.CategoryId,
                 dto.Type,
                 dto.Amount,
                 dto.Description,
                 dto.TransactionDate,
-                dto.CategoryId,
                 dto.IsRecurring);
             return entity;
         }
@@ -24,14 +24,14 @@ namespace Financial.Application.Mappings
             TransactionDTO dto = new(
                 entity.Id,
                 entity.UserId,
+                entity.FinancialAccountId,
+                entity.CategoryId,
                 entity.CreatedAt,
                 entity.UpdatedAt,
-                entity.FinancialAccountId,
                 entity.Type,
                 entity.Amount,
                 entity.Description,
                 entity.TransactionDate,
-                entity.CategoryId,
                 entity.IsRecurring);
             return dto;
         }

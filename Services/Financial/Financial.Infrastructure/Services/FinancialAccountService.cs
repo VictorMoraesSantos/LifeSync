@@ -97,6 +97,13 @@ namespace Financial.Infrastructure.Services
             return dto;
         }
 
+        public async Task<IEnumerable<FinancialAccountDTO>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            var entities = await _financialAccountRepository.Find(fa => fa.UserId == userId, cancellationToken);
+            var dtos = entities.Select(FinancialMapper.ToDTO).ToList();
+            return dtos;
+        }
+
         public async Task<(IEnumerable<FinancialAccountDTO> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             if (page <= 0) throw new ArgumentOutOfRangeException(nameof(page), "Page must be greater than zero.");

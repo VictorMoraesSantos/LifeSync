@@ -51,7 +51,7 @@ namespace Financial.Infrastructure.Persistence.Repositories
             return entities;
         }
 
-        public async Task<IEnumerable<FinancialAccount>> GetAllByUserIdAsync(int userId)
+        public async Task<IEnumerable<FinancialAccount>> GetByUserIdAsync(int userId)
         {
             IEnumerable<FinancialAccount> entities = await _context.FinancialAccounts
                 .Where(fa => fa.UserId == userId)

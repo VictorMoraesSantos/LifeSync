@@ -68,7 +68,6 @@ namespace Financial.Infrastructure.Persistence.Repositories
         public async Task<Transaction?> GetById(int id, CancellationToken cancellationToken = default)
         {
             Transaction? entity = await _context.Transactions
-                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
             return entity;

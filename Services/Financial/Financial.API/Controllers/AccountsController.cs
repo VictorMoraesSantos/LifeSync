@@ -6,6 +6,7 @@ using Financial.Application.Features.FinancialAccounts.Commands.Delete;
 using Financial.Application.Features.FinancialAccounts.Commands.Update;
 using Financial.Application.Features.FinancialAccounts.Queries.GetAll;
 using Financial.Application.Features.FinancialAccounts.Queries.GetById;
+using Financial.Application.Features.FinancialAccounts.Queries.GetByUserId;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Financial.API.Controllers
@@ -25,6 +26,14 @@ namespace Financial.API.Controllers
             var query = new GetFinancialAccountByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
             return HttpResult<GetFinancialAccountByIdResult>.Ok(result);
+        }
+
+        [HttpGet("user/{userId:int}")]
+        public async Task<HttpResult<GetFinancialAccountsByUserResult>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
+        {
+            var query = new GetFinancialAccountsByUserIdQuery(userId);
+            var result = await _sender.Send(query, cancellationToken);
+            return HttpResult<GetFinancialAccountsByUserResult>.Ok(result);
         }
 
         [HttpGet]

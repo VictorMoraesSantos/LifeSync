@@ -1,5 +1,4 @@
-﻿using Financial.Domain.Enums;
-using FinancialControl.Domain.ValueObjects;
+﻿using FinancialControl.Domain.ValueObjects;
 
 namespace Financial.Application.DTOs.FinancialAccount
 {

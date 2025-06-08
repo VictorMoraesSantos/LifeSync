@@ -5,6 +5,6 @@ namespace Financial.Domain.Repositories
 {
     public interface IFinancialAccountRepository : IRepository<FinancialAccount, int>
     {
-        Task<IEnumerable<FinancialAccount>> GetAllByUserIdAsync(int userId);
+        Task<IEnumerable<FinancialAccount>> GetByUserIdAsync(int userId);
     }
 }

@@ -9,5 +9,6 @@ namespace Financial.Application.Contracts
         IUpdateService<UpdateTransactionDTO>,
         IDeleteService<int>
     {
+        Task<IEnumerable<TransactionDTO>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default);
     }
 }

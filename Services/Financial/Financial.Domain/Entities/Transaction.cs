@@ -22,11 +22,11 @@ namespace Financial.Domain.Entities
         public Transaction(
             int userId,
             int financialAccountId,
+            int? categoryId,
             TransactionType type,
             Money amount,
             string description,
             DateTime transactionDate,
-            int? categoryId = null,
             bool isRecurring = false)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
@@ -36,11 +36,11 @@ namespace Financial.Domain.Entities
 
             UserId = userId;
             FinancialAccountId = financialAccountId;
+            CategoryId = categoryId;
             Type = type;
             Amount = amount;
             Description = description;
-            TransactionDate = transactionDate;
-            CategoryId = categoryId;
+            TransactionDate = DateTime.SpecifyKind(transactionDate, DateTimeKind.Utc);
             IsRecurring = isRecurring;
         }
 
@@ -53,7 +53,7 @@ namespace Financial.Domain.Entities
             Type = type;
             Amount = amount;
             Description = description;
-            TransactionDate = transactionDate;
+            TransactionDate = DateTime.SpecifyKind(transactionDate, DateTimeKind.Utc);
             CategoryId = categoryId;
             IsRecurring = isRecurring;
             MarkAsUpdated();

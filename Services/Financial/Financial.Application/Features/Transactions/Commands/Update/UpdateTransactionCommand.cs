@@ -1,20 +1,17 @@
-﻿using Core.Application.DTO;
+﻿using BuildingBlocks.CQRS.Request;
 using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
 
-namespace Financial.Application.DTOs.Transaction
+namespace Financial.Application.Features.Transactions.Commands.Update
 {
-    public record TransactionDTO(
+    public record UpdateTransactionCommand(
         int Id,
-        int UserId,
-        int FinancialAccountId,
         int? CategoryId,
-        DateTime CreatedAt,
-        DateTime? UpdatedAt,
         TransactionType Type,
         Money Amount,
         string Description,
         DateTime TransactionDate,
         bool IsRecurring = false)
-        : DTOBase(Id, CreatedAt, UpdatedAt);
+        : IRequest<UpdateTransactionResult>;
+    public record UpdateTransactionResult(bool IsSuccess);
 }

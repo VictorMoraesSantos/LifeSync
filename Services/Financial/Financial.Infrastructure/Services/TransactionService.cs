@@ -92,6 +92,14 @@ namespace Financial.Infrastructure.Services
             return dto;
         }
 
+        public async Task<IEnumerable<TransactionDTO>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            if (userId <= 0) throw new ArgumentOutOfRangeException(nameof(userId), "User ID must be greater than zero.");
+            var all = await _transactionRepository.Find(t => t.UserId == userId, cancellationToken);
+            var dtos = all.Select(TransactionMapper.ToDTO).ToList();
+            return dtos;
+        }
+
         public async Task<(IEnumerable<TransactionDTO?> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page must be greater than zero.");
