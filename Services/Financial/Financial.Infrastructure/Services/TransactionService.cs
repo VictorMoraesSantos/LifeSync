@@ -118,7 +118,7 @@ namespace Financial.Infrastructure.Services
             var entity = await _transactionRepository.GetById(dto.Id, cancellationToken);
             if (entity == null) return false;
 
-            entity.Update(dto.Type, dto.Amount, dto.Description, dto.TransactionDate, dto.CategoryId, dto.IsRecurring);
+            entity.Update(dto.CategoryId, dto.PaymentMethod, dto.TransactionType, dto.Amount, dto.Description, dto.TransactionDate, dto.IsRecurring);
 
             await _transactionRepository.Update(entity, cancellationToken);
 

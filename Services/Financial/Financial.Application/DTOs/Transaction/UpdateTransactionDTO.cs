@@ -6,7 +6,8 @@ namespace Financial.Application.DTOs.Transaction
     public record UpdateTransactionDTO(
         int Id,
         int? CategoryId,
-        TransactionType Type,
+        PaymentMethod PaymentMethod,
+        TransactionType TransactionType,
         Money Amount,
         string Description,
         DateTime TransactionDate,

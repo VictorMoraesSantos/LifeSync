@@ -54,39 +54,6 @@ namespace Financial.Infrastructure.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Financial.Domain.Entities.FinancialAccount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FinancialAccounts");
-                });
-
             modelBuilder.Entity("Financial.Domain.Entities.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -105,19 +72,19 @@ namespace Financial.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("FinancialAccountId")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsRecurring")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Type")
+                    b.Property<int>("TransactionType")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -130,34 +97,7 @@ namespace Financial.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("FinancialAccountId");
-
                     b.ToTable("Transactions");
-                });
-
-            modelBuilder.Entity("Financial.Domain.Entities.FinancialAccount", b =>
-                {
-                    b.OwnsOne("FinancialControl.Domain.ValueObjects.Money", "Balance", b1 =>
-                        {
-                            b1.Property<int>("FinancialAccountId")
-                                .HasColumnType("integer");
-
-                            b1.Property<int>("Amount")
-                                .HasColumnType("integer");
-
-                            b1.Property<int>("Currency")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("FinancialAccountId");
-
-                            b1.ToTable("FinancialAccounts");
-
-                            b1.WithOwner()
-                                .HasForeignKey("FinancialAccountId");
-                        });
-
-                    b.Navigation("Balance")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Financial.Domain.Entities.Transaction", b =>
@@ -165,12 +105,6 @@ namespace Financial.Infrastructure.Migrations
                     b.HasOne("Financial.Domain.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId");
-
-                    b.HasOne("Financial.Domain.Entities.FinancialAccount", "FinancialAccount")
-                        .WithMany("Transactions")
-                        .HasForeignKey("FinancialAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.OwnsOne("FinancialControl.Domain.ValueObjects.Money", "Amount", b1 =>
                         {
@@ -195,13 +129,6 @@ namespace Financial.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-
-                    b.Navigation("FinancialAccount");
-                });
-
-            modelBuilder.Entity("Financial.Domain.Entities.FinancialAccount", b =>
-                {
-                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

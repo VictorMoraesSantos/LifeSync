@@ -9,9 +9,9 @@ namespace Financial.Application.Mappings
         {
             Transaction entity = new(
                 dto.UserId,
-                dto.FinancialAccountId,
                 dto.CategoryId,
-                dto.Type,
+                dto.PaymentMethod,
+                dto.TransactionType,
                 dto.Amount,
                 dto.Description,
                 dto.TransactionDate,
@@ -24,11 +24,11 @@ namespace Financial.Application.Mappings
             TransactionDTO dto = new(
                 entity.Id,
                 entity.UserId,
-                entity.FinancialAccountId,
-                entity.CategoryId,
+                entity.Category != null ? CategoryMapper.ToDTO(entity.Category) : null,
                 entity.CreatedAt,
                 entity.UpdatedAt,
-                entity.Type,
+                entity.PaymentMethod,
+                entity.TransactionType,
                 entity.Amount,
                 entity.Description,
                 entity.TransactionDate,

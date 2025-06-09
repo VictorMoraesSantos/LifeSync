@@ -5,7 +5,7 @@
 namespace Financial.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class updatade1 : Migration
+    public partial class initialCreate321123 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -1,4 +1,5 @@
 ﻿using Core.Application.DTO;
+using Financial.Application.DTOs.Category;
 using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
 
@@ -7,11 +8,11 @@ namespace Financial.Application.DTOs.Transaction
     public record TransactionDTO(
         int Id,
         int UserId,
-        int FinancialAccountId,
-        int? CategoryId,
+        CategoryDTO Category,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
-        TransactionType Type,
+        PaymentMethod PaymentMethod,
+        TransactionType TransactionType,
         Money Amount,
         string Description,
         DateTime TransactionDate,

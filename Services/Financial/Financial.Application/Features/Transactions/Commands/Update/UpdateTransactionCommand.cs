@@ -7,7 +7,8 @@ namespace Financial.Application.Features.Transactions.Commands.Update
     public record UpdateTransactionCommand(
         int Id,
         int? CategoryId,
-        TransactionType Type,
+        PaymentMethod PaymentMethod,
+        TransactionType TransactionType,
         Money Amount,
         string Description,
         DateTime TransactionDate,

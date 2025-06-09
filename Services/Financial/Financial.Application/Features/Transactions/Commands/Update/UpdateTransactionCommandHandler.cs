@@ -17,7 +17,8 @@ namespace Financial.Application.Features.Transactions.Commands.Update
             var dto = new UpdateTransactionDTO(
                 command.Id,
                 command.CategoryId,
-                command.Type,
+                command.PaymentMethod,
+                command.TransactionType,
                 command.Amount,
                 command.Description,
                 command.TransactionDate);

@@ -11,7 +11,6 @@ namespace Financial.Infrastructure.Persistence
         }
 
         public DbSet<Category> Categories { get; set; }
-        public DbSet<FinancialAccount> FinancialAccounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

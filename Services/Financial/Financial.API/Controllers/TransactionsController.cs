@@ -57,7 +57,8 @@ namespace Financial.API.Controllers
             var updatedCommand = new UpdateTransactionCommand(
                 id,
                 command.CategoryId,
-                command.Type,
+                command.PaymentMethod,
+                command.TransactionType,
                 command.Amount,
                 command.Description,
                 command.TransactionDate);

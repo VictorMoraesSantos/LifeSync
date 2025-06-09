@@ -17,9 +17,9 @@ namespace Financial.Application.Features.Transactions.Commands.Create
         {
             var dto = new CreateTransactionDTO(
                 command.UserId,
-                command.FinancialAccountId,
                 command.CategoryId,
-                command.Type,
+                command.PaymentMethod,
+                command.TransactionType,
                 command.Amount,
                 command.Description,
                 command.TransactionDate,

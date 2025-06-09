@@ -17,11 +17,9 @@ namespace Financial.Infrastructure
                 options.UseNpgsql(configuration.GetConnectionString("Database")));
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IFinancialAccountRepository, FinancialAccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
 
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IFinancialAccountService, FinancialAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
 
             return services;
