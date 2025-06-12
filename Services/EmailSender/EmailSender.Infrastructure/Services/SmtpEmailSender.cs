@@ -1,6 +1,5 @@
 ﻿using EmailSender.Application.Contracts;
 using EmailSender.Application.DTO;
-using EmailSender.Domain.Entities;
 using System.Net.Mail;
 
 namespace EmailSender.Infrastructure.Services
@@ -16,8 +15,8 @@ namespace EmailSender.Infrastructure.Services
 
         public async Task SendEmailAsync(EmailMessageDTO dto)
         {
-            var mailMessage = new MailMessage("no-reply@yourdomain.com", dto.To, dto.Subject, dto.Body);
-            await _smtpClient.SendMailAsync(mailMessage);
+            var mail = new MailMessage("no-reply@yourdomain.com", dto.To, dto.Subject, dto.Body);
+            await _smtpClient.SendMailAsync(mail);
         }
     }
 }

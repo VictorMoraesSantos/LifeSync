@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using BuildingBlocks.Messaging.Abstractions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using RabbitMQ.Client;
 using System.Text;
 using Users.Application.Interfaces;
 using Users.Domain.Entities;
@@ -81,6 +83,21 @@ namespace Users.Infrastructure
             services.AddScoped<IRoleService, RoleService>();
 
             services.AddAuthorization();
+
+
+            services.AddSingleton(sp =>
+            {
+                var factory = new ConnectionFactory()
+                {
+                    HostName = configuration.GetValue<string>("RabbitMQ:Host"),
+                    UserName = configuration.GetValue<string>("RabbitMQ:User"),
+                    Password = configuration.GetValue<string>("RabbitMQ:Password"),
+                    DispatchConsumersAsync = true
+                };
+                return new PersistentConnection(factory);
+            });
+
+            services.AddSingleton<IEventBus, EventBus>();
 
             return services;
         }

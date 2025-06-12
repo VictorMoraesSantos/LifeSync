@@ -26,8 +26,10 @@ namespace EmailSender.Infrastructure.Messaging
             {
                 QueueName = "email_events",
                 ExchangeName = "my_exchange",
-                RoutingKey = "email.events.user.registered", // Rota específica
-                TypeExchange = ExchangeType.Topic
+                RoutingKey = "email.events.user.registered",
+                TypeExchange = ExchangeType.Topic,
+                Durable = true,
+                AutoDelete = false
             };
 
             _eventConsumer.StartConsuming(OnMessageReceived, options);
@@ -35,10 +37,7 @@ namespace EmailSender.Infrastructure.Messaging
 
         private void OnMessageReceived(string message)
         {
-            // Tenta desserializar para UserRegisteredEvent
             var @event = JsonSerializer.Deserialize<UserRegisteredEvent>(message);
-
-            // Publica o evento de domínio usando MediatR
             _publisher.Publish(@event);
         }
     }

@@ -1,11 +1,13 @@
-﻿using BuildingBlocks.Messaging.Abstractions;
+﻿using BuildingBlocks.CQRS.Publisher;
+using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Messaging.RabbitMQ;
 using EmailSender.Application.Contracts;
-using EmailSender.Infrastructure.Extensions;
 using EmailSender.Infrastructure.Messaging;
 using EmailSender.Infrastructure.Services;
+using EmailSender.Infrastructure.Smtp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
 using System.Net.Mail;
 
 namespace EmailSender.Infrastructure
@@ -26,9 +28,23 @@ namespace EmailSender.Infrastructure
                 return client;
             });
 
-            services.AddScoped<IEmailSender, SmtpEmailSender>();
-            services.AddSingleton<RabbitMqEventConsumer>();
+            services.AddSingleton(sp =>
+            {
+                var factory = new ConnectionFactory()
+                {
+                    HostName = configuration.GetValue<string>("RabbitMQ:Host"),
+                    UserName = configuration.GetValue<string>("RabbitMQ:User"),
+                    Password = configuration.GetValue<string>("RabbitMQ:Password"),
+                    DispatchConsumersAsync = true
+                };
+                return new PersistentConnection(factory);
+            });
 
+            services.AddSingleton<PersistentConnection>();
+            services.AddSingleton<IEventConsumer, EventConsumer>();
+            services.AddScoped<IEmailSender, SmtpEmailSender>();
+            services.AddSingleton<IPublisher, Publisher>();
+            services.AddSingleton<RabbitMqEventConsumer>();
             return services;
         }
     }

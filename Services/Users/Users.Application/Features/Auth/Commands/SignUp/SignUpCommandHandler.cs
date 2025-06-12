@@ -1,7 +1,12 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Messaging.Abstractions;
+using BuildingBlocks.Messaging.Options;
+using RabbitMQ.Client;
 using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
+using Users.Domain.Entities;
+using Users.Domain.Events;
 
 namespace Users.Application.Features.Auth.Commands.SignUp
 {
@@ -10,33 +15,46 @@ namespace Users.Application.Features.Auth.Commands.SignUp
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
         private readonly ITokenGenerator _tokenGenerator;
+        private readonly IEventBus _eventBus;
 
-        public SignUpCommandHandler(IAuthService identityService, ITokenGenerator tokenGenerator, IUserService userService)
+        public SignUpCommandHandler(IAuthService identityService, ITokenGenerator tokenGenerator, IUserService userService, IEventBus eventBus)
         {
             _authService = identityService;
             _tokenGenerator = tokenGenerator;
             _userService = userService;
+            _eventBus = eventBus;
         }
 
         public async Task<AuthResponse> Handle(SignUpCommand command, CancellationToken cancellationToken)
         {
-            UserDTO userDTO = await _authService.SignUpAsync(
+            UserDTO dto = await _authService.SignUpAsync(
                 command.FirstName,
                 command.LastName,
                 command.Email,
                 command.Password);
 
             string accessToken = _tokenGenerator.GenerateTokenAsync(
-                userDTO.Id,
-                userDTO.Email,
-                userDTO.Roles,
+                dto.Id,
+                dto.Email,
+                dto.Roles,
                 cancellationToken);
 
             string refreshToken = _tokenGenerator.GenerateRefreshToken();
 
-            await _authService.UpdateRefreshTokenAsync(userDTO.Id, refreshToken);
+            await _authService.UpdateRefreshTokenAsync(dto.Id, refreshToken);
 
-            return new AuthResponse(accessToken, refreshToken, userDTO);
+            var userRegisteredEvent = new UserRegisteredEvent(int.Parse(dto.Id), dto.Email);
+
+            var publishOptions = new PublishOptions
+            {
+                ExchangeName = "my_exchange",
+                TypeExchange = ExchangeType.Topic,
+                RoutingKey = "email.events.user.registered"
+            };
+
+            _eventBus.Publish(userRegisteredEvent, publishOptions);
+
+            return new AuthResponse(accessToken, refreshToken, dto);
         }
     }
 }
