@@ -1,4 +1,4 @@
-﻿namespace Users.Infrastructure.Jwt
+﻿namespace Users.Infrastructure.Settings
 {
     public class RefreshToken
     {

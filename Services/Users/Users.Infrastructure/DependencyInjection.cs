@@ -10,8 +10,8 @@ using System.Text;
 using Users.Application.Interfaces;
 using Users.Domain.Entities;
 using Users.Infrastructure.Data;
-using Users.Infrastructure.Jwt;
 using Users.Infrastructure.Services;
+using Users.Infrastructure.Settings;
 using Users.Infrastructure.Smtp;
 
 namespace Users.Infrastructure
@@ -84,15 +84,17 @@ namespace Users.Infrastructure
 
             services.AddAuthorization();
 
+            var rabbitCfg = configuration.GetSection("RabbitMQSettings").Get<RabbitMqSettings>();
 
             services.AddSingleton(sp =>
             {
-                var factory = new ConnectionFactory()
+                var factory = new ConnectionFactory
                 {
-                    HostName = configuration.GetValue<string>("RabbitMQ:Host"),
-                    UserName = configuration.GetValue<string>("RabbitMQ:User"),
-                    Password = configuration.GetValue<string>("RabbitMQ:Password"),
-                    DispatchConsumersAsync = true
+                    HostName = rabbitCfg.Host,
+                    UserName = rabbitCfg.User,
+                    Password = rabbitCfg.Password,
+                    Port = rabbitCfg.Port,
+                    DispatchConsumersAsync = false
                 };
                 return new PersistentConnection(factory);
             });

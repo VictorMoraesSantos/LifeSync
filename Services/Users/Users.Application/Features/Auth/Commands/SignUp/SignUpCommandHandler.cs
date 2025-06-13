@@ -49,7 +49,8 @@ namespace Users.Application.Features.Auth.Commands.SignUp
             {
                 ExchangeName = "my_exchange",
                 TypeExchange = ExchangeType.Topic,
-                RoutingKey = "email.events.user.registered"
+                RoutingKey = "email.events.user.registered",
+                Durable = true,
             };
 
             _eventBus.Publish(userRegisteredEvent, publishOptions);

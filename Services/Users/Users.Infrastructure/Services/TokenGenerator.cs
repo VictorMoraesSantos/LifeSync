@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Users.Application.Interfaces;
-using Users.Infrastructure.Jwt;
+using Users.Infrastructure.Settings;
 
 namespace Users.Infrastructure.Services
 {
