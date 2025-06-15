@@ -24,6 +24,8 @@ namespace TaskManager.Infrastructure
             services.AddScoped<ITaskItemRepository, TaskItemRepository>();
             services.AddScoped<ITaskLabelRepository, TaskLabelRepository>();
 
+            services.AddHostedService<MigrationHostedService>();
+
             return services;
         }
     }

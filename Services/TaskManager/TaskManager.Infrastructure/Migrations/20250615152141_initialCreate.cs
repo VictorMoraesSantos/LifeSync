@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TaskManager.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialcreate : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,41 +58,6 @@ namespace TaskManager.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "DomainEvent",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    OccuredOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    TaskItemId = table.Column<int>(type: "integer", nullable: true),
-                    TaskLabelId = table.Column<int>(type: "integer", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DomainEvent", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DomainEvent_TaskItems_TaskItemId",
-                        column: x => x.TaskItemId,
-                        principalTable: "TaskItems",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_DomainEvent_TaskLabels_TaskLabelId",
-                        column: x => x.TaskLabelId,
-                        principalTable: "TaskLabels",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DomainEvent_TaskItemId",
-                table: "DomainEvent",
-                column: "TaskItemId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DomainEvent_TaskLabelId",
-                table: "DomainEvent",
-                column: "TaskLabelId");
-
             migrationBuilder.CreateIndex(
                 name: "IX_TaskLabels_TaskItemId",
                 table: "TaskLabels",
@@ -101,9 +67,6 @@ namespace TaskManager.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "DomainEvent");
-
             migrationBuilder.DropTable(
                 name: "TaskLabels");
 

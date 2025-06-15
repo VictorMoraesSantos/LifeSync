@@ -12,44 +12,18 @@ using TaskManager.Infrastructure.Data;
 namespace TaskManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250517172251_initialcreat1")]
-    partial class initialcreat1
+    [Migration("20250615152141_initialCreate")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Core.Domain.Events.DomainEvent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("OccuredOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("TaskItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("TaskLabelId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskItemId");
-
-                    b.HasIndex("TaskLabelId");
-
-                    b.ToTable("DomainEvent");
-                });
 
             modelBuilder.Entity("TaskManager.Domain.Entities.TaskItem", b =>
                 {
@@ -130,17 +104,6 @@ namespace TaskManager.Infrastructure.Migrations
                     b.ToTable("TaskLabels");
                 });
 
-            modelBuilder.Entity("Core.Domain.Events.DomainEvent", b =>
-                {
-                    b.HasOne("TaskManager.Domain.Entities.TaskItem", null)
-                        .WithMany("DomainEvents")
-                        .HasForeignKey("TaskItemId");
-
-                    b.HasOne("TaskManager.Domain.Entities.TaskLabel", null)
-                        .WithMany("DomainEvents")
-                        .HasForeignKey("TaskLabelId");
-                });
-
             modelBuilder.Entity("TaskManager.Domain.Entities.TaskLabel", b =>
                 {
                     b.HasOne("TaskManager.Domain.Entities.TaskItem", "TaskItem")
@@ -154,14 +117,7 @@ namespace TaskManager.Infrastructure.Migrations
 
             modelBuilder.Entity("TaskManager.Domain.Entities.TaskItem", b =>
                 {
-                    b.Navigation("DomainEvents");
-
                     b.Navigation("Labels");
-                });
-
-            modelBuilder.Entity("TaskManager.Domain.Entities.TaskLabel", b =>
-                {
-                    b.Navigation("DomainEvents");
                 });
 #pragma warning restore 612, 618
         }

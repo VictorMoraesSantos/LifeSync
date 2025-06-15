@@ -1,0 +1,12 @@
+services:
+  lifesyncdb:
+    image: postgres
+
+  taskmanager.api:
+    image: ${DOCKER_REGISTRY-}taskmanagerapi
+    build:
+      context: .
+      dockerfile: Services/TaskManager/TaskManager.API/Dockerfile
+
+volumes:
+  postgres_taskmanager:
