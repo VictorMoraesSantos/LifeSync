@@ -21,9 +21,8 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.CreateTaskLabel
                 command.UserId,
                 command.TaskItemId);
 
-            int result = await _taskLabelService.CreateAsync(dto, cancellationToken);
-
-            return new CreateTaskLabelResult(result);
+            var result = await _taskLabelService.CreateAsync(dto, cancellationToken);
+        return new CreateTaskLabelResult(result);
         }
     }
 }

@@ -20,9 +20,8 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel
                 command.Name,
                 command.LabelColor);
 
-            bool result = await _taskLabelService.UpdateAsync(dto, cancellationToken);
-            UpdateTaskLabelResult response = new(result);
-            return response;
+            var result = await _taskLabelService.UpdateAsync(dto, cancellationToken);
+            return new UpdateTaskLabelResult(result);
         }
     }
 }

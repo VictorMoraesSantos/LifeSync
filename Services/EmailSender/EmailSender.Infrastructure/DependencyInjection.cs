@@ -1,8 +1,8 @@
-﻿using BuildingBlocks.CQRS.Publisher;
-using BuildingBlocks.Messaging.Abstractions;
+﻿using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Messaging.RabbitMQ;
+using BuildingBlocks.Messaging.Settings;
 using EmailSender.Application.Contracts;
-using EmailSender.Infrastructure.Messaging;
+using EmailSender.Domain.Events;
 using EmailSender.Infrastructure.Services;
 using EmailSender.Infrastructure.Smtp;
 using Microsoft.Extensions.Configuration;
@@ -14,37 +14,56 @@ namespace EmailSender.Infrastructure
 {
     public static class DependencyInjection
     {
+        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddEmailSenderInfrastructure(configuration);
+            services.AddMessaging(configuration);
+            return services;
+        }
+
         public static IServiceCollection AddEmailSenderInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var smtpSettings = configuration.GetSection("SmtpSettings").Get<SmtpSettings>();
-
+            var smtpSettings = configuration.GetSection("SmtpSettings")
+                                            .Get<SmtpSettings>();
             services.AddSingleton(sp =>
-            {
-                var client = new SmtpClient(smtpSettings.Host, smtpSettings.Port)
+                new SmtpClient(smtpSettings.Host, smtpSettings.Port)
                 {
                     Credentials = new System.Net.NetworkCredential(smtpSettings.User, smtpSettings.Password),
                     EnableSsl = smtpSettings.EnableSsl
-                };
-                return client;
-            });
+                });
+            services.AddScoped<IEmailSender, SmtpEmailSender>();
 
-            services.AddSingleton(sp =>
-            {
-                var factory = new ConnectionFactory()
+
+            return services;
+        }
+
+        public static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
+        {
+            var rabbitCfg = configuration.GetSection("RabbitMQSettings").Get<RabbitMqSettings>();
+            services.AddSingleton<IConnectionFactory>(sp =>
+                new ConnectionFactory()
                 {
-                    HostName = configuration.GetValue<string>("RabbitMQ:Host"),
-                    UserName = configuration.GetValue<string>("RabbitMQ:User"),
-                    Password = configuration.GetValue<string>("RabbitMQ:Password"),
+                    HostName = rabbitCfg.Host,
+                    UserName = rabbitCfg.User,
+                    Password = rabbitCfg.Password,
+                    Port = rabbitCfg.Port,
                     DispatchConsumersAsync = true
-                };
-                return new PersistentConnection(factory);
-            });
-
+                });
             services.AddSingleton<PersistentConnection>();
             services.AddSingleton<IEventConsumer, EventConsumer>();
-            services.AddScoped<IEmailSender, SmtpEmailSender>();
-            services.AddSingleton<IPublisher, Publisher>();
-            services.AddSingleton<RabbitMqEventConsumer>();
+
+            services.AddEventConsumer<UserRegisteredIntegrationEvent>(opts =>
+            {
+                opts.ExchangeName = "my_exchange";
+                opts.QueueName = "email_events.user_registered";
+                opts.RoutingKey = "email.events.user.registered";
+                opts.TypeExchange = ExchangeType.Topic;
+                opts.Durable = true;
+                opts.AutoDelete = false;
+            });
+
+            services.AddHostedService<RabbitMqEventConsumer>();
+
             return services;
         }
     }

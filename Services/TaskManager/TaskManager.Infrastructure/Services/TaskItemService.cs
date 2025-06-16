@@ -55,9 +55,7 @@ namespace TaskManager.Infrastructure.Services
             if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             TaskItem entity = new(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId);
-
             await _taskItemRepository.Create(entity, cancellationToken);
-
             return entity.Id;
         }
 
@@ -112,9 +110,7 @@ namespace TaskManager.Infrastructure.Services
             if (dto == null) throw new ArgumentNullException(nameof(dto));
 
             IEnumerable<TaskItem> entities = dto.Select(TaskItemMapper.ToEntity);
-
             await _taskItemRepository.CreateRange(entities, cancellationToken);
-
             return entities.Select(e => e.Id).ToList();
         }
 
@@ -125,11 +121,8 @@ namespace TaskManager.Infrastructure.Services
             TaskItem? entity = await _taskItemRepository.GetById(dto.Id, cancellationToken);
             if (entity == null) return false;
 
-            entity.Update(dto.Title, dto.Description, (Status)dto.Status, (Priority)dto.Priority, dto.DueDate);
+            entity.Update(dto.Title, dto.Description, dto.Status, dto.Priority, dto.DueDate);
             entity.MarkAsUpdated();
-
-            // Atualizar refeições e líquidos pode ser complexo e depende da regra de negócio
-            // Aqui você pode implementar lógica para atualizar as coleções conforme necessário
 
             await _taskItemRepository.Update(entity, cancellationToken);
             return true;

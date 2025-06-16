@@ -15,9 +15,8 @@ namespace TaskManager.Application.Features.TaskLabels.Queries.GetById
 
         public async Task<GetTaskLabelByIdResult> Handle(GetTaskLabelByIdQuery query, CancellationToken cancellationToken)
         {
-            TaskLabelDTO? result = await _taskLabelService.GetByIdAsync(query.Id, cancellationToken);
-            GetTaskLabelByIdResult response = new(result);
-            return response;
+            var result = await _taskLabelService.GetByIdAsync(query.Id, cancellationToken);
+            return new GetTaskLabelByIdResult(result);
         }
     }
 }

@@ -1,44 +1,46 @@
 ﻿using BuildingBlocks.CQRS.Publisher;
 using BuildingBlocks.Messaging.Abstractions;
-using BuildingBlocks.Messaging.Options;
-using EmailSender.Domain.Events;
-using RabbitMQ.Client;
+using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 
-namespace EmailSender.Infrastructure.Messaging
+public class RabbitMqEventConsumer : BackgroundService
 {
-    public class RabbitMqEventConsumer
+    private readonly IEventConsumer _rawConsumer;
+    private readonly IPublisher _publisher;
+    private readonly IEnumerable<IConsumerDefinition> _defs;
+
+    public RabbitMqEventConsumer(
+        IEventConsumer rawConsumer,
+        IPublisher publisher,
+        IEnumerable<IConsumerDefinition> defs)
     {
-        private readonly IEventConsumer _eventConsumer;
-        private readonly IPublisher _publisher;
+        _rawConsumer = rawConsumer;
+        _publisher = publisher;
+        _defs = defs;
+    }
 
-        public RabbitMqEventConsumer(
-            IEventConsumer eventConsumer,
-            IPublisher publisher)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        foreach (var def in _defs)
         {
-            _eventConsumer = eventConsumer;
-            _publisher = publisher;
-        }
-
-        public void StartConsuming()
-        {
-            var options = new ConsumerOptions
+            void OnMessage(string json)
             {
-                QueueName = "email_events",
-                ExchangeName = "my_exchange",
-                RoutingKey = "email.events.user.registered",
-                TypeExchange = ExchangeType.Topic,
-                Durable = true,
-                AutoDelete = false
-            };
+                var @event = (IntegrationEvent)JsonSerializer
+                    .Deserialize(json, def.EventType,
+                                 new JsonSerializerOptions
+                                 {
+                                     PropertyNameCaseInsensitive = true
+                                 })!;
 
-            _eventConsumer.StartConsuming(OnMessageReceived, options);
+                _publisher
+                  .Publish(@event, stoppingToken)
+                  .GetAwaiter()
+                  .GetResult();
+            }
+
+            _rawConsumer.StartConsuming(OnMessage, def.Options);
         }
 
-        private void OnMessageReceived(string message)
-        {
-            var @event = JsonSerializer.Deserialize<UserRegisteredEvent>(message);
-            _publisher.Publish(@event);
-        }
+        return Task.CompletedTask;
     }
 }

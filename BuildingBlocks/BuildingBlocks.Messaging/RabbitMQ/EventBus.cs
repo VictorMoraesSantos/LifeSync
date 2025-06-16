@@ -13,7 +13,7 @@ public class EventBus : IEventBus
         _persistentConnection = persistentConnection;
     }
 
-    public void Publish<T>(T @event, PublishOptions? options = null) where T : IntegrationEvent
+    public void PublishAsync<TEvent>(TEvent @event, PublishOptions? options = null) where TEvent : IntegrationEvent
     {
         options ??= new PublishOptions();
 

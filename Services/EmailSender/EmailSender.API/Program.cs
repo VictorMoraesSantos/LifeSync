@@ -1,12 +1,13 @@
-using EmailSender.API;
+using EmailSender.Application;
 using EmailSender.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddEmailSenderInfrastructure(builder.Configuration);
-builder.Services.AddHostedService<Worker>();
+builder.Services
+    .AddApplicationServices()
+    .AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

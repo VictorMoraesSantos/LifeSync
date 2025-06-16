@@ -1,4 +1,4 @@
-﻿namespace Users.Infrastructure.Settings
+﻿namespace BuildingBlocks.Messaging.Settings
 {
     public class RabbitMqSettings
     {

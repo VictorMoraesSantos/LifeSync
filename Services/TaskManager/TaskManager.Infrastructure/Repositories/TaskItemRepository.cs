@@ -81,7 +81,7 @@ namespace TaskManager.Infrastructure.Repositories
 
         public async Task Create(TaskItem entity, CancellationToken cancellationToken = default)
         {
-            _context.TaskItems.Entry(entity).State = EntityState.Added;
+            await _context.TaskItems.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
@@ -93,13 +93,13 @@ namespace TaskManager.Infrastructure.Repositories
 
         public async Task Update(TaskItem entity, CancellationToken cancellationToken = default)
         {
-            _context.TaskItems.Entry(entity).State = EntityState.Modified;
+            _context.TaskItems.Update(entity);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task Delete(TaskItem entity, CancellationToken cancellationToken = default)
         {
-            _context.TaskItems.Entry(entity).State = EntityState.Deleted;
+            _context.TaskItems.Remove(entity);
             await _context.SaveChangesAsync(cancellationToken);
         }
     }

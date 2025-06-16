@@ -6,7 +6,7 @@ using EmailSender.Domain.Events;
 
 namespace EmailSender.Application.EventHandlers
 {
-    public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEvent>
+    public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredIntegrationEvent>
     {
         private readonly IEmailSender _emailSender;
         private readonly IPublisher _publisher;
@@ -17,7 +17,7 @@ namespace EmailSender.Application.EventHandlers
             _publisher = publisher;
         }
 
-        public async Task Handle(UserRegisteredEvent notification, CancellationToken cancellationToken)
+        public async Task Handle(UserRegisteredIntegrationEvent notification, CancellationToken cancellationToken)
         {
             var email = new EmailMessageDTO(
                 To: notification.Email,

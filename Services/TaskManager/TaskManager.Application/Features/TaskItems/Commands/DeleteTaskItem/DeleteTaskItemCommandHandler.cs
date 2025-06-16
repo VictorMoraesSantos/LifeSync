@@ -15,9 +15,8 @@ namespace TaskManager.Application.Features.TaskItems.Commands.DeleteTaskItem
         public async Task<DeleteTaskItemResult> Handle(DeleteTaskItemCommand command, CancellationToken cancellationToken)
         {
 
-            bool result = await _taskItemService.DeleteAsync(command.Id, cancellationToken);
-            DeleteTaskItemResult response = new(result);
-            return response;
+            var result = await _taskItemService.DeleteAsync(command.Id, cancellationToken);
+            return new DeleteTaskItemResult(result);
         }
     }
 }

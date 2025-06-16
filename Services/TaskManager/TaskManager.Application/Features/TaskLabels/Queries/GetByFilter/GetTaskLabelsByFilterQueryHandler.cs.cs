@@ -15,9 +15,8 @@ namespace TaskManager.Application.Features.TaskLabels.Queries.GetByFilter
 
         public async Task<GetByFilterResult> Handle(GetByFilterQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabelDTO?> result = await _taskLabelService.GetByFilterAsync(query.filter, cancellationToken);
-            GetByFilterResult response = new(result);
-            return response;
+            var result = await _taskLabelService.GetByFilterAsync(query.filter, cancellationToken);
+            return new GetByFilterResult(result);
         }
     }
 }

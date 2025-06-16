@@ -43,17 +43,17 @@ namespace Users.Application.Features.Auth.Commands.SignUp
 
             await _authService.UpdateRefreshTokenAsync(dto.Id, refreshToken);
 
-            var userRegisteredEvent = new UserRegisteredEvent(int.Parse(dto.Id), dto.Email);
+            var @event = new UserRegisteredEvent(int.Parse(dto.Id), dto.Email);
 
-            var publishOptions = new PublishOptions
+            var options = new PublishOptions
             {
-                ExchangeName = "my_exchange",
+                ExchangeName = "user_exchange",
                 TypeExchange = ExchangeType.Topic,
-                RoutingKey = "email.events.user.registered",
+                RoutingKey = "user.registered",
                 Durable = true,
             };
 
-            _eventBus.Publish(userRegisteredEvent, publishOptions);
+            _eventBus.PublishAsync(@event, options);
 
             return new AuthResponse(accessToken, refreshToken, dto);
         }

@@ -15,9 +15,8 @@ namespace TaskManager.Application.Features.TaskItems.Queries.GetById
 
         public async Task<GetTaskItemByIdResult> Handle(GetTaskItemByIdQuery query, CancellationToken cancellationToken)
         {
-            TaskItemDTO? result = await _taskItemService.GetByIdAsync(query.Id, cancellationToken);
-            GetTaskItemByIdResult response = new(result);
-            return response;
+            var result = await _taskItemService.GetByIdAsync(query.Id, cancellationToken);
+            return new GetTaskItemByIdResult(result);
         }
     }
 }

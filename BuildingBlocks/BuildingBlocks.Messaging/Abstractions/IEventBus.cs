@@ -4,6 +4,10 @@ namespace BuildingBlocks.Messaging.Abstractions
 {
     public interface IEventBus
     {
-        void Publish<T>(T @event, PublishOptions? options = null) where T : IntegrationEvent;
+        void PublishAsync<TEvent>(
+            TEvent @event,
+            PublishOptions options)
+            where TEvent : IntegrationEvent;
+
     }
 }

@@ -23,10 +23,8 @@ namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
                 command.Priority,
                 command.DueDate);
 
-            bool result = await _taskItemService.UpdateAsync(dto, cancellationToken);
-
-            UpdateTaskItemCommandResult response = new(result);
-            return response;
+            var result = await _taskItemService.UpdateAsync(dto, cancellationToken);
+            return new UpdateTaskItemCommandResult(result);
         }
     }
 }
