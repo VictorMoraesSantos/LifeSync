@@ -30,6 +30,8 @@ namespace Nutrition.Infrastructure
             services.AddScoped<ILiquidService, LiquidService>();
             services.AddScoped<IDailyProgressService, DailyProgressService>();
 
+            services.AddHostedService<MigrationHostedService>();
+
             return services;
         }
     }

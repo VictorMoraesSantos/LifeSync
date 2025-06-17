@@ -6,57 +6,58 @@ using System.Text;
 
 namespace BuildingBlocks.Messaging.RabbitMQ
 {
-    public class EventConsumer : IEventConsumer
+    public class EventConsumer : IEventConsumer, IDisposable
     {
-        private readonly PersistentConnection _persistentConnection;
+        private readonly IModel _channel;
 
         public EventConsumer(PersistentConnection persistentConnection)
         {
-            _persistentConnection = persistentConnection;
+            _channel = persistentConnection.CreateModel();
         }
 
         public void StartConsuming(Action<string> onMessageReceived, ConsumerOptions? options = null)
         {
             options ??= new ConsumerOptions();
 
-            _persistentConnection.ExecuteOnChannel(channel =>
+            _channel.ExchangeDeclare(
+                exchange: options.ExchangeName,
+                type: options.TypeExchange,
+                durable: options.Durable,
+                autoDelete: options.AutoDelete,
+                arguments: options.Arguments);
+
+            _channel.QueueDeclare(
+                queue: options.QueueName,
+                durable: options.Durable,
+                exclusive: false,
+                autoDelete: options.AutoDelete,
+                arguments: options.Arguments);
+
+            _channel.QueueBind(
+                queue: options.QueueName,
+                exchange: options.ExchangeName,
+                routingKey: options.RoutingKey);
+
+            _channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
+            var consumer = new EventingBasicConsumer(_channel);
+            consumer.Received += (model, ea) =>
             {
-                channel.ExchangeDeclare(
-                    exchange: options.ExchangeName,
-                    type: options.TypeExchange,
-                    durable: options.Durable,
-                    autoDelete: options.AutoDelete,
-                    arguments: options.Arguments);
+                var json = Encoding.UTF8.GetString(ea.Body.ToArray());
+                onMessageReceived(json);
+                _channel.BasicAck(ea.DeliveryTag, multiple: false);
+            };
 
-                channel.QueueDeclare(
-                    queue: options.QueueName,
-                    durable: options.Durable,
-                    exclusive: false,
-                    autoDelete: options.AutoDelete,
-                    arguments: options.Arguments);
+            _channel.BasicConsume(
+                queue: options.QueueName,
+                autoAck: false,
+                consumer: consumer);
+        }
 
-                channel.QueueBind(
-                    queue: options.QueueName,
-                    exchange: options.ExchangeName,
-                    routingKey: options.RoutingKey);
-
-                var consumer = new EventingBasicConsumer(channel);
-
-                consumer.Received += (model, ea) =>
-                {
-                    var body = ea.Body.ToArray();
-                    var message = Encoding.UTF8.GetString(body);
-
-                    onMessageReceived(message);
-
-                    channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
-                };
-
-                channel.BasicConsume(
-                    queue: options.QueueName,
-                    autoAck: false,
-                    consumer: consumer);
-            });
+        public void Dispose()
+        {
+            _channel?.Close();
+            _channel?.Dispose();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Messaging.Abstractions;
+﻿using BuildingBlocks.CQRS.Publisher;
+using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Messaging.RabbitMQ;
 using BuildingBlocks.Messaging.Settings;
 using EmailSender.Application.Contracts;
@@ -47,16 +48,17 @@ namespace EmailSender.Infrastructure
                     UserName = rabbitCfg.User,
                     Password = rabbitCfg.Password,
                     Port = rabbitCfg.Port,
-                    DispatchConsumersAsync = true
+                    DispatchConsumersAsync = false
                 });
             services.AddSingleton<PersistentConnection>();
             services.AddSingleton<IEventConsumer, EventConsumer>();
+            services.AddScoped<IPublisher, Publisher>();
 
             services.AddEventConsumer<UserRegisteredIntegrationEvent>(opts =>
             {
-                opts.ExchangeName = "my_exchange";
+                opts.ExchangeName = "user_exchange";
                 opts.QueueName = "email_events.user_registered";
-                opts.RoutingKey = "email.events.user.registered";
+                opts.RoutingKey = "user.registered";
                 opts.TypeExchange = ExchangeType.Topic;
                 opts.Durable = true;
                 opts.AutoDelete = false;

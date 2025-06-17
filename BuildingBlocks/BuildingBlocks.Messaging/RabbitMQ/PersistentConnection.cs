@@ -32,6 +32,14 @@ public class PersistentConnection : IDisposable
         action(channel);
     }
 
+    public IModel CreateModel()
+    {
+        if (!IsConnected)
+            TryConnect();
+
+        return _connection!.CreateModel();
+    }
+
     public void Dispose()
     {
         if (_disposed) return;

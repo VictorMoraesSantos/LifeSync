@@ -22,6 +22,8 @@ namespace Financial.Infrastructure
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ITransactionService, TransactionService>();
 
+            services.AddHostedService<MigrationHostedService>();
+
             return services;
         }
     }

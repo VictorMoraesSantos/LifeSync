@@ -2,11 +2,42 @@ services:
   lifesyncdb:
     image: postgres
 
+  rabbitmq:
+    image: rabbitmq:management
+
+  mailhog:
+    image: mailhog/mailhog
+
   taskmanager.api:
     image: ${DOCKER_REGISTRY-}taskmanagerapi
     build:
       context: .
       dockerfile: Services/TaskManager/TaskManager.API/Dockerfile
 
+  nutrition.api:
+    image: ${DOCKER_REGISTRY-}nutritionapi
+    build:
+      context: .
+      dockerfile: Services/Nutrition/Nutrition.API/Dockerfile
+
+  financial.api:
+    image: ${DOCKER_REGISTRY-}financialapi
+    build:
+      context: .
+      dockerfile: Services/Financial/Financial.API/Dockerfile
+
+  users.api:
+    image: ${DOCKER_REGISTRY-}usersapi
+    build:
+      context: .
+      dockerfile: Services/Users/Users.API/Dockerfile
+
+  emailsender.api:
+    image: ${DOCKER_REGISTRY-}emailsenderapi
+    build:
+      context: .
+      dockerfile: Services/EmailSender/EmailSender.API/Dockerfile
+
 volumes:
-  postgres_taskmanager:
+  postgres_lifesync:
+

@@ -7,75 +7,83 @@ namespace Users.Infrastructure.Services
 {
     public class RoleService : IRoleService
     {
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
         private readonly UserManager<User> _userManager;
 
-        public RoleService(RoleManager<IdentityRole> roleManager, UserManager<User> userManager)
+        public RoleService(
+            RoleManager<IdentityRole<int>> roleManager,
+            UserManager<User> userManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
         }
 
-        public async Task<bool> AssignUserToRolesAsync(string userId, IList<string> roles)
+        public async Task<bool> CreateRoleAsync(string roleName)
         {
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return false;
-
-            IdentityResult result = await _userManager.AddToRolesAsync(user, roles);
+            var result = await _roleManager.CreateAsync(new IdentityRole<int>(roleName));
             return result.Succeeded;
         }
 
-        public Task<bool> CreateRoleAsync(string roleName)
+        public async Task<bool> EditRoleAsync(string roleName, string newRoleName)
         {
-            throw new NotImplementedException();
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role == null) return false;
+            role.Name = newRoleName;
+            var result = await _roleManager.UpdateAsync(role);
+            return result.Succeeded;
         }
 
-        public Task<bool> DeleteRoleAsync(string roleName)
+        public async Task<bool> DeleteRoleAsync(string roleName)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> EditRoleAsync(string roleName, string newRoleName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IList<string>> GetCurrentUserRolesAsync(ClaimsPrincipal userPrincipal)
-        {
-            User user = await _userManager.GetUserAsync(userPrincipal);
-            if (user == null) return new List<string>();
-
-            IList<string> roles = await _userManager.GetRolesAsync(user);
-
-            return roles;
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role == null) return false;
+            var result = await _roleManager.DeleteAsync(role);
+            return result.Succeeded;
         }
 
         public async Task<IList<string>> GetUserRolesAsync(string userId)
         {
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return new List<string>();
-
-            IList<string> roles = await _userManager.GetRolesAsync(user);
-
-            return roles;
+            var user = await _userManager.FindByIdAsync(userId);
+            return user == null
+                ? new List<string>()
+                : await _userManager.GetRolesAsync(user);
         }
 
-        public Task<bool> RemoveUserFromRolesAsync(string userId, IList<string> roles)
+        public async Task<IList<string>> GetCurrentUserRolesAsync(ClaimsPrincipal userPrincipal)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.GetUserAsync(userPrincipal);
+            return user == null
+                ? new List<string>()
+                : await _userManager.GetRolesAsync(user);
+        }
+
+        public async Task<bool> AssignUserToRolesAsync(string userId, IList<string> roles)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+            var result = await _userManager.AddToRolesAsync(user, roles);
+            return result.Succeeded;
+        }
+
+        public async Task<bool> RemoveUserFromRolesAsync(string userId, IList<string> roles)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+            var result = await _userManager.RemoveFromRolesAsync(user, roles);
+            return result.Succeeded;
         }
 
         public async Task<bool> UpdateUserRolesAsync(string userId, IList<string> roles)
         {
-            User user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return false;
 
-            IList<string> currentRoles = await _userManager.GetRolesAsync(user);
-            IdentityResult removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            if (!removeResult.Succeeded) return false;
+            var current = await _userManager.GetRolesAsync(user);
+            var rem = await _userManager.RemoveFromRolesAsync(user, current);
+            if (!rem.Succeeded) return false;
 
-            IdentityResult result = await _userManager.AddToRolesAsync(user, roles);
-            return result.Succeeded;
+            var add = await _userManager.AddToRolesAsync(user, roles);
+            return add.Succeeded;
         }
     }
 }

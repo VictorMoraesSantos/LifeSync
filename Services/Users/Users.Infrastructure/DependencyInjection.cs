@@ -36,6 +36,8 @@ namespace Users.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
+            services.AddHostedService<MigrationHostedService>();
+
             return services;
         }
 

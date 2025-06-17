@@ -4,7 +4,11 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "taskmanager.api": "StartDebugging"
+        "taskmanager.api": "StartDebugging",
+        "nutrition.api": "StartDebugging",
+        "financial.api": "StartDebugging",
+        "users.api": "StartDebugging",
+        "emailsender.api": "StartDebugging"
       }
     }
   }
