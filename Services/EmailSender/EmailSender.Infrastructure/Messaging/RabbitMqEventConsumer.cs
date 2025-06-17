@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.CQRS.Notification;
-using BuildingBlocks.CQRS.Publisher;
+﻿using BuildingBlocks.CQRS.Publisher;
 using BuildingBlocks.Messaging.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

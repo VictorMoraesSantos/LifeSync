@@ -1,6 +1,6 @@
-﻿using BuildingBlocks.Results;
+﻿using BuildingBlocks.CQRS.Sender;
+using BuildingBlocks.Results;
 using Core.API.Controllers;
-using BuildingBlocks.CQRS.Request;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.Features.TaskLabels.Commands.CreateTaskLabel;
@@ -9,7 +9,6 @@ using TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel;
 using TaskManager.Application.Features.TaskLabels.Queries.GetAll;
 using TaskManager.Application.Features.TaskLabels.Queries.GetByFilter;
 using TaskManager.Application.Features.TaskLabels.Queries.GetById;
-using BuildingBlocks.CQRS.Sender;
 
 namespace TaskManager.API.Controllers
 {

@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Notification;
-using BuildingBlocks.CQRS.Request;
 using Nutrition.Domain.Events;
 using Nutrition.Domain.Repositories;
 

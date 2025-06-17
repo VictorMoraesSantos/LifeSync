@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using RabbitMQ.Client;
-using System.Diagnostics;
 using System.Text;
 using Users.Application.Interfaces;
 using Users.Domain.Entities;

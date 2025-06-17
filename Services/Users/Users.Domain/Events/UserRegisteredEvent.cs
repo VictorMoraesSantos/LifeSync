@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Messaging.Abstractions;
-using Core.Domain.Events;
 
 namespace Users.Domain.Events
 {

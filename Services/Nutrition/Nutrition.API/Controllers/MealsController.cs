@@ -1,6 +1,6 @@
-﻿using BuildingBlocks.Results;
+﻿using BuildingBlocks.CQRS.Sender;
+using BuildingBlocks.Results;
 using Core.API.Controllers;
-using BuildingBlocks.CQRS.Request;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Features.Meal.Commands.AddMealFood;
@@ -11,7 +11,6 @@ using Nutrition.Application.Features.Meal.Commands.Update;
 using Nutrition.Application.Features.Meal.Queries.Get;
 using Nutrition.Application.Features.Meal.Queries.GetAll;
 using Nutrition.Application.Features.Meal.Queries.GetByDiary;
-using BuildingBlocks.CQRS.Sender;
 
 namespace Nutrition.API.Controllers
 {

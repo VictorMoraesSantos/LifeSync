@@ -37,7 +37,7 @@ namespace Financial.Infrastructure.Persistence.Repositories
         {
             IEnumerable<Transaction?> entities = await _context.Transactions
                 .Where(predicate)
-                .Include( t=> t.Category)
+                .Include(t => t.Category)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
@@ -48,7 +48,7 @@ namespace Financial.Infrastructure.Persistence.Repositories
         {
             IEnumerable<Transaction?> entities = await _context.Transactions
                 .AsNoTracking()
-                .Include( t=> t.Category)
+                .Include(t => t.Category)
                 .ToListAsync(cancellationToken);
 
             return entities;
@@ -57,7 +57,7 @@ namespace Financial.Infrastructure.Persistence.Repositories
         public async Task<Transaction?> GetById(int id, CancellationToken cancellationToken = default)
         {
             Transaction? entity = await _context.Transactions
-                .Include( t=> t.Category)
+                .Include(t => t.Category)
                 .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
             return entity;
@@ -70,7 +70,7 @@ namespace Financial.Infrastructure.Persistence.Repositories
                             t.TransactionDate >= startDate &&
                             t.TransactionDate <= endDate &&
                             (!categoryId.HasValue || t.CategoryId == categoryId))
-                .Include( t=> t.Category)
+                .Include(t => t.Category)
                 .AsNoTracking()
                 .ToListAsync();
 

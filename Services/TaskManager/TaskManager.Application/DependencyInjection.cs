@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using BuildingBlocks.CQRS.Extensions;
+﻿using BuildingBlocks.CQRS.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TaskManager.Application
 {

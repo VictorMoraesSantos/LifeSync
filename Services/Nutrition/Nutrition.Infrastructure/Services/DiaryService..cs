@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Exceptions;
+﻿using BuildingBlocks.CQRS.Publisher;
+using BuildingBlocks.Exceptions;
 using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.DTOs.Meal;
 using Nutrition.Application.Interfaces;
@@ -6,7 +7,6 @@ using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
 using System.Linq.Expressions;
-using BuildingBlocks.CQRS.Publisher;
 
 namespace Nutrition.Infrastructure.Services
 {

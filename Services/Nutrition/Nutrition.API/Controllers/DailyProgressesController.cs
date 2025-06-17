@@ -1,6 +1,6 @@
-﻿using BuildingBlocks.Results;
+﻿using BuildingBlocks.CQRS.Sender;
+using BuildingBlocks.Results;
 using Core.API.Controllers;
-using BuildingBlocks.CQRS.Request;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Features.DailyProgress.Commands.Create;
@@ -10,7 +10,6 @@ using Nutrition.Application.Features.DailyProgress.Commands.Update;
 using Nutrition.Application.Features.DailyProgress.Queries.Get;
 using Nutrition.Application.Features.DailyProgress.Queries.GetAll;
 using Nutrition.Application.Features.DailyProgress.Queries.GetByUser;
-using BuildingBlocks.CQRS.Sender;
 
 namespace Nutrition.API.Controllers
 {

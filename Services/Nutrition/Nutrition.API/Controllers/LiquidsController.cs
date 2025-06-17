@@ -1,6 +1,6 @@
-﻿using BuildingBlocks.Results;
+﻿using BuildingBlocks.CQRS.Sender;
+using BuildingBlocks.Results;
 using Core.API.Controllers;
-using BuildingBlocks.CQRS.Request;
 using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.Features.Liquid.Commands.Create;
 using Nutrition.Application.Features.Liquid.Commands.Delete;
@@ -8,7 +8,6 @@ using Nutrition.Application.Features.Liquid.Commands.Update;
 using Nutrition.Application.Features.Liquid.Queries.Get;
 using Nutrition.Application.Features.Liquid.Queries.GetAll;
 using Nutrition.Application.Features.Liquid.Queries.GetByDiary;
-using BuildingBlocks.CQRS.Sender;
 
 namespace Nutrition.API.Controllers
 {

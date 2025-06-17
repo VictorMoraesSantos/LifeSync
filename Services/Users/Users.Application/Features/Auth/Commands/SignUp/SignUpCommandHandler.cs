@@ -5,7 +5,6 @@ using RabbitMQ.Client;
 using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
-using Users.Domain.Entities;
 using Users.Domain.Events;
 
 namespace Users.Application.Features.Auth.Commands.SignUp

@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Request;
-using TaskManager.Application.DTOs.TaskLabel;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Queries.GetById

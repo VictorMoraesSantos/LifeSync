@@ -22,7 +22,7 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.CreateTaskLabel
                 command.TaskItemId);
 
             var result = await _taskLabelService.CreateAsync(dto, cancellationToken);
-        return new CreateTaskLabelResult(result);
+            return new CreateTaskLabelResult(result);
         }
     }
 }

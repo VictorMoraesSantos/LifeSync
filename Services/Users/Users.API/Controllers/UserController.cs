@@ -1,9 +1,9 @@
-﻿using Core.API.Controllers;
+﻿using BuildingBlocks.CQRS.Sender;
+using Core.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.Features.Users.Commands.UpdateUser;
 using Users.Application.Features.Users.Queries.GetAllUsers;
 using Users.Application.Features.Users.Queries.GetUser;
-using BuildingBlocks.CQRS.Sender;
 
 namespace Users.API.Controllers
 {
