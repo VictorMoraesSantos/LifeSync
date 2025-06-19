@@ -5,7 +5,7 @@ namespace Financial.UnitTests.Entities
     public class CategoryTests
     {
         [Fact]
-        public void Constructor_ValidInput_CreatesCategory()
+        public void Category_ValidInput_CreatesCategory()
         {
             // Arrange
             int userId = 1;
@@ -22,7 +22,7 @@ namespace Financial.UnitTests.Entities
         }
 
         [Fact]
-        public void Constructor_ValidInputWithoutDescription_CreatesCategory()
+        public void Category_ValidInputWithoutDescription_CreatesCategory()
         {
             // Arrange
             int userId = 1;
@@ -40,7 +40,7 @@ namespace Financial.UnitTests.Entities
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
-        public void Constructor_InvalidUserId_ThrowsArgumentOutOfRangeException(int invalidUserId)
+        public void Category_InvalidUserId_ThrowsException(int invalidUserId)
         {
             // Arrange
             string name = "Teste";
@@ -53,7 +53,7 @@ namespace Financial.UnitTests.Entities
         [InlineData("")]
         [InlineData(" ")]
         [InlineData(null)]
-        public void Constructor_InvalidName_ThrowsArgumentNullException(string invalidName)
+        public void Category_InvalidName_ThrowsException(string invalidName)
         {
             // Arrange
             int userId = 1;
@@ -102,7 +102,7 @@ namespace Financial.UnitTests.Entities
         [InlineData("")]
         [InlineData(" ")]
         [InlineData(null)]
-        public void Update_InvalidName_ThrowsArgumentNullException(string invalidName)
+        public void Update_InvalidName_ThrowsException(string invalidName)
         {
             // Arrange
             var category = new Category(1, "Categoria", "Descrição");
@@ -116,7 +116,7 @@ namespace Financial.UnitTests.Entities
         [InlineData("")]
         [InlineData(" ")]
         [InlineData(null)]
-        public void Update_InvalidDescription_ThrowsArgumentNullException(string nullDescription)
+        public void Update_InvalidDescription_ThrowsException(string nullDescription)
         {
             // Arrange
             var name = "Nova Categoria";
