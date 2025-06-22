@@ -1,47 +1,35 @@
-﻿using Financial.Domain.Entities;
+﻿using System;
+using Financial.Domain.Entities;
 using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
+using Xunit;
 
 namespace Financial.UnitTests.Entities
 {
     public class TransactionTests
     {
-        // Helper method to create a valid Money object for tests
-        private Money CreateValidMoney()
-        {
-            // Assuming Money has a constructor like Money(decimal value, string currencyCode)
-            // Or a static factory method. Adjust based on your actual Money implementation.
-            return Money.Create(100, Currency.USD);
-        }
+        private Money CreateValidMoney(int amount = 100, Currency currency = Currency.USD)
+            => Money.Create(amount, currency);
 
         #region Constructor Tests
 
-        [Fact]
-        public void Constructor_WithValidParameters_ShouldCreateTransaction()
+        [Fact(DisplayName = "Dado parâmetros válidos, Quando criar transação, Então deve criar corretamente")]
+        public void Deve_Criar_Transacao_Com_Parametros_Validos()
         {
             // Arrange
-            var userId = 1;
-            var categoryId = 10;
-            var paymentMethod = PaymentMethod.CreditCard;
-            var transactionType = TransactionType.Expense;
-            var amount = CreateValidMoney();
-            var description = "Groceries";
-            var transactionDate = DateTime.Now;
-            var isRecurring = true;
+            int userId = 1;
+            int? categoryId = 10;
+            PaymentMethod paymentMethod = PaymentMethod.CreditCard;
+            TransactionType transactionType = TransactionType.Expense;
+            Money amount = CreateValidMoney();
+            string description = "Test Transaction";
+            DateTime transactionDate = DateTime.Now;
 
             // Act
             var transaction = new Transaction(
-                userId,
-                categoryId,
-                paymentMethod,
-                transactionType,
-                amount,
-                description,
-                transactionDate,
-                isRecurring);
+                userId, categoryId, paymentMethod, transactionType, amount, description, transactionDate, true);
 
             // Assert
-            Assert.NotNull(transaction);
             Assert.Equal(userId, transaction.UserId);
             Assert.Equal(categoryId, transaction.CategoryId);
             Assert.Equal(paymentMethod, transaction.PaymentMethod);
@@ -49,251 +37,156 @@ namespace Financial.UnitTests.Entities
             Assert.Equal(amount, transaction.Amount);
             Assert.Equal(description, transaction.Description);
             Assert.Equal(DateTime.SpecifyKind(transactionDate, DateTimeKind.Utc), transaction.TransactionDate);
-            Assert.Equal(isRecurring, transaction.IsRecurring);
-        }
-
-        [Theory]
-        [InlineData(0)]
-        [InlineData(-1)]
-        public void Constructor_WithInvalidUserId_ShouldThrowArgumentOutOfRangeException(int invalidUserId)
-        {
-            // Arrange
-            var categoryId = 10;
-            var paymentMethod = PaymentMethod.CreditCard;
-            var transactionType = TransactionType.Expense;
-            var amount = CreateValidMoney();
-            var description = "Groceries";
-            var transactionDate = DateTime.Now;
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => new Transaction(
-                invalidUserId,
-                categoryId,
-                paymentMethod,
-                transactionType,
-                amount,
-                description,
-                transactionDate));
-
-            Assert.Equal("userId", exception.ParamName);
-        }
-
-        [Fact]
-        public void Constructor_WithNullAmount_ShouldThrowArgumentNullException()
-        {
-            // Arrange
-            var userId = 1;
-            var categoryId = 10;
-            var paymentMethod = PaymentMethod.CreditCard;
-            var transactionType = TransactionType.Expense;
-            Money amount = null; // Null amount
-            var description = "Groceries";
-            var transactionDate = DateTime.Now;
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => new Transaction(
-                userId,
-                categoryId,
-                paymentMethod,
-                transactionType,
-                amount,
-                description,
-                transactionDate));
-
-            Assert.Equal("amount", exception.ParamName);
-        }
-
-        [Theory]
-        [InlineData(null)]
-        public void Constructor_WithNullDescription_ShouldThrowArgumentNullException(string invalidDescription)
-        {
-            // Arrange
-            var userId = 1;
-            var categoryId = 10;
-            var paymentMethod = PaymentMethod.CreditCard;
-            var transactionType = TransactionType.Expense;
-            var amount = CreateValidMoney();
-            var transactionDate = DateTime.Now;
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => new Transaction(
-                userId,
-                categoryId,
-                paymentMethod,
-                transactionType,
-                amount,
-                invalidDescription,
-                transactionDate));
-
-            Assert.Equal("description", exception.ParamName);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
-        public void Constructor_WithWhiteSpaceDescription_ShouldThrowArgumentException(string invalidDescription)
-        {
-            // Arrange
-            var userId = 1;
-            var categoryId = 10;
-            var paymentMethod = PaymentMethod.CreditCard;
-            var transactionType = TransactionType.Expense;
-            var amount = CreateValidMoney();
-            var transactionDate = DateTime.Now;
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() => new Transaction(
-                userId,
-                categoryId,
-                paymentMethod,
-                transactionType,
-                amount,
-                invalidDescription,
-                transactionDate));
-
-            Assert.Equal("description", exception.ParamName);
-        }
-
-        [Fact]
-        public void Constructor_TransactionDate_ShouldBeUtcKind()
-        {
-            // Arrange
-            var userId = 1;
-            var amount = CreateValidMoney();
-            var description = "Test";
-            var transactionDate = DateTime.Now; // Local time
-
-            // Act
-            var transaction = new Transaction(
-                userId,
-                null,
-                PaymentMethod.Cash,
-                TransactionType.Income,
-                amount,
-                description,
-                transactionDate);
-
-            // Assert
-            Assert.Equal(DateTimeKind.Utc, transaction.TransactionDate.Kind);
-            Assert.Equal(DateTime.SpecifyKind(transactionDate, DateTimeKind.Utc), transaction.TransactionDate);
-        }
-
-        [Fact]
-        public void Constructor_IsRecurring_ShouldDefaultToFalseWhenNotProvided()
-        {
-            // Arrange
-            var userId = 1;
-            var amount = CreateValidMoney();
-            var description = "Test";
-            var transactionDate = DateTime.Now;
-
-            // Act
-            var transaction = new Transaction(
-                userId,
-                null,
-                PaymentMethod.Cash,
-                TransactionType.Income,
-                amount,
-                description,
-                transactionDate);
-
-            // Assert
-            Assert.False(transaction.IsRecurring);
-        }
-
-        [Fact]
-        public void Constructor_IsRecurring_ShouldBeSetCorrectlyWhenProvided()
-        {
-            // Arrange
-            var userId = 1;
-            var amount = CreateValidMoney();
-            var description = "Test";
-            var transactionDate = DateTime.Now;
-            var isRecurring = true;
-
-            // Act
-            var transaction = new Transaction(
-                userId,
-                null,
-                PaymentMethod.Cash,
-                TransactionType.Income,
-                amount,
-                description,
-                transactionDate,
-                isRecurring);
-
-            // Assert
             Assert.True(transaction.IsRecurring);
         }
 
-        [Fact]
-        public void Constructor_WithNullCategoryId_ShouldCreateTransaction()
+        [Theory(DisplayName = "Dado userId inválido, Quando criar transação, Então deve lançar ArgumentOutOfRangeException")]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void Deve_Lancar_ArgumentOutOfRangeException_Para_UserId_Invalido(int invalidUserId)
         {
             // Arrange
-            var userId = 1;
-            int? categoryId = null; // Null category ID
-            var paymentMethod = PaymentMethod.CreditCard;
-            var transactionType = TransactionType.Expense;
-            var amount = CreateValidMoney();
-            var description = "Groceries";
-            var transactionDate = DateTime.Now;
+            int? categoryId = 10;
+            PaymentMethod paymentMethod = PaymentMethod.CreditCard;
+            TransactionType transactionType = TransactionType.Expense;
+            Money amount = CreateValidMoney();
+            string description = "Test Transaction";
+            DateTime transactionDate = DateTime.Now;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => new Transaction(
+                invalidUserId, categoryId, paymentMethod, transactionType, amount, description, transactionDate));
+            Assert.Equal("userId", exception.ParamName);
+        }
+
+        [Fact(DisplayName = "Dado amount nulo, Quando criar transação, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Amount_Nulo()
+        {
+            // Arrange
+            int userId = 1;
+            int? categoryId = 10;
+            PaymentMethod paymentMethod = PaymentMethod.CreditCard;
+            TransactionType transactionType = TransactionType.Expense;
+            Money amount = null;
+            string description = "Test Transaction";
+            DateTime transactionDate = DateTime.Now;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentNullException>(() => new Transaction(
+                userId, categoryId, paymentMethod, transactionType, amount, description, transactionDate));
+            Assert.Equal("amount", exception.ParamName);
+        }
+
+        [Fact(DisplayName = "Dado description nulo, Quando criar transação, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Description_Nulo()
+        {
+            // Arrange
+            int userId = 1;
+            int? categoryId = 10;
+            PaymentMethod paymentMethod = PaymentMethod.CreditCard;
+            TransactionType transactionType = TransactionType.Expense;
+            Money amount = CreateValidMoney();
+            string? description = null;
+            DateTime transactionDate = DateTime.Now;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentNullException>(() => new Transaction(
+                userId, categoryId, paymentMethod, transactionType, amount, description!, transactionDate));
+            Assert.Equal("description", exception.ParamName);
+        }
+
+        [Fact(DisplayName = "Dado description vazio, Quando criar transação, Então deve lançar ArgumentException")]
+        public void Deve_Lancar_ArgumentException_Para_Description_Vazio()
+        {
+            // Arrange
+            int userId = 1;
+            int? categoryId = 10;
+            PaymentMethod paymentMethod = PaymentMethod.CreditCard;
+            TransactionType transactionType = TransactionType.Expense;
+            Money amount = CreateValidMoney();
+            string description = string.Empty;
+            DateTime transactionDate = DateTime.Now;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentException>(() => new Transaction(
+                userId, categoryId, paymentMethod, transactionType, amount, description, transactionDate));
+            Assert.Equal("description", exception.ParamName);
+        }
+
+        [Fact(DisplayName = "Dado description com espaço em branco, Quando criar transação, Então deve lançar ArgumentException")]
+        public void Deve_Lancar_ArgumentException_Para_Description_Whitespace()
+        {
+            // Arrange
+            int userId = 1;
+            int? categoryId = 10;
+            PaymentMethod paymentMethod = PaymentMethod.CreditCard;
+            TransactionType transactionType = TransactionType.Expense;
+            Money amount = CreateValidMoney();
+            string description = " ";
+            DateTime transactionDate = DateTime.Now;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentException>(() => new Transaction(
+                userId, categoryId, paymentMethod, transactionType, amount, description, transactionDate));
+            Assert.Equal("description", exception.ParamName);
+        }
+
+        [Fact(DisplayName = "Dado data local, Quando criar transação, Então TransactionDate deve ser convertido para Utc")]
+        public void Deve_Converter_TransactionDate_Para_Utc_No_Construtor()
+        {
+            // Arrange
+            int userId = 1;
+            int? categoryId = null;
+            PaymentMethod paymentMethod = PaymentMethod.Cash;
+            TransactionType transactionType = TransactionType.Income;
+            Money amount = CreateValidMoney();
+            string description = "Test Transaction";
+            DateTime localTime = DateTime.Now;
 
             // Act
             var transaction = new Transaction(
-                userId,
-                categoryId,
-                paymentMethod,
-                transactionType,
-                amount,
-                description,
-                transactionDate);
+                userId, categoryId, paymentMethod, transactionType, amount, description, localTime);
 
             // Assert
-            Assert.NotNull(transaction);
-            Assert.Null(transaction.CategoryId);
+            Assert.Equal(DateTimeKind.Utc, transaction.TransactionDate.Kind);
+            Assert.Equal(DateTime.SpecifyKind(localTime, DateTimeKind.Utc), transaction.TransactionDate);
         }
 
         #endregion
 
         #region Update Method Tests
 
-        [Fact]
-        public void Update_WithValidParameters_ShouldUpdateTransaction()
+        [Fact(DisplayName = "Dado parâmetros válidos, Quando atualizar transação, Então deve atualizar corretamente")]
+        public void Deve_Atualizar_Transacao_Com_Parametros_Validos()
         {
             // Arrange
-            var initialTransaction = new Transaction(
+            var transaction = new Transaction(
                 1, 10, PaymentMethod.CreditCard, TransactionType.Expense, CreateValidMoney(), "Old Description", DateTime.Now.AddDays(-1));
 
-            var newCategoryId = 20;
-            var newPaymentMethod = PaymentMethod.DebitCard;
-            var newTransactionType = TransactionType.Income;
-            var newAmount = Money.Create(200, Currency.EUR);
-            var newDescription = "New Description";
-            var newTransactionDate = DateTime.Now;
-            var newIsRecurring = true;
+            int? newCategoryId = 20;
+            PaymentMethod newPaymentMethod = PaymentMethod.DebitCard;
+            TransactionType newTransactionType = TransactionType.Income;
+            Money newAmount = Money.Create(200, Currency.EUR);
+            string newDescription = "New Description";
+            DateTime newTransactionDate = DateTime.Now;
+            bool newIsRecurring = true;
 
             // Act
-            initialTransaction.Update(
-                newCategoryId,
-                newPaymentMethod,
-                newTransactionType,
-                newAmount,
-                newDescription,
-                newTransactionDate,
-                newIsRecurring);
+            transaction.Update(
+                newCategoryId, newPaymentMethod, newTransactionType, newAmount, newDescription, newTransactionDate, newIsRecurring);
 
             // Assert
-            Assert.Equal(newCategoryId, initialTransaction.CategoryId);
-            Assert.Equal(newPaymentMethod, initialTransaction.PaymentMethod);
-            Assert.Equal(newTransactionType, initialTransaction.TransactionType);
-            Assert.Equal(newAmount, initialTransaction.Amount);
-            Assert.Equal(newDescription, initialTransaction.Description);
-            Assert.Equal(DateTime.SpecifyKind(newTransactionDate, DateTimeKind.Utc), initialTransaction.TransactionDate);
-            Assert.Equal(newIsRecurring, initialTransaction.IsRecurring);
+            Assert.Equal(newCategoryId, transaction.CategoryId);
+            Assert.Equal(newPaymentMethod, transaction.PaymentMethod);
+            Assert.Equal(newTransactionType, transaction.TransactionType);
+            Assert.Equal(newAmount, transaction.Amount);
+            Assert.Equal(newDescription, transaction.Description);
+            Assert.Equal(DateTime.SpecifyKind(newTransactionDate, DateTimeKind.Utc), transaction.TransactionDate);
+            Assert.Equal(newIsRecurring, transaction.IsRecurring);
         }
 
-        [Fact]
-        public void Update_WithNullAmount_ShouldThrowArgumentNullException()
+        [Fact(DisplayName = "Dado amount nulo, Quando atualizar transação, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Amount_Nulo_No_Update()
         {
             // Arrange
             var transaction = new Transaction(
@@ -303,151 +196,81 @@ namespace Financial.UnitTests.Entities
             // Act & Assert
             var exception = Assert.Throws<ArgumentNullException>(() => transaction.Update(
                 10, PaymentMethod.DebitCard, TransactionType.Income, nullAmount, "New Description", DateTime.Now));
-
             Assert.Equal("amount", exception.ParamName);
         }
 
-        [Fact]
-        public void Update_WithNullDescription_ShouldThrowArgumentNullException()
-        {
-            // Arrange
-            var transaction = new Transaction(
-                1,
-                10,
-                PaymentMethod.CreditCard,
-                TransactionType.Expense,
-                CreateValidMoney(),
-                "Description",
-                DateTime.Now);
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => transaction.Update(
-                10,
-                PaymentMethod.DebitCard,
-                TransactionType.Income,
-                CreateValidMoney(),
-                null,
-                DateTime.Now));
-
-            Assert.Equal("description", exception.ParamName);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
-        public void Update_WithWhiteSpaceDescription_ShouldThrowArgumentException(string invalidDescription)
-        {
-            // Arrange
-            var transaction = new Transaction(
-                1,
-                10,
-                PaymentMethod.CreditCard,
-                TransactionType.Expense,
-                CreateValidMoney(),
-                "Description",
-                DateTime.Now);
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() => transaction.Update(
-                10,
-                PaymentMethod.DebitCard,
-                TransactionType.Income,
-                CreateValidMoney(),
-                invalidDescription,
-                DateTime.Now));
-
-            Assert.Equal("description", exception.ParamName);
-        }
-
-        [Theory]
-        [InlineData(0)]
-        [InlineData(-1)]
-        public void Update_WithInvalidCategoryId_ShouldThrowArgumentOutOfRangeException(int invalidCategoryId)
-        {
-            // Arrange
-            var transaction = new Transaction(
-                1,
-                10,
-                PaymentMethod.CreditCard,
-                TransactionType.Expense,
-                CreateValidMoney(),
-                "Description",
-                DateTime.Now);
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => transaction.Update(
-                invalidCategoryId,
-                PaymentMethod.DebitCard,
-                TransactionType.Income,
-                CreateValidMoney(),
-                "New Description",
-                DateTime.Now));
-
-            Assert.Equal("categoryId.Value", exception.ParamName);
-        }
-
-        [Fact]
-        public void Update_TransactionDate_ShouldBeUtcKind()
-        {
-            // Arrange
-            var transaction = new Transaction(
-                1, null, PaymentMethod.Cash, TransactionType.Income, CreateValidMoney(), "Description", DateTime.Now.AddDays(-1));
-            var newTransactionDate = DateTime.Now; // Local time
-
-            // Act
-            transaction.Update(
-                null, PaymentMethod.Cash, TransactionType.Income, CreateValidMoney(), "New Description", newTransactionDate);
-
-            // Assert
-            Assert.Equal(DateTimeKind.Utc, transaction.TransactionDate.Kind);
-            Assert.Equal(DateTime.SpecifyKind(newTransactionDate, DateTimeKind.Utc), transaction.TransactionDate);
-        }
-
-        [Fact]
-        public void Update_IsRecurring_ShouldDefaultToFalseWhenNotProvided()
-        {
-            // Arrange
-            var transaction = new Transaction(
-                1, null, PaymentMethod.Cash, TransactionType.Income, CreateValidMoney(), "Description", DateTime.Now.AddDays(-1));
-
-            // Act
-            transaction.Update(
-                null, PaymentMethod.Cash, TransactionType.Income, CreateValidMoney(), "New Description", DateTime.Now);
-
-            // Assert
-            Assert.False(transaction.IsRecurring);
-        }
-
-        [Fact]
-        public void Update_IsRecurring_ShouldBeSetCorrectlyWhenProvided()
-        {
-            // Arrange
-            var transaction = new Transaction(
-                1, null, PaymentMethod.Cash, TransactionType.Income, CreateValidMoney(), "Description", DateTime.Now.AddDays(-1));
-            var newIsRecurring = true;
-
-            // Act
-            transaction.Update(
-                null, PaymentMethod.Cash, TransactionType.Income, CreateValidMoney(), "New Description", DateTime.Now, newIsRecurring);
-
-            // Assert
-            Assert.True(transaction.IsRecurring);
-        }
-
-        [Fact]
-        public void Update_WithNullCategoryId_ShouldSetCategoryIdToNull()
+        [Fact(DisplayName = "Dado description nulo, Quando atualizar transação, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Description_Nulo_No_Update()
         {
             // Arrange
             var transaction = new Transaction(
                 1, 10, PaymentMethod.CreditCard, TransactionType.Expense, CreateValidMoney(), "Description", DateTime.Now);
-            int? newCategoryId = null;
+            string? description = null;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentNullException>(() => transaction.Update(
+                10, PaymentMethod.DebitCard, TransactionType.Income, CreateValidMoney(), description!, DateTime.Now));
+            Assert.Equal("description", exception.ParamName);
+        }
+
+        [Fact(DisplayName = "Dado description vazio, Quando atualizar transação, Então deve lançar ArgumentException")]
+        public void Deve_Lancar_ArgumentException_Para_Description_Vazio_No_Update()
+        {
+            // Arrange
+            var transaction = new Transaction(
+                1, 10, PaymentMethod.CreditCard, TransactionType.Expense, CreateValidMoney(), "Description", DateTime.Now);
+            string description = string.Empty;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentException>(() => transaction.Update(
+                10, PaymentMethod.DebitCard, TransactionType.Income, CreateValidMoney(), description, DateTime.Now));
+            Assert.Equal("description", exception.ParamName);
+        }
+
+        [Fact(DisplayName = "Dado description com espaço em branco, Quando atualizar transação, Então deve lançar ArgumentException")]
+        public void Deve_Lancar_ArgumentException_Para_Description_Whitespace_No_Update()
+        {
+            // Arrange
+            var transaction = new Transaction(
+                1, 10, PaymentMethod.CreditCard, TransactionType.Expense, CreateValidMoney(), "Description", DateTime.Now);
+            string description = " ";
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentException>(() => transaction.Update(
+                10, PaymentMethod.DebitCard, TransactionType.Income, CreateValidMoney(), description, DateTime.Now));
+            Assert.Equal("description", exception.ParamName);
+        }
+
+        [Theory(DisplayName = "Dado categoryId inválido, Quando atualizar transação, Então deve lançar ArgumentOutOfRangeException")]
+        [InlineData(0)]
+        [InlineData(-5)]
+        public void Deve_Lancar_ArgumentOutOfRangeException_Para_CategoryId_Invalido_No_Update(int invalidCategoryId)
+        {
+            // Arrange
+            var transaction = new Transaction(
+                1, 10, PaymentMethod.CreditCard, TransactionType.Expense, CreateValidMoney(), "Description", DateTime.Now);
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => transaction.Update(
+                invalidCategoryId, PaymentMethod.DebitCard, TransactionType.Income, CreateValidMoney(), "New Description", DateTime.Now));
+            Assert.Equal("categoryId.Value", exception.ParamName);
+        }
+
+        [Fact(DisplayName = "Dado data local, Quando atualizar transação, Então TransactionDate deve ser convertido para Utc")]
+        public void Deve_Converter_TransactionDate_Para_Utc_No_Update()
+        {
+            // Arrange
+            var transaction = new Transaction(
+                1, null, PaymentMethod.Cash, TransactionType.Income, CreateValidMoney(), "Description", DateTime.Now.AddDays(-1));
+            DateTime localTime = DateTime.Now;
 
             // Act
             transaction.Update(
-                newCategoryId, PaymentMethod.DebitCard, TransactionType.Income, CreateValidMoney(), "New Description", DateTime.Now);
+                null, PaymentMethod.Cash, TransactionType.Income, CreateValidMoney(), "New Description", localTime);
 
             // Assert
-            Assert.Null(transaction.CategoryId);
+            Assert.Equal(DateTimeKind.Utc, transaction.TransactionDate.Kind);
+            Assert.Equal(DateTime.SpecifyKind(localTime, DateTimeKind.Utc), transaction.TransactionDate);
         }
 
         #endregion

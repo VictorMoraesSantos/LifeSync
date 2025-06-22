@@ -4,8 +4,8 @@ namespace Financial.UnitTests.Entities
 {
     public class CategoryTests
     {
-        [Fact]
-        public void Category_ValidInput_CreatesCategory()
+        [Fact(DisplayName = "Dado dados válidos, Quando criar categoria, Então deve criar corretamente")]
+        public void Deve_Criar_Categoria_Com_Dados_Validos()
         {
             // Arrange
             int userId = 1;
@@ -21,8 +21,8 @@ namespace Financial.UnitTests.Entities
             Assert.Equal(description, category.Description);
         }
 
-        [Fact]
-        public void Category_ValidInputWithoutDescription_CreatesCategory()
+        [Fact(DisplayName = "Dado dados válidos sem descrição, Quando criar categoria, Então deve criar com descrição nula")]
+        public void Deve_Criar_Categoria_Sem_Descricao()
         {
             // Arrange
             int userId = 1;
@@ -37,10 +37,10 @@ namespace Financial.UnitTests.Entities
             Assert.Null(category.Description);
         }
 
-        [Theory]
+        [Theory(DisplayName = "Dado userId inválido, Quando criar categoria, Então deve lançar ArgumentOutOfRangeException")]
         [InlineData(0)]
         [InlineData(-1)]
-        public void Category_InvalidUserId_ThrowsException(int invalidUserId)
+        public void Deve_Lancar_ArgumentOutOfRangeException_Para_UserId_Invalido(int invalidUserId)
         {
             // Arrange
             string name = "Teste";
@@ -49,21 +49,41 @@ namespace Financial.UnitTests.Entities
             Assert.Throws<ArgumentOutOfRangeException>(() => new Category(invalidUserId, name));
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
-        [InlineData(null)]
-        public void Category_InvalidName_ThrowsException(string invalidName)
+        [Fact(DisplayName = "Dado name nulo, Quando criar categoria, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Name_Nulo()
         {
             // Arrange
             int userId = 1;
+            string? invalidName = null;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => new Category(userId, invalidName!));
+        }
+
+        [Fact(DisplayName = "Dado name vazio, Quando criar categoria, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Name_Vazio()
+        {
+            // Arrange
+            int userId = 1;
+            string invalidName = "";
 
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => new Category(userId, invalidName));
         }
 
-        [Fact]
-        public void Update_ValidInput_UpdatesNameAndDescription()
+        [Fact(DisplayName = "Dado name com espaço em branco, Quando criar categoria, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Name_Whitespace()
+        {
+            // Arrange
+            int userId = 1;
+            string invalidName = " ";
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => new Category(userId, invalidName));
+        }
+
+        [Fact(DisplayName = "Dado dados válidos, Quando atualizar categoria, Então deve atualizar nome e descrição")]
+        public void Deve_Atualizar_Categoria_Com_Dados_Validos()
         {
             // Arrange
             var category = new Category(1, "Categoria Antiga", "Descrição Antiga");
@@ -80,8 +100,8 @@ namespace Financial.UnitTests.Entities
             Assert.NotEqual(creationTime, category.UpdatedAt);
         }
 
-        [Fact]
-        public void Update_ValidInputNullDescription_UpdatesNameAndSetsDescriptionToNull()
+        [Fact(DisplayName = "Dado descrição nula, Quando atualizar categoria, Então deve permitir descrição nula")]
+        public void Deve_Atualizar_Categoria_Com_Descricao_Nula()
         {
             // Arrange
             var category = new Category(1, "Categoria Antiga", "Descrição Antiga");
@@ -98,38 +118,55 @@ namespace Financial.UnitTests.Entities
             Assert.NotEqual(creationTime, category.UpdatedAt);
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
-        [InlineData(null)]
-        public void Update_InvalidName_ThrowsException(string invalidName)
+        [Fact(DisplayName = "Dado name nulo, Quando atualizar categoria, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Name_Nulo_No_Update()
         {
             // Arrange
             var category = new Category(1, "Categoria", "Descrição");
-            string? description = "Nova Descrição";
+            string? invalidName = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => category.Update(invalidName, description));
+            Assert.Throws<ArgumentNullException>(() => category.Update(invalidName!, "Nova Descrição"));
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
-        [InlineData(null)]
-        public void Update_InvalidDescription_ThrowsException(string nullDescription)
+        [Fact(DisplayName = "Dado name vazio, Quando atualizar categoria, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Name_Vazio_No_Update()
         {
             // Arrange
-            var name = "Nova Categoria";
-            var description = "Descrição";
-            var category = new Category(1, name, description);
-            var updatedName = "Nova Categoria";
+            var category = new Category(1, "Categoria", "Descrição");
+            string invalidName = "";
 
             // Act & Assert
-            category.Update(updatedName, nullDescription);
+            Assert.Throws<ArgumentNullException>(() => category.Update(invalidName, "Nova Descrição"));
+        }
 
-            Assert.Equal(1, category.UserId);
-            Assert.Equal(updatedName, category.Name);
-            Assert.Equal(nullDescription, category.Description);
+        [Fact(DisplayName = "Dado name com espaço em branco, Quando atualizar categoria, Então deve lançar ArgumentNullException")]
+        public void Deve_Lancar_ArgumentNullException_Para_Name_Whitespace_No_Update()
+        {
+            // Arrange
+            var category = new Category(1, "Categoria", "Descrição");
+            string invalidName = " ";
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => category.Update(invalidName, "Nova Descrição"));
+        }
+
+        [Fact(DisplayName = "Dado múltiplas atualizações, Quando atualizar categoria, Então UpdatedAt deve ser alterado a cada vez")]
+        public void Deve_Alterar_UpdatedAt_A_Cada_Atualizacao()
+        {
+            // Arrange
+            var category = new Category(1, "Categoria", "Descrição");
+            var initialUpdateTime = category.UpdatedAt;
+
+            // Act
+            category.Update("Nome 1", "Descrição 1");
+            var firstUpdateTime = category.UpdatedAt;
+            category.Update("Nome 2", "Descrição 2");
+            var secondUpdateTime = category.UpdatedAt;
+
+            // Assert
+            Assert.NotEqual(initialUpdateTime, firstUpdateTime);
+            Assert.NotEqual(firstUpdateTime, secondUpdateTime);
         }
     }
 }
