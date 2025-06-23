@@ -6,12 +6,12 @@ namespace TaskManager.Domain.Entities
 {
     public class TaskItem : BaseEntity<int>
     {
+        public int UserId { get; private set; }
         public string Title { get; private set; }
         public string Description { get; private set; }
         public Status Status { get; private set; }
         public Priority Priority { get; private set; }
         public DateOnly DueDate { get; private set; }
-        public int UserId { get; private set; }
 
         private readonly List<TaskLabel> _labels = new();
         public IReadOnlyCollection<TaskLabel> Labels => _labels.AsReadOnly();

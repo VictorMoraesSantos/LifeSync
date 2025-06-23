@@ -4,17 +4,12 @@ namespace BuildingBlocks.Messaging.Abstractions
 {
     public abstract class IntegrationEvent : INotification
     {
-        public int Id { get; private set; }
+        public Guid Id { get; private set; }
         public DateTime CreationDate { get; }
 
-        public IntegrationEvent()
+        protected IntegrationEvent()
         {
-            CreationDate = DateTime.UtcNow;
-        }
-
-        public IntegrationEvent(int id)
-        {
-            Id = id;
+            Id = Guid.NewGuid();
             CreationDate = DateTime.UtcNow;
         }
     }

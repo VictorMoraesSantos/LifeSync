@@ -7,7 +7,7 @@ namespace EmailSender.Domain.Events
         public string Email { get; }
         public DateTime SentAt { get; }
 
-        public EmailSentEvent(int id, string email, DateTime sentAt)
+        public EmailSentEvent(string email, DateTime sentAt)
         {
             Email = email;
             SentAt = sentAt;

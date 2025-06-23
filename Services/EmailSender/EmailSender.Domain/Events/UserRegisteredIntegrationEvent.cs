@@ -7,8 +7,7 @@ namespace EmailSender.Domain.Events
         public int UserId { get; }
         public string Email { get; }
 
-        public UserRegisteredIntegrationEvent(int userId, string email)
-            : base()
+        public UserRegisteredIntegrationEvent(int userId, string email) : base()
         {
             UserId = userId;
             Email = email;

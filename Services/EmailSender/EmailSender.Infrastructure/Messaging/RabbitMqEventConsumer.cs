@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 
+namespace EmailSender.Infrastructure.Messaging;
 public class RabbitMqEventConsumer : BackgroundService
 {
     private readonly IEventConsumer _rawConsumer;

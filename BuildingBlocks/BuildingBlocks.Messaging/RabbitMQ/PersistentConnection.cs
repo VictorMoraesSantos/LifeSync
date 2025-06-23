@@ -1,41 +1,65 @@
 ﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System;
+using System.Threading;
 
 public class PersistentConnection : IDisposable
 {
-    private readonly IConnectionFactory _connectionFactory;
+    private readonly IConnectionFactory _factory;
     private IConnection? _connection;
+    private readonly object _syncRoot = new();
     private bool _disposed;
 
-    public PersistentConnection(IConnectionFactory connectionFactory)
+    public PersistentConnection(IConnectionFactory factory)
     {
-        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-        TryConnect();
+        _factory = factory ?? throw new ArgumentNullException(nameof(factory));
     }
 
-    public bool IsConnected => _connection != null && _connection.IsOpen && !_disposed;
+    public bool IsConnected =>
+        _connection is not null
+     && _connection.IsOpen
+     && !_disposed;
 
-    public void TryConnect()
+    private bool TryConnect()
     {
-        if (_disposed)
-            throw new ObjectDisposedException(nameof(PersistentConnection));
+        if (_disposed) throw new ObjectDisposedException(nameof(PersistentConnection));
+        if (IsConnected) return true;
 
+        lock (_syncRoot)
+        {
+            if (IsConnected) return true;
+
+            // retry/back-off
+            const int maxAttempts = 5;
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    _connection = _factory.CreateConnection();
+                    _connection.ConnectionShutdown += OnConnectionShutdown;
+                    return true;
+                }
+                catch
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(2 * attempt));
+                }
+            }
+
+            return false;
+        }
+    }
+
+    private void OnConnectionShutdown(object? sender, ShutdownEventArgs e)
+    {
+        // limpa para que a próxima tentativa reconecte
         _connection?.Dispose();
-        _connection = _connectionFactory.CreateConnection();
-    }
-
-    public void ExecuteOnChannel(Action<IModel> action)
-    {
-        if (!IsConnected)
-            TryConnect();
-
-        using var channel = _connection!.CreateModel();
-        action(channel);
+        _connection = null;
     }
 
     public IModel CreateModel()
     {
-        if (!IsConnected)
-            TryConnect();
+        if (!TryConnect())
+            throw new InvalidOperationException("Could not connect to RabbitMQ.");
 
         return _connection!.CreateModel();
     }
@@ -44,6 +68,7 @@ public class PersistentConnection : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
-        _connection?.Dispose();
+        try { _connection?.Dispose(); }
+        catch { /* swallow */ }
     }
 }

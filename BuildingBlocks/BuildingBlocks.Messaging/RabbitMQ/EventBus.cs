@@ -2,41 +2,51 @@
 using BuildingBlocks.Messaging.Options;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
+using System;
 using System.Text;
 
 public class EventBus : IEventBus
 {
-    private readonly PersistentConnection _persistentConnection;
+    private readonly PersistentConnection _conn;
 
-    public EventBus(PersistentConnection persistentConnection)
+    public EventBus(PersistentConnection conn)
+        => _conn = conn;
+
+    public void PublishAsync<TEvent>(
+        TEvent @event,
+        PublishOptions? opts = null)
+        where TEvent : IntegrationEvent
     {
-        _persistentConnection = persistentConnection;
-    }
+        opts ??= new PublishOptions();
 
-    public void PublishAsync<TEvent>(TEvent @event, PublishOptions? options = null) where TEvent : IntegrationEvent
-    {
-        options ??= new PublishOptions();
+        // garante canal + conexão
+        using var channel = _conn.CreateModel();
 
-        _persistentConnection.ExecuteOnChannel(channel =>
+        try
         {
             channel.ExchangeDeclare(
-                exchange: options.ExchangeName,
-                type: options.TypeExchange,
-                durable: options.Durable,
-                autoDelete: options.AutoDelete,
-                arguments: options.Arguments);
+                exchange: opts.ExchangeName,
+                type: opts.TypeExchange,
+                durable: opts.Durable,
+                autoDelete: opts.AutoDelete,
+                arguments: opts.Arguments);
 
-            var message = JsonConvert.SerializeObject(@event);
-            var body = Encoding.UTF8.GetBytes(message);
+            var json = JsonConvert.SerializeObject(@event);
+            var body = Encoding.UTF8.GetBytes(json);
 
-            var properties = channel.CreateBasicProperties();
-            properties.Persistent = true;
+            var props = channel.CreateBasicProperties();
+            props.Persistent = true;
 
             channel.BasicPublish(
-                exchange: options.ExchangeName,
-                routingKey: options.RoutingKey,
-                basicProperties: properties,
+                exchange: opts.ExchangeName,
+                routingKey: opts.RoutingKey,
+                basicProperties: props,
                 body: body);
-        });
+        }
+        catch (Exception ex)
+        {
+            // aqui você pode logar e opcionalmente rethrow ou swallow
+            throw new InvalidOperationException("Failed to publish to RabbitMQ", ex);
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace EmailSender.Application.EventHandlers
 
             await _emailSender.SendEmailAsync(email);
 
-            var emailSentEvent = new EmailSentEvent(notification.Id, notification.Email, DateTime.Now);
+            var emailSentEvent = new EmailSentEvent(notification.Email, DateTime.Now);
 
             await _publisher.Publish(emailSentEvent, cancellationToken);
         }
