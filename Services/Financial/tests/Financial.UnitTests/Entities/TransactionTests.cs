@@ -1,8 +1,6 @@
-﻿using System;
-using Financial.Domain.Entities;
+﻿using Financial.Domain.Entities;
 using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
-using Xunit;
 
 namespace Financial.UnitTests.Entities
 {

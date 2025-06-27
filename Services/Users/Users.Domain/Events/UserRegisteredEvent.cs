@@ -7,7 +7,7 @@ namespace Users.Domain.Events
         public int UserId { get; set; }
         public string Email { get; }
 
-        public UserRegisteredEvent(int userId,string email)
+        public UserRegisteredEvent(int userId, string email)
         {
             UserId = userId;
             Email = email;

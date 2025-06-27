@@ -2,7 +2,6 @@
 using BuildingBlocks.Messaging.Options;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
-using System;
 using System.Text;
 
 public class EventBus : IEventBus

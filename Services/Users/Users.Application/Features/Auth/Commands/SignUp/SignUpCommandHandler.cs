@@ -42,7 +42,7 @@ namespace Users.Application.Features.Auth.Commands.SignUp
 
             await _authService.UpdateRefreshTokenAsync(dto.Id, refreshToken);
 
-            var @event = new UserRegisteredEvent(int.Parse(dto.Id),dto.Email);
+            var @event = new UserRegisteredEvent(int.Parse(dto.Id), dto.Email);
 
             var options = new PublishOptions
             {

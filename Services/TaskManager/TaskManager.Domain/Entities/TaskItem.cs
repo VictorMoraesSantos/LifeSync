@@ -53,6 +53,7 @@ namespace TaskManager.Domain.Entities
         {
             if (dueDate < DateOnly.FromDateTime(DateTime.UtcNow))
                 throw new DomainException("Due date cannot be in the past.");
+
             DueDate = dueDate;
         }
 
@@ -66,8 +67,10 @@ namespace TaskManager.Domain.Entities
         {
             if (label == null)
                 throw new DomainException("Label cannot be null.");
+
             if (_labels.Any(l => l == label))
                 throw new DomainException("Label already exists for this task.");
+
             _labels.Add(label);
             MarkAsUpdated();
         }
@@ -76,8 +79,10 @@ namespace TaskManager.Domain.Entities
         {
             if (label == null)
                 throw new DomainException("Label cannot be null.");
+
             if (!_labels.Remove(label))
                 throw new DomainException("Label not found in this task.");
+
             MarkAsUpdated();
         }
 

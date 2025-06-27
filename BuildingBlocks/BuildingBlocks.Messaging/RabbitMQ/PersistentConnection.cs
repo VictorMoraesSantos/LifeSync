@@ -1,7 +1,4 @@
 ﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System;
-using System.Threading;
 
 public class PersistentConnection : IDisposable
 {
