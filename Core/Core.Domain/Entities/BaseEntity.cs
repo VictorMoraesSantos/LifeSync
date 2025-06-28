@@ -33,8 +33,8 @@ namespace Core.Domain.Entities
 
         public virtual void MarkAsDeleted()
         {
-            if (IsDeleted)
-                return;
+            if (IsDeleted) return;
+
             IsDeleted = true;
             MarkAsUpdated();
         }
@@ -43,6 +43,7 @@ namespace Core.Domain.Entities
         {
             if (domainEvent == null)
                 throw new ArgumentNullException(nameof(domainEvent));
+
             _domainEvents.Add(domainEvent);
         }
 
@@ -55,14 +56,18 @@ namespace Core.Domain.Entities
         {
             if (obj == null || !(obj is BaseEntity<T> other))
                 return false;
+
             if (ReferenceEquals(this, obj))
                 return true;
+
             return EqualityComparer<T>.Default.Equals(Id, other.Id);
         }
 
         public override int GetHashCode()
         {
-            return Id == null ? 0 : Id.GetHashCode();
+            if (Id == null) return 0;
+
+            return Id.GetHashCode();
         }
     }
 }

@@ -16,6 +16,7 @@
         LowerBack,
         Traps,
         Neck,
-        FullBody
+        FullBody,
+        Core
     }
 }

@@ -10,22 +10,24 @@
                 return false;
 
             var other = (ValueObject)obj;
+
             return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
         }
 
         public override int GetHashCode()
         {
             return GetEqualityComponents()
-                .Aggregate(1, (current, obj) =>
-                    current * 23 + (obj?.GetHashCode() ?? 0));
+                .Aggregate(1, (current, obj) => current * 23 + (obj?.GetHashCode() ?? 0));
         }
 
         public static bool operator ==(ValueObject a, ValueObject b)
         {
             if (ReferenceEquals(a, b))
                 return true;
+
             if (a is null || b is null)
                 return false;
+
             return a.Equals(b);
         }
 

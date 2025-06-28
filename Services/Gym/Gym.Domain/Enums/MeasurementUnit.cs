@@ -2,13 +2,18 @@
 {
     public enum MeasurementUnit
     {
-        Kilograms,
-        Pounds,
-        Seconds,
-        Minutes,
-        Meters,
-        Kilometers,
-        Miles,
-        Repetitions
+        // Peso
+        Kilogram,
+        Pound,
+
+        // Distância
+        Meter,
+        Kilometer,
+        Mile,
+
+        // Tempo
+        Second,
+        Minute,
+        Hour
     }
 }

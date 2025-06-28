@@ -9,15 +9,15 @@ namespace Gym.Domain.ValueObjects
         public decimal Value { get; private set; }
         public MeasurementUnit Unit { get; private set; }
 
-        protected Weight() { } // For ORM
+        protected Weight() { }
 
         public Weight(decimal value, MeasurementUnit unit)
         {
             if (value < 0)
                 throw new DomainException("Weight cannot be negative");
 
-            if (unit != MeasurementUnit.Kilograms && unit != MeasurementUnit.Pounds)
-                throw new DomainException("Weight unit must be kilograms or pounds");
+            if (unit != MeasurementUnit.Kilogram && unit != MeasurementUnit.Pound)
+                throw new DomainException("Weight unit must be kilogram or pound");
 
             Value = value;
             Unit = unit;
@@ -28,13 +28,22 @@ namespace Gym.Domain.ValueObjects
             if (Unit == targetUnit)
                 return this;
 
-            if (targetUnit == MeasurementUnit.Kilograms && Unit == MeasurementUnit.Pounds)
-                return new Weight(Value * 0.453592m, MeasurementUnit.Kilograms);
+            decimal convertedValue;
 
-            if (targetUnit == MeasurementUnit.Pounds && Unit == MeasurementUnit.Kilograms)
-                return new Weight(Value * 2.20462m, MeasurementUnit.Pounds);
+            if (Unit == MeasurementUnit.Kilogram && targetUnit == MeasurementUnit.Pound)
+            {
+                convertedValue = Value * 2.20462m;
+            }
+            else if (Unit == MeasurementUnit.Pound && targetUnit == MeasurementUnit.Kilogram)
+            {
+                convertedValue = Value * 0.453592m;
+            }
+            else
+            {
+                throw new DomainException($"Cannot convert from {Unit} to {targetUnit}");
+            }
 
-            throw new DomainException("Cannot convert between these units");
+            return new Weight(convertedValue, targetUnit);
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

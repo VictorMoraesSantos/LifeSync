@@ -1,6 +1,6 @@
 ﻿namespace Gym.Domain.Enums
 {
-    public enum DifficultyLevel
+    public enum ActivityLevel
     {
         Beginner = 1,
         Intermediate = 2,

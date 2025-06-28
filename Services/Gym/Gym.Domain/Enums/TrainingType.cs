@@ -1,13 +1,14 @@
 ﻿namespace Gym.Domain.Enums
 {
-    public enum ExerciseType
+    public enum TrainingType
     {
         Strength,
         Hypertrophy,
         Endurance,
         Power,
         Flexibility,
-        Balance,
-        Functional
+        Cardio,
+        HIIT,
+        Recovery
     }
 }
