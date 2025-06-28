@@ -8,7 +8,6 @@ namespace Gym.Domain.Entities
     {
         public string Name { get; private set; }
         public string Description { get; private set; }
-        public DateTime CreatedDate { get; private set; }
         public DateTime? ScheduledDate { get; private set; }
         public DateTime? CompletedDate { get; private set; }
         private readonly List<WorkoutExercise> _exercises;
@@ -17,7 +16,6 @@ namespace Gym.Domain.Entities
         protected Workout()
         {
             _exercises = new List<WorkoutExercise>();
-            CreatedDate = DateTime.UtcNow;
         }
 
         public Workout(string name, string description = null, DateTime? scheduledDate = null) : this()
