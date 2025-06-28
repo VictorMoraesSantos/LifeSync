@@ -107,7 +107,7 @@ namespace Gym.Domain.Entities
             SetRepetition setRepetition,
             DateTime executionDate,
             string notes = null,
-            Guid? workoutId = null)
+            int? workoutId = null)
         {
             var execution = new ExerciseExecution(Id, setRepetition, executionDate, notes, workoutId);
             _executions.Add(execution);

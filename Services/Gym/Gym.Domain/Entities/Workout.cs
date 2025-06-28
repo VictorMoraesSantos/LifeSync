@@ -62,14 +62,14 @@ namespace Gym.Domain.Entities
             _exercises.Add(workoutExercise);
         }
 
-        public void RemoveExercise(Guid exerciseId)
+        public void RemoveExercise(int exerciseId)
         {
             var exercise = _exercises.FirstOrDefault(e => e.ExerciseId == exerciseId);
             if (exercise != null)
                 _exercises.Remove(exercise);
         }
 
-        public void ReorderExercise(Guid exerciseId, int newOrder)
+        public void ReorderExercise(int exerciseId, int newOrder)
         {
             var exercise = _exercises.FirstOrDefault(e => e.ExerciseId == exerciseId);
             if (exercise == null)
