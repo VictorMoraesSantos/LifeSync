@@ -2,7 +2,6 @@
 {
     public abstract class ValueObject
     {
-        // Cada ValueObject deve implementar este método para definir os componentes que compõem sua identidade
         protected abstract IEnumerable<object> GetEqualityComponents();
 
         public override bool Equals(object obj)
