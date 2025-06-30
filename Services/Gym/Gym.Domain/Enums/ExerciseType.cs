@@ -1,6 +1,6 @@
 ﻿namespace Gym.Domain.Enums
 {
-    public enum TrainingType
+    public enum ExerciseType
     {
         Strength,
         Hypertrophy,

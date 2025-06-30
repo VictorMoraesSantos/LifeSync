@@ -1,0 +1,68 @@
+﻿using Core.Domain.Entities;
+using Gym.Domain.ValueObjects;
+
+namespace Gym.Domain.Entities
+{
+    public class TrainingSession : BaseEntity<int>
+    {
+        public int UserId { get; private set; }
+        public int RoutineId { get; private set; }
+        public Routine Routine { get; private set; }
+        public DateTime StartTime { get; private set; }
+        public DateTime? EndTime { get; private set; }
+        public string? Notes { get; private set; }
+
+        private readonly List<CompletedExercise> _completedExercises = new();
+        public IReadOnlyCollection<CompletedExercise> CompletedExercises => _completedExercises.AsReadOnly();
+
+        private TrainingSession() { }
+
+        public TrainingSession(
+            int userId,
+            int routineId)
+        {
+            UserId = userId;
+            RoutineId = routineId;
+            StartTime = DateTime.UtcNow;
+        }
+
+        public void AddCompletedExercise(
+            int exerciseId,
+            int routineExerciseId,
+            SetCount setsCompleted,
+            RepetitionCount repetitionsCompleted,
+            Weight? weightUsed = null,
+            string? notes = null)
+        {
+            var completedExercise = new CompletedExercise(
+                Id,
+                exerciseId,
+                routineExerciseId,
+                setsCompleted,
+                repetitionsCompleted,
+                weightUsed,
+                notes);
+
+            _completedExercises.Add(completedExercise);
+            MarkAsUpdated();
+        }
+
+        public void Complete( string? notes = null)
+        {
+            if (EndTime.HasValue)
+                return;
+
+            EndTime = DateTime.UtcNow;
+            Notes = notes;
+            MarkAsUpdated();
+
+            // Se estiver usando eventos de domínio
+            // AddDomainEvent(new TrainingSessionCompletedEvent(UserId, Id));
+        }
+
+        public TimeSpan GetDuration()
+        {
+            return (EndTime ?? DateTime.UtcNow) - StartTime;
+        }
+    }
+}
