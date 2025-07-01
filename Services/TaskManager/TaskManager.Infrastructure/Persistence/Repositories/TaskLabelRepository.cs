@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Repositories;
 using TaskManager.Domain.ValueObjects;
-using TaskManager.Infrastructure.Data;
+using TaskManager.Infrastructure.Persistence.Data;
 
-namespace TaskManager.Infrastructure.Repositories
+namespace TaskManager.Infrastructure.Persistence.Repositories
 {
     public class TaskLabelRepository : ITaskLabelRepository
     {

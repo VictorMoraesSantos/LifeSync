@@ -1,8 +1,10 @@
-﻿namespace Core.Application.Interfaces
+﻿using BuildingBlocks.Results;
+
+namespace Core.Application.Interfaces
 {
     public interface ICreateService<TCreate>
     {
-        Task<int> CreateAsync(TCreate dto, CancellationToken cancellationToken = default);
-        Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<TCreate> dto, CancellationToken cancellationToken = default);
+        Task<Result<int>> CreateAsync(TCreate dto, CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<int>>> CreateRangeAsync(IEnumerable<TCreate> dto, CancellationToken cancellationToken = default);
     }
 }

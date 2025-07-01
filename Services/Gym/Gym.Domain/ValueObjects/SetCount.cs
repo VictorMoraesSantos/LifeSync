@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Results;
-using Core.Domain.ValueObjects;
+﻿using Core.Domain.ValueObjects;
 
 namespace Gym.Domain.ValueObjects
 {

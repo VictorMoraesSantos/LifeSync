@@ -1,10 +1,11 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel
 {
-    public class UpdateTaskLabelCommandHandler : IRequestHandler<UpdateTaskLabelCommand, UpdateTaskLabelResult>
+    public class UpdateTaskLabelCommandHandler : IRequestHandler<UpdateTaskLabelCommand, Result<UpdateTaskLabelResult>>
     {
         private readonly ITaskLabelService _taskLabelService;
 
@@ -13,7 +14,7 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel
             _taskLabelService = taskLabelService;
         }
 
-        public async Task<UpdateTaskLabelResult> Handle(UpdateTaskLabelCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateTaskLabelResult>> Handle(UpdateTaskLabelCommand command, CancellationToken cancellationToken)
         {
             UpdateTaskLabelDTO? dto = new(
                 command.Id,
@@ -21,7 +22,10 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel
                 command.LabelColor);
 
             var result = await _taskLabelService.UpdateAsync(dto, cancellationToken);
-            return new UpdateTaskLabelResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<UpdateTaskLabelResult>(result.Error!);
+
+            return Result.Success(new UpdateTaskLabelResult(result.Value!));
         }
     }
 }

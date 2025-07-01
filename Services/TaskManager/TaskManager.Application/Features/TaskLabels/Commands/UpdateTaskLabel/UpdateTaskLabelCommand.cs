@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel
@@ -7,6 +7,6 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel
         int Id,
         string Name,
         LabelColor LabelColor)
-        : IRequest<UpdateTaskLabelResult>;
+        : ICommand<UpdateTaskLabelResult>;
     public record UpdateTaskLabelResult(bool IsUpdated);
 }

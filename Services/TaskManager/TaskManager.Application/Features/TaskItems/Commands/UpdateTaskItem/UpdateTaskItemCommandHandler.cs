@@ -1,10 +1,11 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
 {
-    public class UpdateTaskItemCommandHandler : IRequestHandler<UpdateTaskItemCommand, UpdateTaskItemCommandResult>
+    public class UpdateTaskItemCommandHandler : IRequestHandler<UpdateTaskItemCommand, Result<UpdateTaskItemCommandResult>>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -13,7 +14,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
             _taskItemService = taskItemService;
         }
 
-        public async Task<UpdateTaskItemCommandResult> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateTaskItemCommandResult>> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
             UpdateTaskItemDTO dto = new(
                 command.Id,
@@ -24,7 +25,10 @@ namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
                 command.DueDate);
 
             var result = await _taskItemService.UpdateAsync(dto, cancellationToken);
-            return new UpdateTaskItemCommandResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<UpdateTaskItemCommandResult>(result.Error!);
+
+            return Result.Success(new UpdateTaskItemCommandResult(result.Value!));
         }
     }
 }

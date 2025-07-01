@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.CreateTaskLabel
@@ -8,6 +8,6 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.CreateTaskLabel
         LabelColor LabelColor,
         int UserId,
         int TaskItemId)
-        : IRequest<CreateTaskLabelResult>;
+        : ICommand<CreateTaskLabelResult>;
     public record CreateTaskLabelResult(int Id);
 }

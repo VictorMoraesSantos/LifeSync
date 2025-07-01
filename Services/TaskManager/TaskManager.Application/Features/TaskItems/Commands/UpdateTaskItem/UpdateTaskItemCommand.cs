@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
@@ -10,7 +10,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
         Status Status,
         Priority Priority,
         DateOnly DueDate
-    ) : IRequest<UpdateTaskItemCommandResult>;
+    ) : ICommand<UpdateTaskItemCommandResult>;
 
     public record UpdateTaskItemCommandResult(bool IsUpdated);
 }

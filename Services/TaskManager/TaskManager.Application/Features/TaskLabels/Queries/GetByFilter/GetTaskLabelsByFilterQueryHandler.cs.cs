@@ -1,9 +1,10 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Queries.GetByFilter
 {
-    public class GetByFilterQueryHandler : IRequestHandler<GetByFilterQuery, GetByFilterResult>
+    public class GetByFilterQueryHandler : IRequestHandler<GetByFilterQuery, Result<GetByFilterResult>>
     {
         private readonly ITaskLabelService _taskLabelService;
 
@@ -12,10 +13,13 @@ namespace TaskManager.Application.Features.TaskLabels.Queries.GetByFilter
             _taskLabelService = taskLabelService;
         }
 
-        public async Task<GetByFilterResult> Handle(GetByFilterQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetByFilterResult>> Handle(GetByFilterQuery query, CancellationToken cancellationToken)
         {
             var result = await _taskLabelService.GetByFilterAsync(query.filter, cancellationToken);
-            return new GetByFilterResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<GetByFilterResult>(result.Error!);
+
+            return Result.Success(new GetByFilterResult(result.Value!));
         }
     }
 }

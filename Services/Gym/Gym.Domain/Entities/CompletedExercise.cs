@@ -12,6 +12,7 @@ namespace Gym.Domain.Entities
         public Exercise Exercise { get; private set; }
 
         public int RoutineExerciseId { get; private set; }
+        public RoutineExercise RoutineExercise { get; private set; }
 
         // Parâmetros realizados usando Value Objects
         public SetCount SetsCompleted { get; private set; }

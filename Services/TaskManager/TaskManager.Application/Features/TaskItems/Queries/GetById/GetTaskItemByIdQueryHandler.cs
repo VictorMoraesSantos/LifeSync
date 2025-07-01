@@ -1,9 +1,10 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Queries.GetById
 {
-    public class GetTaskItemByIdQueryHandler : IRequestHandler<GetTaskItemByIdQuery, GetTaskItemByIdResult>
+    public class GetTaskItemByIdQueryHandler : IRequestHandler<GetTaskItemByIdQuery, Result<GetTaskItemByIdResult>>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -12,10 +13,13 @@ namespace TaskManager.Application.Features.TaskItems.Queries.GetById
             _taskItemService = taskItemService;
         }
 
-        public async Task<GetTaskItemByIdResult> Handle(GetTaskItemByIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetTaskItemByIdResult>> Handle(GetTaskItemByIdQuery query, CancellationToken cancellationToken)
         {
             var result = await _taskItemService.GetByIdAsync(query.Id, cancellationToken);
-            return new GetTaskItemByIdResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<GetTaskItemByIdResult>(result.Error!);
+
+            return Result.Success(new GetTaskItemByIdResult(result.Value!));
         }
     }
 }

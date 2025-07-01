@@ -47,7 +47,7 @@ namespace Gym.Domain.Entities
             MarkAsUpdated();
         }
 
-        public void Complete( string? notes = null)
+        public void Complete(string? notes = null)
         {
             if (EndTime.HasValue)
                 return;

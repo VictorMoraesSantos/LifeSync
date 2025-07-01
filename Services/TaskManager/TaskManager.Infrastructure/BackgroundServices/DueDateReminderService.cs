@@ -2,9 +2,12 @@
 using BuildingBlocks.Messaging.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using TaskManager.Application.Interfaces;
 using TaskManager.Domain.Events;
+using TaskManager.Infrastructure.Options;
 
 namespace TaskManager.Application.BackgroundServices
 {
@@ -12,56 +15,108 @@ namespace TaskManager.Application.BackgroundServices
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IEventBus _eventBus;
-        private readonly TimeSpan _threshold = TimeSpan.FromDays(1);
-        private readonly TimeSpan _pollingInterval = TimeSpan.FromHours(1);
+        private readonly ILogger<DueDateReminderService> _logger;
+        private readonly DueDateReminderOptions _options;
 
         public DueDateReminderService(
             IServiceScopeFactory scopeFactory,
-            IEventBus eventBus)
+            IEventBus eventBus,
+            ILogger<DueDateReminderService> logger,
+            IOptions<DueDateReminderOptions> options)
         {
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
+            _logger = logger;
+            _options = options.Value;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            _logger.LogInformation("Iniciando o serviço de lembretes de tarefas com vencimento próximo");
+
+            while (!cancellationToken.IsCancellationRequested)
             {
-                using var scope = _scopeFactory.CreateScope();
-                var taskService = scope.ServiceProvider.GetRequiredService<ITaskItemService>();
-                var now = DateTime.UtcNow;
-
-                // 1) Busque as tasks a lembrar
-                var dueTaskDtos = await taskService.FindAsync(
-                    t =>
-                        t.DueDate.ToDateTime(TimeOnly.MinValue) > now
-                     && t.DueDate.ToDateTime(TimeOnly.MinValue) <= now.Add(_threshold),
-                    stoppingToken);
-
-                foreach (var task in dueTaskDtos)
+                try
                 {
-                    // 2) Monte o evento
+                    await ProcessDueTasksAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro ao processar lembretes de tarefas com vencimento próximo");
+                }
+
+                await Task.Delay(_options.PollingInterval, cancellationToken);
+            }
+
+            _logger.LogInformation("Serviço de lembretes de tarefas encerrado");
+        }
+
+        private async Task ProcessDueTasksAsync(CancellationToken cancellationToken)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var taskService = scope.ServiceProvider.GetRequiredService<ITaskItemService>();
+            var now = DateTime.UtcNow;
+            var thresholdDate = now.Add(_options.ReminderThreshold);
+
+            _logger.LogDebug("Buscando tarefas com vencimento próximo (entre {Now} e {ThresholdDate})",
+                now, thresholdDate);
+
+            var result = await taskService.FindAsync(
+                t => t.DueDate.ToDateTime(TimeOnly.MinValue) > now
+                  && t.DueDate.ToDateTime(TimeOnly.MinValue) <= thresholdDate,
+                cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Falha ao buscar tarefas com vencimento próximo: {ErrorMessage}",
+                    result.Error);
+                return;
+            }
+
+            var dueTasks = result.Value;
+            if (dueTasks == null || !dueTasks.Any())
+            {
+                _logger.LogDebug("Nenhuma tarefa com vencimento próximo encontrada");
+                return;
+            }
+
+            _logger.LogInformation("Encontradas {Count} tarefas com vencimento próximo", dueTasks.Count());
+
+            var publishOptions = new PublishOptions
+            {
+                ExchangeName = _options.ExchangeName,
+                TypeExchange = ExchangeType.Topic,
+                RoutingKey = _options.RoutingKey,
+                Durable = true,
+            };
+
+            int count = 0;
+            foreach (var task in dueTasks.Take(_options.MaxTasksPerRun))
+            {
+                try
+                {
                     var @event = new TaskDueReminderEvent(
                         task.Id,
                         task.UserId,
                         task.Title,
                         task.DueDate);
 
-                    // 3) Configure as opções de publicação
-                    var options = new PublishOptions
-                    {
-                        ExchangeName = "task_exchange",
-                        TypeExchange = ExchangeType.Topic,
-                        RoutingKey = "task.due.reminder",
-                        Durable = true,
-                    };
+                    _eventBus.PublishAsync(@event, publishOptions);
 
-                    // 4) Publique na fila
-                    _eventBus.PublishAsync(@event, options);
+                    // Atualize o status de lembrete enviado (se tiver implementação para isso)
+                    // await taskService.MarkReminderSentAsync(task.Id, stoppingToken);
+
+                    count++;
                 }
-                // 5) Aguarde o próximo loop
-                await Task.Delay(_pollingInterval, stoppingToken);
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro ao publicar lembrete para a tarefa {TaskId}", task.Id);
+                }
             }
+
+            _logger.LogInformation("Publicados {Count} lembretes de tarefas com vencimento próximo", count);
         }
     }
+
+
 }

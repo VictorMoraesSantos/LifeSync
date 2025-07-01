@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
@@ -9,7 +9,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
         Priority Priority,
         DateOnly DueDate,
         int UserId
-    ) : IRequest<CreateTaskItemResult>;
+    ) : ICommand<CreateTaskItemResult>;
 
     public record CreateTaskItemResult(int Id);
 }

@@ -1,10 +1,11 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
 {
-    public class CreateTaskItemCommandHandler : IRequestHandler<CreateTaskItemCommand, CreateTaskItemResult>
+    public class CreateTaskItemCommandHandler : IRequestHandler<CreateTaskItemCommand, Result<CreateTaskItemResult>>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -13,7 +14,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
             _taskItemService = taskItemService;
         }
 
-        public async Task<CreateTaskItemResult> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateTaskItemResult>> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
             CreateTaskItemDTO dto = new(
                 command.Title,
@@ -23,7 +24,10 @@ namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
                 command.UserId);
 
             var result = await _taskItemService.CreateAsync(dto, cancellationToken);
-            return new CreateTaskItemResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<CreateTaskItemResult>(result.Error!);
+
+            return Result.Success(new CreateTaskItemResult(result.Value!));
         }
     }
 }

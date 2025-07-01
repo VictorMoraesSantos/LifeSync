@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Exceptions;
+﻿using BuildingBlocks.Results;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskLabel;
@@ -14,128 +15,334 @@ namespace TaskManager.Infrastructure.Services
     public class TaskLabelService : ITaskLabelService
     {
         private readonly ITaskLabelRepository _taskLabelRepository;
+        private readonly ILogger<TaskLabelService> _logger;
 
-        public TaskLabelService(ITaskLabelRepository taskLabelRepository)
+        public TaskLabelService(
+            ITaskLabelRepository taskLabelRepository,
+            ILogger<TaskLabelService> logger)
         {
             _taskLabelRepository = taskLabelRepository;
+            _logger = logger;
         }
 
-        public async Task<IEnumerable<TaskLabelDTO>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<TaskLabelDTO>>> GetAllAsync(CancellationToken cancellationToken)
         {
-            IEnumerable<TaskLabel?> entities = await _taskLabelRepository.GetAll(cancellationToken);
-            IEnumerable<TaskLabelDTO> dtos = entities.Select(tl => tl.ToDTO());
-            return dtos;
-        }
-
-        public async Task<IEnumerable<TaskLabelDTO>> GetByFilterAsync(TaskLabelFilterDTO filter, CancellationToken cancellationToken)
-        {
-            TaskLabelFilter? domainFilter = new(
-                filter.UserId,
-                filter.TaskItemId,
-                filter.NameContains,
-                filter.LabelColor);
-
-            IEnumerable<TaskLabel?> entities = await _taskLabelRepository.FindByFilter(domainFilter, cancellationToken);
-            IEnumerable<TaskLabelDTO> dtos = entities.Select(TaskLabelMapper.ToDTO);
-            return dtos;
-        }
-
-        public async Task<TaskLabelDTO?> GetByIdAsync(int id, CancellationToken cancellationToken)
-        {
-            TaskLabel? entities = await _taskLabelRepository.GetById(id, cancellationToken);
-            if (entities == null)
-                return null;
-
-            TaskLabelDTO dtos = TaskLabelMapper.ToDTO(entities);
-            return dtos;
-        }
-
-        public async Task<int> CreateAsync(CreateTaskLabelDTO dto, CancellationToken cancellationToken)
-        {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-
-            TaskLabel entity = new(dto.Name, dto.LabelColor, dto.UserId, dto.TaskItemId);
-
-            await _taskLabelRepository.Create(entity, cancellationToken);
-
-            return entity.Id;
-        }
-
-        public async Task<bool> UpdateAsync(UpdateTaskLabelDTO dto, CancellationToken cancellationToken)
-        {
-            TaskLabel? entity = await _taskLabelRepository.GetById(dto.Id, cancellationToken);
-            if (entity == null)
-                throw new NotFoundException(nameof(entity), dto.Id);
-
-            entity.Update(dto.Name, dto.LabelColor);
-            await _taskLabelRepository.Update(entity, cancellationToken);
-            return true;
-        }
-
-        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
-        {
-            TaskLabel? entity = await _taskLabelRepository.GetById(id, cancellationToken);
-            if (entity == null) return false;
-
-            entity.MarkAsDeleted();
-            await _taskLabelRepository.Update(entity, cancellationToken);
-            return true;
-        }
-
-        public async Task<(IEnumerable<TaskLabelDTO?> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskLabel?> all = await _taskLabelRepository.GetAll(cancellationToken);
-            int totalCount = all.Count();
-
-            IEnumerable<TaskLabelDTO?> items = all
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(TaskLabelMapper.ToDTO!);
-
-            return (items, totalCount);
-        }
-
-        public async Task<IEnumerable<TaskLabelDTO?>> FindAsync(Expression<Func<TaskLabelDTO, bool>> predicate, CancellationToken cancellationToken = default)
-        {
-            IEnumerable<TaskLabel?> entities = await _taskLabelRepository.GetAll(cancellationToken);
-            IEnumerable<TaskLabelDTO?> dtos = entities.Select(TaskLabelMapper.ToDTO!);
-            return dtos;
-        }
-
-        public async Task<int> CountAsync(Expression<Func<TaskLabelDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
-        {
-            var all = await _taskLabelRepository.GetAll(cancellationToken);
-            return all.Count();
-        }
-
-        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateTaskLabelDTO> dtos, CancellationToken cancellationToken = default)
-        {
-            if (dtos == null) throw new ArgumentNullException(nameof(dtos));
-
-            IEnumerable<TaskLabel> entities = dtos.Select(TaskLabelMapper.ToEntity);
-
-            await _taskLabelRepository.CreateRange(entities, cancellationToken);
-            return entities.Select(e => e.Id).ToList();
-        }
-
-        public async Task<bool> DeleteRangeAsync(IEnumerable<int> dtos, CancellationToken cancellationToken = default)
-        {
-            if (dtos == null || !dtos.Any()) return false;
-
-            List<TaskLabel?> entities = new();
-            foreach (var id in dtos)
+            try
             {
-                TaskLabel? entity = await _taskLabelRepository.GetById(id, cancellationToken);
-                if (entity != null)
-                    entities.Add(entity);
+                var entities = await _taskLabelRepository.GetAll(cancellationToken);
+                var dtos = entities.Where(e => e != null).Select(tl => tl.ToDTO()).ToList();
+
+                return Result.Success<IEnumerable<TaskLabelDTO>>(dtos);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar todos os rótulos");
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.Problem(
+                    "TaskLabel.GetAllError",
+                    "Erro ao buscar rótulos").Description);
+            }
+        }
 
-            if (!entities.Any()) return false;
+        public async Task<Result<IEnumerable<TaskLabelDTO>>> GetByFilterAsync(TaskLabelFilterDTO filter, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new TaskLabelFilter(
+                    filter.UserId,
+                    filter.TaskItemId,
+                    filter.NameContains,
+                    filter.LabelColor);
 
-            foreach (var entity in entities)
-                await _taskLabelRepository.Delete(entity, cancellationToken);
+                var entities = await _taskLabelRepository.FindByFilter(domainFilter, cancellationToken);
+                var dtos = entities.Where(e => e != null).Select(TaskLabelMapper.ToDTO).ToList();
 
-            return true;
+                return Result.Success<IEnumerable<TaskLabelDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao filtrar rótulos");
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.Problem(
+                    "TaskLabel.FilterError",
+                    "Erro ao filtrar rótulos").Description);
+            }
+        }
+
+        public async Task<Result<TaskLabelDTO>> GetByIdAsync(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var entity = await _taskLabelRepository.GetById(id, cancellationToken);
+
+                if (entity == null)
+                    return Result.Failure<TaskLabelDTO>(Error.NotFound(
+                        "TaskLabel.NotFound",
+                        $"Rótulo com ID {id} não encontrado").Description);
+
+                var dto = TaskLabelMapper.ToDTO(entity);
+                return Result.Success(dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar rótulo {LabelId}", id);
+                return Result.Failure<TaskLabelDTO>(Error.Problem(
+                    "TaskLabel.GetByIdError",
+                    "Erro ao buscar rótulo").Description);
+            }
+        }
+
+        public async Task<Result<int>> CreateAsync(CreateTaskLabelDTO dto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (dto == null)
+                    return Result.Failure<int>(Error.Failure(
+                        "TaskLabel.NullData",
+                        "Dados do rótulo não podem ser nulos").Description);
+
+                // Validação dos dados
+                if (string.IsNullOrWhiteSpace(dto.Name))
+                    return Result.Failure<int>(Error.Failure(
+                        "TaskLabel.InvalidName",
+                        "O nome do rótulo é obrigatório").Description);
+
+                var entity = new TaskLabel(dto.Name, dto.LabelColor, dto.UserId, dto.TaskItemId);
+                await _taskLabelRepository.Create(entity, cancellationToken);
+
+                return Result.Success(entity.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar rótulo {@LabelData}", dto);
+                return Result.Failure<int>(Error.Problem(
+                    "TaskLabel.CreateError",
+                    "Erro ao criar rótulo").Description);
+            }
+        }
+
+        public async Task<Result<bool>> UpdateAsync(UpdateTaskLabelDTO dto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (dto == null)
+                    return Result.Failure<bool>(Error.Failure(
+                        "TaskLabel.NullData",
+                        "Dados do rótulo não podem ser nulos").Description);
+
+                var entity = await _taskLabelRepository.GetById(dto.Id, cancellationToken);
+
+                if (entity == null)
+                    return Result.Failure<bool>(Error.NotFound(
+                        "TaskLabel.NotFound",
+                        $"Rótulo com ID {dto.Id} não encontrado").Description);
+
+                // Validações
+                if (string.IsNullOrWhiteSpace(dto.Name))
+                    return Result.Failure<bool>(Error.Failure(
+                        "TaskLabel.InvalidName",
+                        "O nome do rótulo é obrigatório").Description);
+
+                entity.Update(dto.Name, dto.LabelColor);
+                await _taskLabelRepository.Update(entity, cancellationToken);
+
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar rótulo {@LabelData}", dto);
+                return Result.Failure<bool>(Error.Problem(
+                    "TaskLabel.UpdateError",
+                    "Erro ao atualizar rótulo").Description);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteAsync(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var entity = await _taskLabelRepository.GetById(id, cancellationToken);
+
+                if (entity == null)
+                    return Result.Failure<bool>(Error.NotFound(
+                        "TaskLabel.NotFound",
+                        $"Rótulo com ID {id} não encontrado").Description);
+
+                entity.MarkAsDeleted();
+                await _taskLabelRepository.Update(entity, cancellationToken);
+
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir rótulo {LabelId}", id);
+                return Result.Failure<bool>(Error.Problem(
+                    "TaskLabel.DeleteError",
+                    "Erro ao excluir rótulo").Description);
+            }
+        }
+
+        public async Task<Result<(IEnumerable<TaskLabelDTO> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (page < 1)
+                    return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(Error.Failure(
+                        "TaskLabel.InvalidPage",
+                        "O número da página deve ser maior que zero").Description);
+
+                if (pageSize < 1)
+                    return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(Error.Failure(
+                        "TaskLabel.InvalidPageSize",
+                        "O tamanho da página deve ser maior que zero").Description);
+
+                var all = await _taskLabelRepository.GetAll(cancellationToken);
+                var totalCount = all.Count();
+
+                var items = all
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Where(e => e != null)
+                    .Select(TaskLabelMapper.ToDTO)
+                    .ToList();
+
+                return Result.Success<(IEnumerable<TaskLabelDTO> Items, int TotalCount)>((items, totalCount));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter página de rótulos (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
+                return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(Error.Problem(
+                    "TaskLabel.GetPagedError",
+                    "Erro ao obter página de rótulos").Description);
+            }
+        }
+
+        public async Task<Result<IEnumerable<TaskLabelDTO>>> FindAsync(Expression<Func<TaskLabelDTO, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (predicate == null)
+                    return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.Failure(
+                        "TaskLabel.NullPredicate",
+                        "O predicado de busca não pode ser nulo").Description);
+
+                var entities = await _taskLabelRepository.GetAll(cancellationToken);
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(TaskLabelMapper.ToDTO)
+                    .AsQueryable()
+                    .Where(predicate)
+                    .ToList();
+
+                return Result.Success<IEnumerable<TaskLabelDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar rótulos com predicado");
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.Problem(
+                    "TaskLabel.FindError",
+                    "Erro ao buscar rótulos").Description);
+            }
+        }
+
+        public async Task<Result<int>> CountAsync(Expression<Func<TaskLabelDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var all = await _taskLabelRepository.GetAll(cancellationToken);
+                var dtos = all
+                    .Where(e => e != null)
+                    .Select(TaskLabelMapper.ToDTO)
+                    .AsQueryable();
+
+                int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
+                return Result.Success(count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao contar rótulos");
+                return Result.Failure<int>(Error.Problem(
+                    "TaskLabel.CountError",
+                    "Erro ao contar rótulos").Description);
+            }
+        }
+
+        public async Task<Result<IEnumerable<int>>> CreateRangeAsync(IEnumerable<CreateTaskLabelDTO> dtos, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (dtos == null)
+                    return Result.Failure<IEnumerable<int>>(Error.Failure(
+                        "TaskLabel.NullData",
+                        "Lista de rótulos não pode ser nula").Description);
+
+                if (!dtos.Any())
+                    return Result.Failure<IEnumerable<int>>(Error.Failure(
+                        "TaskLabel.EmptyList",
+                        "Lista de rótulos está vazia").Description);
+
+                // Validação em lote
+                var invalidItems = dtos.Where(dto => string.IsNullOrWhiteSpace(dto.Name)).ToList();
+                if (invalidItems.Any())
+                    return Result.Failure<IEnumerable<int>>(Error.Failure(
+                        "TaskLabel.InvalidItems",
+                        "Há rótulos com dados inválidos na lista").Description);
+
+                var entities = dtos.Select(TaskLabelMapper.ToEntity).ToList();
+                await _taskLabelRepository.CreateRange(entities, cancellationToken);
+
+                return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id).ToList());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar múltiplos rótulos");
+                return Result.Failure<IEnumerable<int>>(Error.Problem(
+                    "TaskLabel.CreateRangeError",
+                    "Erro ao criar múltiplos rótulos").Description);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (ids == null || !ids.Any())
+                    return Result.Failure<bool>(Error.Failure(
+                        "TaskLabel.InvalidIds",
+                        "Lista de IDs inválida ou vazia").Description);
+
+                var entities = new List<TaskLabel>();
+                var notFoundIds = new List<int>();
+
+                foreach (var id in ids)
+                {
+                    var entity = await _taskLabelRepository.GetById(id, cancellationToken);
+                    if (entity != null)
+                        entities.Add(entity);
+                    else
+                        notFoundIds.Add(id);
+                }
+
+                if (notFoundIds.Any())
+                    return Result.Failure<bool>(Error.NotFound(
+                        "TaskLabel.SomeNotFound",
+                        $"Os seguintes rótulos não foram encontrados: {string.Join(", ", notFoundIds)}").Description);
+
+                if (!entities.Any())
+                    return Result.Failure<bool>(Error.NotFound(
+                        "TaskLabel.AllNotFound",
+                        "Nenhum dos rótulos foi encontrado").Description);
+
+                foreach (var entity in entities)
+                    await _taskLabelRepository.Delete(entity, cancellationToken);
+
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir múltiplos rótulos {LabelIds}", ids);
+                return Result.Failure<bool>(Error.Problem(
+                    "TaskLabel.DeleteRangeError",
+                    "Erro ao excluir múltiplos rótulos").Description);
+            }
         }
     }
 }

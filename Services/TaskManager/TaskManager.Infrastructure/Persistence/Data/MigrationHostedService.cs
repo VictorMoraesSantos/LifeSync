@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace TaskManager.Infrastructure.Data
+namespace TaskManager.Infrastructure.Persistence.Data
 {
     public class MigrationHostedService : IHostedService
     {

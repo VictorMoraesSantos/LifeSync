@@ -1,4 +1,5 @@
-﻿using Core.Application.Interfaces;
+﻿using BuildingBlocks.Results;
+using Core.Application.Interfaces;
 using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskItem;
 
@@ -10,6 +11,6 @@ namespace TaskManager.Application.Interfaces
         IUpdateService<UpdateTaskItemDTO>,
         IDeleteService<int>
     {
-        Task<IEnumerable<TaskItemDTO>> GetByFilterAsync(TaskItemFilterDTO filter, CancellationToken cancellationToken);
+        Task<Result<IEnumerable<TaskItemDTO>>> GetByFilterAsync(TaskItemFilterDTO filter, CancellationToken cancellationToken);
     }
 }

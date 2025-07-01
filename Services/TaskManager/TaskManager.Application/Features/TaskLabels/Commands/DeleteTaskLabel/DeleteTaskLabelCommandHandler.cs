@@ -1,10 +1,10 @@
 ﻿using BuildingBlocks.CQRS.Request;
-using BuildingBlocks.Exceptions;
+using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.DeleteTaskLabel
 {
-    public class DeleteTaskLabelCommandHandler : IRequestHandler<DeleteTaskLabelCommand, DeleteTaskLabelResult>
+    public class DeleteTaskLabelCommandHandler : IRequestHandler<DeleteTaskLabelCommand, Result<DeleteTaskLabelResult>>
     {
         private readonly ITaskLabelService _taskLabelService;
 
@@ -13,13 +13,13 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.DeleteTaskLabel
             _taskLabelService = taskLabelService;
         }
 
-        public async Task<DeleteTaskLabelResult> Handle(DeleteTaskLabelCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DeleteTaskLabelResult>> Handle(DeleteTaskLabelCommand command, CancellationToken cancellationToken)
         {
-            if (command == null)
-                throw new BadRequestException("Command cannot be null");
-
             var result = await _taskLabelService.DeleteAsync(command.Id, cancellationToken);
-            return new DeleteTaskLabelResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<DeleteTaskLabelResult>(result.Error!);
+
+            return Result.Success(new DeleteTaskLabelResult(result.Value!));
         }
     }
 }

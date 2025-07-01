@@ -1,9 +1,10 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Queries.GetAll
 {
-    public class GetAllTaskLabelsQueryHandler : IRequestHandler<GetAllTaskLabelsQuery, GetAllTaskLabelsResult>
+    public class GetAllTaskLabelsQueryHandler : IRequestHandler<GetAllTaskLabelsQuery, Result<GetAllTaskLabelsResult>>
     {
         private readonly ITaskLabelService _taskLabelService;
 
@@ -12,10 +13,13 @@ namespace TaskManager.Application.Features.TaskLabels.Queries.GetAll
             _taskLabelService = taskLabelService;
         }
 
-        public async Task<GetAllTaskLabelsResult> Handle(GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetAllTaskLabelsResult>> Handle(GetAllTaskLabelsQuery query, CancellationToken cancellationToken)
         {
             var result = await _taskLabelService.GetAllAsync(cancellationToken);
-            return new GetAllTaskLabelsResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<GetAllTaskLabelsResult>(result.Error!);
+
+            return Result.Success(new GetAllTaskLabelsResult(result.Value!));
         }
     }
 }

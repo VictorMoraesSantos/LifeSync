@@ -1,4 +1,5 @@
-﻿using Core.Application.Interfaces;
+﻿using BuildingBlocks.Results;
+using Core.Application.Interfaces;
 using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskLabel;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
@@ -11,6 +12,6 @@ namespace TaskManager.Application.Interfaces
         IUpdateService<UpdateTaskLabelDTO>,
         IDeleteService<int>
     {
-        Task<IEnumerable<TaskLabelDTO>> GetByFilterAsync(TaskLabelFilterDTO filter, CancellationToken cancellationToken);
+        Task<Result<IEnumerable<TaskLabelDTO>>> GetByFilterAsync(TaskLabelFilterDTO filter, CancellationToken cancellationToken);
     }
 }
