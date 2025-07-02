@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
-using Nutrition.Application.DTOs.Diary;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Diary.Queries.Get
 {
-    public class GetDiaryQueryHandler : IRequestHandler<GetDiaryQuery, GetDiaryResult>
+    public class GetDiaryQueryHandler : IQueryHandler<GetDiaryQuery, GetDiaryResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -13,11 +13,13 @@ namespace Nutrition.Application.Features.Diary.Queries.Get
             _diaryService = diaryService;
         }
 
-        public async Task<GetDiaryResult> Handle(GetDiaryQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetDiaryResult>> Handle(GetDiaryQuery query, CancellationToken cancellationToken)
         {
-            DiaryDTO? result = await _diaryService.GetByIdAsync(query.Id, cancellationToken);
+            var result = await _diaryService.GetByIdAsync(query.Id, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<GetDiaryResult>(result.Error!);
 
-            return new GetDiaryResult(result);
+            return Result.Success(new GetDiaryResult(result.Value!));
         }
     }
 }

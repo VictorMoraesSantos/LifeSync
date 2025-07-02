@@ -1,9 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿
+using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Diary.Commands.Delete
 {
-    public class DeleteDiaryCommandHandler : IRequestHandler<DeleteDiaryCommand, DeleteDiaryResult>
+    public class DeleteDiaryCommandHandler : ICommandHandler<DeleteDiaryCommand, DeleteDiaryResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -12,11 +14,13 @@ namespace Nutrition.Application.Features.Diary.Commands.Delete
             _diaryService = diaryService;
         }
 
-        public async Task<DeleteDiaryResult> Handle(DeleteDiaryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DeleteDiaryResult>> Handle(DeleteDiaryCommand command, CancellationToken cancellationToken)
         {
-            bool result = await _diaryService.DeleteAsync(command.Id);
+            var result = await _diaryService.DeleteAsync(command.Id);
+            if (!result.IsSuccess)
+                return Result.Failure<DeleteDiaryResult>(result.Error!);
 
-            return new DeleteDiaryResult(result);
+            return Result.Success(new DeleteDiaryResult(result.Value!));
         }
     }
 }

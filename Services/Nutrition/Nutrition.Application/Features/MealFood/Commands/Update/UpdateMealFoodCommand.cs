@@ -1,12 +1,13 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Request;
 
-namespace Nutrition.Application.Features.Meal.MealFood.Commands.Update
+namespace Nutrition.Application.Features.MealFood.Commands.Update
 {
     public record UpdateMealFoodCommand(
         int Id,
         string Name,
         int QuantityInGrams,
         int CaloriesPerUnit)
-        : IRequest<UpdateMealFoodResult>;
+        : ICommand<UpdateMealFoodResult>;
     public record UpdateMealFoodResult(bool IsSuccess);
 }

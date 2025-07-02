@@ -1,11 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
-using Nutrition.Application.DTOs.Diary;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.Meal;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Meal.Commands.Create
 {
-    public class CreateMealCommandHandler : IRequestHandler<CreateMealCommand, CreateMealResult>
+    public class CreateMealCommandHandler : ICommandHandler<CreateMealCommand, CreateMealResult>
     {
         private readonly IMealService _mealService;
         private readonly IDiaryService _diaryService;
@@ -16,17 +16,19 @@ namespace Nutrition.Application.Features.Meal.Commands.Create
             _diaryService = diaryService;
         }
 
-        public async Task<CreateMealResult> Handle(CreateMealCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateMealResult>> Handle(CreateMealCommand command, CancellationToken cancellationToken)
         {
-            DiaryDTO? diary = await _diaryService.GetByIdAsync(command.DiaryId, cancellationToken);
+            var diary = await _diaryService.GetByIdAsync(command.DiaryId, cancellationToken);
             if (diary == null)
-                return new CreateMealResult(false);
+                return Result.Failure<CreateMealResult>(diary?.Error!);
 
-            CreateMealDTO dto = new(command.Name, command.Description);
+            var dto = new CreateMealDTO(command.Name, command.Description);
 
-            bool result = await _diaryService.AddMealToDiaryAsync(command.DiaryId, dto, cancellationToken);
+            var result = await _diaryService.AddMealToDiaryAsync(command.DiaryId, dto, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<CreateMealResult>(result.Error!);
 
-            return new CreateMealResult(result);
+            return Result.Success(new CreateMealResult(result.Value));
         }
     }
 }

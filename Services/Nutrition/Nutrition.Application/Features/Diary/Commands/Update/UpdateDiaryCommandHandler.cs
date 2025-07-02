@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Diary.Commands.Update
 {
-    public class UpdateDiaryCommandHandler : IRequestHandler<UpdateDiaryCommand, UpdateDiaryResult>
+    public class UpdateDiaryCommandHandler : ICommandHandler<UpdateDiaryCommand, UpdateDiaryResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -13,13 +14,15 @@ namespace Nutrition.Application.Features.Diary.Commands.Update
             _diaryService = diaryService;
         }
 
-        public async Task<UpdateDiaryResult> Handle(UpdateDiaryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateDiaryResult>> Handle(UpdateDiaryCommand command, CancellationToken cancellationToken)
         {
             UpdateDiaryDTO dto = new(command.Id, command.Date);
 
-            bool result = await _diaryService.UpdateAsync(dto, cancellationToken);
+            var result = await _diaryService.UpdateAsync(dto, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<UpdateDiaryResult>(result.Error!);
 
-            return new UpdateDiaryResult(result);
+            return Result.Success(new UpdateDiaryResult(result.Value!));
         }
     }
 }

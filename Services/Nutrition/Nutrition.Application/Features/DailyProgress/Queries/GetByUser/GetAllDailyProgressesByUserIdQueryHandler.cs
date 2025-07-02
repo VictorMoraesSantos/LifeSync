@@ -1,7 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
-using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
-using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.DailyProgress.Queries.GetByUser

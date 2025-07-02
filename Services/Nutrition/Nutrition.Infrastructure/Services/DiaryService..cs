@@ -290,6 +290,9 @@ namespace Nutrition.Infrastructure.Services
                 if (dto == null)
                     return Result.Failure<bool>(Error.Failure("General", "NullData").Description);
 
+                if (string.IsNullOrWhiteSpace(dto.Name))
+                    return Result.Failure<bool>(Error.Failure("Meal", "NameRequired").Description);
+
                 Diary? diary = await _diaryRepository.GetById(diaryId, cancellationToken);
                 if (diary == null)
                     return Result.Failure<bool>(Error.NotFound("Diary", "NotFound").Description);
@@ -297,3 +300,23 @@ namespace Nutrition.Infrastructure.Services
                 Meal meal = MealMapper.ToEntity(dto);
                 meal.SetDiaryId(diaryId);
                 diary.AddMeal(meal);
+
+                await _diaryRepository.Update(diary, cancellationToken);
+
+                // Publicar eventos de domínio
+                foreach (var domainEvent in diary.DomainEvents)
+                {
+                    await _publisher.Publish(domainEvent, cancellationToken);
+                }
+                diary.ClearDomainEvents();
+
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao adicionar refeição ao diário {DiaryId}", diaryId);
+                return Result.Failure<bool>(Error.Problem("Diary", "AddMealError").Description);
+            }
+        }
+    }
+}

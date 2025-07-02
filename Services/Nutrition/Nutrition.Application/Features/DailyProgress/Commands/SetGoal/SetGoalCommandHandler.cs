@@ -1,11 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.DailyProgress.Commands.SetGoal
 {
-    public class SetGoalCommandHandler : IRequestHandler<SetGoalCommand, SetGoalResult>
+    public class SetGoalCommandHandler : ICommandHandler<SetGoalCommand, SetGoalResult>
     {
         private readonly IDailyProgressService _dailyProgressService;
 
@@ -18,9 +18,11 @@ namespace Nutrition.Application.Features.DailyProgress.Commands.SetGoal
         {
             DailyGoalDTO dto = command.Goal;
 
-            await _dailyProgressService.SetGoalAsync(command.DailyProgressId, dto, cancellationToken);
+            var result = await _dailyProgressService.SetGoalAsync(command.DailyProgressId, dto, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<SetGoalResult>(result.Error!);
 
-            return new SetGoalResult(true);
+            return Result.Success(new SetGoalResult(true));
         }
     }
 }

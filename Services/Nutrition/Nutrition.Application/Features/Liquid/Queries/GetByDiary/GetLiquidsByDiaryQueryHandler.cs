@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
-using Nutrition.Application.DTOs.Diary;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Liquid.Queries.GetByDiary
 {
-    public class GetLiquidsByDiaryQueryHandler : IRequestHandler<GetLiquidsByDiaryQuery, GetLiquidsByDiaryResult>
+    public class GetLiquidsByDiaryQueryHandler : IQueryHandler<GetLiquidsByDiaryQuery, GetLiquidsByDiaryResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -13,11 +13,13 @@ namespace Nutrition.Application.Features.Liquid.Queries.GetByDiary
             _diaryService = diaryService;
         }
 
-        public async Task<GetLiquidsByDiaryResult> Handle(GetLiquidsByDiaryQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetLiquidsByDiaryResult>> Handle(GetLiquidsByDiaryQuery query, CancellationToken cancellationToken)
         {
-            DiaryDTO? result = await _diaryService.GetByIdAsync(query.DiaryId, cancellationToken);
+            var result = await _diaryService.GetByIdAsync(query.DiaryId, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<GetLiquidsByDiaryResult>(result.Error!);
 
-            return new GetLiquidsByDiaryResult(result.Liquids);
+            return Result.Success(new GetLiquidsByDiaryResult(result.Value!.Liquids));
         }
     }
 }

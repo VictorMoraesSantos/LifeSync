@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.Meal;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Meal.Commands.Update
 {
-    public class UpdateMealCommandHandler : IRequestHandler<UpdateMealCommand, UpdateMealResult>
+    public class UpdateMealCommandHandler : ICommandHandler<UpdateMealCommand, UpdateMealResult>
     {
         private readonly IMealService _mealService;
 
@@ -13,13 +14,15 @@ namespace Nutrition.Application.Features.Meal.Commands.Update
             _mealService = mealService;
         }
 
-        public async Task<UpdateMealResult> Handle(UpdateMealCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateMealResult>> Handle(UpdateMealCommand command, CancellationToken cancellationToken)
         {
-            UpdateMealDTO dto = new(command.Id, command.Name, command.Description);
+            var dto = new UpdateMealDTO(command.Id, command.Name, command.Description);
 
-            bool result = await _mealService.UpdateAsync(dto, cancellationToken);
+            var result = await _mealService.UpdateAsync(dto, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<UpdateMealResult>(result.Error!);
 
-            return new UpdateMealResult(result);
+            return Result.Success(new UpdateMealResult(result.Value));
         }
     }
 }

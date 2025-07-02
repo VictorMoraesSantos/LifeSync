@@ -1,9 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Meal.Commands.Delete
 {
-    public class DeleteMealCommandHandler : IRequestHandler<DeleteMealCommand, DeleteMealResult>
+    public class DeleteMealCommandHandler : ICommandHandler<DeleteMealCommand, DeleteMealResult>
     {
         private readonly IMealService _mealService;
 
@@ -12,11 +13,13 @@ namespace Nutrition.Application.Features.Meal.Commands.Delete
             _mealService = mealService;
         }
 
-        public async Task<DeleteMealResult> Handle(DeleteMealCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DeleteMealResult>> Handle(DeleteMealCommand command, CancellationToken cancellationToken)
         {
-            bool result = await _mealService.DeleteAsync(command.Id, cancellationToken);
+            var result = await _mealService.DeleteAsync(command.Id, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<DeleteMealResult>(result.Error!);
 
-            return new DeleteMealResult(result);
+            return Result.Success(new DeleteMealResult(result.Value));
         }
     }
 }

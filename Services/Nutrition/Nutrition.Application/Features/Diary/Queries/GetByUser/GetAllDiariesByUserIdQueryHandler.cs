@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
-using Nutrition.Application.DTOs.Diary;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Diary.Queries.GetByUser
 {
-    public class GetAllDiariesByUserIdQueryHandler : IRequestHandler<GetAllDiariesByUserIdQuery, GetAllDiariesByUserIdResult>
+    public class GetAllDiariesByUserIdQueryHandler : IQueryHandler<GetAllDiariesByUserIdQuery, GetAllDiariesByUserIdResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -13,11 +13,13 @@ namespace Nutrition.Application.Features.Diary.Queries.GetByUser
             _diaryService = diaryService;
         }
 
-        public async Task<GetAllDiariesByUserIdResult> Handle(GetAllDiariesByUserIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetAllDiariesByUserIdResult>> Handle(GetAllDiariesByUserIdQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<DiaryDTO> result = await _diaryService.GetAllByUserIdAsync(query.UserId, cancellationToken);
+            var result = await _diaryService.GetAllByUserIdAsync(query.UserId, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<GetAllDiariesByUserIdResult>(result.Error!);
 
-            return new GetAllDiariesByUserIdResult(result);
+            return Result.Success(new GetAllDiariesByUserIdResult(result.Value!));
         }
     }
 }

@@ -2,12 +2,12 @@
 using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
-using Nutrition.Application.Features.Meal.MealFood.Commands.Create;
-using Nutrition.Application.Features.Meal.MealFood.Commands.Delete;
-using Nutrition.Application.Features.Meal.MealFood.Commands.Update;
-using Nutrition.Application.Features.Meal.MealFood.Queries.Get;
-using Nutrition.Application.Features.Meal.MealFood.Queries.GetAll;
-using Nutrition.Application.Features.Meal.MealFood.Queries.GetByMeal;
+using Nutrition.Application.Features.MealFood.Commands.Create;
+using Nutrition.Application.Features.MealFood.Commands.Delete;
+using Nutrition.Application.Features.MealFood.Commands.Update;
+using Nutrition.Application.Features.MealFood.Queries.Get;
+using Nutrition.Application.Features.MealFood.Queries.GetAll;
+using Nutrition.Application.Features.MealFood.Queries.GetByMeal;
 
 namespace Nutrition.API.Controllers
 {

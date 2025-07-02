@@ -1,6 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Commands;
-using BuildingBlocks.CQRS.Request;
-using System.Windows.Input;
 
 namespace Financial.Application.Features.Categories.Commands.Delete
 {

@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
-using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 using Financial.Application.DTOs.Category;

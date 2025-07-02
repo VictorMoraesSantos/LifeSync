@@ -1,8 +1,6 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
-using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using Financial.Application.Contracts;
-using System.Reflection;
 
 namespace Financial.Application.Features.Categories.Queries.GetById
 {

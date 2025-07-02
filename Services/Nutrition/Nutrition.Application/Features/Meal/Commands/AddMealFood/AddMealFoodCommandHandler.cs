@@ -1,9 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Meal.Commands.AddMealFood
 {
-    public class AddMealFoodCommandHandler : IRequestHandler<AddMealFoodCommand, AddMealFoodResult>
+    public class AddMealFoodCommandHandler : ICommandHandler<AddMealFoodCommand, AddMealFoodResult>
     {
         private readonly IMealService _mealService;
 
@@ -12,11 +13,13 @@ namespace Nutrition.Application.Features.Meal.Commands.AddMealFood
             _mealService = mealService;
         }
 
-        public async Task<AddMealFoodResult> Handle(AddMealFoodCommand command, CancellationToken cancellationToken)
+        public async Task<Result<AddMealFoodResult>> Handle(AddMealFoodCommand command, CancellationToken cancellationToken)
         {
-            bool result = await _mealService.AddMealFoodAsync(command.MealId, command.MealFood, cancellationToken);
+            var result = await _mealService.AddMealFoodAsync(command.MealId, command.MealFood, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<AddMealFoodResult>(result.Error!);
 
-            return new AddMealFoodResult(result);
+            return Result.Success(new AddMealFoodResult(result.Value));
         }
     }
 }

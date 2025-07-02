@@ -1,6 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Commands;
-using BuildingBlocks.CQRS.Queries;
-using BuildingBlocks.CQRS.Request;
 
 namespace Financial.Application.Features.Categories.Commands.Create
 {

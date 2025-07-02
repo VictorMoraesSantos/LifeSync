@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.Liquid;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Liquid.Commands.Create
 {
-    public class CreateLiquidCommandHandler : IRequestHandler<CreateLiquidCommand, CreateLiquidResult>
+    public class CreateLiquidCommandHandler : ICommandHandler<CreateLiquidCommand, CreateLiquidResult>
     {
         private readonly ILiquidService _liquidService;
 
@@ -13,7 +14,7 @@ namespace Nutrition.Application.Features.Liquid.Commands.Create
             _liquidService = liquidService;
         }
 
-        public async Task<CreateLiquidResult> Handle(CreateLiquidCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateLiquidResult>> Handle(CreateLiquidCommand command, CancellationToken cancellationToken)
         {
             CreateLiquidDTO liquid = new(
                 command.DiaryId,
@@ -21,9 +22,11 @@ namespace Nutrition.Application.Features.Liquid.Commands.Create
                 command.QuantityMl,
                 command.CaloriesPerMl);
 
-            int result = await _liquidService.CreateAsync(liquid, cancellationToken);
+            var result = await _liquidService.CreateAsync(liquid, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<CreateLiquidResult>(result.Error!);
 
-            return new CreateLiquidResult(result);
+            return Result.Success(new CreateLiquidResult(result.Value!));
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Queries;
 using Nutrition.Application.DTOs.Liquid;
 
 namespace Nutrition.Application.Features.Liquid.Queries.GetAll
 {
-    public record GetAllLiquidsQuery : IRequest<GetAllLiquidsResult>;
+    public record GetAllLiquidsQuery : IQuery<GetAllLiquidsResult>;
     public record GetAllLiquidsResult(IEnumerable<LiquidDTO> Liquids);
 }

@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
-using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;

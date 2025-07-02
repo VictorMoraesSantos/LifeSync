@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.Liquid;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Liquid.Commands.Update
 {
-    public class UpdateLiquidCommandHandler : IRequestHandler<UpdateLiquidCommand, UpdateLiquidResult>
+    public class UpdateLiquidCommandHandler : ICommandHandler<UpdateLiquidCommand, UpdateLiquidResult>
     {
         private readonly ILiquidService _liquidService;
 
@@ -13,7 +14,7 @@ namespace Nutrition.Application.Features.Liquid.Commands.Update
             _liquidService = liquidService;
         }
 
-        public async Task<UpdateLiquidResult> Handle(UpdateLiquidCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateLiquidResult>> Handle(UpdateLiquidCommand command, CancellationToken cancellationToken)
         {
             UpdateLiquidDTO dto = new(
                 command.Id,
@@ -22,9 +23,11 @@ namespace Nutrition.Application.Features.Liquid.Commands.Update
                 command.CaloriesPerMl
             );
 
-            bool result = await _liquidService.UpdateAsync(dto, cancellationToken);
+            var result = await _liquidService.UpdateAsync(dto, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<UpdateLiquidResult>(result.Error!);
 
-            return new UpdateLiquidResult(result);
+            return Result.Success(new UpdateLiquidResult(result.Value!));
         }
     }
 }

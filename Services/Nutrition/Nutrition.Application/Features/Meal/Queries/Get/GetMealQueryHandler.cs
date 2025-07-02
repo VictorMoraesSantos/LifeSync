@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
-using Nutrition.Application.DTOs.Meal;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Meal.Queries.Get
 {
-    public class GetMealQueryHandler : IRequestHandler<GetMealQuery, GetMealResult>
+    public class GetMealQueryHandler : IQueryHandler<GetMealQuery, GetMealResult>
     {
         private readonly IMealService _mealService;
 
@@ -13,11 +13,13 @@ namespace Nutrition.Application.Features.Meal.Queries.Get
             _mealService = mealService;
         }
 
-        public async Task<GetMealResult> Handle(GetMealQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetMealResult>> Handle(GetMealQuery query, CancellationToken cancellationToken)
         {
-            MealDTO? result = await _mealService.GetByIdAsync(query.Id, cancellationToken);
+            var result = await _mealService.GetByIdAsync(query.Id, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<GetMealResult>(result.Error!);
 
-            return new GetMealResult(result);
+            return Result.Success(new GetMealResult(result.Value!));
         }
     }
 }

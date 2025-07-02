@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
-using Nutrition.Application.DTOs.Liquid;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Liquid.Queries.GetAll
 {
-    public class GetAllLiquidsQueryHandler : IRequestHandler<GetAllLiquidsQuery, GetAllLiquidsResult>
+    public class GetAllLiquidsQueryHandler : IQueryHandler<GetAllLiquidsQuery, GetAllLiquidsResult>
     {
         private readonly ILiquidService _liquidService;
 
@@ -13,11 +13,13 @@ namespace Nutrition.Application.Features.Liquid.Queries.GetAll
             _liquidService = liquidService;
         }
 
-        public async Task<GetAllLiquidsResult> Handle(GetAllLiquidsQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetAllLiquidsResult>> Handle(GetAllLiquidsQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<LiquidDTO?> result = await _liquidService.GetAllAsync(cancellationToken);
+            var result = await _liquidService.GetAllAsync(cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<GetAllLiquidsResult>(result.Error!);
 
-            return new GetAllLiquidsResult(result);
+            return Result.Success(new GetAllLiquidsResult(result.Value!));
         }
     }
 }

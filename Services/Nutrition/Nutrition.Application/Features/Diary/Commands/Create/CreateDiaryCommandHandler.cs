@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.Diary.Commands.Create
 {
-    public class CreateDiaryCommandHandler : IRequestHandler<CreateDiaryCommand, CreateDiaryResult>
+    public class CreateDiaryCommandHandler : ICommandHandler<CreateDiaryCommand, CreateDiaryResult>
     {
         private readonly IDiaryService _diaryService;
 
@@ -13,13 +14,15 @@ namespace Nutrition.Application.Features.Diary.Commands.Create
             _diaryService = diaryService;
         }
 
-        public async Task<CreateDiaryResult> Handle(CreateDiaryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateDiaryResult>> Handle(CreateDiaryCommand command, CancellationToken cancellationToken)
         {
             CreateDiaryDTO dto = new(command.userId, command.date);
 
-            int result = await _diaryService.CreateAsync(dto, cancellationToken);
+            var result = await _diaryService.CreateAsync(dto, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<CreateDiaryResult>(result.Error!);
 
-            return new CreateDiaryResult(result);
+            return Result.Success(new CreateDiaryResult(result.Value!));
         }
     }
 }
