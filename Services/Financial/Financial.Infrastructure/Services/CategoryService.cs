@@ -1,8 +1,10 @@
-﻿using Financial.Application.Contracts;
+﻿using BuildingBlocks.Results;
+using Financial.Application.Contracts;
 using Financial.Application.DTOs.Category;
 using Financial.Application.Mappings;
 using Financial.Domain.Entities;
 using Financial.Domain.Repositories;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace Financial.Infrastructure.Services
@@ -10,144 +12,288 @@ namespace Financial.Infrastructure.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ILogger<CategoryService> _logger;
 
-        public CategoryService(ICategoryRepository categoryRepository)
+        public CategoryService(
+            ICategoryRepository categoryRepository,
+            ILogger<CategoryService> logger)
         {
             _categoryRepository = categoryRepository;
+            _logger = logger;
         }
 
-        public async Task<int> CountAsync(Expression<Func<CategoryDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
+        public async Task<Result<int>> CountAsync(Expression<Func<CategoryDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
         {
-            var all = await _categoryRepository.GetAll(cancellationToken);
-            return all.Count();
-
-        }
-
-        public async Task<int> CreateAsync(CreateCategoryDTO dto, CancellationToken cancellationToken = default)
-        {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-
-            var entity = CategoryMapper.ToEntity(dto);
-
-            await _categoryRepository.Create(entity, cancellationToken);
-
-            return entity.Id;
-        }
-
-        public async Task<IEnumerable<int>> CreateRangeAsync(IEnumerable<CreateCategoryDTO> dto, CancellationToken cancellationToken = default)
-        {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-
-            var entities = dto.Select(CategoryMapper.ToEntity).ToList();
-
-            await _categoryRepository.CreateRange(entities, cancellationToken);
-
-            return entities.Select(e => e.Id);
-        }
-
-        public async Task<bool> DeleteAsync(int dto, CancellationToken cancellationToken = default)
-        {
-            if (dto <= 0) throw new ArgumentOutOfRangeException(nameof(dto), "ID must be greater than zero.");
-
-            var entity = await _categoryRepository.GetById(dto, cancellationToken);
-            if (entity == null) return false;
-
-            await _categoryRepository.Delete(entity, cancellationToken);
-
-            return true;
-        }
-
-        public async Task<bool> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
-        {
-            if (ids == null || !ids.Any()) return false;
-
-            List<Category> entities = new();
-            foreach (var id in ids)
+            try
             {
-                Category? entity = await _categoryRepository.GetById(id, cancellationToken);
-                if (entity != null)
-                    entities.Add(entity);
+                var all = await _categoryRepository.GetAll(cancellationToken);
+                return Result.Success(all.Count());
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao contar categorias");
+                return Result.Failure<int>("Erro ao contar categorias");
+            }
+        }
 
-            if (!entities.Any()) return false;
+        public async Task<Result<int>> CreateAsync(CreateCategoryDTO dto, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (dto == null)
+                    return Result.Failure<int>("Dados da categoria não podem ser nulos");
 
-            foreach (var entity in entities)
+                if (string.IsNullOrWhiteSpace(dto.Name))
+                    return Result.Failure<int>("O nome da categoria é obrigatório");
+
+                var entity = CategoryMapper.ToEntity(dto);
+                await _categoryRepository.Create(entity, cancellationToken);
+
+                return Result.Success(entity.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar categoria {@CategoryData}", dto);
+                return Result.Failure<int>("Erro ao criar categoria");
+            }
+        }
+
+        public async Task<Result<IEnumerable<int>>> CreateRangeAsync(IEnumerable<CreateCategoryDTO> dtos, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (dtos == null)
+                    return Result.Failure<IEnumerable<int>>("Lista de categorias não pode ser nula");
+
+                if (!dtos.Any())
+                    return Result.Failure<IEnumerable<int>>("Lista de categorias está vazia");
+
+                // Validação em lote
+                var invalidItems = dtos.Where(dto => string.IsNullOrWhiteSpace(dto.Name)).ToList();
+                if (invalidItems.Any())
+                    return Result.Failure<IEnumerable<int>>("Há categorias com dados inválidos na lista");
+
+                var entities = dtos.Select(CategoryMapper.ToEntity).ToList();
+                await _categoryRepository.CreateRange(entities, cancellationToken);
+
+                return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar múltiplas categorias");
+                return Result.Failure<IEnumerable<int>>("Erro ao criar múltiplas categorias");
+            }
+        }
+
+        public async Task<Result<bool>> DeleteAsync(int id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (id <= 0)
+                    return Result.Failure<bool>("ID deve ser maior que zero");
+
+                var entity = await _categoryRepository.GetById(id, cancellationToken);
+                if (entity == null)
+                    return Result.Failure<bool>($"Categoria com ID {id} não encontrada");
+
                 await _categoryRepository.Delete(entity, cancellationToken);
-
-            return true;
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir categoria {CategoryId}", id);
+                return Result.Failure<bool>("Erro ao excluir categoria");
+            }
         }
 
-        public async Task<IEnumerable<CategoryDTO>> FindAsync(Expression<Func<CategoryDTO, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<Result<bool>> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
         {
-            IEnumerable<Category?> entities = await _categoryRepository.GetAll(cancellationToken);
-            IEnumerable<CategoryDTO> dtos = entities.Select(CategoryMapper.ToDTO);
-            return dtos;
+            try
+            {
+                if (ids == null || !ids.Any())
+                    return Result.Failure<bool>("Lista de IDs inválida ou vazia");
+
+                var entities = new List<Category>();
+                var notFoundIds = new List<int>();
+
+                foreach (var id in ids)
+                {
+                    var entity = await _categoryRepository.GetById(id, cancellationToken);
+                    if (entity != null)
+                        entities.Add(entity);
+                    else
+                        notFoundIds.Add(id);
+                }
+
+                if (notFoundIds.Any())
+                    return Result.Failure<bool>($"As seguintes categorias não foram encontradas: {string.Join(", ", notFoundIds)}");
+
+                if (!entities.Any())
+                    return Result.Failure<bool>("Nenhuma das categorias foi encontrada");
+
+                foreach (var entity in entities)
+                    await _categoryRepository.Delete(entity, cancellationToken);
+
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir múltiplas categorias {CategoryIds}", ids);
+                return Result.Failure<bool>("Erro ao excluir múltiplas categorias");
+            }
         }
 
-        public async Task<IEnumerable<CategoryDTO>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<Result<IEnumerable<CategoryDTO>>> FindAsync(Expression<Func<CategoryDTO, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            IEnumerable<Category?> entities = await _categoryRepository.GetAll(cancellationToken);
-            IEnumerable<CategoryDTO> dtos = entities.Select(CategoryMapper.ToDTO);
-            return dtos;
+            try
+            {
+                if (predicate == null)
+                    return Result.Failure<IEnumerable<CategoryDTO>>("O predicado de busca não pode ser nulo");
+
+                var entities = await _categoryRepository.GetAll(cancellationToken);
+                var dtos = entities.Select(CategoryMapper.ToDTO).AsQueryable().Where(predicate).ToList();
+
+                return Result.Success<IEnumerable<CategoryDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar categorias com predicado");
+                return Result.Failure<IEnumerable<CategoryDTO>>("Erro ao buscar categorias");
+            }
         }
 
-        public async Task<CategoryDTO?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<Result<IEnumerable<CategoryDTO>>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "ID must be greater than zero.");
+            try
+            {
+                var entities = await _categoryRepository.GetAll(cancellationToken);
+                var dtos = entities.Select(CategoryMapper.ToDTO).ToList();
 
-            Category? entity = await _categoryRepository.GetById(id, cancellationToken);
-
-            CategoryDTO? dto = CategoryMapper.ToDTO(entity);
-
-            return dto;
+                return Result.Success<IEnumerable<CategoryDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar todas as categorias");
+                return Result.Failure<IEnumerable<CategoryDTO>>("Erro ao buscar todas as categorias");
+            }
         }
 
-        public async Task<IEnumerable<CategoryDTO?>> GetByNameAsync(string name, int userId, CancellationToken cancellationToken = default)
+        public async Task<Result<CategoryDTO>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name), "Name cannot be null or whitespace.");
-            if (userId <= 0) throw new ArgumentOutOfRangeException(nameof(userId), "User ID must be greater than zero.");
+            try
+            {
+                if (id <= 0)
+                    return Result.Failure<CategoryDTO>("ID deve ser maior que zero");
 
-            IEnumerable<Category?> entities = await _categoryRepository.GetByNameContains(name, cancellationToken);
-            IEnumerable<CategoryDTO?> dtos = entities.Select(CategoryMapper.ToDTO);
+                var entity = await _categoryRepository.GetById(id, cancellationToken);
+                if (entity == null)
+                    return Result.Failure<CategoryDTO>($"Categoria com ID {id} não encontrada");
 
-            return dtos;
+                var dto = CategoryMapper.ToDTO(entity);
+                return Result.Success(dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar categoria {CategoryId}", id);
+                return Result.Failure<CategoryDTO>("Erro ao buscar categoria");
+            }
         }
 
-        public async Task<IEnumerable<CategoryDTO?>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+        public async Task<Result<IEnumerable<CategoryDTO>>> GetByNameAsync(string name, int userId, CancellationToken cancellationToken = default)
         {
-            if (userId <= 0) throw new ArgumentOutOfRangeException(nameof(userId), "User ID must be greater than zero.");
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                    return Result.Failure<IEnumerable<CategoryDTO>>("Nome não pode ser nulo ou em branco");
 
-            IEnumerable<Category?> entities = await _categoryRepository.GetAllByUserId(userId, cancellationToken);
-            IEnumerable<CategoryDTO?> dtos = entities.Select(CategoryMapper.ToDTO);
+                if (userId <= 0)
+                    return Result.Failure<IEnumerable<CategoryDTO>>("ID do usuário deve ser maior que zero");
 
-            return dtos;
+                var entities = await _categoryRepository.GetByNameContains(name, cancellationToken);
+                var dtos = entities.Select(CategoryMapper.ToDTO).ToList();
+
+                return Result.Success<IEnumerable<CategoryDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar categorias por nome {Name} e usuário {UserId}", name, userId);
+                return Result.Failure<IEnumerable<CategoryDTO>>("Erro ao buscar categorias por nome");
+            }
         }
 
-        public async Task<(IEnumerable<CategoryDTO> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<Result<IEnumerable<CategoryDTO>>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
         {
-            if (page <= 0) throw new ArgumentOutOfRangeException(nameof(page), "Page must be greater than zero.");
-            if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than zero.");
-            IEnumerable<Category?> entities = await _categoryRepository.GetAll(cancellationToken);
-            int totalCount = entities.Count();
-            IEnumerable<CategoryDTO> dtos = entities.Select(CategoryMapper.ToDTO)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize);
-            return (dtos, totalCount);
+            try
+            {
+                if (userId <= 0)
+                    return Result.Failure<IEnumerable<CategoryDTO>>("ID do usuário deve ser maior que zero");
+
+                var entities = await _categoryRepository.GetAllByUserId(userId, cancellationToken);
+                var dtos = entities.Select(CategoryMapper.ToDTO).ToList();
+
+                return Result.Success<IEnumerable<CategoryDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar categorias do usuário {UserId}", userId);
+                return Result.Failure<IEnumerable<CategoryDTO>>("Erro ao buscar categorias do usuário");
+            }
         }
 
-        public async Task<bool> UpdateAsync(UpdateCategoryDTO dto, CancellationToken cancellationToken = default)
+        public async Task<Result<(IEnumerable<CategoryDTO> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (dto.Id <= 0) throw new ArgumentOutOfRangeException(nameof(dto.Id), "ID must be greater than zero.");
+            try
+            {
+                if (page <= 0)
+                    return Result.Failure<(IEnumerable<CategoryDTO>, int)>("Página deve ser maior que zero");
 
-            var entity = await _categoryRepository.GetById(dto.Id, cancellationToken);
-            if (entity == null) return false;
+                if (pageSize <= 0)
+                    return Result.Failure<(IEnumerable<CategoryDTO>, int)>("Tamanho da página deve ser maior que zero");
 
-            entity.Update(dto.Name, dto.Description);
+                var entities = await _categoryRepository.GetAll(cancellationToken);
+                int totalCount = entities.Count();
 
-            await _categoryRepository.Update(entity, cancellationToken);
+                var dtos = entities.Select(CategoryMapper.ToDTO)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
 
-            return true;
+                return Result.Success<(IEnumerable<CategoryDTO> Items, int TotalCount)>((dtos, totalCount));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter página de categorias (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
+                return Result.Failure<(IEnumerable<CategoryDTO>, int)>("Erro ao obter página de categorias");
+            }
+        }
+
+        public async Task<Result<bool>> UpdateAsync(UpdateCategoryDTO dto, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (dto == null)
+                    return Result.Failure<bool>("Dados da categoria não podem ser nulos");
+
+                if (dto.Id <= 0)
+                    return Result.Failure<bool>("ID deve ser maior que zero");
+
+                if (string.IsNullOrWhiteSpace(dto.Name))
+                    return Result.Failure<bool>("O nome da categoria é obrigatório");
+
+                var entity = await _categoryRepository.GetById(dto.Id, cancellationToken);
+                if (entity == null)
+                    return Result.Failure<bool>($"Categoria com ID {dto.Id} não encontrada");
+
+                entity.Update(dto.Name, dto.Description);
+                await _categoryRepository.Update(entity, cancellationToken);
+
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar categoria {@CategoryData}", dto);
+                return Result.Failure<bool>("Erro ao atualizar categoria");
+            }
         }
     }
 }

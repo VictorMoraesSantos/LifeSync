@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 using Financial.Application.DTOs.Category;
 
 namespace Financial.Application.Features.Categories.Commands.Create
 {
-    public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, CreateCategoryResult>
+    public class CreateCategoryCommandHandler : ICommandHandler<CreateCategoryCommand, CreateCategoryResult>
     {
         private readonly ICategoryService _categoryService;
 
@@ -13,11 +15,14 @@ namespace Financial.Application.Features.Categories.Commands.Create
             _categoryService = categoryService;
         }
 
-        public async Task<CreateCategoryResult> Handle(CreateCategoryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateCategoryResult>> Handle(CreateCategoryCommand command, CancellationToken cancellationToken)
         {
-            CreateCategoryDTO dto = new(command.UserId, command.Name, command.Description);
+            var dto = new CreateCategoryDTO(command.UserId, command.Name, command.Description);
             var result = await _categoryService.CreateAsync(dto, cancellationToken);
-            return new CreateCategoryResult(result);
+            if (!result.IsSuccess)
+                return Result<CreateCategoryResult>.Failure(result.Error!);
+
+            return Result.Success(new CreateCategoryResult(result.Value!));
         }
     }
 }

@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Queries.GetByFilter
 {
-    public class GetByFilterQueryHandler : IRequestHandler<GetByFilterQuery, Result<GetByFilterResult>>
+    public class GetByFilterQueryHandler : IQueryHandler<GetByFilterQuery, GetByFilterResult>
     {
         private readonly ITaskItemService _taskItemService;
 

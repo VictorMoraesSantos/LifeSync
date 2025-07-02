@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Queries.GetById
 {
-    public class GetTaskItemByIdQueryHandler : IRequestHandler<GetTaskItemByIdQuery, Result<GetTaskItemByIdResult>>
+    public class GetTaskItemByIdQueryHandler : IQueryHandler<GetTaskItemByIdQuery, GetTaskItemByIdResult>
     {
         private readonly ITaskItemService _taskItemService;
 

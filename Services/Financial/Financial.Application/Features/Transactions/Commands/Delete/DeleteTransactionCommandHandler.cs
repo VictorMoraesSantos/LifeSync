@@ -1,9 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 
 namespace Financial.Application.Features.Transactions.Commands.Delete
 {
-    public record DeleteTransactionCommandHandler : IRequestHandler<DeleteTransactionCommand, DeleteTransactionResult>
+    public record DeleteTransactionCommandHandler : ICommandHandler<DeleteTransactionCommand, DeleteTransactionResult>
     {
         private readonly ITransactionService _transactionService;
 
@@ -12,10 +14,13 @@ namespace Financial.Application.Features.Transactions.Commands.Delete
             _transactionService = transactionService;
         }
 
-        public async Task<DeleteTransactionResult> Handle(DeleteTransactionCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DeleteTransactionResult>> Handle(DeleteTransactionCommand command, CancellationToken cancellationToken)
         {
             var result = await _transactionService.DeleteAsync(command.Id, cancellationToken);
-            return new DeleteTransactionResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<DeleteTransactionResult>(result.Error!);
+
+            return Result.Success(new DeleteTransactionResult(result.Value!));
         }
     }
 }

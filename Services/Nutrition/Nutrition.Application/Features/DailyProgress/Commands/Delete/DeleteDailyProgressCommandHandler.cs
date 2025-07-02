@@ -1,9 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.DailyProgress.Commands.Delete
 {
-    public class DeleteDailyProgressCommandHandler : IRequestHandler<DeleteDailyProgressCommand, DeleteDailyProgressResult>
+    public class DeleteDailyProgressCommandHandler : ICommandHandler<DeleteDailyProgressCommand, DeleteDailyProgressResult>
     {
         private readonly IDailyProgressService _dailyProgressService;
 
@@ -12,11 +14,13 @@ namespace Nutrition.Application.Features.DailyProgress.Commands.Delete
             _dailyProgressService = dailyProgressService;
         }
 
-        public async Task<DeleteDailyProgressResult> Handle(DeleteDailyProgressCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DeleteDailyProgressResult>> Handle(DeleteDailyProgressCommand command, CancellationToken cancellationToken)
         {
-            bool result = await _dailyProgressService.DeleteAsync(command.Id, cancellationToken);
+            var result = await _dailyProgressService.DeleteAsync(command.Id, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<DeleteDailyProgressResult>(result.Error!);
 
-            return new DeleteDailyProgressResult(result);
+            return Result.Success(new DeleteDailyProgressResult(result.Value!));
         }
     }
 }

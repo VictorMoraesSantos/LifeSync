@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.DailyProgress.Commands.Create
 {
-    public class CreateDailyProgressCommandHandler : IRequestHandler<CreateDailyProgressCommand, CreateDailyProgressResult>
+    public class CreateDailyProgressCommandHandler : ICommandHandler<CreateDailyProgressCommand, CreateDailyProgressResult>
     {
         private readonly IDailyProgressService _dailyProgressService;
 
@@ -13,7 +15,7 @@ namespace Nutrition.Application.Features.DailyProgress.Commands.Create
             _dailyProgressService = dailyProgressService;
         }
 
-        public async Task<CreateDailyProgressResult> Handle(CreateDailyProgressCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateDailyProgressResult>> Handle(CreateDailyProgressCommand command, CancellationToken cancellationToken)
         {
             CreateDailyProgressDTO dto = new(
                 command.UserId,
@@ -21,8 +23,11 @@ namespace Nutrition.Application.Features.DailyProgress.Commands.Create
                 command.CaloriesConsumed,
                 command.LiquidsConsumedMl);
 
-            int result = await _dailyProgressService.CreateAsync(dto, cancellationToken);
-            return new CreateDailyProgressResult(result);
+            var result = await _dailyProgressService.CreateAsync(dto, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<CreateDailyProgressResult>(result.Error!);
+
+            return Result.Success(new CreateDailyProgressResult(result.Value!));
         }
     }
 }

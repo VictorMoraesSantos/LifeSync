@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Queries.GetById
 {
-    public class GetTaskLabelByIdQueryHandler : IRequestHandler<GetTaskLabelByIdQuery, Result<GetTaskLabelByIdResult>>
+    public class GetTaskLabelByIdQueryHandler : IQueryHandler<GetTaskLabelByIdQuery, GetTaskLabelByIdResult>
     {
         private readonly ITaskLabelService _taskLabelService;
 

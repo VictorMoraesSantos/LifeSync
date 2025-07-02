@@ -1,9 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 
 namespace Financial.Application.Features.Categories.Queries.GetAll
 {
-    public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, GetAllCategoriesResult>
+    public class GetAllCategoriesQueryHandler : IQueryHandler<GetAllCategoriesQuery, GetAllCategoriesResult>
     {
         private readonly ICategoryService _categoryService;
 
@@ -12,10 +14,13 @@ namespace Financial.Application.Features.Categories.Queries.GetAll
             _categoryService = categoryService;
         }
 
-        public async Task<GetAllCategoriesResult> Handle(GetAllCategoriesQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetAllCategoriesResult>> Handle(GetAllCategoriesQuery query, CancellationToken cancellationToken)
         {
-            var categories = await _categoryService.GetAllAsync(cancellationToken);
-            return new GetAllCategoriesResult(categories);
+            var result = await _categoryService.GetAllAsync(cancellationToken);
+            if (!result.IsSuccess)
+                return Result<GetAllCategoriesResult>.Failure(result.Error!);
+
+            return Result.Success(new GetAllCategoriesResult(result.Value!));
         }
     }
 }

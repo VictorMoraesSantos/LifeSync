@@ -1,4 +1,6 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Queries;
+using BuildingBlocks.CQRS.Request;
 
 namespace Financial.Application.Features.Categories.Commands.Create
 {
@@ -6,6 +8,6 @@ namespace Financial.Application.Features.Categories.Commands.Create
         int UserId,
         string Name,
         string? Description)
-        : IRequest<CreateCategoryResult>;
+        : ICommand<CreateCategoryResult>;
     public record CreateCategoryResult(int Id);
 }

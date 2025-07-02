@@ -1,11 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
 {
-    public class CreateTaskItemCommandHandler : IRequestHandler<CreateTaskItemCommand, Result<CreateTaskItemResult>>
+    public class CreateTaskItemCommandHandler : ICommandHandler<CreateTaskItemCommand, CreateTaskItemResult>
     {
         private readonly ITaskItemService _taskItemService;
 

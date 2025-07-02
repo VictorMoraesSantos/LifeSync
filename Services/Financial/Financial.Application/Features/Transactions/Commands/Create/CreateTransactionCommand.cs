@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Request;
 using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
 
@@ -12,6 +13,6 @@ namespace Financial.Application.Features.Transactions.Commands.Create
         Money Amount,
         string Description,
         DateTime TransactionDate,
-        bool IsRecurring = false) : IRequest<CreateTransactionResult>;
+        bool IsRecurring = false) : ICommand<CreateTransactionResult>;
     public record CreateTransactionResult(int TransactionId);
 }

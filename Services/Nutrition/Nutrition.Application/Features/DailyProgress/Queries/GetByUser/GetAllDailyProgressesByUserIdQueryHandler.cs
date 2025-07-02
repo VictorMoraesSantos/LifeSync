@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.DailyProgress.Queries.GetByUser
 {
-    public class GetAllDailyProgressesByUserIdQueryHandler : IRequestHandler<GetAllDailyProgressesByUserIdQuery, GetAllDailyProgressesByUserIdResult>
+    public class GetAllDailyProgressesByUserIdQueryHandler : IQueryHandler<GetAllDailyProgressesByUserIdQuery, GetAllDailyProgressesByUserIdResult>
     {
         private readonly IDailyProgressService _dailyProgressService;
 
@@ -13,11 +15,13 @@ namespace Nutrition.Application.Features.DailyProgress.Queries.GetByUser
             _dailyProgressService = dailyProgressService;
         }
 
-        public async Task<GetAllDailyProgressesByUserIdResult> Handle(GetAllDailyProgressesByUserIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetAllDailyProgressesByUserIdResult>> Handle(GetAllDailyProgressesByUserIdQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<DailyProgressDTO> result = await _dailyProgressService.GetByUserIdAsync(query.UserId, cancellationToken);
+            var result = await _dailyProgressService.GetByUserIdAsync(query.UserId, cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<GetAllDailyProgressesByUserIdResult>(result.Error!);
 
-            return new GetAllDailyProgressesByUserIdResult(result);
+            return Result.Success(new GetAllDailyProgressesByUserIdResult(result.Value!));
         }
     }
 }

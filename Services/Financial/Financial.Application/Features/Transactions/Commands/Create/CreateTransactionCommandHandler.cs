@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 using Financial.Application.DTOs.Transaction;
 
 namespace Financial.Application.Features.Transactions.Commands.Create
 {
-    public class CreateTransactionCommandHandler : IRequestHandler<CreateTransactionCommand, CreateTransactionResult>
+    public class CreateTransactionCommandHandler : ICommandHandler<CreateTransactionCommand, CreateTransactionResult>
     {
         private readonly ITransactionService _transactionService;
 
@@ -13,7 +15,7 @@ namespace Financial.Application.Features.Transactions.Commands.Create
             _transactionService = transactionService;
         }
 
-        public async Task<CreateTransactionResult> Handle(CreateTransactionCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateTransactionResult>> Handle(CreateTransactionCommand command, CancellationToken cancellationToken)
         {
             var dto = new CreateTransactionDTO(
                 command.UserId,
@@ -26,7 +28,10 @@ namespace Financial.Application.Features.Transactions.Commands.Create
                 command.IsRecurring);
 
             var result = await _transactionService.CreateAsync(dto, cancellationToken);
-            return new CreateTransactionResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<CreateTransactionResult>(result.Error!);
+
+            return Result.Success(new CreateTransactionResult(result.Value!));
         }
     }
 }

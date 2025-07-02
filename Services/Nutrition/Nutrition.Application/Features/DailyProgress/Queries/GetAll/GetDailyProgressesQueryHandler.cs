@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.DailyProgress.Queries.GetAll
 {
-    public class GetDailyProgressesQueryHandler : IRequestHandler<GetDailyProgressesQuery, GetDailyProgressesResult>
+    public class GetDailyProgressesQueryHandler : IQueryHandler<GetDailyProgressesQuery, GetDailyProgressesResult>
     {
         private readonly IDailyProgressService _dailyProgressService;
 
@@ -13,11 +15,13 @@ namespace Nutrition.Application.Features.DailyProgress.Queries.GetAll
             _dailyProgressService = dailyProgressService;
         }
 
-        public async Task<GetDailyProgressesResult> Handle(GetDailyProgressesQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetDailyProgressesResult>> Handle(GetDailyProgressesQuery query, CancellationToken cancellationToken)
         {
-            IEnumerable<DailyProgressDTO> result = await _dailyProgressService.GetAllAsync(cancellationToken);
+            var result = await _dailyProgressService.GetAllAsync(cancellationToken);
+            if (!result.IsSuccess)
+                return Result.Failure<GetDailyProgressesResult>(result.Error!);
 
-            return new GetDailyProgressesResult(result);
+            return Result.Success(new GetDailyProgressesResult(result.Value!));
         }
     }
 }

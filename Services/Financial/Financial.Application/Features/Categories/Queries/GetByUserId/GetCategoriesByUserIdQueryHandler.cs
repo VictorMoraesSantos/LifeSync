@@ -1,9 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 
 namespace Financial.Application.Features.Categories.Queries.GetByUserId
 {
-    public class GetCategoriesByUserIdQueryHandler : IRequestHandler<GetCategoriesByUserIdQuery, GetCategoriesByUserIdResult>
+    public class GetCategoriesByUserIdQueryHandler : IQueryHandler<GetCategoriesByUserIdQuery, GetCategoriesByUserIdResult>
     {
         private readonly ICategoryService _categoryService;
 
@@ -12,10 +14,13 @@ namespace Financial.Application.Features.Categories.Queries.GetByUserId
             _categoryService = categoryService;
         }
 
-        public async Task<GetCategoriesByUserIdResult> Handle(GetCategoriesByUserIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetCategoriesByUserIdResult>> Handle(GetCategoriesByUserIdQuery query, CancellationToken cancellationToken)
         {
             var result = await _categoryService.GetByUserIdAsync(query.UserId, cancellationToken);
-            return new GetCategoriesByUserIdResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<GetCategoriesByUserIdResult>(result.Error!);
+
+            return Result.Success(new GetCategoriesByUserIdResult(result.Value!));
         }
     }
 }

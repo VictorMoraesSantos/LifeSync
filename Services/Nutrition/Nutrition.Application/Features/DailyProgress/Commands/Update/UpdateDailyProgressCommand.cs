@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Request;
 using Nutrition.Application.DTOs.DailyProgress;
 
 namespace Nutrition.Application.Features.DailyProgress.Commands.Update
@@ -8,6 +9,6 @@ namespace Nutrition.Application.Features.DailyProgress.Commands.Update
         int CaloriesConsumed,
         int LiquidsConsumedMl,
         DailyGoalDTO? Goal)
-    : IRequest<UpdateDailyProgressResult>;
+    : ICommand<UpdateDailyProgressResult>;
     public record class UpdateDailyProgressResult(bool IsSuccess);
 }

@@ -1,11 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.CreateTaskLabel
 {
-    public class CreateTaskLabelCommandHandler : IRequestHandler<CreateTaskLabelCommand, Result<CreateTaskLabelResult>>
+    public class CreateTaskLabelCommandHandler : ICommandHandler<CreateTaskLabelCommand, CreateTaskLabelResult>
     {
         private readonly ITaskLabelService _taskLabelService;
 

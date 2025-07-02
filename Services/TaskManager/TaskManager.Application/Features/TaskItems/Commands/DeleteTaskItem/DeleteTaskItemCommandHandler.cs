@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.DeleteTaskItem
 {
-    public class DeleteTaskItemCommandHandler : IRequestHandler<DeleteTaskItemCommand, Result<DeleteTaskItemResult>>
+    public class DeleteTaskItemCommandHandler : ICommandHandler<DeleteTaskItemCommand, DeleteTaskItemResult>
     {
         private readonly ITaskItemService _taskItemService;
 

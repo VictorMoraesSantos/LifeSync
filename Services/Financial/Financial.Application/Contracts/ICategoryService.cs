@@ -1,4 +1,5 @@
-﻿using Core.Application.Interfaces;
+﻿using BuildingBlocks.Results;
+using Core.Application.Interfaces;
 using Financial.Application.DTOs.Category;
 
 namespace Financial.Application.Contracts
@@ -9,7 +10,7 @@ namespace Financial.Application.Contracts
         IUpdateService<UpdateCategoryDTO>,
         IDeleteService<int>
     {
-        Task<IEnumerable<CategoryDTO?>> GetByNameAsync(string name, int userId, CancellationToken cancellationToken = default);
-        Task<IEnumerable<CategoryDTO?>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<CategoryDTO?>>> GetByNameAsync(string name, int userId, CancellationToken cancellationToken = default);
+        Task<Result<IEnumerable<CategoryDTO?>>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default);
     }
 }

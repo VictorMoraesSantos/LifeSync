@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Request;
 
 namespace Nutrition.Application.Features.DailyProgress.Commands.Create
 {
@@ -7,6 +8,6 @@ namespace Nutrition.Application.Features.DailyProgress.Commands.Create
         DateOnly Date,
         int? CaloriesConsumed,
         int? LiquidsConsumedMl)
-        : IRequest<CreateDailyProgressResult>;
+        : ICommand<CreateDailyProgressResult>;
     public record CreateDailyProgressResult(int Id);
 }

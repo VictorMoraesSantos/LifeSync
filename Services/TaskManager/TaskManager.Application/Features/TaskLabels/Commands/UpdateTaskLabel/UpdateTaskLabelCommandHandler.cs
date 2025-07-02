@@ -1,11 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel
 {
-    public class UpdateTaskLabelCommandHandler : IRequestHandler<UpdateTaskLabelCommand, Result<UpdateTaskLabelResult>>
+    public class UpdateTaskLabelCommandHandler : ICommandHandler<UpdateTaskLabelCommand, UpdateTaskLabelResult>
     {
         private readonly ITaskLabelService _taskLabelService;
 

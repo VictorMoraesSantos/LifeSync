@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.DeleteTaskLabel
 {
-    public class DeleteTaskLabelCommandHandler : IRequestHandler<DeleteTaskLabelCommand, Result<DeleteTaskLabelResult>>
+    public class DeleteTaskLabelCommandHandler : ICommandHandler<DeleteTaskLabelCommand, DeleteTaskLabelResult>
     {
         private readonly ITaskLabelService _taskLabelService;
 

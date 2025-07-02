@@ -1,4 +1,5 @@
-﻿using Core.Application.Interfaces;
+﻿using BuildingBlocks.Results;
+using Core.Application.Interfaces;
 using Nutrition.Application.DTOs.DailyProgress;
 
 namespace Nutrition.Application.Interfaces
@@ -9,8 +10,8 @@ namespace Nutrition.Application.Interfaces
         IUpdateService<UpdateDailyProgressDTO>,
         IDeleteService<int>
     {
-        Task<IEnumerable<DailyProgressDTO>> GetByUserIdAsync(int userId, CancellationToken cancellationToken);
-        Task SetGoalAsync(int id, DailyGoalDTO goalDto, CancellationToken cancellationToken);
-        Task SetConsumedAsync(int id, int calories, int liquidsMl, CancellationToken cancellationToken);
+        Task<Result<IEnumerable<DailyProgressDTO>>> GetByUserIdAsync(int userId, CancellationToken cancellationToken);
+        Task<Result<bool>> SetGoalAsync(int id, DailyGoalDTO goalDto, CancellationToken cancellationToken);
+        Task<Result<bool>> SetConsumedAsync(int id, int calories, int liquidsMl, CancellationToken cancellationToken);
     }
 }

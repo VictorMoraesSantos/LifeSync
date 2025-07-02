@@ -1,4 +1,6 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Request;
+using System.Windows.Input;
 
 namespace Financial.Application.Features.Categories.Commands.Update
 {
@@ -6,6 +8,6 @@ namespace Financial.Application.Features.Categories.Commands.Update
         int Id,
         string Name,
         string? Description)
-        : IRequest<UpdateCategoryResult>;
+        : ICommand<UpdateCategoryResult>;
     public record UpdateCategoryResult(bool IsSuccess);
 }

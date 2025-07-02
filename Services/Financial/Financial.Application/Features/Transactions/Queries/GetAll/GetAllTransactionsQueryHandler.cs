@@ -1,9 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 
 namespace Financial.Application.Features.Transactions.Queries.GetAll
 {
-    public class GetAllTransactionsQueryHandler : IRequestHandler<GetAllTransactionsQuery, GetAllTransactionsResult>
+    public class GetAllTransactionsQueryHandler : IQueryHandler<GetAllTransactionsQuery, GetAllTransactionsResult>
     {
         private readonly ITransactionService _transactionService;
 
@@ -12,10 +14,13 @@ namespace Financial.Application.Features.Transactions.Queries.GetAll
             _transactionService = transactionService;
         }
 
-        public async Task<GetAllTransactionsResult> Handle(GetAllTransactionsQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetAllTransactionsResult>> Handle(GetAllTransactionsQuery query, CancellationToken cancellationToken)
         {
             var result = await _transactionService.GetAllAsync(cancellationToken);
-            return new GetAllTransactionsResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<GetAllTransactionsResult>(result.Error!);
+
+            return Result.Success(new GetAllTransactionsResult(result.Value!));
         }
     }
 }

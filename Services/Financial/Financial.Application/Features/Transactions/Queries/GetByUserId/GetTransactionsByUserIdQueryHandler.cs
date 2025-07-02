@@ -1,9 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 
 namespace Financial.Application.Features.Transactions.Queries.GetByUserId
 {
-    public class GetTransactionsByUserIdQueryHandler : IRequestHandler<GetTransactionsByUserIdQuery, GetTransactionsByUserIdResult>
+    public class GetTransactionsByUserIdQueryHandler : IQueryHandler<GetTransactionsByUserIdQuery, GetTransactionsByUserIdResult>
     {
         private readonly ITransactionService _transactionService;
 
@@ -12,10 +14,13 @@ namespace Financial.Application.Features.Transactions.Queries.GetByUserId
             _transactionService = transactionService;
         }
 
-        public async Task<GetTransactionsByUserIdResult> Handle(GetTransactionsByUserIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetTransactionsByUserIdResult>> Handle(GetTransactionsByUserIdQuery query, CancellationToken cancellationToken)
         {
             var result = await _transactionService.GetByUserIdAsync(query.UserId, cancellationToken);
-            return new GetTransactionsByUserIdResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<GetTransactionsByUserIdResult>(result.Error!);
+
+            return Result.Success(new GetTransactionsByUserIdResult(result.Value!));
         }
     }
 }

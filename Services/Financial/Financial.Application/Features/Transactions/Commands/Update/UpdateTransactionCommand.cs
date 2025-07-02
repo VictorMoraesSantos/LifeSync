@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Request;
 using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
 
@@ -13,6 +14,6 @@ namespace Financial.Application.Features.Transactions.Commands.Update
         string Description,
         DateTime TransactionDate,
         bool IsRecurring = false)
-        : IRequest<UpdateTransactionResult>;
+        : ICommand<UpdateTransactionResult>;
     public record UpdateTransactionResult(bool IsSuccess);
 }

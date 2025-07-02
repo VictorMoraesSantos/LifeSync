@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Interfaces;
 
@@ -13,7 +14,7 @@ namespace Nutrition.Application.Features.DailyProgress.Commands.SetGoal
             _dailyProgressService = dailyProgressService;
         }
 
-        public async Task<SetGoalResult> Handle(SetGoalCommand command, CancellationToken cancellationToken)
+        public async Task<Result<SetGoalResult>> Handle(SetGoalCommand command, CancellationToken cancellationToken)
         {
             DailyGoalDTO dto = command.Goal;
 

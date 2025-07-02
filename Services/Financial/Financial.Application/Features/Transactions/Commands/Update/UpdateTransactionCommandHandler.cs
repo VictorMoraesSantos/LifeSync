@@ -1,10 +1,13 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 using Financial.Application.DTOs.Transaction;
 
 namespace Financial.Application.Features.Transactions.Commands.Update
 {
-    public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransactionCommand, UpdateTransactionResult>
+    public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransactionCommand, UpdateTransactionResult>
     {
         private readonly ITransactionService _transactionService;
 
@@ -12,7 +15,7 @@ namespace Financial.Application.Features.Transactions.Commands.Update
         {
             _transactionService = transactionService;
         }
-        public async Task<UpdateTransactionResult> Handle(UpdateTransactionCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateTransactionResult>> Handle(UpdateTransactionCommand command, CancellationToken cancellationToken)
         {
             var dto = new UpdateTransactionDTO(
                 command.Id,
@@ -24,7 +27,10 @@ namespace Financial.Application.Features.Transactions.Commands.Update
                 command.TransactionDate);
 
             var result = await _transactionService.UpdateAsync(dto, cancellationToken);
-            return new UpdateTransactionResult(result);
+            if (!result.IsSuccess)
+                return Result.Failure<UpdateTransactionResult>(result.Error!);
+
+            return Result.Success(new UpdateTransactionResult(result.Value!));
         }
     }
 }

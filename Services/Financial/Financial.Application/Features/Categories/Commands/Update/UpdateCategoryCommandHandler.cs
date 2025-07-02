@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Financial.Application.Contracts;
 using Financial.Application.DTOs.Category;
 
 namespace Financial.Application.Features.Categories.Commands.Update
 {
-    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, UpdateCategoryResult>
+    public class UpdateCategoryCommandHandler : ICommandHandler<UpdateCategoryCommand, UpdateCategoryResult>
     {
         private readonly ICategoryService _categoryService;
 
@@ -13,11 +15,14 @@ namespace Financial.Application.Features.Categories.Commands.Update
             _categoryService = categoryService;
         }
 
-        public async Task<UpdateCategoryResult> Handle(UpdateCategoryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateCategoryResult>> Handle(UpdateCategoryCommand command, CancellationToken cancellationToken)
         {
-            UpdateCategoryDTO dto = new(command.Id, command.Name, command.Description);
+            var dto = new UpdateCategoryDTO(command.Id, command.Name, command.Description);
             var result = await _categoryService.UpdateAsync(dto, cancellationToken);
-            return new UpdateCategoryResult(result);
+            if (!result.IsSuccess)
+                return Result<UpdateCategoryResult>.Failure(result.Error!);
+
+            return Result.Success(new UpdateCategoryResult(result.Value!));
         }
     }
 }
