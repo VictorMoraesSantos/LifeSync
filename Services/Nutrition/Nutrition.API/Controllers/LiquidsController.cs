@@ -24,30 +24,44 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<GetLiquidResult>> Get(int id)
         {
             GetLiquidQuery query = new(id);
-            GetLiquidResult result = await _sender.Send(query);
-            return HttpResult<GetLiquidResult>.Ok(result);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetLiquidResult>.Ok(result.Value!)
+                : HttpResult<GetLiquidResult>.NotFound(result.Error!);
         }
 
         [HttpGet]
         public async Task<HttpResult<GetAllLiquidsResult>> GetAll([FromQuery] GetAllLiquidsQuery query)
         {
-            GetAllLiquidsResult result = await _sender.Send(query);
-            return HttpResult<GetAllLiquidsResult>.Ok(result);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetAllLiquidsResult>.Ok(result.Value!)
+                : HttpResult<GetAllLiquidsResult>.InternalError(result.Error!);
         }
 
         [HttpGet("diary/{diaryId:int}")]
         public async Task<HttpResult<GetLiquidsByDiaryResult>> GetByDiary(int diaryId)
         {
             GetLiquidsByDiaryQuery query = new(diaryId);
-            GetLiquidsByDiaryResult result = await _sender.Send(query);
-            return HttpResult<GetLiquidsByDiaryResult>.Ok(result);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetLiquidsByDiaryResult>.Ok(result.Value!)
+                : result.Error.Contains("NotFound")
+                    ? HttpResult<GetLiquidsByDiaryResult>.NotFound(result.Error!)
+                    : HttpResult<GetLiquidsByDiaryResult>.InternalError(result.Error!);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateLiquidResult>> Create([FromBody] CreateLiquidCommand command)
         {
-            CreateLiquidResult result = await _sender.Send(command);
-            return HttpResult<CreateLiquidResult>.Created(result);
+            var result = await _sender.Send(command);
+
+            return result.IsSuccess
+                ? HttpResult<CreateLiquidResult>.Created(result.Value!)
+                : HttpResult<CreateLiquidResult>.BadRequest(result.Error!);
         }
 
         [HttpPut("{id:int}")]
@@ -59,16 +73,24 @@ namespace Nutrition.API.Controllers
                 command.QuantityMl,
                 command.CaloriesPerMl
             );
-            UpdateLiquidResult result = await _sender.Send(updateLiquidCommand);
-            return HttpResult<UpdateLiquidResult>.Ok(result);
+            var result = await _sender.Send(updateLiquidCommand);
+
+            return result.IsSuccess
+                ? HttpResult<UpdateLiquidResult>.Ok(result.Value!)
+                : result.Error.Contains("NotFound")
+                    ? HttpResult<UpdateLiquidResult>.NotFound(result.Error!)
+                    : HttpResult<UpdateLiquidResult>.BadRequest(result.Error!);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<HttpResult<DeleteLiquidResult>> Delete(int id)
         {
             DeleteLiquidCommand command = new(id);
-            await _sender.Send(command);
-            return HttpResult<DeleteLiquidResult>.Deleted();
+            var result = await _sender.Send(command);
+
+            return result.IsSuccess
+                ? HttpResult<DeleteLiquidResult>.Deleted()
+                : HttpResult<DeleteLiquidResult>.NotFound(result.Error!);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Exceptions;
 using TaskManager.Domain.Enums;
+using TaskManager.Domain.Errors;
+using System.Linq;
 
 namespace TaskManager.Domain.Entities
 {
@@ -34,25 +36,30 @@ namespace TaskManager.Domain.Entities
             SetDescription(description);
             Status = status;
             Priority = priority;
+            SetDueDate(dueDate);
             MarkAsUpdated();
         }
 
         private void SetTitle(string title)
         {
-            ValidateString(title);
+            if (string.IsNullOrWhiteSpace(title))
+                throw new DomainException(TaskItemErrors.InvalidTitle);
+
             Title = title.Trim();
         }
 
         private void SetDescription(string description)
         {
-            ValidateString(description);
+            if (string.IsNullOrWhiteSpace(description))
+                throw new DomainException(TaskItemErrors.InvalidDescription);
+
             Description = description.Trim();
         }
 
         private void SetDueDate(DateOnly dueDate)
         {
-            if (dueDate < DateOnly.FromDateTime(DateTime.UtcNow))
-                throw new DomainException("Due date cannot be in the past.");
+            if (dueDate < DateOnly.FromDateTime(DateTime.Today))
+                throw new DomainException(TaskItemErrors.DueDateInPast);
 
             DueDate = dueDate;
         }
@@ -66,10 +73,10 @@ namespace TaskManager.Domain.Entities
         public void AddLabel(TaskLabel label)
         {
             if (label == null)
-                throw new DomainException("Label cannot be null.");
+                throw new DomainException(TaskItemErrors.NullLabel);
 
-            if (_labels.Any(l => l == label))
-                throw new DomainException("Label already exists for this task.");
+            if (_labels.Any(l => l.Id == label.Id))
+                throw new DomainException(TaskItemErrors.DuplicateLabel);
 
             _labels.Add(label);
             MarkAsUpdated();
@@ -78,18 +85,29 @@ namespace TaskManager.Domain.Entities
         public void RemoveLabel(TaskLabel label)
         {
             if (label == null)
-                throw new DomainException("Label cannot be null.");
+                throw new DomainException(TaskItemErrors.NullLabel);
 
-            if (!_labels.Remove(label))
-                throw new DomainException("Label not found in this task.");
+            var labelToRemove = _labels.FirstOrDefault(l => l.Id == label.Id);
+            if (labelToRemove == null)
+                throw new DomainException(TaskItemErrors.LabelNotFound);
 
+            _labels.Remove(labelToRemove);
             MarkAsUpdated();
         }
 
-        private void ValidateString(string value)
+        public void RemoveLabelById(int labelId)
         {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new DomainException("Value cannot be null or empty.");
+            var label = _labels.FirstOrDefault(l => l.Id == labelId);
+            if (label == null)
+                throw new DomainException(TaskItemErrors.LabelNotFound);
+
+            _labels.Remove(label);
+            MarkAsUpdated();
         }
+
+        // Métodos adicionais úteis
+        public bool IsOverdue() => DueDate < DateOnly.FromDateTime(DateTime.Today);
+        public bool IsComplete() => Status == Status.Completed;
+        public bool HasLabel(int labelId) => _labels.Any(l => l.Id == labelId);
     }
 }

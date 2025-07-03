@@ -24,46 +24,68 @@ namespace Nutrition.API.Controllers
         public async Task<HttpResult<GetDiaryResult>> Get(int id)
         {
             GetDiaryQuery query = new(id);
-            GetDiaryResult result = await _sender.Send(query);
-            return HttpResult<GetDiaryResult>.Ok(result);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetDiaryResult>.Ok(result.Value!)
+                : HttpResult<GetDiaryResult>.NotFound(result.Error!);
         }
 
         [HttpGet("user/{userId:int}")]
         public async Task<HttpResult<GetAllDiariesByUserIdResult>> GetByUserId(int userId)
         {
             GetAllDiariesByUserIdQuery query = new(userId);
-            GetAllDiariesByUserIdResult result = await _sender.Send(query);
-            return HttpResult<GetAllDiariesByUserIdResult>.Ok(result);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetAllDiariesByUserIdResult>.Ok(result.Value!)
+                : HttpResult<GetAllDiariesByUserIdResult>.NotFound(result.Error!);
         }
 
         [HttpGet]
         public async Task<HttpResult<GetDiariesResult>> GetAll([FromQuery] GetDiariesQuery query)
         {
-            GetDiariesResult result = await _sender.Send(query);
-            return HttpResult<GetDiariesResult>.Ok(result);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetDiariesResult>.Ok(result.Value!)
+                : HttpResult<GetDiariesResult>.InternalError(result.Error!);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateDiaryResult>> Create([FromBody] CreateDiaryCommand command)
         {
             var result = await _sender.Send(command);
-            return HttpResult<CreateDiaryResult>.Created(result);
+
+            return result.IsSuccess
+                ? HttpResult<CreateDiaryResult>.Created(result.Value!)
+                : HttpResult<CreateDiaryResult>.BadRequest(result.Error!);
         }
 
         [HttpPut("{id:int}")]
         public async Task<HttpResult<UpdateDiaryResult>> Update(int id, [FromBody] UpdateDiaryCommand command)
         {
             UpdateDiaryCommand updateDiary = new(id, command.Date);
-            UpdateDiaryResult result = await _sender.Send(updateDiary);
-            return HttpResult<UpdateDiaryResult>.Updated();
+            var result = await _sender.Send(updateDiary);
+
+            if (result.IsSuccess)
+                return HttpResult<UpdateDiaryResult>.Ok(result.Value!);
+
+            if (result.Error.Contains("NotFound"))
+                return HttpResult<UpdateDiaryResult>.NotFound(result.Error!);
+
+            return HttpResult<UpdateDiaryResult>.BadRequest(result.Error!);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<HttpResult<DeleteDiaryResult>> Delete(int id)
         {
             DeleteDiaryCommand command = new(id);
-            DeleteDiaryResult result = await _sender.Send(command);
-            return HttpResult<DeleteDiaryResult>.Deleted();
+            var result = await _sender.Send(command);
+
+            return result.IsSuccess
+                ? HttpResult<DeleteDiaryResult>.Deleted()
+                : HttpResult<DeleteDiaryResult>.NotFound(result.Error!);
         }
     }
 }

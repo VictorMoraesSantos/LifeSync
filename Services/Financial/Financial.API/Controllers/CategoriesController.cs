@@ -21,11 +21,14 @@ namespace Financial.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<HttpResult<GetCategoryByIdResult>> GetAllAsync(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<GetCategoryByIdResult>> GetById(int id, CancellationToken cancellationToken)
         {
             var query = new GetCategoryByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
-            return HttpResult<GetCategoryByIdResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<GetCategoryByIdResult>.Ok(result.Value!)
+                : HttpResult<GetCategoryByIdResult>.NotFound(result.Error!);
         }
 
         [HttpGet("user/{userId:int}")]
@@ -33,7 +36,10 @@ namespace Financial.API.Controllers
         {
             var query = new GetCategoriesByUserIdQuery(userId);
             var result = await _sender.Send(query, cancellationToken);
-            return HttpResult<GetCategoriesByUserIdResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<GetCategoriesByUserIdResult>.Ok(result.Value!)
+                : HttpResult<GetCategoriesByUserIdResult>.NotFound(result.Error!);
         }
 
         [HttpGet]
@@ -41,14 +47,20 @@ namespace Financial.API.Controllers
         {
             var query = new GetAllCategoriesQuery();
             var result = await _sender.Send(query, cancellationToken);
-            return HttpResult<GetAllCategoriesResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<GetAllCategoriesResult>.Ok(result.Value!)
+                : HttpResult<GetAllCategoriesResult>.InternalError(result.Error!);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateCategoryResult>> CreateAsync([FromBody] CreateCategoryCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
-            return HttpResult<CreateCategoryResult>.Created(result);
+
+            return result.IsSuccess
+                ? HttpResult<CreateCategoryResult>.Created(result.Value!)
+                : HttpResult<CreateCategoryResult>.BadRequest(result.Error!);
         }
 
         [HttpPut("{id:int}")]
@@ -56,7 +68,12 @@ namespace Financial.API.Controllers
         {
             UpdateCategoryCommand update = new(id, command.Name, command.Description);
             var result = await _sender.Send(update, cancellationToken);
-            return HttpResult<UpdateCategoryResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<UpdateCategoryResult>.Ok(result.Value!)
+                : result.Error.Contains("NotFound")
+                    ? HttpResult<UpdateCategoryResult>.NotFound(result.Error!)
+                    : HttpResult<UpdateCategoryResult>.BadRequest(result.Error!);
         }
 
         [HttpDelete("{id:int}")]
@@ -64,7 +81,10 @@ namespace Financial.API.Controllers
         {
             var command = new DeleteCategoryCommand(id);
             var result = await _sender.Send(command, cancellationToken);
-            return HttpResult<DeleteCategoryResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<DeleteCategoryResult>.Deleted()
+                : HttpResult<DeleteCategoryResult>.NotFound(result.Error!);
         }
     }
 }

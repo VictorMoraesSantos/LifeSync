@@ -7,6 +7,7 @@ using TaskManager.Application.Interfaces;
 using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
+using TaskManager.Domain.Errors;
 using TaskManager.Domain.Repositories;
 using TaskManager.Domain.ValueObjects;
 
@@ -21,8 +22,8 @@ namespace TaskManager.Infrastructure.Services
             ITaskItemRepository taskItemRepository,
             ILogger<TaskItemService> logger)
         {
-            _taskItemRepository = taskItemRepository;
-            _logger = logger;
+            _taskItemRepository = taskItemRepository ?? throw new ArgumentNullException(nameof(taskItemRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<TaskItemDTO>> GetByIdAsync(int id, CancellationToken cancellationToken)
@@ -32,9 +33,7 @@ namespace TaskManager.Infrastructure.Services
                 var taskItem = await _taskItemRepository.GetById(id, cancellationToken);
 
                 if (taskItem == null)
-                    return Result.Failure<TaskItemDTO>(Error.NotFound(
-                        "TaskItem.NotFound",
-                        $"Tarefa com ID {id} não encontrada").Description);
+                    return Result.Failure<TaskItemDTO>(TaskItemErrors.NotFound(id).Description);
 
                 var taskItemDTO = taskItem.ToDTO();
                 return Result.Success(taskItemDTO);
@@ -67,7 +66,7 @@ namespace TaskManager.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao filtrar tarefas");
+                _logger.LogError(ex, "Erro ao filtrar tarefas {@Filter}", filter);
                 return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem(
                     "TaskItem.FilterError",
                     "Erro ao filtrar tarefas").Description);
@@ -101,28 +100,21 @@ namespace TaskManager.Infrastructure.Services
                         "TaskItem.NullData",
                         "Dados da tarefa não podem ser nulos").Description);
 
-                // Validação dos dados
-                if (string.IsNullOrWhiteSpace(dto.Title))
-                    return Result.Failure<int>(Error.Failure(
-                        "TaskItem.InvalidTitle",
-                        "O título da tarefa é obrigatório").Description);
-
-                if (dto.DueDate < DateOnly.FromDateTime(DateTime.Today))
-                    return Result.Failure<int>(Error.Failure(
-                        "TaskItem.InvalidDueDate",
-                        "A data de vencimento não pode ser no passado").Description);
-
                 var entity = new TaskItem(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId);
                 await _taskItemRepository.Create(entity, cancellationToken);
 
+                _logger.LogInformation("Tarefa criada com sucesso: {TaskId}", entity.Id);
                 return Result.Success(entity.Id);
+            }
+            catch (Core.Domain.Exceptions.DomainException ex)
+            {
+                _logger.LogWarning(ex, "Erro de domínio ao criar tarefa {@TaskData}", dto);
+                return Result.Failure<int>(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar tarefa {@TaskData}", dto);
-                return Result.Failure<int>(Error.Problem(
-                    "TaskItem.CreateError",
-                    "Erro ao criar tarefa").Description);
+                return Result.Failure<int>(TaskItemErrors.CreateError.Description);
             }
         }
 
@@ -133,32 +125,23 @@ namespace TaskManager.Infrastructure.Services
                 var entity = await _taskItemRepository.GetById(id, cancellationToken);
 
                 if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound(
-                        "TaskItem.NotFound",
-                        $"Tarefa com ID {id} não encontrada").Description);
-
-                // Validações
-                if (string.IsNullOrWhiteSpace(title))
-                    return Result.Failure<bool>(Error.Failure(
-                        "TaskItem.InvalidTitle",
-                        "O título da tarefa é obrigatório").Description);
-
-                if (dueDate < DateOnly.FromDateTime(DateTime.Today))
-                    return Result.Failure<bool>(Error.Failure(
-                        "TaskItem.InvalidDueDate",
-                        "A data de vencimento não pode ser no passado").Description);
+                    return Result.Failure<bool>(TaskItemErrors.NotFound(id).Description);
 
                 entity.Update(title, description, (Status)status, (Priority)priority, dueDate);
                 await _taskItemRepository.Update(entity, cancellationToken);
 
+                _logger.LogInformation("Tarefa atualizada com sucesso: {TaskId}", id);
                 return Result.Success(true);
+            }
+            catch (Core.Domain.Exceptions.DomainException ex)
+            {
+                _logger.LogWarning(ex, "Erro de domínio ao atualizar tarefa {TaskId}", id);
+                return Result.Failure<bool>(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar tarefa {TaskId}", id);
-                return Result.Failure<bool>(Error.Problem(
-                    "TaskItem.UpdateError",
-                    "Erro ao atualizar tarefa").Description);
+                return Result.Failure<bool>(TaskItemErrors.UpdateError.Description);
             }
         }
 
@@ -169,21 +152,18 @@ namespace TaskManager.Infrastructure.Services
                 var entity = await _taskItemRepository.GetById(id, cancellationToken);
 
                 if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound(
-                        "TaskItem.NotFound",
-                        $"Tarefa com ID {id} não encontrada").Description);
+                    return Result.Failure<bool>(TaskItemErrors.NotFound(id).Description);
 
                 entity.MarkAsDeleted();
                 await _taskItemRepository.Update(entity, cancellationToken);
 
+                _logger.LogInformation("Tarefa marcada como excluída: {TaskId}", id);
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir tarefa {TaskId}", id);
-                return Result.Failure<bool>(Error.Problem(
-                    "TaskItem.DeleteError",
-                    "Erro ao excluir tarefa").Description);
+                return Result.Failure<bool>(TaskItemErrors.DeleteError.Description);
             }
         }
 
@@ -286,18 +266,33 @@ namespace TaskManager.Infrastructure.Services
                         "TaskItem.EmptyList",
                         "Lista de tarefas está vazia").Description);
 
-                // Validação em lote
-                var invalidItems = dtos.Where(dto => string.IsNullOrWhiteSpace(dto.Title) ||
-                                                     dto.DueDate < DateOnly.FromDateTime(DateTime.Today)).ToList();
-                if (invalidItems.Any())
-                    return Result.Failure<IEnumerable<int>>(Error.Failure(
-                        "TaskItem.InvalidItems",
-                        "Há tarefas com dados inválidos na lista").Description);
+                // Validação detalhada de cada item
+                var invalidItems = new List<(string Item, string Error)>();
+                foreach (var dto in dtos)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.Title))
+                        invalidItems.Add((dto.Title ?? "Sem título", TaskItemErrors.InvalidTitle.Description));
+                    else if (dto.DueDate < DateOnly.FromDateTime(DateTime.Today))
+                        invalidItems.Add((dto.Title, TaskItemErrors.DueDateInPast.Description));
+                }
 
-                var entities = dtos.Select(TaskItemMapper.ToEntity).ToList();
+                if (invalidItems.Any())
+                {
+                    var errorDetails = string.Join("; ", invalidItems.Select(i => $"'{i.Item}': {i.Error}"));
+                    return Result.Failure<IEnumerable<int>>(
+                        $"Há tarefas com dados inválidos na lista. Detalhes: {errorDetails}");
+                }
+
+                var entities = dtos.Select(dto => new TaskItem(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId)).ToList();
                 await _taskItemRepository.CreateRange(entities, cancellationToken);
 
+                _logger.LogInformation("Criadas {Count} tarefas com sucesso", entities.Count);
                 return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id).ToList());
+            }
+            catch (Core.Domain.Exceptions.DomainException ex)
+            {
+                _logger.LogWarning(ex, "Erro de domínio ao criar múltiplas tarefas");
+                return Result.Failure<IEnumerable<int>>(ex.Message);
             }
             catch (Exception ex)
             {
@@ -320,33 +315,23 @@ namespace TaskManager.Infrastructure.Services
                 var entity = await _taskItemRepository.GetById(dto.Id, cancellationToken);
 
                 if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound(
-                        "TaskItem.NotFound",
-                        $"Tarefa com ID {dto.Id} não encontrada").Description);
-
-                // Validações
-                if (string.IsNullOrWhiteSpace(dto.Title))
-                    return Result.Failure<bool>(Error.Failure(
-                        "TaskItem.InvalidTitle",
-                        "O título da tarefa é obrigatório").Description);
-
-                if (dto.DueDate < DateOnly.FromDateTime(DateTime.Today))
-                    return Result.Failure<bool>(Error.Failure(
-                        "TaskItem.InvalidDueDate",
-                        "A data de vencimento não pode ser no passado").Description);
+                    return Result.Failure<bool>(TaskItemErrors.NotFound(dto.Id).Description);
 
                 entity.Update(dto.Title, dto.Description, dto.Status, dto.Priority, dto.DueDate);
-                entity.MarkAsUpdated();
-
                 await _taskItemRepository.Update(entity, cancellationToken);
+
+                _logger.LogInformation("Tarefa atualizada com sucesso: {TaskId}", dto.Id);
                 return Result.Success(true);
+            }
+            catch (Core.Domain.Exceptions.DomainException ex)
+            {
+                _logger.LogWarning(ex, "Erro de domínio ao atualizar tarefa {@TaskData}", dto);
+                return Result.Failure<bool>(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar tarefa {@TaskData}", dto);
-                return Result.Failure<bool>(Error.Problem(
-                    "TaskItem.UpdateError",
-                    "Erro ao atualizar tarefa").Description);
+                return Result.Failure<bool>(TaskItemErrors.UpdateError.Description);
             }
         }
 
@@ -372,9 +357,12 @@ namespace TaskManager.Infrastructure.Services
                 }
 
                 if (notFoundIds.Any())
+                {
+                    var idsText = string.Join(", ", notFoundIds);
                     return Result.Failure<bool>(Error.NotFound(
                         "TaskItem.SomeNotFound",
-                        $"As seguintes tarefas não foram encontradas: {string.Join(", ", notFoundIds)}").Description);
+                        $"As seguintes tarefas não foram encontradas: {idsText}").Description);
+                }
 
                 if (!entities.Any())
                     return Result.Failure<bool>(Error.NotFound(
@@ -382,8 +370,12 @@ namespace TaskManager.Infrastructure.Services
                         "Nenhuma das tarefas foi encontrada").Description);
 
                 foreach (var entity in entities)
-                    await _taskItemRepository.Delete(entity, cancellationToken);
+                {
+                    entity.MarkAsDeleted();
+                    await _taskItemRepository.Update(entity, cancellationToken);
+                }
 
+                _logger.LogInformation("Excluídas {Count} tarefas com sucesso", entities.Count);
                 return Result.Success(true);
             }
             catch (Exception ex)

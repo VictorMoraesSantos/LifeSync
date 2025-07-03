@@ -1,13 +1,19 @@
-﻿namespace Core.Domain.Exceptions
+﻿using BuildingBlocks.Results;
+
+namespace Core.Domain.Exceptions
 {
     public class DomainException : Exception
     {
-        public DomainException() { }
+        public string Code { get; }
 
-        public DomainException(string message)
-            : base(message) { }
+        public DomainException(string message) : base(message)
+        {
+            Code = "Domain.Error";
+        }
 
-        public DomainException(string message, Exception innerException)
-            : base(message, innerException) { }
+        public DomainException(Error error) : base(error.Description)
+        {
+            Code = error.Code;
+        }
     }
 }

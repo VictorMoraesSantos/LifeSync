@@ -16,7 +16,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
 
         public async Task<Result<UpdateTaskItemCommandResult>> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            UpdateTaskItemDTO dto = new(
+            var dto = new UpdateTaskItemDTO(
                 command.Id,
                 command.Title,
                 command.Description,

@@ -25,7 +25,10 @@ namespace Financial.API.Controllers
         {
             var query = new GetTransactionByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
-            return HttpResult<GetTransactionByIdResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<GetTransactionByIdResult>.Ok(result.Value!)
+                : HttpResult<GetTransactionByIdResult>.NotFound(result.Error!);
         }
 
         [HttpGet("user/{id:int}")]
@@ -33,7 +36,10 @@ namespace Financial.API.Controllers
         {
             var query = new GetTransactionsByUserIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
-            return HttpResult<GetTransactionsByUserIdResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<GetTransactionsByUserIdResult>.Ok(result.Value!)
+                : HttpResult<GetTransactionsByUserIdResult>.NotFound(result.Error!);
         }
 
         [HttpGet]
@@ -41,14 +47,20 @@ namespace Financial.API.Controllers
         {
             var query = new GetAllTransactionsQuery();
             var result = await _sender.Send(query, cancellationToken);
-            return HttpResult<GetAllTransactionsResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<GetAllTransactionsResult>.Ok(result.Value!)
+                : HttpResult<GetAllTransactionsResult>.InternalError(result.Error!);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateTransactionResult>> CreateAsync([FromBody] CreateTransactionCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
-            return HttpResult<CreateTransactionResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<CreateTransactionResult>.Created(result.Value!)
+                : HttpResult<CreateTransactionResult>.BadRequest(result.Error!);
         }
 
         [HttpPut("{id:int}")]
@@ -63,7 +75,12 @@ namespace Financial.API.Controllers
                 command.Description,
                 command.TransactionDate);
             var result = await _sender.Send(updatedCommand, cancellationToken);
-            return HttpResult<UpdateTransactionResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<UpdateTransactionResult>.Ok(result.Value!)
+                : result.Error.Contains("NotFound")
+                    ? HttpResult<UpdateTransactionResult>.NotFound(result.Error!)
+                    : HttpResult<UpdateTransactionResult>.BadRequest(result.Error!);
         }
 
         [HttpDelete("{id:int}")]
@@ -71,7 +88,10 @@ namespace Financial.API.Controllers
         {
             var command = new DeleteTransactionCommand(id);
             var result = await _sender.Send(command, cancellationToken);
-            return HttpResult<DeleteTransactionResult>.Ok(result);
+
+            return result.IsSuccess
+                ? HttpResult<DeleteTransactionResult>.Deleted()
+                : HttpResult<DeleteTransactionResult>.NotFound(result.Error!);
         }
     }
 }

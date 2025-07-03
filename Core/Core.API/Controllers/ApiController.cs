@@ -3,7 +3,7 @@
 namespace Core.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class ApiController : ControllerBase
     {
     }

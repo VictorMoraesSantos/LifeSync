@@ -13,7 +13,7 @@ using Nutrition.Application.Features.DailyProgress.Queries.GetByUser;
 
 namespace Nutrition.API.Controllers
 {
-    [Route("api/daily-progresses")]
+    [Route("api/v1/daily-progresses")]
     public class DailyProgressesController : ApiController
     {
         private readonly ISender _sender;
@@ -26,32 +26,44 @@ namespace Nutrition.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<HttpResult<GetDailyProgressResult>> Get(int id)
         {
-            GetDailyProgressQuery query = new(id);
-            GetDailyProgressResult result = await _sender.Send(query);
-            return HttpResult<GetDailyProgressResult>.Ok(result);
+            var query = new GetDailyProgressQuery(id);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetDailyProgressResult>.Ok(result.Value!)
+                : HttpResult<GetDailyProgressResult>.NotFound(result.Error!);
         }
 
         [HttpGet("user/{userId:int}")]
         public async Task<HttpResult<GetAllDailyProgressesByUserIdResult>> GetByUserId(int userId)
         {
             GetAllDailyProgressesByUserIdQuery query = new(userId);
-            GetAllDailyProgressesByUserIdResult result = await _sender.Send(query);
-            return HttpResult<GetAllDailyProgressesByUserIdResult>.Ok(result);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetAllDailyProgressesByUserIdResult>.Ok(result.Value!)
+                : HttpResult<GetAllDailyProgressesByUserIdResult>.NotFound(result.Error!);
         }
 
         [HttpGet]
         public async Task<HttpResult<GetDailyProgressesResult>> GetAll()
         {
             GetDailyProgressesQuery query = new();
-            GetDailyProgressesResult result = await _sender.Send(query);
-            return HttpResult<GetDailyProgressesResult>.Ok(result);
+            var result = await _sender.Send(query);
+
+            return result.IsSuccess
+                ? HttpResult<GetDailyProgressesResult>.Ok(result.Value!)
+                : HttpResult<GetDailyProgressesResult>.BadRequest(result.Error!);
         }
 
         [HttpPost]
         public async Task<HttpResult<CreateDailyProgressResult>> Create([FromBody] CreateDailyProgressCommand command)
         {
-            CreateDailyProgressResult result = await _sender.Send(command);
-            return HttpResult<CreateDailyProgressResult>.Created(result);
+            var result = await _sender.Send(command);
+
+            return result.IsSuccess
+                ? HttpResult<CreateDailyProgressResult>.Created(result.Value!)
+                : HttpResult<CreateDailyProgressResult>.BadRequest(result.Error!);
         }
 
         [HttpPut("{id:int}")]
@@ -62,16 +74,25 @@ namespace Nutrition.API.Controllers
                 command.CaloriesConsumed,
                 command.LiquidsConsumedMl,
                 command.Goal);
-            UpdateDailyProgressResult result = await _sender.Send(updateCommand);
-            return HttpResult<UpdateDailyProgressResult>.Ok(result);
+
+            var result = await _sender.Send(updateCommand);
+
+            return result.IsSuccess
+                ? HttpResult<UpdateDailyProgressResult>.Ok(result.Value!)
+                : result.Error.Contains("NotFound")
+                    ? HttpResult<UpdateDailyProgressResult>.NotFound(result.Error!)
+                    : HttpResult<UpdateDailyProgressResult>.BadRequest(result.Error!);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<HttpResult<DeleteDailyProgressResult>> Delete(int id)
         {
             DeleteDailyProgressCommand command = new(id);
-            DeleteDailyProgressResult result = await _sender.Send(command);
-            return HttpResult<DeleteDailyProgressResult>.Deleted();
+            var result = await _sender.Send(command);
+
+            return result.IsSuccess
+                ? HttpResult<DeleteDailyProgressResult>.Deleted()
+                : HttpResult<DeleteDailyProgressResult>.NotFound(result.Error!);
         }
 
         [HttpPost("{id:int}/set-goal")]
@@ -79,8 +100,13 @@ namespace Nutrition.API.Controllers
         {
             DailyGoalDTO goal = command.Goal;
             SetGoalCommand setConsumedCommand = new(id, goal);
-            SetGoalResult result = await _sender.Send(setConsumedCommand);
-            return HttpResult<SetGoalResult>.Ok(result);
+            var result = await _sender.Send(setConsumedCommand);
+
+            return result.IsSuccess
+                ? HttpResult<SetGoalResult>.Ok(result.Value!)
+                : result.Error.Contains("NotFound")
+                    ? HttpResult<SetGoalResult>.NotFound(result.Error!)
+                    : HttpResult<SetGoalResult>.BadRequest(result.Error!);
         }
     }
 }
