@@ -29,7 +29,6 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
         {
             IQueryable<TaskLabel> query = _context.TaskLabels
                 .AsNoTracking()
-                .Where(x => !x.IsDeleted)
                 .AsQueryable();
 
             if (filter.UserId.HasValue)
@@ -61,7 +60,6 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
         {
             IEnumerable<TaskLabel> entities = await _context.TaskLabels
                 .AsNoTracking()
-                .Where(x => !x.IsDeleted)
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
 
@@ -70,7 +68,7 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
 
         public async Task Create(TaskLabel entity, CancellationToken cancellationToken = default)
         {
-            _context.TaskLabels.Entry(entity).State = EntityState.Added;
+            await _context.TaskLabels.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
@@ -82,13 +80,13 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
 
         public async Task Update(TaskLabel entity, CancellationToken cancellationToken = default)
         {
-            _context.TaskLabels.Entry(entity).State = EntityState.Modified;
+            _context.TaskLabels.Update(entity);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task Delete(TaskLabel entity, CancellationToken cancellationToken = default)
         {
-            _context.TaskLabels.Entry(entity).State = EntityState.Deleted;
+            _context.TaskLabels.Remove(entity);
             await _context.SaveChangesAsync(cancellationToken);
         }
     }

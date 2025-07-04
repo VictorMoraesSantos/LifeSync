@@ -10,6 +10,6 @@ namespace TaskManager.Application.DTOs.TaskLabel
         string Name,
         LabelColor Color,
         int UserId,
-        int TaskItemId
+        int? TaskItemId
         ) : DTOBase(Id, CreatedAt, UpdatedAt);
 }

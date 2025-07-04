@@ -21,7 +21,7 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
             TaskItem? entity = await _context.TaskItems
                 .AsNoTracking()
                 .Include(x => x.Labels)
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
             return entity;
         }
@@ -31,7 +31,6 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
             IQueryable<TaskItem> query = _context.TaskItems
                 .AsNoTracking()
                 .Include(t => t.Labels)
-                .Where(t => !t.IsDeleted)
                 .AsQueryable();
 
             if (filter.UserId.HasValue)
@@ -61,7 +60,6 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
             IEnumerable<TaskItem> entities = await _context.TaskItems
                 .AsNoTracking()
                 .Include(x => x.Labels)
-                .Where(x => !x.IsDeleted)
                 .ToListAsync(cancellationToken);
 
             return entities;
@@ -72,7 +70,6 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
             IEnumerable<TaskItem> entities = await _context.TaskItems
                 .AsNoTracking()
                 .Include(x => x.Labels)
-                .Where(x => !x.IsDeleted)
                 .Where(predicate)
                 .ToListAsync(cancellationToken);
 

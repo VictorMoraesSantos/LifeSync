@@ -159,8 +159,7 @@ namespace TaskManager.Infrastructure.Services
                 if (entity == null)
                     return Result.Failure<bool>(TaskItemErrors.NotFound(id).Description);
 
-                entity.MarkAsDeleted();
-                await _taskItemRepository.Update(entity, cancellationToken);
+                await _taskItemRepository.Delete(entity, cancellationToken);
 
                 _logger.LogInformation("Tarefa excluída com sucesso: {TaskId}", id);
                 return Result.Success(true);
