@@ -161,8 +161,7 @@ namespace TaskManager.Infrastructure.Services
                         "TaskLabel.NotFound",
                         $"Rótulo com ID {id} não encontrado").Description);
 
-                entity.MarkAsDeleted();
-                await _taskLabelRepository.Update(entity, cancellationToken);
+                await _taskLabelRepository.Delete(entity, cancellationToken);
 
                 _logger.LogInformation("Rótulo excluído com sucesso: {LabelId}", id);
                 return Result.Success(true);

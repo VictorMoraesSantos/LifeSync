@@ -20,7 +20,7 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
         {
             TaskLabel? entity = await _context.TaskLabels
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
             return entity;
         }
@@ -52,7 +52,6 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
         {
             IEnumerable<TaskLabel> entities = await _context.TaskLabels
                 .AsNoTracking()
-                .Where(x => !x.IsDeleted)
                 .ToListAsync(cancellationToken);
 
             return entities;
