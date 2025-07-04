@@ -10,6 +10,7 @@ using TaskManager.Domain.Enums;
 using TaskManager.Domain.Errors;
 using TaskManager.Domain.Repositories;
 using TaskManager.Domain.ValueObjects;
+using Core.Domain.Exceptions;
 
 namespace TaskManager.Infrastructure.Services
 {
@@ -96,17 +97,16 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (dto == null)
-                    return Result.Failure<int>(Error.Failure(
-                        "TaskItem.NullData",
-                        "Dados da tarefa não podem ser nulos").Description);
+                    return Result.Failure<int>(Error.NullValue.Description);
 
+                // Deixe o domínio fazer as validações
                 var entity = new TaskItem(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId);
                 await _taskItemRepository.Create(entity, cancellationToken);
 
                 _logger.LogInformation("Tarefa criada com sucesso: {TaskId}", entity.Id);
                 return Result.Success(entity.Id);
             }
-            catch (Core.Domain.Exceptions.DomainException ex)
+            catch (DomainException ex)
             {
                 _logger.LogWarning(ex, "Erro de domínio ao criar tarefa {@TaskData}", dto);
                 return Result.Failure<int>(ex.Message);
@@ -123,17 +123,23 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 var entity = await _taskItemRepository.GetById(id, cancellationToken);
-
                 if (entity == null)
                     return Result.Failure<bool>(TaskItemErrors.NotFound(id).Description);
 
+                // Validação de enum - apenas esta permanece no serviço porque é uma validação técnica, não de negócio
+                if (!Enum.IsDefined(typeof(Status), status) || !Enum.IsDefined(typeof(Priority), priority))
+                    return Result.Failure<bool>(Error.Failure(
+                        "TaskItem.InvalidEnum",
+                        "Status ou prioridade inválidos").Description);
+
+                // Deixe o domínio fazer as validações de regras de negócio
                 entity.Update(title, description, (Status)status, (Priority)priority, dueDate);
                 await _taskItemRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Tarefa atualizada com sucesso: {TaskId}", id);
                 return Result.Success(true);
             }
-            catch (Core.Domain.Exceptions.DomainException ex)
+            catch (DomainException ex)
             {
                 _logger.LogWarning(ex, "Erro de domínio ao atualizar tarefa {TaskId}", id);
                 return Result.Failure<bool>(ex.Message);
@@ -150,14 +156,13 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 var entity = await _taskItemRepository.GetById(id, cancellationToken);
-
                 if (entity == null)
                     return Result.Failure<bool>(TaskItemErrors.NotFound(id).Description);
 
                 entity.MarkAsDeleted();
                 await _taskItemRepository.Update(entity, cancellationToken);
 
-                _logger.LogInformation("Tarefa marcada como excluída: {TaskId}", id);
+                _logger.LogInformation("Tarefa excluída com sucesso: {TaskId}", id);
                 return Result.Success(true);
             }
             catch (Exception ex)
@@ -171,15 +176,10 @@ namespace TaskManager.Infrastructure.Services
         {
             try
             {
-                if (page < 1)
+                if (page < 1 || pageSize < 1)
                     return Result.Failure<(IEnumerable<TaskItemDTO>, int)>(Error.Failure(
-                        "TaskItem.InvalidPage",
-                        "O número da página deve ser maior que zero").Description);
-
-                if (pageSize < 1)
-                    return Result.Failure<(IEnumerable<TaskItemDTO>, int)>(Error.Failure(
-                        "TaskItem.InvalidPageSize",
-                        "O tamanho da página deve ser maior que zero").Description);
+                        "TaskItem.InvalidPagination",
+                        "Parâmetros de paginação inválidos").Description);
 
                 var all = await _taskItemRepository.GetAll(cancellationToken);
                 var totalCount = all.Count();
@@ -207,9 +207,7 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (predicate == null)
-                    return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Failure(
-                        "TaskItem.NullPredicate",
-                        "O predicado de busca não pode ser nulo").Description);
+                    return Result.Failure<IEnumerable<TaskItemDTO>>(Error.NullValue.Description);
 
                 var entities = await _taskItemRepository.GetAll(cancellationToken);
                 var dtos = entities
@@ -256,43 +254,39 @@ namespace TaskManager.Infrastructure.Services
         {
             try
             {
-                if (dtos == null)
+                if (dtos == null || !dtos.Any())
                     return Result.Failure<IEnumerable<int>>(Error.Failure(
-                        "TaskItem.NullData",
-                        "Lista de tarefas não pode ser nula").Description);
+                        "TaskItem.EmptyOrNullList",
+                        "Lista de tarefas não pode ser nula ou vazia").Description);
 
-                if (!dtos.Any())
-                    return Result.Failure<IEnumerable<int>>(Error.Failure(
-                        "TaskItem.EmptyList",
-                        "Lista de tarefas está vazia").Description);
+                var entities = new List<TaskItem>();
+                var errors = new List<(string Title, string ErrorMessage)>();
 
-                // Validação detalhada de cada item
-                var invalidItems = new List<(string Item, string Error)>();
+                // Tenta criar cada entidade, capturando erros de domínio
                 foreach (var dto in dtos)
                 {
-                    if (string.IsNullOrWhiteSpace(dto.Title))
-                        invalidItems.Add((dto.Title ?? "Sem título", TaskItemErrors.InvalidTitle.Description));
-                    else if (dto.DueDate < DateOnly.FromDateTime(DateTime.Today))
-                        invalidItems.Add((dto.Title, TaskItemErrors.DueDateInPast.Description));
+                    try
+                    {
+                        var entity = new TaskItem(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId);
+                        entities.Add(entity);
+                    }
+                    catch (DomainException ex)
+                    {
+                        errors.Add((dto.Title ?? "Sem título", ex.Message));
+                    }
                 }
 
-                if (invalidItems.Any())
+                if (errors.Any())
                 {
-                    var errorDetails = string.Join("; ", invalidItems.Select(i => $"'{i.Item}': {i.Error}"));
+                    var errorDetails = string.Join("; ", errors.Select(e => $"'{e.Title}': {e.ErrorMessage}"));
                     return Result.Failure<IEnumerable<int>>(
-                        $"Há tarefas com dados inválidos na lista. Detalhes: {errorDetails}");
+                        $"Algumas tarefas possuem dados inválidos: {errorDetails}");
                 }
 
-                var entities = dtos.Select(dto => new TaskItem(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId)).ToList();
                 await _taskItemRepository.CreateRange(entities, cancellationToken);
 
                 _logger.LogInformation("Criadas {Count} tarefas com sucesso", entities.Count);
                 return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id).ToList());
-            }
-            catch (Core.Domain.Exceptions.DomainException ex)
-            {
-                _logger.LogWarning(ex, "Erro de domínio ao criar múltiplas tarefas");
-                return Result.Failure<IEnumerable<int>>(ex.Message);
             }
             catch (Exception ex)
             {
@@ -308,22 +302,26 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (dto == null)
-                    return Result.Failure<bool>(Error.Failure(
-                        "TaskItem.NullData",
-                        "Dados da tarefa não podem ser nulos").Description);
+                    return Result.Failure<bool>(Error.NullValue.Description);
 
                 var entity = await _taskItemRepository.GetById(dto.Id, cancellationToken);
-
                 if (entity == null)
                     return Result.Failure<bool>(TaskItemErrors.NotFound(dto.Id).Description);
 
+                // Validação de enum - apenas esta permanece no serviço
+                if (!Enum.IsDefined(typeof(Status), (int)dto.Status) || !Enum.IsDefined(typeof(Priority), (int)dto.Priority))
+                    return Result.Failure<bool>(Error.Failure(
+                        "TaskItem.InvalidEnum",
+                        "Status ou prioridade inválidos").Description);
+
+                // Deixe o domínio fazer as validações
                 entity.Update(dto.Title, dto.Description, dto.Status, dto.Priority, dto.DueDate);
                 await _taskItemRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Tarefa atualizada com sucesso: {TaskId}", dto.Id);
                 return Result.Success(true);
             }
-            catch (Core.Domain.Exceptions.DomainException ex)
+            catch (DomainException ex)
             {
                 _logger.LogWarning(ex, "Erro de domínio ao atualizar tarefa {@TaskData}", dto);
                 return Result.Failure<bool>(ex.Message);
