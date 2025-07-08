@@ -28,7 +28,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetDiaryResult>.Ok(result.Value!)
-                : HttpResult<GetDiaryResult>.NotFound(result.Error!);
+                : HttpResult<GetDiaryResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("user/{userId:int}")]
@@ -39,7 +39,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetAllDiariesByUserIdResult>.Ok(result.Value!)
-                : HttpResult<GetAllDiariesByUserIdResult>.NotFound(result.Error!);
+                : HttpResult<GetAllDiariesByUserIdResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
@@ -49,7 +49,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetDiariesResult>.Ok(result.Value!)
-                : HttpResult<GetDiariesResult>.InternalError(result.Error!);
+                : HttpResult<GetDiariesResult>.InternalError(result.Error!.Description);
         }
 
         [HttpPost]
@@ -59,7 +59,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<CreateDiaryResult>.Created(result.Value!)
-                : HttpResult<CreateDiaryResult>.BadRequest(result.Error!);
+                : HttpResult<CreateDiaryResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
@@ -71,10 +71,10 @@ namespace Nutrition.API.Controllers
             if (result.IsSuccess)
                 return HttpResult<UpdateDiaryResult>.Ok(result.Value!);
 
-            if (result.Error.Contains("NotFound"))
-                return HttpResult<UpdateDiaryResult>.NotFound(result.Error!);
+            if (result.Error!.Description.Contains("NotFound"))
+                return HttpResult<UpdateDiaryResult>.NotFound(result.Error!.Description);
 
-            return HttpResult<UpdateDiaryResult>.BadRequest(result.Error!);
+            return HttpResult<UpdateDiaryResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
@@ -85,7 +85,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<DeleteDiaryResult>.Deleted()
-                : HttpResult<DeleteDiaryResult>.NotFound(result.Error!);
+                : HttpResult<DeleteDiaryResult>.NotFound(result.Error!.Description);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace TaskManager.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetTaskItemByIdResult>.Ok(result.Value!)
-                : HttpResult<GetTaskItemByIdResult>.NotFound(result.Error!);
+                : HttpResult<GetTaskItemByIdResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("search")]
@@ -41,7 +41,7 @@ namespace TaskManager.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetByFilterResult>.Ok(result.Value!)
-                : HttpResult<GetByFilterResult>.NotFound(result.Error!);
+                : HttpResult<GetByFilterResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
@@ -51,7 +51,7 @@ namespace TaskManager.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetAllTaskItemsResult>.Ok(result.Value!)
-                : HttpResult<GetAllTaskItemsResult>.NotFound(result.Error!);
+                : HttpResult<GetAllTaskItemsResult>.NotFound(result.Error!.Description);
         }
 
         [HttpPost]
@@ -61,7 +61,7 @@ namespace TaskManager.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<CreateTaskItemResult>.Created(result.Value!)
-                : HttpResult<CreateTaskItemResult>.BadRequest(result.Error!);
+                : HttpResult<CreateTaskItemResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost("batch")]
@@ -77,7 +77,7 @@ namespace TaskManager.API.Controllers
 
             return !failedResults.Any()
                 ? HttpResult<int>.Created(results.Length)
-                : HttpResult<int>.BadRequest(failedResults.Select(r => r.Error!).ToArray());
+                : HttpResult<int>.BadRequest(failedResults.Select(r => r.Error!.Description).ToArray());
         }
 
         [HttpPut("{id:int}")]
@@ -88,7 +88,7 @@ namespace TaskManager.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<UpdateTaskItemCommandResult>.Updated()
-                : HttpResult<UpdateTaskItemCommandResult>.BadRequest(result.Error!);
+                : HttpResult<UpdateTaskItemCommandResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
@@ -99,7 +99,7 @@ namespace TaskManager.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<DeleteTaskItemResult>.Deleted()
-                : HttpResult<DeleteTaskItemResult>.NotFound(result.Error!);
+                : HttpResult<DeleteTaskItemResult>.NotFound(result.Error!.Description);
         }
     }
 }

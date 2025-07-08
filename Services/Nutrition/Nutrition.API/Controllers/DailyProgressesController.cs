@@ -31,7 +31,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetDailyProgressResult>.Ok(result.Value!)
-                : HttpResult<GetDailyProgressResult>.NotFound(result.Error!);
+                : HttpResult<GetDailyProgressResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("user/{userId:int}")]
@@ -42,7 +42,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetAllDailyProgressesByUserIdResult>.Ok(result.Value!)
-                : HttpResult<GetAllDailyProgressesByUserIdResult>.NotFound(result.Error!);
+                : HttpResult<GetAllDailyProgressesByUserIdResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
@@ -53,7 +53,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetDailyProgressesResult>.Ok(result.Value!)
-                : HttpResult<GetDailyProgressesResult>.BadRequest(result.Error!);
+                : HttpResult<GetDailyProgressesResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost]
@@ -63,7 +63,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<CreateDailyProgressResult>.Created(result.Value!)
-                : HttpResult<CreateDailyProgressResult>.BadRequest(result.Error!);
+                : HttpResult<CreateDailyProgressResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
@@ -79,9 +79,9 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<UpdateDailyProgressResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<UpdateDailyProgressResult>.NotFound(result.Error!)
-                    : HttpResult<UpdateDailyProgressResult>.BadRequest(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<UpdateDailyProgressResult>.NotFound(result.Error!.Description)
+                    : HttpResult<UpdateDailyProgressResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
@@ -92,7 +92,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<DeleteDailyProgressResult>.Deleted()
-                : HttpResult<DeleteDailyProgressResult>.NotFound(result.Error!);
+                : HttpResult<DeleteDailyProgressResult>.NotFound(result.Error!.Description);
         }
 
         [HttpPost("{id:int}/set-goal")]
@@ -104,9 +104,9 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<SetGoalResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<SetGoalResult>.NotFound(result.Error!)
-                    : HttpResult<SetGoalResult>.BadRequest(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<SetGoalResult>.NotFound(result.Error!.Description!)
+                    : HttpResult<SetGoalResult>.BadRequest(result.Error!.Description);
         }
     }
 }

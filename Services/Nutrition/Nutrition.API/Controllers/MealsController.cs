@@ -31,7 +31,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetMealResult>.Ok(result.Value!)
-                : HttpResult<GetMealResult>.NotFound(result.Error!);
+                : HttpResult<GetMealResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("diary/{id:int}")]
@@ -42,9 +42,9 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetByDiaryResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<GetByDiaryResult>.NotFound(result.Error!)
-                    : HttpResult<GetByDiaryResult>.InternalError(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<GetByDiaryResult>.NotFound(result.Error.Description!)
+                    : HttpResult<GetByDiaryResult>.InternalError(result.Error!.Description);
         }
 
         [HttpGet]
@@ -54,7 +54,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetMealsResult>.Ok(result.Value!)
-                : HttpResult<GetMealsResult>.InternalError(result.Error!);
+                : HttpResult<GetMealsResult>.InternalError(result.Error!.Description);
         }
 
         [HttpPost("{mealId}/foods")]
@@ -65,9 +65,9 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<AddMealFoodResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<AddMealFoodResult>.NotFound(result.Error!)
-                    : HttpResult<AddMealFoodResult>.BadRequest(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<AddMealFoodResult>.NotFound(result.Error!.Description)
+                    : HttpResult<AddMealFoodResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{mealId}/foods/{foodId}")]
@@ -78,9 +78,9 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<RemoveMealFoodResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<RemoveMealFoodResult>.NotFound(result.Error!)
-                    : HttpResult<RemoveMealFoodResult>.BadRequest(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<RemoveMealFoodResult>.NotFound(result.Error!.Description)
+                    : HttpResult<RemoveMealFoodResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost]
@@ -90,7 +90,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<CreateMealResult>.Created(result.Value!)
-                : HttpResult<CreateMealResult>.BadRequest(result.Error!);
+                : HttpResult<CreateMealResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
@@ -104,9 +104,9 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<UpdateMealResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<UpdateMealResult>.NotFound(result.Error!)
-                    : HttpResult<UpdateMealResult>.BadRequest(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<UpdateMealResult>.NotFound(result.Error!.Description!)
+                    : HttpResult<UpdateMealResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
@@ -117,7 +117,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<DeleteMealResult>.Deleted()
-                : HttpResult<DeleteMealResult>.NotFound(result.Error!);
+                : HttpResult<DeleteMealResult>.NotFound(result.Error!.Description);
         }
     }
 }

@@ -3,6 +3,7 @@ using Financial.Application.Contracts;
 using Financial.Application.DTOs.Category;
 using Financial.Application.Mappings;
 using Financial.Domain.Entities;
+using Financial.Domain.Errors;
 using Financial.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
@@ -32,7 +33,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar categorias");
-                return Result.Failure<int>("Erro ao contar categorias");
+                return Result.Failure<int>(Error.Problem("Erro ao contar categorias"));
             }
         }
 
@@ -41,12 +42,9 @@ namespace Financial.Infrastructure.Services
             try
             {
                 if (dto == null)
-                    return Result.Failure<int>("Dados da categoria não podem ser nulos");
+                    return Result.Failure<int>(Error.NullValue);
 
-                if (string.IsNullOrWhiteSpace(dto.Name))
-                    return Result.Failure<int>("O nome da categoria é obrigatório");
-
-                var entity = CategoryMapper.ToEntity(dto);
+                var entity = dto.ToEntity();
                 await _categoryRepository.Create(entity, cancellationToken);
 
                 return Result.Success(entity.Id);
@@ -54,7 +52,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar categoria {@CategoryData}", dto);
-                return Result.Failure<int>("Erro ao criar categoria");
+                return Result.Failure<int>(CategoryErrors.CreateError);
             }
         }
 
@@ -62,16 +60,13 @@ namespace Financial.Infrastructure.Services
         {
             try
             {
-                if (dtos == null)
-                    return Result.Failure<IEnumerable<int>>("Lista de categorias não pode ser nula");
-
-                if (!dtos.Any())
-                    return Result.Failure<IEnumerable<int>>("Lista de categorias está vazia");
+                if (dtos == null || !dtos.Any())
+                    return Result.Failure<IEnumerable<int>>(Error.NullValue);
 
                 // Validação em lote
                 var invalidItems = dtos.Where(dto => string.IsNullOrWhiteSpace(dto.Name)).ToList();
                 if (invalidItems.Any())
-                    return Result.Failure<IEnumerable<int>>("Há categorias com dados inválidos na lista");
+                    return Result.Failure<IEnumerable<int>>(CategoryErrors.CreateError);
 
                 var entities = dtos.Select(CategoryMapper.ToEntity).ToList();
                 await _categoryRepository.CreateRange(entities, cancellationToken);
@@ -81,7 +76,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplas categorias");
-                return Result.Failure<IEnumerable<int>>("Erro ao criar múltiplas categorias");
+                return Result.Failure<IEnumerable<int>>(CategoryErrors.CreateError);
             }
         }
 
@@ -90,11 +85,11 @@ namespace Financial.Infrastructure.Services
             try
             {
                 if (id <= 0)
-                    return Result.Failure<bool>("ID deve ser maior que zero");
+                    return Result.Failure<bool>(Error.Failure("ID deve ser maior que zero"));
 
                 var entity = await _categoryRepository.GetById(id, cancellationToken);
                 if (entity == null)
-                    return Result.Failure<bool>($"Categoria com ID {id} não encontrada");
+                    return Result.Failure<bool>(CategoryErrors.NotFound(id));
 
                 await _categoryRepository.Delete(entity, cancellationToken);
                 return Result.Success(true);
@@ -102,7 +97,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir categoria {CategoryId}", id);
-                return Result.Failure<bool>("Erro ao excluir categoria");
+                return Result.Failure<bool>(CategoryErrors.DeleteError);
             }
         }
 
@@ -111,7 +106,7 @@ namespace Financial.Infrastructure.Services
             try
             {
                 if (ids == null || !ids.Any())
-                    return Result.Failure<bool>("Lista de IDs inválida ou vazia");
+                    return Result.Failure<bool>(Error.Failure("Lista de IDs inválida ou vazia"));
 
                 var entities = new List<Category>();
                 var notFoundIds = new List<int>();
@@ -126,10 +121,10 @@ namespace Financial.Infrastructure.Services
                 }
 
                 if (notFoundIds.Any())
-                    return Result.Failure<bool>($"As seguintes categorias não foram encontradas: {string.Join(", ", notFoundIds)}");
+                    return Result.Failure<bool>(Error.Failure($"As seguintes categorias não foram encontradas: {string.Join(", ", notFoundIds)}"));
 
                 if (!entities.Any())
-                    return Result.Failure<bool>("Nenhuma das categorias foi encontrada");
+                    return Result.Failure<bool>(Error.Failure("Nenhuma das categorias foi encontrada"));
 
                 foreach (var entity in entities)
                     await _categoryRepository.Delete(entity, cancellationToken);
@@ -139,7 +134,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplas categorias {CategoryIds}", ids);
-                return Result.Failure<bool>("Erro ao excluir múltiplas categorias");
+                return Result.Failure<bool>(CategoryErrors.CreateError);
             }
         }
 
@@ -148,17 +143,22 @@ namespace Financial.Infrastructure.Services
             try
             {
                 if (predicate == null)
-                    return Result.Failure<IEnumerable<CategoryDTO>>("O predicado de busca não pode ser nulo");
+                    return Result.Failure<IEnumerable<CategoryDTO>>(Error.NullValue);
 
                 var entities = await _categoryRepository.GetAll(cancellationToken);
-                var dtos = entities.Select(CategoryMapper.ToDTO).AsQueryable().Where(predicate).ToList();
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(CategoryMapper.ToDTO)
+                    .AsQueryable()
+                    .Where(predicate)
+                    .ToList();
 
                 return Result.Success<IEnumerable<CategoryDTO>>(dtos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar categorias com predicado");
-                return Result.Failure<IEnumerable<CategoryDTO>>("Erro ao buscar categorias");
+                return Result.Failure<IEnumerable<CategoryDTO>>(Error.Failure("Erro ao buscar categorias"));
             }
         }
 
@@ -174,7 +174,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todas as categorias");
-                return Result.Failure<IEnumerable<CategoryDTO>>("Erro ao buscar todas as categorias");
+                return Result.Failure<IEnumerable<CategoryDTO>>(CategoryErrors.NotFound());
             }
         }
 
@@ -183,19 +183,17 @@ namespace Financial.Infrastructure.Services
             try
             {
                 if (id <= 0)
-                    return Result.Failure<CategoryDTO>("ID deve ser maior que zero");
+                    return Result.Failure<CategoryDTO>(CategoryErrors.InvalidId);
 
                 var entity = await _categoryRepository.GetById(id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<CategoryDTO>($"Categoria com ID {id} não encontrada");
+                var dto = entity.ToDTO();
 
-                var dto = CategoryMapper.ToDTO(entity);
                 return Result.Success(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar categoria {CategoryId}", id);
-                return Result.Failure<CategoryDTO>("Erro ao buscar categoria");
+                return Result.Failure<CategoryDTO>(CategoryErrors.NotFound(id));
             }
         }
 
@@ -203,11 +201,8 @@ namespace Financial.Infrastructure.Services
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(name))
-                    return Result.Failure<IEnumerable<CategoryDTO>>("Nome não pode ser nulo ou em branco");
-
                 if (userId <= 0)
-                    return Result.Failure<IEnumerable<CategoryDTO>>("ID do usuário deve ser maior que zero");
+                    return Result.Failure<IEnumerable<CategoryDTO>>(CategoryErrors.InvalidUserId);
 
                 var entities = await _categoryRepository.GetByNameContains(name, cancellationToken);
                 var dtos = entities.Select(CategoryMapper.ToDTO).ToList();
@@ -217,7 +212,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar categorias por nome {Name} e usuário {UserId}", name, userId);
-                return Result.Failure<IEnumerable<CategoryDTO>>("Erro ao buscar categorias por nome");
+                return Result.Failure<IEnumerable<CategoryDTO>>(CategoryErrors.NotFound());
             }
         }
 
@@ -226,7 +221,7 @@ namespace Financial.Infrastructure.Services
             try
             {
                 if (userId <= 0)
-                    return Result.Failure<IEnumerable<CategoryDTO>>("ID do usuário deve ser maior que zero");
+                    return Result.Failure<IEnumerable<CategoryDTO>>(CategoryErrors.InvalidUserId);
 
                 var entities = await _categoryRepository.GetAllByUserId(userId, cancellationToken);
                 var dtos = entities.Select(CategoryMapper.ToDTO).ToList();
@@ -236,7 +231,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar categorias do usuário {UserId}", userId);
-                return Result.Failure<IEnumerable<CategoryDTO>>("Erro ao buscar categorias do usuário");
+                return Result.Failure<IEnumerable<CategoryDTO>>(CategoryErrors.NotFound());
             }
         }
 
@@ -245,10 +240,10 @@ namespace Financial.Infrastructure.Services
             try
             {
                 if (page <= 0)
-                    return Result.Failure<(IEnumerable<CategoryDTO>, int)>("Página deve ser maior que zero");
+                    return Result.Failure<(IEnumerable<CategoryDTO>, int)>(Error.Failure("Página deve ser maior que zero"));
 
                 if (pageSize <= 0)
-                    return Result.Failure<(IEnumerable<CategoryDTO>, int)>("Tamanho da página deve ser maior que zero");
+                    return Result.Failure<(IEnumerable<CategoryDTO>, int)>(Error.Failure("Tamanho da página deve ser maior que zero"));
 
                 var entities = await _categoryRepository.GetAll(cancellationToken);
                 int totalCount = entities.Count();
@@ -263,7 +258,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de categorias (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<CategoryDTO>, int)>("Erro ao obter página de categorias");
+                return Result.Failure<(IEnumerable<CategoryDTO>, int)>(CategoryErrors.NotFound());
             }
         }
 
@@ -271,18 +266,15 @@ namespace Financial.Infrastructure.Services
         {
             try
             {
-                if (dto == null)
-                    return Result.Failure<bool>("Dados da categoria não podem ser nulos");
+                if (dto == null)    
+                    return Result.Failure<bool>(Error.NullValue);
 
                 if (dto.Id <= 0)
-                    return Result.Failure<bool>("ID deve ser maior que zero");
-
-                if (string.IsNullOrWhiteSpace(dto.Name))
-                    return Result.Failure<bool>("O nome da categoria é obrigatório");
+                    return Result.Failure<bool>(CategoryErrors.InvalidId);
 
                 var entity = await _categoryRepository.GetById(dto.Id, cancellationToken);
                 if (entity == null)
-                    return Result.Failure<bool>($"Categoria com ID {dto.Id} não encontrada");
+                    return Result.Failure<bool>(CategoryErrors.NotFound(dto.Id));
 
                 entity.Update(dto.Name, dto.Description);
                 await _categoryRepository.Update(entity, cancellationToken);
@@ -292,7 +284,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar categoria {@CategoryData}", dto);
-                return Result.Failure<bool>("Erro ao atualizar categoria");
+                return Result.Failure<bool>(CategoryErrors.UpdateError);
             }
         }
     }

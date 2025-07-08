@@ -28,7 +28,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetLiquidResult>.Ok(result.Value!)
-                : HttpResult<GetLiquidResult>.NotFound(result.Error!);
+                : HttpResult<GetLiquidResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
@@ -38,7 +38,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetAllLiquidsResult>.Ok(result.Value!)
-                : HttpResult<GetAllLiquidsResult>.InternalError(result.Error!);
+                : HttpResult<GetAllLiquidsResult>.InternalError(result.Error!.Description);
         }
 
         [HttpGet("diary/{diaryId:int}")]
@@ -49,9 +49,9 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetLiquidsByDiaryResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<GetLiquidsByDiaryResult>.NotFound(result.Error!)
-                    : HttpResult<GetLiquidsByDiaryResult>.InternalError(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<GetLiquidsByDiaryResult>.NotFound(result.Error!.Description)
+                    : HttpResult<GetLiquidsByDiaryResult>.InternalError(result.Error!.Description);
         }
 
         [HttpPost]
@@ -61,7 +61,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<CreateLiquidResult>.Created(result.Value!)
-                : HttpResult<CreateLiquidResult>.BadRequest(result.Error!);
+                : HttpResult<CreateLiquidResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
@@ -77,9 +77,9 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<UpdateLiquidResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<UpdateLiquidResult>.NotFound(result.Error!)
-                    : HttpResult<UpdateLiquidResult>.BadRequest(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<UpdateLiquidResult>.NotFound(result.Error!.Description)
+                    : HttpResult<UpdateLiquidResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
@@ -90,7 +90,7 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<DeleteLiquidResult>.Deleted()
-                : HttpResult<DeleteLiquidResult>.NotFound(result.Error!);
+                : HttpResult<DeleteLiquidResult>.NotFound(result.Error!.Description);
         }
     }
 }

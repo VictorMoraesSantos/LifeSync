@@ -5,13 +5,13 @@ namespace Financial.Application.Mappings
 {
     public static class CategoryMapper
     {
-        public static Category ToEntity(CreateCategoryDTO dto)
+        public static Category ToEntity(this CreateCategoryDTO dto)
         {
             Category category = new(dto.UserId, dto.Name, dto.Description);
             return category;
         }
 
-        public static CategoryDTO ToDTO(Category entity)
+        public static CategoryDTO ToDTO(this Category entity)
         {
             CategoryDTO dto = new(
                 entity.Id,

@@ -1,4 +1,5 @@
 ﻿using Core.Domain.Entities;
+using System.Data;
 
 namespace Nutrition.Domain.Entities
 {
@@ -16,6 +17,14 @@ namespace Nutrition.Domain.Entities
             SetName(name);
             SetQuantityMl(quantityMl);
             SetCaloriesPerMl(caloriesPerMl);
+        }
+
+        public void Update(string name, int quantityMl, int caloriesPerMl)
+        {
+            SetName(name);
+            SetQuantityMl(quantityMl);
+            SetCaloriesPerMl(caloriesPerMl);
+            MarkAsUpdated();
         }
 
         public void SetName(string name)

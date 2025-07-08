@@ -28,7 +28,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetTransactionByIdResult>.Ok(result.Value!)
-                : HttpResult<GetTransactionByIdResult>.NotFound(result.Error!);
+                : HttpResult<GetTransactionByIdResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("user/{id:int}")]
@@ -39,7 +39,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetTransactionsByUserIdResult>.Ok(result.Value!)
-                : HttpResult<GetTransactionsByUserIdResult>.NotFound(result.Error!);
+                : HttpResult<GetTransactionsByUserIdResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
@@ -50,7 +50,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetAllTransactionsResult>.Ok(result.Value!)
-                : HttpResult<GetAllTransactionsResult>.InternalError(result.Error!);
+                : HttpResult<GetAllTransactionsResult>.InternalError(result.Error!.Description);
         }
 
         [HttpPost]
@@ -60,7 +60,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<CreateTransactionResult>.Created(result.Value!)
-                : HttpResult<CreateTransactionResult>.BadRequest(result.Error!);
+                : HttpResult<CreateTransactionResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
@@ -78,9 +78,9 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<UpdateTransactionResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<UpdateTransactionResult>.NotFound(result.Error!)
-                    : HttpResult<UpdateTransactionResult>.BadRequest(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<UpdateTransactionResult>.NotFound(result.Error!.Description)
+                    : HttpResult<UpdateTransactionResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
@@ -91,7 +91,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<DeleteTransactionResult>.Deleted()
-                : HttpResult<DeleteTransactionResult>.NotFound(result.Error!);
+                : HttpResult<DeleteTransactionResult>.NotFound(result.Error!.Description);
         }
     }
 }

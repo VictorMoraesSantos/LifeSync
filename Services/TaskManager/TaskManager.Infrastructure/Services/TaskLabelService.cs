@@ -32,6 +32,9 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 var entities = await _taskLabelRepository.GetAll(cancellationToken);
+                if (entities == null || !entities.Any())
+                    return Result.Success<IEnumerable<TaskLabelDTO>>(new List<TaskLabelDTO>());
+
                 var dtos = entities.Where(e => e != null).Select(tl => tl.ToDTO()).ToList();
 
                 return Result.Success<IEnumerable<TaskLabelDTO>>(dtos);
@@ -39,7 +42,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todos os rótulos");
-                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.GetAllError.Description);
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.GetAllError);
             }
         }
 
@@ -61,7 +64,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao filtrar rótulos");
-                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.FilterError.Description);
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.FilterError);
             }
         }
 
@@ -72,15 +75,15 @@ namespace TaskManager.Infrastructure.Services
                 var entity = await _taskLabelRepository.GetById(id, cancellationToken);
 
                 if (entity == null)
-                    return Result.Failure<TaskLabelDTO>(TaskLabelErrors.NotFound(id).Description);
+                    return Result.Failure<TaskLabelDTO>(TaskLabelErrors.NotFound(id));
 
-                var dto = TaskLabelMapper.ToDTO(entity);
+                var dto = entity.ToDTO();
                 return Result.Success(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar rótulo {LabelId}", id);
-                return Result.Failure<TaskLabelDTO>(TaskLabelErrors.GetByIdError.Description);
+                return Result.Failure<TaskLabelDTO>(TaskLabelErrors.GetByIdError);
             }
         }
 
@@ -89,23 +92,18 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (dto == null)
-                    return Result.Failure<int>(Error.NullValue.Description);
+                    return Result.Failure<int>(Error.NullValue);
 
-                var entity = new TaskLabel(dto.Name, dto.LabelColor, dto.UserId, dto.TaskItemId);
+                var entity = dto.ToEntity();
                 await _taskLabelRepository.Create(entity, cancellationToken);
 
                 _logger.LogInformation("Rótulo criado com sucesso: {LabelId}", entity.Id);
                 return Result.Success(entity.Id);
             }
-            catch (DomainException ex)
-            {
-                _logger.LogWarning(ex, "Erro de domínio ao criar rótulo {@LabelData}", dto);
-                return Result.Failure<int>(ex.Message);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar rótulo {@LabelData}", dto);
-                return Result.Failure<int>(TaskLabelErrors.CreateError.Description);
+                return Result.Failure<int>(TaskLabelErrors.CreateError);
             }
         }
 
@@ -114,11 +112,11 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (dto == null)
-                    return Result.Failure<bool>(Error.NullValue.Description);
+                    return Result.Failure<bool>(Error.NullValue);
 
                 var entity = await _taskLabelRepository.GetById(dto.Id, cancellationToken);
                 if (entity == null)
-                    return Result.Failure<bool>(TaskLabelErrors.NotFound(dto.Id).Description);
+                    return Result.Failure<bool>(TaskLabelErrors.NotFound(dto.Id));
 
                 entity.Update(dto.Name, dto.LabelColor);
                 await _taskLabelRepository.Update(entity, cancellationToken);
@@ -126,15 +124,10 @@ namespace TaskManager.Infrastructure.Services
                 _logger.LogInformation("Rótulo atualizado com sucesso: {LabelId}", dto.Id);
                 return Result.Success(true);
             }
-            catch (DomainException ex)
-            {
-                _logger.LogWarning(ex, "Erro de domínio ao atualizar rótulo {@LabelData}", dto);
-                return Result.Failure<bool>(ex.Message);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar rótulo {@LabelData}", dto);
-                return Result.Failure<bool>(TaskLabelErrors.UpdateError.Description);
+                return Result.Failure<bool>(TaskLabelErrors.UpdateError);
             }
         }
 
@@ -144,7 +137,7 @@ namespace TaskManager.Infrastructure.Services
             {
                 var entity = await _taskLabelRepository.GetById(id, cancellationToken);
                 if (entity == null)
-                    return Result.Failure<bool>(TaskLabelErrors.NotFound(id).Description);
+                    return Result.Failure<bool>(TaskLabelErrors.NotFound(id));
 
                 await _taskLabelRepository.Delete(entity, cancellationToken);
 
@@ -154,7 +147,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir rótulo {LabelId}", id);
-                return Result.Failure<bool>(TaskLabelErrors.DeleteError.Description);
+                return Result.Failure<bool>(TaskLabelErrors.DeleteError);
             }
         }
 
@@ -163,7 +156,7 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (page < 1 || pageSize < 1)
-                    return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(TaskLabelErrors.InvalidPagination.Description);
+                    return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(TaskLabelErrors.InvalidPagination);
 
                 var all = await _taskLabelRepository.GetAll(cancellationToken);
                 var totalCount = all.Count();
@@ -180,7 +173,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de rótulos (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(TaskLabelErrors.GetPagedError.Description);
+                return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(TaskLabelErrors.GetPagedError);
             }
         }
 
@@ -189,7 +182,7 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (predicate == null)
-                    return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.NullValue.Description);
+                    return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.NullValue);
 
                 var entities = await _taskLabelRepository.GetAll(cancellationToken);
                 var dtos = entities
@@ -204,7 +197,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar rótulos com predicado");
-                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.FindError.Description);
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.FindError);
             }
         }
 
@@ -224,7 +217,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar rótulos");
-                return Result.Failure<int>(TaskLabelErrors.CountError.Description);
+                return Result.Failure<int>(TaskLabelErrors.CountError);
             }
         }
 
@@ -233,7 +226,7 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (dtos == null || !dtos.Any())
-                    return Result.Failure<IEnumerable<int>>(TaskLabelErrors.EmptyOrNullList.Description);
+                    return Result.Failure<IEnumerable<int>>(TaskLabelErrors.EmptyOrNullList);
 
                 var entities = new List<TaskLabel>();
                 var errors = new List<(string Name, string ErrorMessage)>();
@@ -242,7 +235,7 @@ namespace TaskManager.Infrastructure.Services
                 {
                     try
                     {
-                        var entity = new TaskLabel(dto.Name, dto.LabelColor, dto.UserId, dto.TaskItemId);
+                        var entity = dto.ToEntity();
                         entities.Add(entity);
                     }
                     catch (DomainException ex)
@@ -254,8 +247,7 @@ namespace TaskManager.Infrastructure.Services
                 if (errors.Any())
                 {
                     var errorDetails = string.Join("; ", errors.Select(e => $"'{e.Name}': {e.ErrorMessage}"));
-                    return Result.Failure<IEnumerable<int>>(
-                        $"Alguns rótulos possuem dados inválidos: {errorDetails}");
+                    return Result.Failure<IEnumerable<int>>(Error.Failure($"Alguns rótulos possuem dados inválidos: {errorDetails}"));
                 }
 
                 await _taskLabelRepository.CreateRange(entities, cancellationToken);
@@ -266,9 +258,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplos rótulos");
-                return Result.Failure<IEnumerable<int>>(Error.Problem(
-                    "TaskLabel.CreateRangeError",
-                    "Erro ao criar múltiplos rótulos").Description);
+                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplos rótulos"));
             }
         }
 
@@ -277,7 +267,7 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (ids == null || !ids.Any())
-                    return Result.Failure<bool>(TaskLabelErrors.InvalidIds.Description);
+                    return Result.Failure<bool>(TaskLabelErrors.InvalidIds);
 
                 var entities = new List<TaskLabel>();
                 var notFoundIds = new List<int>();
@@ -292,10 +282,10 @@ namespace TaskManager.Infrastructure.Services
                 }
 
                 if (notFoundIds.Any())
-                    return Result.Failure<bool>(TaskLabelErrors.SomeNotFound(notFoundIds).Description);
+                    return Result.Failure<bool>(TaskLabelErrors.SomeNotFound(notFoundIds));
 
                 if (!entities.Any())
-                    return Result.Failure<bool>(TaskLabelErrors.AllNotFound.Description);
+                    return Result.Failure<bool>(TaskLabelErrors.AllNotFound);
 
                 foreach (var entity in entities)
                 {
@@ -309,9 +299,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplos rótulos {LabelIds}", ids);
-                return Result.Failure<bool>(Error.Problem(
-                    "TaskLabel.DeleteRangeError",
-                    "Erro ao excluir múltiplos rótulos").Description);
+                return Result.Failure<bool>(Error.Problem("Erro ao excluir múltiplos rótulos"));
             }
         }
     }

@@ -6,7 +6,9 @@ using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
+using Nutrition.Domain.Errors;
 using Nutrition.Domain.Repositories;
+using Core.Domain.Exceptions;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services
@@ -22,206 +24,52 @@ namespace Nutrition.Infrastructure.Services
             IPublisher publisher,
             ILogger<MealService> logger)
         {
-            _mealRepository = mealRepository;
-            _publisher = publisher;
-            _logger = logger;
+            _mealRepository = mealRepository ?? throw new ArgumentNullException(nameof(mealRepository));
+            _publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Result<bool>> AddMealFoodAsync(int mealId, CreateMealFoodDTO mealFood, CancellationToken cancellationToken)
+        public async Task<Result<MealDTO>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             try
             {
-                if (mealId <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
-
-                if (mealFood == null)
-                    return Result.Failure<bool>(Error.Failure("General", "NullData").Description);
-
-                if (string.IsNullOrWhiteSpace(mealFood.Name))
-                    return Result.Failure<bool>(Error.Failure("MealFood", "NameRequired").Description);
-
-                if (mealFood.QuantityInGrams <= 0)
-                    return Result.Failure<bool>(Error.Failure("MealFood", "InvalidQuantity").Description);
-
-                Meal? meal = await _mealRepository.GetById(mealId, cancellationToken);
+                var meal = await _mealRepository.GetById(id, cancellationToken);
                 if (meal == null)
-                    return Result.Failure<bool>(Error.NotFound("Meal", "NotFound").Description);
+                    return Result.Failure<MealDTO>(MealErrors.NotFound(id));
 
-                MealFood? mealFoodEntity = MealFoodMapper.ToEntity(mealFood);
-
-                meal.AddMealFood(mealFoodEntity);
-                await _mealRepository.Update(meal, cancellationToken);
-
-                // Publicar eventos de domínio
-                foreach (var domainEvent in meal.DomainEvents)
-                {
-                    await _publisher.Publish(domainEvent, cancellationToken);
-                }
-                meal.ClearDomainEvents();
-
-                return Result.Success(true);
+                var mealDTO = meal.ToDTO();
+                return Result.Success(mealDTO);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao adicionar alimento à refeição {MealId}", mealId);
-                return Result.Failure<bool>(Error.Problem("Meal", "AddFoodError").Description);
+                _logger.LogError(ex, "Erro ao buscar refeição {MealId}", id);
+                return Result.Failure<MealDTO>(MealErrors.NotFound(id));
             }
         }
 
-        public async Task<Result<bool>> RemoveMealFoodAsync(int mealId, int foodId, CancellationToken cancellationToken)
+        public async Task<Result<(IEnumerable<MealDTO> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             try
             {
-                if (mealId <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
+                if (page < 1 || pageSize < 1)
+                    return Result.Failure<(IEnumerable<MealDTO>, int)>(Error.Failure("Parâmetros de paginação inválidos"));
 
-                if (foodId <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
+                var entities = await _mealRepository.GetAll(cancellationToken);
+                var totalCount = entities.Count();
 
-                Meal? meal = await _mealRepository.GetById(mealId, cancellationToken);
-                if (meal == null)
-                    return Result.Failure<bool>(Error.NotFound("Meal", "NotFound").Description);
+                var items = entities
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Where(e => e != null)
+                    .Select(MealMapper.ToDTO)
+                    .ToList();
 
-                if (!meal.MealFoods.Any(mf => mf.Id == foodId))
-                    return Result.Failure<bool>(Error.NotFound("MealFood", "NotFound").Description);
-
-                meal.RemoveMealFood(foodId);
-                await _mealRepository.Update(meal, cancellationToken);
-
-                // Publicar eventos de domínio
-                foreach (var domainEvent in meal.DomainEvents)
-                {
-                    await _publisher.Publish(domainEvent, cancellationToken);
-                }
-                meal.ClearDomainEvents();
-
-                return Result.Success(true);
+                return Result.Success<(IEnumerable<MealDTO> Items, int TotalCount)>((items, totalCount));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao remover alimento {FoodId} da refeição {MealId}", foodId, mealId);
-                return Result.Failure<bool>(Error.Problem("Meal", "RemoveFoodError").Description);
-            }
-        }
-
-        public async Task<Result<int>> CountAsync(Expression<Func<MealDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var all = await _mealRepository.GetAll(cancellationToken);
-                return Result.Success(all.Count());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao contar refeições");
-                return Result.Failure<int>(Error.Problem("Meal", "CountError").Description);
-            }
-        }
-
-        public async Task<Result<int>> CreateAsync(CreateMealDTO dto, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (dto == null)
-                    return Result.Failure<int>(Error.Failure("General", "NullData").Description);
-
-                if (string.IsNullOrWhiteSpace(dto.Name))
-                    return Result.Failure<int>(Error.Failure("Meal", "NameRequired").Description);
-
-                Meal entity = MealMapper.ToEntity(dto);
-                await _mealRepository.Create(entity, cancellationToken);
-
-                return Result.Success(entity.Id);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao criar refeição {@MealData}", dto);
-                return Result.Failure<int>(Error.Problem("Meal", "CreateError").Description);
-            }
-        }
-
-        public async Task<Result<IEnumerable<int>>> CreateRangeAsync(IEnumerable<CreateMealDTO> dtos, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (dtos == null)
-                    return Result.Failure<IEnumerable<int>>(Error.Failure("General", "NullData").Description);
-
-                if (!dtos.Any())
-                    return Result.Failure<IEnumerable<int>>(Error.Failure("General", "EmptyList").Description);
-
-                // Validação em lote
-                var invalidItems = dtos.Where(dto => string.IsNullOrWhiteSpace(dto.Name)).ToList();
-                if (invalidItems.Any())
-                    return Result.Failure<IEnumerable<int>>(Error.Failure("Meal", "InvalidItems").Description);
-
-                IEnumerable<Meal> entities = dtos.Select(MealMapper.ToEntity);
-                await _mealRepository.CreateRange(entities, cancellationToken);
-
-                return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id).ToList());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao criar múltiplas refeições");
-                return Result.Failure<IEnumerable<int>>(Error.Problem("Meal", "CreateRangeError").Description);
-            }
-        }
-
-        public async Task<Result<bool>> DeleteAsync(int id, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (id <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
-
-                Meal? entity = await _mealRepository.GetById(id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound("Meal", "NotFound").Description);
-
-                await _mealRepository.Delete(entity, cancellationToken);
-                return Result.Success(true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao excluir refeição {MealId}", id);
-                return Result.Failure<bool>(Error.Problem("Meal", "DeleteError").Description);
-            }
-        }
-
-        public async Task<Result<bool>> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (ids == null || !ids.Any())
-                    return Result.Failure<bool>(Error.Failure("General", "EmptyList").Description);
-
-                List<Meal> entities = new();
-                var notFoundIds = new List<int>();
-
-                foreach (var id in ids)
-                {
-                    Meal? entity = await _mealRepository.GetById(id, cancellationToken);
-                    if (entity != null)
-                        entities.Add(entity);
-                    else
-                        notFoundIds.Add(id);
-                }
-
-                if (notFoundIds.Any())
-                    return Result.Failure<bool>(Error.NotFound("Meal", "SomeNotFound").Description);
-
-                if (!entities.Any())
-                    return Result.Failure<bool>(Error.NotFound("Meal", "AllNotFound").Description);
-
-                foreach (var entity in entities)
-                    await _mealRepository.Delete(entity, cancellationToken);
-
-                return Result.Success(true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao excluir múltiplas refeições {MealIds}", ids);
-                return Result.Failure<bool>(Error.Problem("Meal", "DeleteRangeError").Description);
+                _logger.LogError(ex, "Erro ao obter página de refeições (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
+                return Result.Failure<(IEnumerable<MealDTO>, int)>(Error.Problem("Erro ao obter página de refeições"));
             }
         }
 
@@ -230,18 +78,42 @@ namespace Nutrition.Infrastructure.Services
             try
             {
                 if (predicate == null)
-                    return Result.Failure<IEnumerable<MealDTO>>(Error.Failure("General", "NullData").Description);
+                    return Result.Failure<IEnumerable<MealDTO>>(Error.NullValue);
 
-                // Para simplificar, não implementa filtro por predicate no momento
-                IEnumerable<Meal?> entities = await _mealRepository.GetAll(cancellationToken);
-                IEnumerable<MealDTO> dtos = entities.Select(MealMapper.ToDTO!);
+                var entities = await _mealRepository.GetAll(cancellationToken);
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(MealMapper.ToDTO)
+                    .AsQueryable()
+                    .Where(predicate)
+                    .ToList();
 
                 return Result.Success<IEnumerable<MealDTO>>(dtos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar refeições com predicado");
-                return Result.Failure<IEnumerable<MealDTO>>(Error.Problem("Meal", "FindError").Description);
+                return Result.Failure<IEnumerable<MealDTO>>(Error.Problem("Erro ao buscar refeições"));
+            }
+        }
+
+        public async Task<Result<int>> CountAsync(Expression<Func<MealDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var all = await _mealRepository.GetAll(cancellationToken);
+                var dtos = all
+                    .Where(e => e != null)
+                    .Select(MealMapper.ToDTO)
+                    .AsQueryable();
+
+                int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
+                return Result.Success(count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao contar refeições");
+                return Result.Failure<int>(Error.Problem("Erro ao contar refeições"));
             }
         }
 
@@ -249,63 +121,79 @@ namespace Nutrition.Infrastructure.Services
         {
             try
             {
-                IEnumerable<Meal?> entities = await _mealRepository.GetAll(cancellationToken);
-                IEnumerable<MealDTO> dtos = entities.Select(MealMapper.ToDTO!);
+                var entities = await _mealRepository.GetAll(cancellationToken);
+                if (entities == null || !entities.Any())
+                    return Result.Success<IEnumerable<MealDTO>>(new List<MealDTO>());
+
+                var dtos = entities.Where(e => e != null).Select(MealMapper.ToDTO).ToList();
 
                 return Result.Success<IEnumerable<MealDTO>>(dtos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todas as refeições");
-                return Result.Failure<IEnumerable<MealDTO>>(Error.Problem("Meal", "GetAllError").Description);
+                return Result.Failure<IEnumerable<MealDTO>>(Error.Problem("Erro ao buscar todas as refeições"));
             }
         }
 
-        public async Task<Result<MealDTO>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<Result<int>> CreateAsync(CreateMealDTO dto, CancellationToken cancellationToken = default)
         {
             try
             {
-                if (id <= 0)
-                    return Result.Failure<MealDTO>(Error.Failure("General", "InvalidId").Description);
+                if (dto == null)
+                    return Result.Failure<int>(Error.NullValue);
 
-                Meal? entity = await _mealRepository.GetById(id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<MealDTO>(Error.NotFound("Meal", "NotFound").Description);
+                var entity = MealMapper.ToEntity(dto);
+                await _mealRepository.Create(entity, cancellationToken);
 
-                MealDTO dto = MealMapper.ToDTO(entity);
-                return Result.Success(dto);
+                _logger.LogInformation("Refeição criada com sucesso: {MealId}", entity.Id);
+                return Result.Success(entity.Id);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao buscar refeição {MealId}", id);
-                return Result.Failure<MealDTO>(Error.Problem("Meal", "GetByIdError").Description);
+                _logger.LogError(ex, "Erro ao criar refeição {@MealData}", dto);
+                return Result.Failure<int>(MealErrors.CreateError);
             }
         }
 
-        public async Task<Result<(IEnumerable<MealDTO> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<Result<IEnumerable<int>>> CreateRangeAsync(IEnumerable<CreateMealDTO> dtos, CancellationToken cancellationToken = default)
         {
             try
             {
-                if (page < 1)
-                    return Result.Failure<(IEnumerable<MealDTO>, int)>(Error.Failure("Meal", "InvalidPage").Description);
+                if (dtos == null || !dtos.Any())
+                    return Result.Failure<IEnumerable<int>>(Error.Failure("Lista de refeições inválida ou vazia"));
 
-                if (pageSize < 1)
-                    return Result.Failure<(IEnumerable<MealDTO>, int)>(Error.Failure("Meal", "InvalidPageSize").Description);
+                var entities = new List<Meal>();
+                var errors = new List<(string Name, string ErrorMessage)>();
 
-                IEnumerable<Meal?> all = await _mealRepository.GetAll(cancellationToken);
-                int totalCount = all.Count();
+                foreach (var dto in dtos)
+                {
+                    try
+                    {
+                        var entity = MealMapper.ToEntity(dto);
+                        entities.Add(entity);
+                    }
+                    catch (DomainException ex)
+                    {
+                        errors.Add((dto.Name ?? "Sem nome", ex.Message));
+                    }
+                }
 
-                IEnumerable<MealDTO> items = all
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(MealMapper.ToDTO!);
+                if (errors.Any())
+                {
+                    var errorDetails = string.Join("; ", errors.Select(e => $"'{e.Name}': {e.ErrorMessage}"));
+                    return Result.Failure<IEnumerable<int>>(Error.Failure($"Algumas refeições possuem dados inválidos: {errorDetails}"));
+                }
 
-                return Result.Success<(IEnumerable<MealDTO> Items, int TotalCount)>((items, totalCount));
+                await _mealRepository.CreateRange(entities, cancellationToken);
+
+                _logger.LogInformation("Criadas {Count} refeições com sucesso", entities.Count);
+                return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id).ToList());
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao obter página de refeições (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<MealDTO>, int)>(Error.Problem("Meal", "GetPagedError").Description);
+                _logger.LogError(ex, "Erro ao criar múltiplas refeições");
+                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplas refeições"));
             }
         }
 
@@ -314,35 +202,152 @@ namespace Nutrition.Infrastructure.Services
             try
             {
                 if (dto == null)
-                    return Result.Failure<bool>(Error.Failure("General", "NullData").Description);
+                    return Result.Failure<bool>(Error.NullValue);
 
-                if (dto.Id <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
-
-                Meal? entity = await _mealRepository.GetById(dto.Id, cancellationToken);
+                var entity = await _mealRepository.GetById(dto.Id, cancellationToken);
                 if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound("Meal", "NotFound").Description);
+                    return Result.Failure<bool>(MealErrors.NotFound(dto.Id));
 
-                // Validações
-                if (dto.Name != null && string.IsNullOrWhiteSpace(dto.Name))
-                    return Result.Failure<bool>(Error.Failure("Meal", "NameRequired").Description);
-
-                // Atualizações
-                if (!string.IsNullOrWhiteSpace(dto.Name))
-                    entity.UpdateName(dto.Name);
-
-                if (!string.IsNullOrWhiteSpace(dto.Description))
-                    entity.UpdateDescription(dto.Description);
+                entity.UpdateName(dto.Name);
+                entity.UpdateDescription(dto.Description);
 
                 entity.MarkAsUpdated();
-
                 await _mealRepository.Update(entity, cancellationToken);
+
+                _logger.LogInformation("Refeição atualizada com sucesso: {MealId}", dto.Id);
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao atualizar refeição {@MealData}", dto);
-                return Result.Failure<bool>(Error.Problem("Meal", "UpdateError").Description);
+                _logger.LogError(ex, "Erro ao atualizar refeição {MealId}", dto.Id);
+                return Result.Failure<bool>(MealErrors.UpdateError);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteAsync(int id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var entity = await _mealRepository.GetById(id, cancellationToken);
+                if (entity == null)
+                    return Result.Failure<bool>(MealErrors.NotFound(id));
+
+                await _mealRepository.Delete(entity, cancellationToken);
+
+                _logger.LogInformation("Refeição excluída com sucesso: {MealId}", id);
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir refeição {MealId}", id);
+                return Result.Failure<bool>(MealErrors.DeleteError);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteRangeAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (ids == null || !ids.Any())
+                    return Result.Failure<bool>(Error.Failure("Lista de IDs inválida ou vazia"));
+
+                var entities = new List<Meal>();
+                var notFoundIds = new List<int>();
+
+                foreach (var id in ids)
+                {
+                    var entity = await _mealRepository.GetById(id, cancellationToken);
+                    if (entity != null)
+                        entities.Add(entity);
+                    else
+                        notFoundIds.Add(id);
+                }
+
+                if (notFoundIds.Any())
+                {
+                    var idsText = string.Join(", ", notFoundIds);
+                    return Result.Failure<bool>(Error.NotFound($"As seguintes refeições não foram encontradas: {idsText}"));
+                }
+
+                if (!entities.Any())
+                    return Result.Failure<bool>(Error.NotFound("Nenhuma das refeições foi encontrada"));
+
+                foreach (var entity in entities)
+                {
+                    await _mealRepository.Delete(entity, cancellationToken);
+                }
+
+                _logger.LogInformation("Excluídas {Count} refeições com sucesso", entities.Count);
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao excluir múltiplas refeições {MealIds}", ids);
+                return Result.Failure<bool>(Error.Problem(MealErrors.DeleteError.Description));
+            }
+        }
+
+        public async Task<Result<bool>> AddMealFoodAsync(int mealId, CreateMealFoodDTO mealFood, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (mealFood == null)
+                    return Result.Failure<bool>(MealErrors.NullMealFood);
+
+                var meal = await _mealRepository.GetById(mealId, cancellationToken);
+                if (meal == null)
+                    return Result.Failure<bool>(MealErrors.NotFound(mealId));
+
+                var mealFoodEntity = MealFoodMapper.ToEntity(mealFood);
+                meal.AddMealFood(mealFoodEntity);
+
+                await _mealRepository.Update(meal, cancellationToken);
+
+                foreach (var domainEvent in meal.DomainEvents)
+                {
+                    await _publisher.Publish(domainEvent, cancellationToken);
+                }
+
+                meal.ClearDomainEvents();
+
+                _logger.LogInformation("Alimento adicionado à refeição {MealId} com sucesso", mealId);
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao adicionar alimento à refeição {MealId}", mealId);
+                return Result.Failure<bool>(Error.Problem("Erro ao adicionar alimento à refeição"));
+            }
+        }
+
+        public async Task<Result<bool>> RemoveMealFoodAsync(int mealId, int foodId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var meal = await _mealRepository.GetById(mealId, cancellationToken);
+                if (meal == null)
+                    return Result.Failure<bool>(MealErrors.NotFound(mealId));
+
+                if (!meal.MealFoods.Any(mf => mf.Id == foodId))
+                    return Result.Failure<bool>(MealErrors.MealFoodNotFound);
+
+                meal.RemoveMealFood(foodId);
+                await _mealRepository.Update(meal, cancellationToken);
+
+                foreach (var domainEvent in meal.DomainEvents)
+                {
+                    await _publisher.Publish(domainEvent, cancellationToken);
+                }
+
+                meal.ClearDomainEvents();
+
+                _logger.LogInformation("Alimento {FoodId} removido da refeição {MealId} com sucesso", foodId, mealId);
+                return Result.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao remover alimento {FoodId} da refeição {MealId}", foodId, mealId);
+                return Result.Failure<bool>(Error.Problem("Erro ao remover alimento da refeição"));
             }
         }
     }

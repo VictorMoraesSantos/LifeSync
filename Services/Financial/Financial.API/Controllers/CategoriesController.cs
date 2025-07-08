@@ -28,7 +28,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetCategoryByIdResult>.Ok(result.Value!)
-                : HttpResult<GetCategoryByIdResult>.NotFound(result.Error!);
+                : HttpResult<GetCategoryByIdResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("user/{userId:int}")]
@@ -39,7 +39,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetCategoriesByUserIdResult>.Ok(result.Value!)
-                : HttpResult<GetCategoriesByUserIdResult>.NotFound(result.Error!);
+                : HttpResult<GetCategoriesByUserIdResult>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
@@ -50,7 +50,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<GetAllCategoriesResult>.Ok(result.Value!)
-                : HttpResult<GetAllCategoriesResult>.InternalError(result.Error!);
+                : HttpResult<GetAllCategoriesResult>.InternalError(result.Error!.Description);
         }
 
         [HttpPost]
@@ -60,7 +60,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<CreateCategoryResult>.Created(result.Value!)
-                : HttpResult<CreateCategoryResult>.BadRequest(result.Error!);
+                : HttpResult<CreateCategoryResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
@@ -71,9 +71,9 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<UpdateCategoryResult>.Ok(result.Value!)
-                : result.Error.Contains("NotFound")
-                    ? HttpResult<UpdateCategoryResult>.NotFound(result.Error!)
-                    : HttpResult<UpdateCategoryResult>.BadRequest(result.Error!);
+                : result.Error!.Description.Contains("NotFound")
+                    ? HttpResult<UpdateCategoryResult>.NotFound(result.Error!.Description)
+                    : HttpResult<UpdateCategoryResult>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
@@ -84,7 +84,7 @@ namespace Financial.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<DeleteCategoryResult>.Deleted()
-                : HttpResult<DeleteCategoryResult>.NotFound(result.Error!);
+                : HttpResult<DeleteCategoryResult>.NotFound(result.Error!.Description);
         }
     }
 }

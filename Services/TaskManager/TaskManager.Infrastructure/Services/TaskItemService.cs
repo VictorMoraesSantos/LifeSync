@@ -32,9 +32,8 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 var taskItem = await _taskItemRepository.GetById(id, cancellationToken);
-
                 if (taskItem == null)
-                    return Result.Failure<TaskItemDTO>(TaskItemErrors.NotFound(id).Description);
+                    return Result.Failure<TaskItemDTO>(TaskItemErrors.NotFound(id));
 
                 var taskItemDTO = taskItem.ToDTO();
                 return Result.Success(taskItemDTO);
@@ -42,9 +41,33 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar tarefa {TaskId}", id);
-                return Result.Failure<TaskItemDTO>(Error.Problem(
-                    "TaskItem.GetByIdError",
-                    "Erro ao buscar tarefa").Description);
+                return Result.Failure<TaskItemDTO>(TaskItemErrors.NotFound(id));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<TaskItemDTO> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (page < 1 || pageSize < 1)
+                    return Result.Failure<(IEnumerable<TaskItemDTO>, int)>(Error.Failure("Parâmetros de paginação inválidos"));
+
+                var entities = await _taskItemRepository.GetAll(cancellationToken);
+                var totalCount = entities.Count();
+
+                var items = entities
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Where(e => e != null)
+                    .Select(TaskItemMapper.ToDTO)
+                    .ToList();
+
+                return Result.Success<(IEnumerable<TaskItemDTO> Items, int TotalCount)>((items, totalCount));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter página de tarefas (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
+                return Result.Failure<(IEnumerable<TaskItemDTO>, int)>(Error.Problem("Erro ao obter página de tarefas"));
             }
         }
 
@@ -61,6 +84,9 @@ namespace TaskManager.Infrastructure.Services
                     filter.LabelId);
 
                 var entities = await _taskItemRepository.FindByFilter(domainFilter, cancellationToken);
+                if (entities == null || !entities.Any())
+                    return Result.Success<IEnumerable<TaskItemDTO>>(new List<TaskItemDTO>());
+
                 var dtos = entities.Where(e => e != null).Select(TaskItemMapper.ToDTO).ToList();
 
                 return Result.Success<IEnumerable<TaskItemDTO>>(dtos);
@@ -68,136 +94,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao filtrar tarefas {@Filter}", filter);
-                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem(
-                    "TaskItem.FilterError",
-                    "Erro ao filtrar tarefas").Description);
-            }
-        }
-
-        public async Task<Result<IEnumerable<TaskItemDTO>>> GetAllAsync(CancellationToken cancellationToken)
-        {
-            try
-            {
-                var entities = await _taskItemRepository.GetAll(cancellationToken);
-                var dtos = entities.Where(e => e != null).Select(TaskItemMapper.ToDTO).ToList();
-
-                return Result.Success<IEnumerable<TaskItemDTO>>(dtos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar todas as tarefas");
-                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem(
-                    "TaskItem.GetAllError",
-                    "Erro ao buscar todas as tarefas").Description);
-            }
-        }
-
-        public async Task<Result<int>> CreateAsync(CreateTaskItemDTO dto, CancellationToken cancellationToken)
-        {
-            try
-            {
-                if (dto == null)
-                    return Result.Failure<int>(Error.NullValue.Description);
-
-                // Deixe o domínio fazer as validações
-                var entity = new TaskItem(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId);
-                await _taskItemRepository.Create(entity, cancellationToken);
-
-                _logger.LogInformation("Tarefa criada com sucesso: {TaskId}", entity.Id);
-                return Result.Success(entity.Id);
-            }
-            catch (DomainException ex)
-            {
-                _logger.LogWarning(ex, "Erro de domínio ao criar tarefa {@TaskData}", dto);
-                return Result.Failure<int>(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao criar tarefa {@TaskData}", dto);
-                return Result.Failure<int>(TaskItemErrors.CreateError.Description);
-            }
-        }
-
-        public async Task<Result<bool>> UpdateAsync(int id, string title, string description, int status, int priority, DateOnly dueDate, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var entity = await _taskItemRepository.GetById(id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<bool>(TaskItemErrors.NotFound(id).Description);
-
-                // Validação de enum - apenas esta permanece no serviço porque é uma validação técnica, não de negócio
-                if (!Enum.IsDefined(typeof(Status), status) || !Enum.IsDefined(typeof(Priority), priority))
-                    return Result.Failure<bool>(Error.Failure(
-                        "TaskItem.InvalidEnum",
-                        "Status ou prioridade inválidos").Description);
-
-                // Deixe o domínio fazer as validações de regras de negócio
-                entity.Update(title, description, (Status)status, (Priority)priority, dueDate);
-                await _taskItemRepository.Update(entity, cancellationToken);
-
-                _logger.LogInformation("Tarefa atualizada com sucesso: {TaskId}", id);
-                return Result.Success(true);
-            }
-            catch (DomainException ex)
-            {
-                _logger.LogWarning(ex, "Erro de domínio ao atualizar tarefa {TaskId}", id);
-                return Result.Failure<bool>(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao atualizar tarefa {TaskId}", id);
-                return Result.Failure<bool>(TaskItemErrors.UpdateError.Description);
-            }
-        }
-
-        public async Task<Result<bool>> DeleteAsync(int id, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var entity = await _taskItemRepository.GetById(id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<bool>(TaskItemErrors.NotFound(id).Description);
-
-                await _taskItemRepository.Delete(entity, cancellationToken);
-
-                _logger.LogInformation("Tarefa excluída com sucesso: {TaskId}", id);
-                return Result.Success(true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao excluir tarefa {TaskId}", id);
-                return Result.Failure<bool>(TaskItemErrors.DeleteError.Description);
-            }
-        }
-
-        public async Task<Result<(IEnumerable<TaskItemDTO> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (page < 1 || pageSize < 1)
-                    return Result.Failure<(IEnumerable<TaskItemDTO>, int)>(Error.Failure(
-                        "TaskItem.InvalidPagination",
-                        "Parâmetros de paginação inválidos").Description);
-
-                var all = await _taskItemRepository.GetAll(cancellationToken);
-                var totalCount = all.Count();
-
-                var items = all
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .Where(e => e != null)
-                    .Select(TaskItemMapper.ToDTO)
-                    .ToList();
-
-                return Result.Success<(IEnumerable<TaskItemDTO> Items, int TotalCount)>((items, totalCount));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao obter página de tarefas (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<TaskItemDTO>, int)>(Error.Problem(
-                    "TaskItem.GetPagedError",
-                    "Erro ao obter página de tarefas").Description);
+                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem("Erro ao filtrar tarefas"));
             }
         }
 
@@ -206,7 +103,7 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (predicate == null)
-                    return Result.Failure<IEnumerable<TaskItemDTO>>(Error.NullValue.Description);
+                    return Result.Failure<IEnumerable<TaskItemDTO>>(Error.NullValue);
 
                 var entities = await _taskItemRepository.GetAll(cancellationToken);
                 var dtos = entities
@@ -221,9 +118,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar tarefas com predicado");
-                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem(
-                    "TaskItem.FindError",
-                    "Erro ao buscar tarefas").Description);
+                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem("Erro ao buscar tarefas"));
             }
         }
 
@@ -243,9 +138,47 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar tarefas");
-                return Result.Failure<int>(Error.Problem(
-                    "TaskItem.CountError",
-                    "Erro ao contar tarefas").Description);
+                return Result.Failure<int>(Error.Problem("Erro ao contar tarefas"));
+            }
+        }
+
+        public async Task<Result<IEnumerable<TaskItemDTO>>> GetAllAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var entities = await _taskItemRepository.GetAll(cancellationToken);
+                if (entities == null || !entities.Any())
+                    return Result.Success<IEnumerable<TaskItemDTO>>(new List<TaskItemDTO>());
+
+                var dtos = entities.Select(TaskItemMapper.ToDTO!).ToList();
+
+                return Result.Success<IEnumerable<TaskItemDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar todas as tarefas");
+                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem("Erro ao buscar todas as tarefas"));
+            }
+        }
+
+        public async Task<Result<int>> CreateAsync(CreateTaskItemDTO dto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (dto == null)
+                    return Result.Failure<int>(Error.NullValue);
+
+                var entity = dto.ToEntity();
+
+                await _taskItemRepository.Create(entity, cancellationToken);
+
+                _logger.LogInformation("Tarefa criada com sucesso: {TaskId}", entity.Id);
+                return Result.Success(entity.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar tarefa {@TaskData}", dto);
+                return Result.Failure<int>(TaskItemErrors.CreateError);
             }
         }
 
@@ -254,19 +187,16 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (dtos == null || !dtos.Any())
-                    return Result.Failure<IEnumerable<int>>(Error.Failure(
-                        "TaskItem.EmptyOrNullList",
-                        "Lista de tarefas não pode ser nula ou vazia").Description);
+                    return Result.Failure<IEnumerable<int>>(Error.Failure(Error.NullValue.Description));
 
                 var entities = new List<TaskItem>();
                 var errors = new List<(string Title, string ErrorMessage)>();
 
-                // Tenta criar cada entidade, capturando erros de domínio
                 foreach (var dto in dtos)
                 {
                     try
                     {
-                        var entity = new TaskItem(dto.Title, dto.Description, dto.Priority, dto.DueDate, dto.UserId);
+                        var entity = dto.ToEntity();
                         entities.Add(entity);
                     }
                     catch (DomainException ex)
@@ -278,8 +208,7 @@ namespace TaskManager.Infrastructure.Services
                 if (errors.Any())
                 {
                     var errorDetails = string.Join("; ", errors.Select(e => $"'{e.Title}': {e.ErrorMessage}"));
-                    return Result.Failure<IEnumerable<int>>(
-                        $"Algumas tarefas possuem dados inválidos: {errorDetails}");
+                    return Result.Failure<IEnumerable<int>>(Error.Failure($"Algumas tarefas possuem dados inválidos: {errorDetails}"));
                 }
 
                 await _taskItemRepository.CreateRange(entities, cancellationToken);
@@ -290,45 +219,54 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplas tarefas");
-                return Result.Failure<IEnumerable<int>>(Error.Problem(
-                    "TaskItem.CreateRangeError",
-                    "Erro ao criar múltiplas tarefas").Description);
+                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplas tarefas"));
             }
         }
 
-        public async Task<Result<bool>> UpdateAsync(UpdateTaskItemDTO dto, CancellationToken cancellationToken = default)
+        public async Task<Result<bool>> UpdateAsync(UpdateTaskItemDTO dto, CancellationToken cancellationToken)
         {
             try
             {
                 if (dto == null)
-                    return Result.Failure<bool>(Error.NullValue.Description);
+                    return Result.Failure<bool>(Error.NullValue);
 
                 var entity = await _taskItemRepository.GetById(dto.Id, cancellationToken);
                 if (entity == null)
-                    return Result.Failure<bool>(TaskItemErrors.NotFound(dto.Id).Description);
+                    return Result.Failure<bool>(TaskItemErrors.NotFound(dto.Id));
 
-                // Validação de enum - apenas esta permanece no serviço
-                if (!Enum.IsDefined(typeof(Status), (int)dto.Status) || !Enum.IsDefined(typeof(Priority), (int)dto.Priority))
-                    return Result.Failure<bool>(Error.Failure(
-                        "TaskItem.InvalidEnum",
-                        "Status ou prioridade inválidos").Description);
+                if (!Enum.IsDefined(typeof(Status), dto.Status) || !Enum.IsDefined(typeof(Priority), dto.Status))
+                    return Result.Failure<bool>(Error.Failure("Status ou prioridade inválidos"));
 
-                // Deixe o domínio fazer as validações
                 entity.Update(dto.Title, dto.Description, dto.Status, dto.Priority, dto.DueDate);
                 await _taskItemRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Tarefa atualizada com sucesso: {TaskId}", dto.Id);
                 return Result.Success(true);
             }
-            catch (DomainException ex)
+            catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Erro de domínio ao atualizar tarefa {@TaskData}", dto);
-                return Result.Failure<bool>(ex.Message);
+                _logger.LogError(ex, "Erro ao atualizar tarefa {TaskId}", dto.Id);
+                return Result.Failure<bool>(TaskItemErrors.UpdateError);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteAsync(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var entity = await _taskItemRepository.GetById(id, cancellationToken);
+                if (entity == null)
+                    return Result.Failure<bool>(TaskItemErrors.NotFound(id));
+
+                await _taskItemRepository.Delete(entity, cancellationToken);
+
+                _logger.LogInformation("Tarefa excluída com sucesso: {TaskId}", id);
+                return Result.Success(true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro ao atualizar tarefa {@TaskData}", dto);
-                return Result.Failure<bool>(TaskItemErrors.UpdateError.Description);
+                _logger.LogError(ex, "Erro ao excluir tarefa {TaskId}", id);
+                return Result.Failure<bool>(TaskItemErrors.DeleteError);
             }
         }
 
@@ -337,9 +275,7 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 if (ids == null || !ids.Any())
-                    return Result.Failure<bool>(Error.Failure(
-                        "TaskItem.InvalidIds",
-                        "Lista de IDs inválida ou vazia").Description);
+                    return Result.Failure<bool>(Error.Failure("Lista de IDs inválida ou vazia"));
 
                 var entities = new List<TaskItem>();
                 var notFoundIds = new List<int>();
@@ -356,15 +292,11 @@ namespace TaskManager.Infrastructure.Services
                 if (notFoundIds.Any())
                 {
                     var idsText = string.Join(", ", notFoundIds);
-                    return Result.Failure<bool>(Error.NotFound(
-                        "TaskItem.SomeNotFound",
-                        $"As seguintes tarefas não foram encontradas: {idsText}").Description);
+                    return Result.Failure<bool>(Error.NotFound($"As seguintes tarefas não foram encontradas: {idsText}"));
                 }
 
                 if (!entities.Any())
-                    return Result.Failure<bool>(Error.NotFound(
-                        "TaskItem.AllNotFound",
-                        "Nenhuma das tarefas foi encontrada").Description);
+                    return Result.Failure<bool>(Error.NotFound("Nenhuma das tarefas foi encontrada"));
 
                 foreach (var entity in entities)
                 {
@@ -378,9 +310,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplas tarefas {TaskIds}", ids);
-                return Result.Failure<bool>(Error.Problem(
-                    "TaskItem.DeleteRangeError",
-                    "Erro ao excluir múltiplas tarefas").Description);
+                return Result.Failure<bool>(Error.Problem(TaskItemErrors.DeleteError.Description));
             }
         }
     }

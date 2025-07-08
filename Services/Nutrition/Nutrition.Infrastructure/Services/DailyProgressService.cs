@@ -4,7 +4,9 @@ using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
+using Nutrition.Domain.Errors;
 using Nutrition.Domain.Repositories;
+using Core.Domain.Exceptions;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services
@@ -18,8 +20,76 @@ namespace Nutrition.Infrastructure.Services
             IDailyProgressRepository dailyProgressRepository,
             ILogger<DailyProgressService> logger)
         {
-            _dailyProgressRepository = dailyProgressRepository;
-            _logger = logger;
+            _dailyProgressRepository = dailyProgressRepository ?? throw new ArgumentNullException(nameof(dailyProgressRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public async Task<Result<DailyProgressDTO>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var dailyProgress = await _dailyProgressRepository.GetById(id, cancellationToken);
+                if (dailyProgress == null)
+                    return Result.Failure<DailyProgressDTO>(DailyProgressErrors.NotFound(id));
+
+                var dailyProgressDTO = DailyProgressMapper.ToDTO(dailyProgress);
+                return Result.Success(dailyProgressDTO);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar progresso diário {ProgressId}", id);
+                return Result.Failure<DailyProgressDTO>(DailyProgressErrors.NotFound(id));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<DailyProgressDTO> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (page < 1 || pageSize < 1)
+                    return Result.Failure<(IEnumerable<DailyProgressDTO>, int)>(Error.Failure("Parâmetros de paginação inválidos"));
+
+                var entities = await _dailyProgressRepository.GetAll(cancellationToken);
+                var totalCount = entities.Count();
+
+                var items = entities
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Where(e => e != null)
+                    .Select(DailyProgressMapper.ToDTO)
+                    .ToList();
+
+                return Result.Success<(IEnumerable<DailyProgressDTO> Items, int TotalCount)>((items, totalCount));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter página de progresso diário (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
+                return Result.Failure<(IEnumerable<DailyProgressDTO>, int)>(Error.Problem("Erro ao obter página de progresso diário"));
+            }
+        }
+
+        public async Task<Result<IEnumerable<DailyProgressDTO>>> FindAsync(Expression<Func<DailyProgressDTO, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (predicate == null)
+                    return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.NullValue);
+
+                var entities = await _dailyProgressRepository.GetAll(cancellationToken);
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(DailyProgressMapper.ToDTO)
+                    .AsQueryable()
+                    .Where(predicate)
+                    .ToList();
+
+                return Result.Success<IEnumerable<DailyProgressDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar progresso diário com predicado");
+                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("Erro ao buscar progresso diário"));
+            }
         }
 
         public async Task<Result<int>> CountAsync(Expression<Func<DailyProgressDTO, bool>>? predicate = null, CancellationToken cancellationToken = default)
@@ -27,12 +97,59 @@ namespace Nutrition.Infrastructure.Services
             try
             {
                 var all = await _dailyProgressRepository.GetAll(cancellationToken);
-                return Result.Success(all.Count());
+                var dtos = all
+                    .Where(e => e != null)
+                    .Select(DailyProgressMapper.ToDTO)
+                    .AsQueryable();
+
+                int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
+                return Result.Success(count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar registros de progresso diário");
-                return Result.Failure<int>(Error.Problem("DailyProgress", "CountError").Description);
+                return Result.Failure<int>(Error.Problem("Erro ao contar registros de progresso diário"));
+            }
+        }
+
+        public async Task<Result<IEnumerable<DailyProgressDTO>>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var entities = await _dailyProgressRepository.GetAll(cancellationToken);
+                if (entities == null || !entities.Any())
+                    return Result.Success<IEnumerable<DailyProgressDTO>>(new List<DailyProgressDTO>());
+
+                var dtos = entities.Where(e => e != null).Select(DailyProgressMapper.ToDTO).ToList();
+
+                return Result.Success<IEnumerable<DailyProgressDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar todos os registros de progresso diário");
+                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("Erro ao buscar todos os registros de progresso diário"));
+            }
+        }
+
+        public async Task<Result<IEnumerable<DailyProgressDTO>>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (userId <= 0)
+                    return Result.Failure<IEnumerable<DailyProgressDTO>>(DailyProgressErrors.InvalidUserId);
+
+                var entities = await _dailyProgressRepository.GetAllByUserId(userId, cancellationToken);
+                if (entities == null || !entities.Any())
+                    return Result.Success<IEnumerable<DailyProgressDTO>>(new List<DailyProgressDTO>());
+
+                var dtos = entities.Where(e => e != null).Select(DailyProgressMapper.ToDTO).ToList();
+
+                return Result.Success<IEnumerable<DailyProgressDTO>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar registros de progresso diário do usuário {UserId}", userId);
+                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("Erro ao buscar registros de progresso diário do usuário"));
             }
         }
 
@@ -41,21 +158,34 @@ namespace Nutrition.Infrastructure.Services
             try
             {
                 if (dto == null)
-                    return Result.Failure<int>(Error.Failure("General", "NullData").Description);
+                    return Result.Failure<int>(Error.NullValue);
 
-                // Validações adicionais podem ser adicionadas aqui
+                // Validação de data futura
                 if (dto.Date > DateOnly.FromDateTime(DateTime.Today))
-                    return Result.Failure<int>(Error.Failure("DailyProgress", "FutureDate").Description);
+                    return Result.Failure<int>(DailyProgressErrors.FutureDate);
 
                 var entity = DailyProgressMapper.ToEntity(dto);
                 await _dailyProgressRepository.Create(entity, cancellationToken);
 
+                _logger.LogInformation("Progresso diário criado com sucesso: {ProgressId}", entity.Id);
                 return Result.Success(entity.Id);
+            }
+            catch (DomainException ex) when (ex.Message.Contains("userId"))
+            {
+                _logger.LogWarning(ex, "UserId inválido ao criar progresso diário {@ProgressData}", dto);
+                return Result.Failure<int>(DailyProgressErrors.InvalidUserId);
+            }
+            catch (ArgumentOutOfRangeException ex) when (ex.Message.Contains("negative"))
+            {
+                _logger.LogWarning(ex, "Valores negativos ao criar progresso diário {@ProgressData}", dto);
+                return Result.Failure<int>(ex.ParamName?.Contains("calories") == true
+                    ? DailyProgressErrors.NegativeCalories
+                    : DailyProgressErrors.NegativeLiquids);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar progresso diário {@ProgressData}", dto);
-                return Result.Failure<int>(Error.Problem("DailyProgress", "CreateError").Description);
+                return Result.Failure<int>(DailyProgressErrors.CreateError);
             }
         }
 
@@ -63,26 +193,155 @@ namespace Nutrition.Infrastructure.Services
         {
             try
             {
-                if (dtos == null)
-                    return Result.Failure<IEnumerable<int>>(Error.Failure("General", "NullData").Description);
+                if (dtos == null || !dtos.Any())
+                    return Result.Failure<IEnumerable<int>>(Error.Failure("Lista de progresso diário inválida ou vazia"));
 
-                if (!dtos.Any())
-                    return Result.Failure<IEnumerable<int>>(Error.Failure("General", "EmptyList").Description);
+                // Validação de datas futuras
+                var futureDates = dtos.Where(dto => dto.Date > DateOnly.FromDateTime(DateTime.Today)).ToList();
+                if (futureDates.Any())
+                    return Result.Failure<IEnumerable<int>>(DailyProgressErrors.FutureDate);
 
-                // Validação em lote
-                var invalidItems = dtos.Where(dto => dto.Date > DateOnly.FromDateTime(DateTime.Today)).ToList();
-                if (invalidItems.Any())
-                    return Result.Failure<IEnumerable<int>>(Error.Failure("DailyProgress", "FutureDatesInList").Description);
+                var entities = new List<DailyProgress>();
+                var errors = new List<(DateOnly Date, string ErrorMessage)>();
 
-                var entities = dtos.Select(DailyProgressMapper.ToEntity);
+                foreach (var dto in dtos)
+                {
+                    try
+                    {
+                        var entity = DailyProgressMapper.ToEntity(dto);
+                        entities.Add(entity);
+                    }
+                    catch (DomainException ex)
+                    {
+                        errors.Add((dto.Date, ex.Message));
+                    }
+                    catch (ArgumentOutOfRangeException ex)
+                    {
+                        errors.Add((dto.Date, ex.Message));
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    var errorDetails = string.Join("; ", errors.Select(e => $"'{e.Date:yyyy-MM-dd}': {e.ErrorMessage}"));
+                    return Result.Failure<IEnumerable<int>>(Error.Failure($"Alguns registros de progresso possuem dados inválidos: {errorDetails}"));
+                }
+
                 await _dailyProgressRepository.CreateRange(entities, cancellationToken);
 
-                return Result.Success<IEnumerable<int>>(entities.Select(entity => entity.Id).ToList());
+                _logger.LogInformation("Criados {Count} registros de progresso diário com sucesso", entities.Count);
+                return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id).ToList());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplos registros de progresso diário");
-                return Result.Failure<IEnumerable<int>>(Error.Problem("DailyProgress", "CreateRangeError").Description);
+                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplos registros de progresso diário"));
+            }
+        }
+
+        public async Task<Result<bool>> UpdateAsync(UpdateDailyProgressDTO dto, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (dto == null)
+                    return Result.Failure<bool>(Error.NullValue);
+
+                var entity = await _dailyProgressRepository.GetById(dto.Id, cancellationToken);
+                if (entity == null)
+                    return Result.Failure<bool>(DailyProgressErrors.NotFound(dto.Id));
+
+                // Validações
+                if (dto.CaloriesConsumed < 0)
+                    return Result.Failure<bool>(DailyProgressErrors.NegativeCalories);
+
+                if (dto.LiquidsConsumedMl < 0)
+                    return Result.Failure<bool>(DailyProgressErrors.NegativeLiquids);
+
+                // Atualização
+                entity.SetConsumed(dto.CaloriesConsumed, dto.LiquidsConsumedMl);
+                entity.MarkAsUpdated();
+                await _dailyProgressRepository.Update(entity, cancellationToken);
+
+                _logger.LogInformation("Progresso diário atualizado com sucesso: {ProgressId}", dto.Id);
+                return Result.Success(true);
+            }
+            catch (ArgumentOutOfRangeException ex) when (ex.Message.Contains("negative"))
+            {
+                _logger.LogWarning(ex, "Valores negativos ao atualizar progresso diário {ProgressId}", dto.Id);
+                return Result.Failure<bool>(ex.ParamName?.Contains("calories") == true
+                    ? DailyProgressErrors.NegativeCalories
+                    : DailyProgressErrors.NegativeLiquids);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar progresso diário {ProgressId}", dto.Id);
+                return Result.Failure<bool>(DailyProgressErrors.UpdateError);
+            }
+        }
+
+        public async Task<Result<bool>> SetConsumedAsync(int id, int calories, int liquidsMl, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (calories < 0)
+                    return Result.Failure<bool>(DailyProgressErrors.NegativeCalories);
+
+                if (liquidsMl < 0)
+                    return Result.Failure<bool>(DailyProgressErrors.NegativeLiquids);
+
+                var entity = await _dailyProgressRepository.GetById(id, cancellationToken);
+                if (entity == null)
+                    return Result.Failure<bool>(DailyProgressErrors.NotFound(id));
+
+                entity.SetConsumed(calories, liquidsMl);
+                entity.MarkAsUpdated();
+                await _dailyProgressRepository.Update(entity, cancellationToken);
+
+                _logger.LogInformation("Consumo definido com sucesso para progresso diário: {ProgressId}", id);
+                return Result.Success(true);
+            }
+            catch (ArgumentOutOfRangeException ex) when (ex.Message.Contains("negative"))
+            {
+                _logger.LogWarning(ex, "Valores negativos ao definir consumo para progresso diário {ProgressId}", id);
+                return Result.Failure<bool>(ex.ParamName?.Contains("calories") == true
+                    ? DailyProgressErrors.NegativeCalories
+                    : DailyProgressErrors.NegativeLiquids);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao definir consumo para progresso diário {ProgressId}", id);
+                return Result.Failure<bool>(DailyProgressErrors.UpdateError);
+            }
+        }
+
+        public async Task<Result<bool>> SetGoalAsync(int id, DailyGoalDTO goalDto, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (goalDto == null)
+                    return Result.Failure<bool>(DailyProgressErrors.NullGoal);
+
+                var entity = await _dailyProgressRepository.GetById(id, cancellationToken);
+                if (entity == null)
+                    return Result.Failure<bool>(DailyProgressErrors.NotFound(id));
+
+                var goal = DailyGoalMapper.ToEntity(goalDto);
+                entity.SetGoal(goal);
+                entity.MarkAsUpdated();
+                await _dailyProgressRepository.Update(entity, cancellationToken);
+
+                _logger.LogInformation("Meta definida com sucesso para progresso diário: {ProgressId}", id);
+                return Result.Success(true);
+            }
+            catch (DomainException ex) when (ex.Message.Contains("null"))
+            {
+                _logger.LogWarning(ex, "Meta nula ao definir meta para progresso diário {ProgressId}", id);
+                return Result.Failure<bool>(DailyProgressErrors.NullGoal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao definir meta para progresso diário {ProgressId}", id);
+                return Result.Failure<bool>(DailyProgressErrors.UpdateError);
             }
         }
 
@@ -90,20 +349,19 @@ namespace Nutrition.Infrastructure.Services
         {
             try
             {
-                if (id <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
-
                 var entity = await _dailyProgressRepository.GetById(id, cancellationToken);
                 if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound("DailyProgress", "NotFound").Description);
+                    return Result.Failure<bool>(DailyProgressErrors.NotFound(id));
 
                 await _dailyProgressRepository.Delete(entity, cancellationToken);
+
+                _logger.LogInformation("Progresso diário excluído com sucesso: {ProgressId}", id);
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir progresso diário {ProgressId}", id);
-                return Result.Failure<bool>(Error.Problem("DailyProgress", "DeleteError").Description);
+                return Result.Failure<bool>(DailyProgressErrors.DeleteError);
             }
         }
 
@@ -112,7 +370,7 @@ namespace Nutrition.Infrastructure.Services
             try
             {
                 if (ids == null || !ids.Any())
-                    return Result.Failure<bool>(Error.Failure("General", "EmptyList").Description);
+                    return Result.Failure<bool>(Error.Failure("Lista de IDs inválida ou vazia"));
 
                 var entities = new List<DailyProgress>();
                 var notFoundIds = new List<int>();
@@ -127,212 +385,26 @@ namespace Nutrition.Infrastructure.Services
                 }
 
                 if (notFoundIds.Any())
-                    return Result.Failure<bool>(Error.NotFound("DailyProgress", "SomeNotFound").Description);
+                {
+                    var idsText = string.Join(", ", notFoundIds);
+                    return Result.Failure<bool>(Error.NotFound($"Os seguintes registros de progresso não foram encontrados: {idsText}"));
+                }
 
                 if (!entities.Any())
-                    return Result.Failure<bool>(Error.NotFound("DailyProgress", "AllNotFound").Description);
+                    return Result.Failure<bool>(Error.NotFound("Nenhum dos registros de progresso foi encontrado"));
 
                 foreach (var entity in entities)
+                {
                     await _dailyProgressRepository.Delete(entity, cancellationToken);
+                }
 
+                _logger.LogInformation("Excluídos {Count} registros de progresso diário com sucesso", entities.Count);
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplos registros de progresso diário {ProgressIds}", ids);
-                return Result.Failure<bool>(Error.Problem("DailyProgress", "DeleteRangeError").Description);
-            }
-        }
-
-        public async Task<Result<IEnumerable<DailyProgressDTO>>> FindAsync(Expression<Func<DailyProgressDTO, bool>> predicate, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (predicate == null)
-                    return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Failure("General", "NullData").Description);
-
-                // Para simplificar, não implementa filtro por predicate no momento
-                var entities = await _dailyProgressRepository.GetAll(cancellationToken);
-                var dtos = entities.Select(DailyProgressMapper.ToDTO);
-
-                return Result.Success<IEnumerable<DailyProgressDTO>>(dtos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar registros de progresso diário com predicado");
-                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("DailyProgress", "FindError").Description);
-            }
-        }
-
-        public async Task<Result<IEnumerable<DailyProgressDTO>>> GetAllAsync(CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var entities = await _dailyProgressRepository.GetAll(cancellationToken);
-                var dtos = entities.Select(DailyProgressMapper.ToDTO);
-
-                return Result.Success<IEnumerable<DailyProgressDTO>>(dtos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar todos os registros de progresso diário");
-                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("DailyProgress", "GetAllError").Description);
-            }
-        }
-
-        public async Task<Result<DailyProgressDTO>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (id <= 0)
-                    return Result.Failure<DailyProgressDTO>(Error.Failure("General", "InvalidId").Description);
-
-                var entity = await _dailyProgressRepository.GetById(id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<DailyProgressDTO>(Error.NotFound("DailyProgress", "NotFound").Description);
-
-                var dto = DailyProgressMapper.ToDTO(entity);
-                return Result.Success(dto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar progresso diário {ProgressId}", id);
-                return Result.Failure<DailyProgressDTO>(Error.Problem("DailyProgress", "GetByIdError").Description);
-            }
-        }
-
-        public async Task<Result<IEnumerable<DailyProgressDTO>>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
-        {
-            try
-            {
-                if (userId <= 0)
-                    return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Failure("General", "InvalidId").Description);
-
-                var entities = await _dailyProgressRepository.GetAllByUserId(userId, cancellationToken);
-                var dtos = entities.Select(DailyProgressMapper.ToDTO);
-
-                return Result.Success<IEnumerable<DailyProgressDTO>>(dtos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao buscar registros de progresso diário do usuário {UserId}", userId);
-                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("DailyProgress", "GetByUserIdError").Description);
-            }
-        }
-
-        public async Task<Result<(IEnumerable<DailyProgressDTO> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (page < 1)
-                    return Result.Failure<(IEnumerable<DailyProgressDTO>, int)>(Error.Failure("DailyProgress", "InvalidPage").Description);
-
-                if (pageSize < 1)
-                    return Result.Failure<(IEnumerable<DailyProgressDTO>, int)>(Error.Failure("DailyProgress", "InvalidPageSize").Description);
-
-                var all = await _dailyProgressRepository.GetAll(cancellationToken);
-                int totalCount = all.Count();
-
-                var items = all
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(DailyProgressMapper.ToDTO);
-
-                return Result.Success<(IEnumerable<DailyProgressDTO> Items, int TotalCount)>((items, totalCount));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao obter página de registros de progresso diário (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<DailyProgressDTO>, int)>(Error.Problem("DailyProgress", "GetPagedError").Description);
-            }
-        }
-
-        public async Task<Result<bool>> SetConsumedAsync(int id, int calories, int liquidsMl, CancellationToken cancellationToken)
-        {
-            try
-            {
-                if (id <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
-
-                if (calories < 0)
-                    return Result.Failure<bool>(Error.Failure("DailyProgress", "NegativeCalories").Description);
-
-                if (liquidsMl < 0)
-                    return Result.Failure<bool>(Error.Failure("DailyProgress", "NegativeLiquids").Description);
-
-                var entity = await _dailyProgressRepository.GetById(id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound("DailyProgress", "NotFound").Description);
-
-                entity.SetConsumed(calories, liquidsMl);
-                await _dailyProgressRepository.Update(entity, cancellationToken);
-
-                return Result.Success(true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao definir consumo para progresso diário {ProgressId}", id);
-                return Result.Failure<bool>(Error.Problem("DailyProgress", "SetConsumedError").Description);
-            }
-        }
-
-        public async Task<Result<bool>> SetGoalAsync(int id, DailyGoalDTO goalDto, CancellationToken cancellationToken)
-        {
-            try
-            {
-                if (id <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
-
-                if (goalDto == null)
-                    return Result.Failure<bool>(Error.Failure("General", "NullData").Description);
-
-                var entity = await _dailyProgressRepository.GetById(id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound("DailyProgress", "NotFound").Description);
-
-                var goal = DailyGoalMapper.ToEntity(goalDto);
-                entity.SetGoal(goal);
-                await _dailyProgressRepository.Update(entity, cancellationToken);
-
-                return Result.Success(true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao definir meta para progresso diário {ProgressId}", id);
-                return Result.Failure<bool>(Error.Problem("DailyProgress", "SetGoalError").Description);
-            }
-        }
-
-        public async Task<Result<bool>> UpdateAsync(UpdateDailyProgressDTO dto, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (dto == null)
-                    return Result.Failure<bool>(Error.Failure("General", "NullData").Description);
-
-                if (dto.Id <= 0)
-                    return Result.Failure<bool>(Error.Failure("General", "InvalidId").Description);
-
-                if (dto.CaloriesConsumed < 0)
-                    return Result.Failure<bool>(Error.Failure("DailyProgress", "NegativeCalories").Description);
-
-                if (dto.LiquidsConsumedMl < 0)
-                    return Result.Failure<bool>(Error.Failure("DailyProgress", "NegativeLiquids").Description);
-
-                var entity = await _dailyProgressRepository.GetById(dto.Id, cancellationToken);
-                if (entity == null)
-                    return Result.Failure<bool>(Error.NotFound("DailyProgress", "NotFound").Description);
-
-                // Atualize os campos necessários
-                entity.SetConsumed(dto.CaloriesConsumed, dto.LiquidsConsumedMl);
-
-                await _dailyProgressRepository.Update(entity, cancellationToken);
-                return Result.Success(true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao atualizar progresso diário {@ProgressData}", dto);
-                return Result.Failure<bool>(Error.Problem("DailyProgress", "UpdateError").Description);
+                return Result.Failure<bool>(Error.Problem(DailyProgressErrors.DeleteError.Description));
             }
         }
     }
