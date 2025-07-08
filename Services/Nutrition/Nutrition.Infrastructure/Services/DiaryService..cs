@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.CQRS.Publisher;
 using BuildingBlocks.Results;
+using Core.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.DTOs.Meal;
@@ -8,7 +9,6 @@ using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Errors;
 using Nutrition.Domain.Repositories;
-using Core.Domain.Exceptions;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services
@@ -35,7 +35,7 @@ namespace Nutrition.Infrastructure.Services
             {
                 var diary = await _diaryRepository.GetById(id, cancellationToken);
                 if (diary == null)
-                    return Result.Failure<DiaryDTO>(DiaryErrors.NotFound(id)); 
+                    return Result.Failure<DiaryDTO>(DiaryErrors.NotFound(id));
 
                 var diaryDTO = diary.ToDTO();
                 return Result.Success(diaryDTO);
@@ -323,7 +323,7 @@ namespace Nutrition.Infrastructure.Services
 
                 var diary = await _diaryRepository.GetById(diaryId, cancellationToken);
                 if (diary == null)
-                    return Result.Failure<bool>(DiaryErrors.NotFound(diaryId)); 
+                    return Result.Failure<bool>(DiaryErrors.NotFound(diaryId));
 
                 var meal = dto.ToEntity();
                 diary.AddMeal(meal);

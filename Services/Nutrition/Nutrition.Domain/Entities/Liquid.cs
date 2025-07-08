@@ -1,5 +1,4 @@
 ﻿using Core.Domain.Entities;
-using System.Data;
 
 namespace Nutrition.Domain.Entities
 {

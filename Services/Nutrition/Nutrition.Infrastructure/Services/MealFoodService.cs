@@ -6,7 +6,6 @@ using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Errors;
 using Nutrition.Domain.Repositories;
-using Core.Domain.Exceptions;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services

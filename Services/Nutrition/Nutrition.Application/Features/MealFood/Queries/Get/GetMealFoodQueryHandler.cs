@@ -1,7 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
-using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
-using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Interfaces;
 
 namespace Nutrition.Application.Features.MealFood.Queries.Get
@@ -18,7 +16,7 @@ namespace Nutrition.Application.Features.MealFood.Queries.Get
         public async Task<Result<GetMealFoodResult>> Handle(GetMealFoodQuery query, CancellationToken cancellationToken)
         {
             var result = await _mealFoodService.GetByIdAsync(query.Id, cancellationToken);
-            if(!result.IsSuccess)
+            if (!result.IsSuccess)
                 return Result<GetMealFoodResult>.Failure(result.Error!);
 
             return Result.Success(new GetMealFoodResult(result.Value!));

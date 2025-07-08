@@ -266,7 +266,7 @@ namespace Financial.Infrastructure.Services
         {
             try
             {
-                if (dto == null)    
+                if (dto == null)
                     return Result.Failure<bool>(Error.NullValue);
 
                 if (dto.Id <= 0)

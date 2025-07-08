@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Results;
+using Core.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using TaskManager.Application.DTOs.Filters;
@@ -10,7 +11,6 @@ using TaskManager.Domain.Enums;
 using TaskManager.Domain.Errors;
 using TaskManager.Domain.Repositories;
 using TaskManager.Domain.ValueObjects;
-using Core.Domain.Exceptions;
 
 namespace TaskManager.Infrastructure.Services
 {

@@ -1,7 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
-using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
-using Nutrition.Application.DTOs.Meal;
 using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Interfaces;
 

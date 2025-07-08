@@ -46,7 +46,7 @@ namespace Nutrition.Domain.Entities
         {
             if (mealFood == null)
                 throw new DomainException("MealFood cannot be null");
-            
+
             _mealFoods.Add(mealFood);
             AddDomainEvent(new MealFoodAddedEvent(DiaryId, mealFood.TotalCalories));
         }

@@ -2,7 +2,6 @@
 using Core.Domain.Exceptions;
 using TaskManager.Domain.Enums;
 using TaskManager.Domain.Errors;
-using System.Linq;
 
 namespace TaskManager.Domain.Entities
 {

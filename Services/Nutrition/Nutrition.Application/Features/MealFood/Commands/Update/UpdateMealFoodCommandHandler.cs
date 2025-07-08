@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
-using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Interfaces;
@@ -24,7 +23,7 @@ namespace Nutrition.Application.Features.MealFood.Commands.Update
                 command.CaloriesPerUnit);
 
             var result = await _mealFoodService.UpdateAsync(mealFood);
-            if(!result.IsSuccess)
+            if (!result.IsSuccess)
                 return Result<UpdateMealFoodResult>.Failure(result.Error!);
 
             return Result.Success(new UpdateMealFoodResult(result.Value));

@@ -38,7 +38,7 @@ namespace Nutrition.Domain.Errors
         public static Error NotFound(int id) =>
             Error.NotFound($"Diário com ID {id} não encontrado");
 
-        public static Error NotFound( ) =>
+        public static Error NotFound() =>
             Error.NotFound($"Diários não encontrados");
 
         public static Error CreateError =>
