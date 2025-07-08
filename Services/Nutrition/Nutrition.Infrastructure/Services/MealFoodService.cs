@@ -143,21 +143,6 @@ namespace Nutrition.Infrastructure.Services
                 _logger.LogInformation("Alimento de refeição criado com sucesso: {MealFoodId}", entity.Id);
                 return Result.Success(entity.Id);
             }
-            catch (ArgumentException ex) when (ex.ParamName == "value")
-            {
-                _logger.LogWarning(ex, "Nome inválido ao criar alimento de refeição {@MealFoodData}", dto);
-                return Result.Failure<int>(MealFoodErrors.InvalidName);
-            }
-            catch (ArgumentOutOfRangeException ex) when (ex.ParamName == "quantity")
-            {
-                _logger.LogWarning(ex, "Quantidade inválida ao criar alimento de refeição {@MealFoodData}", dto);
-                return Result.Failure<int>(MealFoodErrors.InvalidQuantity);
-            }
-            catch (ArgumentOutOfRangeException ex) when (ex.ParamName == "caloriesPerUnit")
-            {
-                _logger.LogWarning(ex, "Calorias inválidas ao criar alimento de refeição {@MealFoodData}", dto);
-                return Result.Failure<int>(MealFoodErrors.NegativeCalories);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar alimento de refeição {@MealFoodData}", dto);
@@ -217,26 +202,11 @@ namespace Nutrition.Infrastructure.Services
                 if (entity == null)
                     return Result.Failure<bool>(MealFoodErrors.NotFound(dto.Id));
 
-                entity.MarkAsUpdated();
+                entity.Update(dto.Name, dto.QuantityInGrams, dto.CaloriesPerUnit);
                 await _mealFoodRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Alimento de refeição atualizado com sucesso: {MealFoodId}", dto.Id);
                 return Result.Success(true);
-            }
-            catch (ArgumentException ex) when (ex.ParamName == "value")
-            {
-                _logger.LogWarning(ex, "Nome inválido ao atualizar alimento de refeição {MealFoodId}", dto.Id);
-                return Result.Failure<bool>(MealFoodErrors.InvalidName);
-            }
-            catch (ArgumentOutOfRangeException ex) when (ex.ParamName == "quantity")
-            {
-                _logger.LogWarning(ex, "Quantidade inválida ao atualizar alimento de refeição {MealFoodId}", dto.Id);
-                return Result.Failure<bool>(MealFoodErrors.InvalidQuantity);
-            }
-            catch (ArgumentOutOfRangeException ex) when (ex.ParamName == "caloriesPerUnit")
-            {
-                _logger.LogWarning(ex, "Calorias inválidas ao atualizar alimento de refeição {MealFoodId}", dto.Id);
-                return Result.Failure<bool>(MealFoodErrors.NegativeCalories);
             }
             catch (Exception ex)
             {

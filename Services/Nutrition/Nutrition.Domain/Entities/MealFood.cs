@@ -17,6 +17,15 @@ namespace Nutrition.Domain.Entities
             SetCaloriesPerUnit(caloriesPerUnit);
         }
 
+        public void Update(string name, int quantity, int caloriesPerUnit)
+        {
+            SetName(name);
+            SetQuantity(quantity);
+            SetCaloriesPerUnit(caloriesPerUnit);
+
+            MarkAsUpdated();
+        }
+
         public void SetMeal(int mealId)
         {
             if (mealId <= 0)
@@ -24,20 +33,20 @@ namespace Nutrition.Domain.Entities
             MealId = mealId;
         }
 
-        public void SetName(string name)
+        private void SetName(string name)
         {
             Validate(name);
             Name = name;
         }
 
-        public void SetQuantity(int quantity)
+        private void SetQuantity(int quantity)
         {
             if (quantity <= 0)
                 throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity must be positive.");
             Quantity = quantity;
         }
 
-        public void SetCaloriesPerUnit(int caloriesPerUnit)
+        private void SetCaloriesPerUnit(int caloriesPerUnit)
         {
             if (caloriesPerUnit < 0)
                 throw new ArgumentOutOfRangeException(nameof(caloriesPerUnit), "Calories per unit cannot be negative.");

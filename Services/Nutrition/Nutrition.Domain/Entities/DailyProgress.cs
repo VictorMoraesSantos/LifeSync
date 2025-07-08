@@ -21,8 +21,9 @@ namespace Nutrition.Domain.Entities
                 throw new DomainException($"{nameof(userId)} must be valid.");
             Validate(caloriesConsumed);
             Validate(liquidsConsumedMl);
+
             UserId = userId;
-            Date = date;
+            SetDate(date);
             CaloriesConsumed = caloriesConsumed;
             LiquidsConsumedMl = liquidsConsumedMl;
         }
@@ -84,6 +85,13 @@ namespace Nutrition.Domain.Entities
         public bool IsLiquidsGoalMet()
         {
             return LiquidsConsumedMl >= Goal.QuantityMl;
+        }
+
+        private void SetDate(DateOnly date)
+        {
+            if (date < DateOnly.FromDateTime(DateTime.UtcNow))
+                throw new DomainException("Date cannot be in the past.");
+            Date = date;
         }
 
         private void Validate(int? value)

@@ -127,7 +127,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todos os registros de progresso diário");
-                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("Erro ao buscar todos os registros de progresso diário"));
+                return Result.Failure<IEnumerable<DailyProgressDTO>>(DailyProgressErrors.NotFound());
             }
         }
 
@@ -160,27 +160,11 @@ namespace Nutrition.Infrastructure.Services
                 if (dto == null)
                     return Result.Failure<int>(Error.NullValue);
 
-                // Validação de data futura
-                if (dto.Date > DateOnly.FromDateTime(DateTime.Today))
-                    return Result.Failure<int>(DailyProgressErrors.FutureDate);
-
                 var entity = DailyProgressMapper.ToEntity(dto);
                 await _dailyProgressRepository.Create(entity, cancellationToken);
 
                 _logger.LogInformation("Progresso diário criado com sucesso: {ProgressId}", entity.Id);
                 return Result.Success(entity.Id);
-            }
-            catch (DomainException ex) when (ex.Message.Contains("userId"))
-            {
-                _logger.LogWarning(ex, "UserId inválido ao criar progresso diário {@ProgressData}", dto);
-                return Result.Failure<int>(DailyProgressErrors.InvalidUserId);
-            }
-            catch (ArgumentOutOfRangeException ex) when (ex.Message.Contains("negative"))
-            {
-                _logger.LogWarning(ex, "Valores negativos ao criar progresso diário {@ProgressData}", dto);
-                return Result.Failure<int>(ex.ParamName?.Contains("calories") == true
-                    ? DailyProgressErrors.NegativeCalories
-                    : DailyProgressErrors.NegativeLiquids);
             }
             catch (Exception ex)
             {
@@ -196,11 +180,6 @@ namespace Nutrition.Infrastructure.Services
                 if (dtos == null || !dtos.Any())
                     return Result.Failure<IEnumerable<int>>(Error.Failure("Lista de progresso diário inválida ou vazia"));
 
-                // Validação de datas futuras
-                var futureDates = dtos.Where(dto => dto.Date > DateOnly.FromDateTime(DateTime.Today)).ToList();
-                if (futureDates.Any())
-                    return Result.Failure<IEnumerable<int>>(DailyProgressErrors.FutureDate);
-
                 var entities = new List<DailyProgress>();
                 var errors = new List<(DateOnly Date, string ErrorMessage)>();
 
@@ -212,10 +191,6 @@ namespace Nutrition.Infrastructure.Services
                         entities.Add(entity);
                     }
                     catch (DomainException ex)
-                    {
-                        errors.Add((dto.Date, ex.Message));
-                    }
-                    catch (ArgumentOutOfRangeException ex)
                     {
                         errors.Add((dto.Date, ex.Message));
                     }
@@ -250,27 +225,13 @@ namespace Nutrition.Infrastructure.Services
                 if (entity == null)
                     return Result.Failure<bool>(DailyProgressErrors.NotFound(dto.Id));
 
-                // Validações
-                if (dto.CaloriesConsumed < 0)
-                    return Result.Failure<bool>(DailyProgressErrors.NegativeCalories);
-
-                if (dto.LiquidsConsumedMl < 0)
-                    return Result.Failure<bool>(DailyProgressErrors.NegativeLiquids);
-
-                // Atualização
                 entity.SetConsumed(dto.CaloriesConsumed, dto.LiquidsConsumedMl);
                 entity.MarkAsUpdated();
+
                 await _dailyProgressRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Progresso diário atualizado com sucesso: {ProgressId}", dto.Id);
                 return Result.Success(true);
-            }
-            catch (ArgumentOutOfRangeException ex) when (ex.Message.Contains("negative"))
-            {
-                _logger.LogWarning(ex, "Valores negativos ao atualizar progresso diário {ProgressId}", dto.Id);
-                return Result.Failure<bool>(ex.ParamName?.Contains("calories") == true
-                    ? DailyProgressErrors.NegativeCalories
-                    : DailyProgressErrors.NegativeLiquids);
             }
             catch (Exception ex)
             {
@@ -283,29 +244,17 @@ namespace Nutrition.Infrastructure.Services
         {
             try
             {
-                if (calories < 0)
-                    return Result.Failure<bool>(DailyProgressErrors.NegativeCalories);
-
-                if (liquidsMl < 0)
-                    return Result.Failure<bool>(DailyProgressErrors.NegativeLiquids);
-
                 var entity = await _dailyProgressRepository.GetById(id, cancellationToken);
                 if (entity == null)
                     return Result.Failure<bool>(DailyProgressErrors.NotFound(id));
 
                 entity.SetConsumed(calories, liquidsMl);
                 entity.MarkAsUpdated();
+
                 await _dailyProgressRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Consumo definido com sucesso para progresso diário: {ProgressId}", id);
                 return Result.Success(true);
-            }
-            catch (ArgumentOutOfRangeException ex) when (ex.Message.Contains("negative"))
-            {
-                _logger.LogWarning(ex, "Valores negativos ao definir consumo para progresso diário {ProgressId}", id);
-                return Result.Failure<bool>(ex.ParamName?.Contains("calories") == true
-                    ? DailyProgressErrors.NegativeCalories
-                    : DailyProgressErrors.NegativeLiquids);
             }
             catch (Exception ex)
             {
@@ -326,17 +275,14 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<bool>(DailyProgressErrors.NotFound(id));
 
                 var goal = DailyGoalMapper.ToEntity(goalDto);
+
                 entity.SetGoal(goal);
                 entity.MarkAsUpdated();
+
                 await _dailyProgressRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Meta definida com sucesso para progresso diário: {ProgressId}", id);
                 return Result.Success(true);
-            }
-            catch (DomainException ex) when (ex.Message.Contains("null"))
-            {
-                _logger.LogWarning(ex, "Meta nula ao definir meta para progresso diário {ProgressId}", id);
-                return Result.Failure<bool>(DailyProgressErrors.NullGoal);
             }
             catch (Exception ex)
             {
