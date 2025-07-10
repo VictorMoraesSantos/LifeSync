@@ -24,7 +24,7 @@ namespace Nutrition.Domain.Errors
         public static Error NotFound(int id) =>
             Error.NotFound($"Progresso diário com ID {id} não encontrado");
 
-        public static Error NotFound( ) =>
+        public static Error NotFound() =>
             Error.NotFound($"Progressos diários não encontrados");
 
         public static Error NotFoundByUserAndDate(int userId, DateOnly date) =>

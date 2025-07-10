@@ -14,7 +14,6 @@ namespace Gym.Domain.Entities
         public int RoutineExerciseId { get; private set; }
         public RoutineExercise RoutineExercise { get; private set; }
 
-        // Parâmetros realizados usando Value Objects
         public SetCount SetsCompleted { get; private set; }
         public RepetitionCount RepetitionsCompleted { get; private set; }
         public Weight? WeightUsed { get; private set; }

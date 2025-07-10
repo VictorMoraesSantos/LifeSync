@@ -3,7 +3,7 @@ using Gym.Domain.Entities;
 
 namespace Gym.Domain.Repositories
 {
-    public interface IExercicseRepository : IRepository<Exercise, int>
+    public interface IExerciseRepository : IRepository<Exercise, int>
     {
     }
 }

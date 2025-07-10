@@ -19,9 +19,7 @@ namespace TaskManager.Infrastructure
         {
             services.AddDbContext(configuration);
             services.AddMessaging(configuration);
-
-            services.AddScoped<ITaskItemService, TaskItemService>();
-            services.AddScoped<ITaskLabelService, TaskLabelService>();
+            services.AddServices();
 
             services.AddHostedService<MigrationHostedService>();
             services.AddHostedService<DueDateReminderService>();
@@ -29,20 +27,18 @@ namespace TaskManager.Infrastructure
             return services;
         }
 
-        public static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)
         {
             string connectionString = configuration.GetConnectionString("Database")!;
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
-            services.AddScoped<ITaskItemRepository, TaskItemRepository>();
-            services.AddScoped<ITaskLabelRepository, TaskLabelRepository>();
 
             return services;
         }
 
-        public static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
         {
             var rabbitCfg = configuration.GetSection("RabbitMQSettings").Get<RabbitMqSettings>();
             services.AddSingleton<IConnectionFactory>(sp =>
@@ -56,6 +52,14 @@ namespace TaskManager.Infrastructure
                 });
             services.AddSingleton<PersistentConnection>();
             services.AddSingleton<IEventBus, EventBus>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<ITaskItemService, TaskItemService>();
+            services.AddScoped<ITaskLabelService, TaskLabelService>();
 
             return services;
         }

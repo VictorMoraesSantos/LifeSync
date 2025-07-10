@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Folder Include="Events\" />
+    <Folder Include="Errors\" />
   </ItemGroup>
 
 </Project>
