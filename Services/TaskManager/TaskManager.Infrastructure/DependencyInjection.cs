@@ -6,9 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using TaskManager.Application.BackgroundServices;
 using TaskManager.Application.Interfaces;
-using TaskManager.Domain.Repositories;
 using TaskManager.Infrastructure.Persistence.Data;
-using TaskManager.Infrastructure.Persistence.Repositories;
 using TaskManager.Infrastructure.Services;
 
 namespace TaskManager.Infrastructure

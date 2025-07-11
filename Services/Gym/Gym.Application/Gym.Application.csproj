@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\Core.Application\Core.Application.csproj" />
     <ProjectReference Include="..\Gym.Domain\Gym.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DTOs\CompletedExercise\" />
+    <Folder Include="Features\" />
+    <Folder Include="Mapping\" />
   </ItemGroup>
 
 </Project>

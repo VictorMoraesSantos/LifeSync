@@ -15,7 +15,6 @@ namespace Gym.Domain.Entities
         public RepetitionCount Repetitions { get; private set; }
         public RestTime RestBetweenSets { get; private set; }
         public Weight? RecommendedWeight { get; private set; }
-        public int Order { get; private set; }
         public string? Instructions { get; private set; }
 
         protected RoutineExercise() { }
@@ -26,7 +25,6 @@ namespace Gym.Domain.Entities
             SetCount sets,
             RepetitionCount repetitions,
             RestTime restBetweenSets,
-            int order,
             Weight? recommendedWeight = null,
             string? instructions = null)
         {
@@ -35,12 +33,11 @@ namespace Gym.Domain.Entities
             Sets = sets;
             Repetitions = repetitions;
             RestBetweenSets = restBetweenSets;
-            Order = order;
             RecommendedWeight = recommendedWeight;
             Instructions = instructions;
         }
 
-        public void UpdateParameters(
+        public void Update(
             SetCount sets,
             RepetitionCount repetitions,
             RestTime restBetweenSets,
@@ -52,6 +49,7 @@ namespace Gym.Domain.Entities
             RestBetweenSets = restBetweenSets;
             RecommendedWeight = recommendedWeight;
             Instructions = instructions;
+
             MarkAsUpdated();
         }
     }

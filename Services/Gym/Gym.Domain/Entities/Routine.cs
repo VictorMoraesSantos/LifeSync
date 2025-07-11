@@ -1,4 +1,5 @@
 ﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
 using Gym.Domain.ValueObjects;
 
 namespace Gym.Domain.Entities
@@ -19,9 +20,23 @@ namespace Gym.Domain.Entities
             string description,
             int userId)
         {
+            Validate(name);
+            Validate(description);
+
             Name = name;
             Description = description;
             UserId = userId;
+        }
+
+        public void Update(
+            string name,
+            string description)
+        {
+            Validate(name);
+            Validate(description);
+
+            Name = name;
+            Description = description;
         }
 
         public void AddExercise(
@@ -29,7 +44,6 @@ namespace Gym.Domain.Entities
             SetCount sets,
             RepetitionCount repetitions,
             RestTime restBetweenSets,
-            int order,
             Weight? recommendedWeight = null,
             string? instructions = null)
         {
@@ -39,7 +53,6 @@ namespace Gym.Domain.Entities
                 sets,
                 repetitions,
                 restBetweenSets,
-                order,
                 recommendedWeight,
                 instructions);
 
@@ -50,16 +63,19 @@ namespace Gym.Domain.Entities
         public void RemoveExercise(int routineExerciseId)
         {
             var routineExercise = _routineExercises.FirstOrDefault(re => re.Id == routineExerciseId);
-            if (routineExercise != null)
-            {
-                _routineExercises.Remove(routineExercise);
-                MarkAsUpdated();
-            }
+            if (routineExercise == null)
+                throw new DomainException("Routine exercise cannot be found");
+
+            _routineExercises.Remove(routineExercise);
+            MarkAsUpdated();
         }
 
-        public int GetNextExerciseOrder()
+        private void Validate(string value)
         {
-            return _routineExercises.Any() ? _routineExercises.Max(e => e.Order) + 1 : 1;
+            if (string.IsNullOrWhiteSpace(value))
+                throw new DomainException($"{value} cannot be null");
+
+            return;
         }
     }
 }
