@@ -1,5 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Gym.Domain.ValueObjects;
+using System;
 
 namespace Gym.Domain.Entities
 {
@@ -19,11 +20,14 @@ namespace Gym.Domain.Entities
 
         public TrainingSession(
             int userId,
-            int routineId)
+            int routineId,
+            DateTime startTime,
+            DateTime endTime)
         {
             UserId = userId;
             RoutineId = routineId;
-            StartTime = DateTime.UtcNow;
+            StartTime = startTime;
+            EndTime = endTime;
         }
 
         public void AddCompletedExercise(

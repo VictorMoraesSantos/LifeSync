@@ -1,6 +1,8 @@
 ﻿namespace Gym.Application.DTOs.TrainingSession
 {
-    internal class CreateTrainingSessionDTO
-    {
-    }
+    public record CreateTrainingSessionDTO(
+        int UserId,
+        int RoutineId,
+        DateTime StartTime,
+        DateTime EndTime);
 }
