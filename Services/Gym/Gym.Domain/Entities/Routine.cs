@@ -1,14 +1,13 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Exceptions;
-using Gym.Domain.ValueObjects;
 
 namespace Gym.Domain.Entities
 {
     public class Routine : BaseEntity<int>
     {
+        public int UserId { get; private set; }
         public string Name { get; private set; }
         public string Description { get; private set; }
-        public int UserId { get; private set; }
 
         private readonly List<RoutineExercise> _routineExercises = new();
         public IReadOnlyCollection<RoutineExercise> RoutineExercises => _routineExercises.AsReadOnly();
@@ -16,16 +15,16 @@ namespace Gym.Domain.Entities
         private Routine() { }
 
         public Routine(
+            int userId,
             string name,
-            string description,
-            int userId)
+            string description)
         {
             Validate(name);
             Validate(description);
 
+            UserId = userId;
             Name = name;
             Description = description;
-            UserId = userId;
         }
 
         public void Update(
@@ -39,30 +38,17 @@ namespace Gym.Domain.Entities
             Description = description;
         }
 
-        public void AddExercise(
-            int exerciseId,
-            SetCount sets,
-            RepetitionCount repetitions,
-            RestTime restBetweenSets,
-            Weight? recommendedWeight = null,
-            string? instructions = null)
+        public void AddExercise(RoutineExercise routineExercise)
         {
-            var routineExercise = new RoutineExercise(
-                Id,
-                exerciseId,
-                sets,
-                repetitions,
-                restBetweenSets,
-                recommendedWeight,
-                instructions);
+            if (routineExercise == null)
+                throw new DomainException("Routine exercise cannot be null");
 
             _routineExercises.Add(routineExercise);
             MarkAsUpdated();
         }
 
-        public void RemoveExercise(int routineExerciseId)
+        public void RemoveExercise(RoutineExercise routineExercise)
         {
-            var routineExercise = _routineExercises.FirstOrDefault(re => re.Id == routineExerciseId);
             if (routineExercise == null)
                 throw new DomainException("Routine exercise cannot be found");
 
@@ -73,9 +59,7 @@ namespace Gym.Domain.Entities
         private void Validate(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new DomainException($"{value} cannot be null");
-
-            return;
+                throw new ArgumentException("Value cannot be null or empty.", nameof(value));
         }
     }
 }

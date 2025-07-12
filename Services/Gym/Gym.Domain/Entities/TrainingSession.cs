@@ -1,14 +1,15 @@
 ﻿using Core.Domain.Entities;
-using Gym.Domain.ValueObjects;
-using System;
+using Core.Domain.Exceptions;
 
 namespace Gym.Domain.Entities
 {
     public class TrainingSession : BaseEntity<int>
     {
         public int UserId { get; private set; }
+
         public int RoutineId { get; private set; }
         public Routine Routine { get; private set; }
+
         public DateTime StartTime { get; private set; }
         public DateTime? EndTime { get; private set; }
         public string? Notes { get; private set; }
@@ -30,22 +31,10 @@ namespace Gym.Domain.Entities
             EndTime = endTime;
         }
 
-        public void AddCompletedExercise(
-            int exerciseId,
-            int routineExerciseId,
-            SetCount setsCompleted,
-            RepetitionCount repetitionsCompleted,
-            Weight? weightUsed = null,
-            string? notes = null)
+        public void AddCompletedExercise(CompletedExercise completedExercise)
         {
-            var completedExercise = new CompletedExercise(
-                Id,
-                exerciseId,
-                routineExerciseId,
-                setsCompleted,
-                repetitionsCompleted,
-                weightUsed,
-                notes);
+            if (completedExercise == null)
+                throw new DomainException("Completed exercise cannot be null");
 
             _completedExercises.Add(completedExercise);
             MarkAsUpdated();

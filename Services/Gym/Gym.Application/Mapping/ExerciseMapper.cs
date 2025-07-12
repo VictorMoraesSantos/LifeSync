@@ -1,11 +1,6 @@
 ﻿using Gym.Application.DTOs.CompletedExercise;
 using Gym.Application.DTOs.Exercise;
 using Gym.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gym.Application.Mapping
 {
@@ -26,7 +21,7 @@ namespace Gym.Application.Mapping
             return dto;
         }
 
-        public static CompletedExercise ToEntity( this CreateCompletedExerciseDTO dto)
+        public static CompletedExercise ToEntity(this CreateCompletedExerciseDTO dto)
         {
             var entity = new CompletedExercise(
                 dto.TrainingSessionId,

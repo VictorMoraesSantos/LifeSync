@@ -6,8 +6,8 @@ namespace Gym.Application.DTOs.Routine
         int Id,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
+        int UserId,
         string Name,
-        string Description,
-        int UserId)
+        string Description)
         : DTOBase(Id, CreatedAt, UpdatedAt);
 }

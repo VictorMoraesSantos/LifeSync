@@ -1,10 +1,5 @@
 ﻿using Gym.Application.DTOs.RoutineExercise;
 using Gym.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gym.Application.Mapping
 {
@@ -37,7 +32,7 @@ namespace Gym.Application.Mapping
                 dto.RestBetweenSets,
                 dto.RecommendedWeight,
                 dto.Instructions);
-         
+
             return entity;
         }
     }
