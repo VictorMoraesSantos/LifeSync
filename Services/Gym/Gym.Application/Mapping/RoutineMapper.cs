@@ -11,9 +11,9 @@ namespace Gym.Application.Mapping
                 entity.Id,
                 entity.CreatedAt,
                 entity.UpdatedAt,
-                entity.Name,
+                entity.UserId,
                 entity.Description,
-                entity.UserId);
+                entity.Name);
 
             return dto;
         }
@@ -21,9 +21,9 @@ namespace Gym.Application.Mapping
         public static Routine ToEntity(this CreateRoutineDTO dto)
         {
             var entity = new Routine(
-                dto.Name,
+                dto.UserId,
                 dto.Description,
-                dto.UserId);
+                dto.Name);
 
             return entity;
         }
