@@ -101,7 +101,7 @@ namespace Nutrition.Infrastructure.Services
                     .Select(LiquidMapper.ToDTO)
                     .AsQueryable();
                 int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
-                
+
                 return Result.Success(count);
             }
             catch (Exception ex)

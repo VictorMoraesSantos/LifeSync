@@ -46,7 +46,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<int>(Error.NullValue);
 
                 var entity = dto.ToEntity();
-                
+
                 await _categoryRepository.Create(entity, cancellationToken);
 
                 return Result.Success(entity.Id);
@@ -71,7 +71,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<IEnumerable<int>>(CategoryErrors.CreateError);
 
                 var entities = dtos.Select(CategoryMapper.ToEntity).ToList();
-                
+
                 await _categoryRepository.CreateRange(entities, cancellationToken);
 
                 return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id));
@@ -95,7 +95,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<bool>(CategoryErrors.NotFound(id));
 
                 await _categoryRepository.Delete(entity, cancellationToken);
-                
+
                 return Result.Success(true);
             }
             catch (Exception ex)
