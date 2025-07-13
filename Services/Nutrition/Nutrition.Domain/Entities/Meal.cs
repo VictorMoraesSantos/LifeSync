@@ -18,6 +18,7 @@ namespace Nutrition.Domain.Entities
         {
             Validate(name);
             Validate(description);
+
             Name = name;
             Description = description;
         }
@@ -30,15 +31,12 @@ namespace Nutrition.Domain.Entities
             DiaryId = diaryId;
         }
 
-        public void UpdateName(string name)
+        public void Update(string name, string description)
         {
             Validate(name);
-            Name = name;
-        }
-
-        public void UpdateDescription(string description)
-        {
             Validate(description);
+
+            Name = name;
             Description = description;
         }
 
@@ -48,6 +46,7 @@ namespace Nutrition.Domain.Entities
                 throw new DomainException("MealFood cannot be null");
 
             _mealFoods.Add(mealFood);
+
             AddDomainEvent(new MealFoodAddedEvent(DiaryId, mealFood.TotalCalories));
         }
 
@@ -59,6 +58,7 @@ namespace Nutrition.Domain.Entities
             var mealFood = _mealFoods.FirstOrDefault(mf => mf.Id == mealFoodId);
 
             _mealFoods.Remove(mealFood);
+
             AddDomainEvent(new MealFoodRemovedEvent(DiaryId, mealFood.TotalCalories));
         }
 

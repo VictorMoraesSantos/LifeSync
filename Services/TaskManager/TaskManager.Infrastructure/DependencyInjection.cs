@@ -6,7 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using TaskManager.Application.BackgroundServices;
 using TaskManager.Application.Interfaces;
+using TaskManager.Domain.Repositories;
 using TaskManager.Infrastructure.Persistence.Data;
+using TaskManager.Infrastructure.Persistence.Repositories;
 using TaskManager.Infrastructure.Services;
 
 namespace TaskManager.Infrastructure
@@ -32,6 +34,8 @@ namespace TaskManager.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
+            services.AddScoped<ITaskItemRepository, TaskItemRepository>();
+            services.AddScoped<ITaskLabelRepository, TaskLabelRepository>();
 
             return services;
         }

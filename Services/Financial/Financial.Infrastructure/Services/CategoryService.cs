@@ -28,12 +28,13 @@ namespace Financial.Infrastructure.Services
             try
             {
                 var all = await _categoryRepository.GetAll(cancellationToken);
+
                 return Result.Success(all.Count());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar categorias");
-                return Result.Failure<int>(Error.Problem("Erro ao contar categorias"));
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -45,6 +46,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<int>(Error.NullValue);
 
                 var entity = dto.ToEntity();
+                
                 await _categoryRepository.Create(entity, cancellationToken);
 
                 return Result.Success(entity.Id);
@@ -52,7 +54,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar categoria {@CategoryData}", dto);
-                return Result.Failure<int>(CategoryErrors.CreateError);
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -69,6 +71,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<IEnumerable<int>>(CategoryErrors.CreateError);
 
                 var entities = dtos.Select(CategoryMapper.ToEntity).ToList();
+                
                 await _categoryRepository.CreateRange(entities, cancellationToken);
 
                 return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id));
@@ -76,7 +79,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplas categorias");
-                return Result.Failure<IEnumerable<int>>(CategoryErrors.CreateError);
+                return Result.Failure<IEnumerable<int>>(Error.Failure(ex.Message));
             }
         }
 
@@ -92,12 +95,13 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<bool>(CategoryErrors.NotFound(id));
 
                 await _categoryRepository.Delete(entity, cancellationToken);
+                
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir categoria {CategoryId}", id);
-                return Result.Failure<bool>(CategoryErrors.DeleteError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -134,7 +138,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplas categorias {CategoryIds}", ids);
-                return Result.Failure<bool>(CategoryErrors.CreateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -158,7 +162,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar categorias com predicado");
-                return Result.Failure<IEnumerable<CategoryDTO>>(Error.Failure("Erro ao buscar categorias"));
+                return Result.Failure<IEnumerable<CategoryDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -174,7 +178,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todas as categorias");
-                return Result.Failure<IEnumerable<CategoryDTO>>(CategoryErrors.NotFound());
+                return Result.Failure<IEnumerable<CategoryDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -193,7 +197,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar categoria {CategoryId}", id);
-                return Result.Failure<CategoryDTO>(CategoryErrors.NotFound(id));
+                return Result.Failure<CategoryDTO>(Error.Failure(ex.Message));
             }
         }
 
@@ -212,7 +216,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar categorias por nome {Name} e usuário {UserId}", name, userId);
-                return Result.Failure<IEnumerable<CategoryDTO>>(CategoryErrors.NotFound());
+                return Result.Failure<IEnumerable<CategoryDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -231,7 +235,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar categorias do usuário {UserId}", userId);
-                return Result.Failure<IEnumerable<CategoryDTO>>(CategoryErrors.NotFound());
+                return Result.Failure<IEnumerable<CategoryDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -246,8 +250,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<(IEnumerable<CategoryDTO>, int)>(Error.Failure("Tamanho da página deve ser maior que zero"));
 
                 var entities = await _categoryRepository.GetAll(cancellationToken);
-                int totalCount = entities.Count();
-
+                var totalCount = entities.Count();
                 var dtos = entities.Select(CategoryMapper.ToDTO)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
@@ -258,7 +261,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de categorias (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<CategoryDTO>, int)>(CategoryErrors.NotFound());
+                return Result.Failure<(IEnumerable<CategoryDTO>, int)>(Error.Failure(ex.Message));
             }
         }
 
@@ -277,6 +280,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<bool>(CategoryErrors.NotFound(dto.Id));
 
                 entity.Update(dto.Name, dto.Description);
+
                 await _categoryRepository.Update(entity, cancellationToken);
 
                 return Result.Success(true);
@@ -284,7 +288,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar categoria {@CategoryData}", dto);
-                return Result.Failure<bool>(CategoryErrors.UpdateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
     }

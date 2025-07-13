@@ -33,12 +33,13 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<DailyProgressDTO>(DailyProgressErrors.NotFound(id));
 
                 var dailyProgressDTO = DailyProgressMapper.ToDTO(dailyProgress);
+
                 return Result.Success(dailyProgressDTO);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar progresso diário {ProgressId}", id);
-                return Result.Failure<DailyProgressDTO>(DailyProgressErrors.NotFound(id));
+                return Result.Failure<DailyProgressDTO>(Error.Failure(ex.Message));
             }
         }
 
@@ -51,7 +52,6 @@ namespace Nutrition.Infrastructure.Services
 
                 var entities = await _dailyProgressRepository.GetAll(cancellationToken);
                 var totalCount = entities.Count();
-
                 var items = entities
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
@@ -64,7 +64,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de progresso diário (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<DailyProgressDTO>, int)>(Error.Problem("Erro ao obter página de progresso diário"));
+                return Result.Failure<(IEnumerable<DailyProgressDTO>, int)>(Error.Failure(ex.Message));
             }
         }
 
@@ -88,7 +88,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar progresso diário com predicado");
-                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("Erro ao buscar progresso diário"));
+                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -101,14 +101,14 @@ namespace Nutrition.Infrastructure.Services
                     .Where(e => e != null)
                     .Select(DailyProgressMapper.ToDTO)
                     .AsQueryable();
-
                 int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
+
                 return Result.Success(count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar registros de progresso diário");
-                return Result.Failure<int>(Error.Problem("Erro ao contar registros de progresso diário"));
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -127,7 +127,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todos os registros de progresso diário");
-                return Result.Failure<IEnumerable<DailyProgressDTO>>(DailyProgressErrors.NotFound());
+                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -149,7 +149,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar registros de progresso diário do usuário {UserId}", userId);
-                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Problem("Erro ao buscar registros de progresso diário do usuário"));
+                return Result.Failure<IEnumerable<DailyProgressDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -210,7 +210,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplos registros de progresso diário");
-                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplos registros de progresso diário"));
+                return Result.Failure<IEnumerable<int>>(Error.Failure(ex.Message));
             }
         }
 
@@ -226,6 +226,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<bool>(DailyProgressErrors.NotFound(dto.Id));
 
                 entity.SetConsumed(dto.CaloriesConsumed, dto.LiquidsConsumedMl);
+
                 entity.MarkAsUpdated();
 
                 await _dailyProgressRepository.Update(entity, cancellationToken);
@@ -236,7 +237,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar progresso diário {ProgressId}", dto.Id);
-                return Result.Failure<bool>(DailyProgressErrors.UpdateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -249,6 +250,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<bool>(DailyProgressErrors.NotFound(id));
 
                 entity.SetConsumed(calories, liquidsMl);
+
                 entity.MarkAsUpdated();
 
                 await _dailyProgressRepository.Update(entity, cancellationToken);
@@ -259,7 +261,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao definir consumo para progresso diário {ProgressId}", id);
-                return Result.Failure<bool>(DailyProgressErrors.UpdateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -277,6 +279,7 @@ namespace Nutrition.Infrastructure.Services
                 var goal = DailyGoalMapper.ToEntity(goalDto);
 
                 entity.SetGoal(goal);
+
                 entity.MarkAsUpdated();
 
                 await _dailyProgressRepository.Update(entity, cancellationToken);
@@ -287,7 +290,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao definir meta para progresso diário {ProgressId}", id);
-                return Result.Failure<bool>(DailyProgressErrors.UpdateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -307,7 +310,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir progresso diário {ProgressId}", id);
-                return Result.Failure<bool>(DailyProgressErrors.DeleteError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -350,7 +353,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplos registros de progresso diário {ProgressIds}", ids);
-                return Result.Failure<bool>(Error.Problem(DailyProgressErrors.DeleteError.Description));
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
     }

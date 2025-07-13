@@ -28,12 +28,13 @@ namespace Financial.Infrastructure.Services
             try
             {
                 var all = await _transactionRepository.GetAll(cancellationToken);
+
                 return Result.Success(all.Count());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar transações");
-                return Result.Failure<int>(Error.Problem("Erro ao contar transações"));
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -45,6 +46,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<int>(TransactionErrors.CreateError);
 
                 var entity = TransactionMapper.ToEntity(dto);
+
                 await _transactionRepository.Create(entity, cancellationToken);
 
                 return Result.Success(entity.Id);
@@ -52,7 +54,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar transação {@TransactionData}", dto);
-                return Result.Failure<int>(TransactionErrors.CreateError);
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -64,6 +66,7 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<IEnumerable<int>>(Error.NullValue);
 
                 var entities = dtos.Select(TransactionMapper.ToEntity).ToList();
+
                 await _transactionRepository.CreateRange(entities, cancellationToken);
 
                 return Result.Success<IEnumerable<int>>(entities.Select(e => e.Id));
@@ -71,7 +74,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplas transações");
-                return Result.Failure<IEnumerable<int>>(TransactionErrors.CreateError);
+                return Result.Failure<IEnumerable<int>>(Error.Failure(ex.Message));
             }
         }
 
@@ -87,12 +90,13 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<bool>(TransactionErrors.NotFound(id));
 
                 await _transactionRepository.Delete(entity, cancellationToken);
+
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir transação {TransactionId}", id);
-                return Result.Failure<bool>(TransactionErrors.DeleteError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -129,7 +133,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplas transações {TransactionIds}", ids);
-                return Result.Failure<bool>(TransactionErrors.DeleteError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -141,7 +145,6 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<IEnumerable<TransactionDTO>>(Error.NullValue);
 
                 var all = await _transactionRepository.GetAll(cancellationToken);
-
                 var dtos = all
                     .Select(TransactionMapper.ToDTO)
                     .AsQueryable()
@@ -153,7 +156,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar transações com predicado");
-                return Result.Failure<IEnumerable<TransactionDTO>>(TransactionErrors.NotFound());
+                return Result.Failure<IEnumerable<TransactionDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -169,7 +172,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todas as transações");
-                return Result.Failure<IEnumerable<TransactionDTO>>(TransactionErrors.NotFound());
+                return Result.Failure<IEnumerable<TransactionDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -185,12 +188,13 @@ namespace Financial.Infrastructure.Services
                     return Result.Failure<TransactionDTO>(TransactionErrors.NotFound(id));
 
                 var dto = TransactionMapper.ToDTO(entity);
+
                 return Result.Success(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar transação {TransactionId}", id);
-                return Result.Failure<TransactionDTO>(TransactionErrors.NotFound(id));
+                return Result.Failure<TransactionDTO>(Error.Failure(ex.Message));
             }
         }
 
@@ -209,7 +213,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar transações do usuário {UserId}", userId);
-                return Result.Failure<IEnumerable<TransactionDTO>>(TransactionErrors.NotFound());
+                return Result.Failure<IEnumerable<TransactionDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -225,7 +229,6 @@ namespace Financial.Infrastructure.Services
 
                 var all = await _transactionRepository.GetAll(cancellationToken);
                 var totalCount = all.Count();
-
                 var items = all
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
@@ -237,7 +240,7 @@ namespace Financial.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de transações (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<TransactionDTO>, int)>(TransactionErrors.NotFound());
+                return Result.Failure<(IEnumerable<TransactionDTO>, int)>(Error.Failure(ex.Message));
             }
         }
 
@@ -265,12 +268,13 @@ namespace Financial.Infrastructure.Services
                     dto.IsRecurring);
 
                 await _transactionRepository.Update(entity, cancellationToken);
+
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar transação {@TransactionData}", dto);
-                return Result.Failure<bool>(TransactionErrors.NotFound(dto.Id));
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
     }

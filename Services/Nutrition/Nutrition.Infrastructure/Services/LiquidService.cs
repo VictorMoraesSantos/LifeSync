@@ -32,12 +32,13 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<LiquidDTO>(LiquidErrors.NotFound(id));
 
                 var liquidDTO = LiquidMapper.ToDTO(liquid);
+
                 return Result.Success(liquidDTO);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar líquido {LiquidId}", id);
-                return Result.Failure<LiquidDTO>(LiquidErrors.NotFound(id));
+                return Result.Failure<LiquidDTO>(Error.Failure(ex.Message));
             }
         }
 
@@ -50,7 +51,6 @@ namespace Nutrition.Infrastructure.Services
 
                 var entities = await _liquidRepository.GetAll(cancellationToken);
                 var totalCount = entities.Count();
-
                 var items = entities
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
@@ -63,7 +63,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de líquidos (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<LiquidDTO>, int)>(Error.Problem("Erro ao obter página de líquidos"));
+                return Result.Failure<(IEnumerable<LiquidDTO>, int)>(Error.Failure(ex.Message));
             }
         }
 
@@ -87,7 +87,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar líquidos com predicado");
-                return Result.Failure<IEnumerable<LiquidDTO>>(Error.Problem("Erro ao buscar líquidos"));
+                return Result.Failure<IEnumerable<LiquidDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -100,14 +100,14 @@ namespace Nutrition.Infrastructure.Services
                     .Where(e => e != null)
                     .Select(LiquidMapper.ToDTO)
                     .AsQueryable();
-
                 int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
+                
                 return Result.Success(count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar líquidos");
-                return Result.Failure<int>(Error.Problem("Erro ao contar líquidos"));
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -126,7 +126,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todos os líquidos");
-                return Result.Failure<IEnumerable<LiquidDTO>>(Error.Problem("Erro ao buscar todos os líquidos"));
+                return Result.Failure<IEnumerable<LiquidDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -187,7 +187,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplos líquidos");
-                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplos líquidos"));
+                return Result.Failure<IEnumerable<int>>(Error.Failure(ex.Message));
             }
         }
 
@@ -204,6 +204,7 @@ namespace Nutrition.Infrastructure.Services
 
 
                 entity.Update(dto.Name, dto.QuantityMl, dto.CaloriesPerMl);
+
                 await _liquidRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Líquido atualizado com sucesso: {LiquidId}", dto.Id);
@@ -212,7 +213,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar líquido {LiquidId}", dto.Id);
-                return Result.Failure<bool>(LiquidErrors.UpdateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -232,7 +233,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir líquido {LiquidId}", id);
-                return Result.Failure<bool>(LiquidErrors.DeleteError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -275,7 +276,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplos líquidos {LiquidIds}", ids);
-                return Result.Failure<bool>(Error.Problem(LiquidErrors.DeleteError.Description));
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
     }

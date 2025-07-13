@@ -32,12 +32,13 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<MealFoodDTO>(MealFoodErrors.NotFound(id));
 
                 var mealFoodDTO = MealFoodMapper.ToDTO(mealFood);
+
                 return Result.Success(mealFoodDTO);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar alimento de refeição {MealFoodId}", id);
-                return Result.Failure<MealFoodDTO>(MealFoodErrors.NotFound(id));
+                return Result.Failure<MealFoodDTO>(Error.Failure(ex.Message));
             }
         }
 
@@ -50,7 +51,6 @@ namespace Nutrition.Infrastructure.Services
 
                 var entities = await _mealFoodRepository.GetAll(cancellationToken);
                 var totalCount = entities.Count();
-
                 var items = entities
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
@@ -63,7 +63,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de alimentos de refeição (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<MealFoodDTO>, int)>(Error.Problem("Erro ao obter página de alimentos de refeição"));
+                return Result.Failure<(IEnumerable<MealFoodDTO>, int)>(Error.Failure(ex.Message));
             }
         }
 
@@ -87,7 +87,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar alimentos de refeição com predicado");
-                return Result.Failure<IEnumerable<MealFoodDTO>>(Error.Problem("Erro ao buscar alimentos de refeição"));
+                return Result.Failure<IEnumerable<MealFoodDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -100,14 +100,13 @@ namespace Nutrition.Infrastructure.Services
                     .Where(e => e != null)
                     .Select(MealFoodMapper.ToDTO)
                     .AsQueryable();
-
                 int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
                 return Result.Success(count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar alimentos de refeição");
-                return Result.Failure<int>(Error.Problem("Erro ao contar alimentos de refeição"));
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -126,7 +125,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todos os alimentos de refeição");
-                return Result.Failure<IEnumerable<MealFoodDTO>>(Error.Problem("Erro ao buscar todos os alimentos de refeição"));
+                return Result.Failure<IEnumerable<MealFoodDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -138,6 +137,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<int>(Error.NullValue);
 
                 var entity = MealFoodMapper.ToEntity(dto);
+
                 await _mealFoodRepository.Create(entity, cancellationToken);
 
                 _logger.LogInformation("Alimento de refeição criado com sucesso: {MealFoodId}", entity.Id);
@@ -146,7 +146,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar alimento de refeição {@MealFoodData}", dto);
-                return Result.Failure<int>(MealFoodErrors.CreateError);
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -187,7 +187,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplos alimentos de refeição");
-                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplos alimentos de refeição"));
+                return Result.Failure<IEnumerable<int>>(Error.Failure(ex.Message));
             }
         }
 
@@ -203,6 +203,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<bool>(MealFoodErrors.NotFound(dto.Id));
 
                 entity.Update(dto.Name, dto.QuantityInGrams, dto.CaloriesPerUnit);
+
                 await _mealFoodRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Alimento de refeição atualizado com sucesso: {MealFoodId}", dto.Id);
@@ -211,7 +212,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar alimento de refeição {MealFoodId}", dto.Id);
-                return Result.Failure<bool>(MealFoodErrors.UpdateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -231,7 +232,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir alimento de refeição {MealFoodId}", id);
-                return Result.Failure<bool>(MealFoodErrors.DeleteError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -274,7 +275,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplos alimentos de refeição {MealFoodIds}", ids);
-                return Result.Failure<bool>(Error.Problem(MealFoodErrors.DeleteError.Description));
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
     }

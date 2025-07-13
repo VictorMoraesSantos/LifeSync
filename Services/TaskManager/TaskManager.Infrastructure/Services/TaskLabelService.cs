@@ -42,7 +42,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todos os rótulos");
-                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.GetAllError);
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -64,7 +64,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao filtrar rótulos");
-                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.FilterError);
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -83,7 +83,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar rótulo {LabelId}", id);
-                return Result.Failure<TaskLabelDTO>(TaskLabelErrors.GetByIdError);
+                return Result.Failure<TaskLabelDTO>(Error.Failure(ex.Message));
             }
         }
 
@@ -103,7 +103,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar rótulo {@LabelData}", dto);
-                return Result.Failure<int>(TaskLabelErrors.CreateError);
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -127,7 +127,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar rótulo {@LabelData}", dto);
-                return Result.Failure<bool>(TaskLabelErrors.UpdateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -147,7 +147,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir rótulo {LabelId}", id);
-                return Result.Failure<bool>(TaskLabelErrors.DeleteError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -173,7 +173,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de rótulos (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(TaskLabelErrors.GetPagedError);
+                return Result.Failure<(IEnumerable<TaskLabelDTO>, int)>(Error.Failure(ex.Message));
             }
         }
 
@@ -197,7 +197,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar rótulos com predicado");
-                return Result.Failure<IEnumerable<TaskLabelDTO>>(TaskLabelErrors.FindError);
+                return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -217,7 +217,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar rótulos");
-                return Result.Failure<int>(TaskLabelErrors.CountError);
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -258,7 +258,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplos rótulos");
-                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplos rótulos"));
+                return Result.Failure<IEnumerable<int>>(Error.Failure(ex.Message));
             }
         }
 
@@ -299,7 +299,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplos rótulos {LabelIds}", ids);
-                return Result.Failure<bool>(Error.Problem("Erro ao excluir múltiplos rótulos"));
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
     }

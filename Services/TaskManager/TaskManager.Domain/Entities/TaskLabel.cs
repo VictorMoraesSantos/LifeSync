@@ -1,5 +1,7 @@
 ﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
 using TaskManager.Domain.Enums;
+using TaskManager.Domain.Errors;
 
 namespace TaskManager.Domain.Entities
 {
@@ -15,7 +17,9 @@ namespace TaskManager.Domain.Entities
 
         public TaskLabel(string name, LabelColor labelColor, int userId, int? taskItemId)
         {
-            Validate(name);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new DomainException(TaskLabelErrors.InvalidName);
+
             Name = name.Trim();
             LabelColor = labelColor;
             UserId = userId;
@@ -24,16 +28,13 @@ namespace TaskManager.Domain.Entities
 
         public void Update(string name, LabelColor labelColor)
         {
-            Validate(name);
-            Name = name;
-            LabelColor = labelColor;
-            MarkAsUpdated();
-        }
+            if (string.IsNullOrWhiteSpace(name))
+                throw new DomainException(TaskLabelErrors.InvalidName);
 
-        private void Validate(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Value cannot be null or empty.", nameof(value));
+            Name = name.Trim();
+            LabelColor = labelColor;
+
+            MarkAsUpdated();
         }
     }
 }

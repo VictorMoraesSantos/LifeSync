@@ -19,7 +19,12 @@ namespace TaskManager.Domain.Entities
 
         protected TaskItem() { }
 
-        public TaskItem(string title, string description, Priority priority, DateOnly dueDate, int userId)
+        public TaskItem(
+            string title,
+            string description,
+            Priority priority,
+            DateOnly dueDate,
+            int userId)
         {
             SetTitle(title);
             SetDescription(description);
@@ -29,7 +34,12 @@ namespace TaskManager.Domain.Entities
             UserId = userId;
         }
 
-        public void Update(string title, string description, Status status, Priority priority, DateOnly dueDate)
+        public void Update(
+            string title,
+            string description,
+            Status status,
+            Priority priority,
+            DateOnly dueDate)
         {
             SetTitle(title);
             SetDescription(description);
@@ -66,6 +76,7 @@ namespace TaskManager.Domain.Entities
         public void ChangeStatus(Status status)
         {
             Status = status;
+
             MarkAsUpdated();
         }
 
@@ -78,6 +89,7 @@ namespace TaskManager.Domain.Entities
                 throw new DomainException(TaskItemErrors.DuplicateLabel);
 
             _labels.Add(label);
+
             MarkAsUpdated();
         }
 
@@ -91,6 +103,7 @@ namespace TaskManager.Domain.Entities
                 throw new DomainException(TaskItemErrors.LabelNotFound);
 
             _labels.Remove(labelToRemove);
+
             MarkAsUpdated();
         }
 
@@ -104,9 +117,10 @@ namespace TaskManager.Domain.Entities
             MarkAsUpdated();
         }
 
-        // Métodos adicionais úteis
         public bool IsOverdue() => DueDate < DateOnly.FromDateTime(DateTime.Today);
+
         public bool IsComplete() => Status == Status.Completed;
+
         public bool HasLabel(int labelId) => _labels.Any(l => l.Id == labelId);
     }
 }

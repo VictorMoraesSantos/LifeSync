@@ -38,12 +38,13 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<DiaryDTO>(DiaryErrors.NotFound(id));
 
                 var diaryDTO = diary.ToDTO();
+
                 return Result.Success(diaryDTO);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar diário {DiaryId}", id);
-                return Result.Failure<DiaryDTO>(DiaryErrors.NotFound(id));
+                return Result.Failure<DiaryDTO>(Error.Failure(ex.Message));
             }
         }
 
@@ -56,7 +57,6 @@ namespace Nutrition.Infrastructure.Services
 
                 var entities = await _diaryRepository.GetAll(cancellationToken);
                 var totalCount = entities.Count();
-
                 var items = entities
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
@@ -69,7 +69,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de diários (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<DiaryDTO>, int)>(Error.Problem("Erro ao obter página de diários"));
+                return Result.Failure<(IEnumerable<DiaryDTO>, int)>(Error.Failure(ex.Message));
             }
         }
 
@@ -93,7 +93,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar diários com predicado");
-                return Result.Failure<IEnumerable<DiaryDTO>>(Error.Problem("Erro ao buscar diários"));
+                return Result.Failure<IEnumerable<DiaryDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -106,14 +106,13 @@ namespace Nutrition.Infrastructure.Services
                     .Where(e => e != null)
                     .Select(DiaryMapper.ToDTO)
                     .AsQueryable();
-
                 int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
                 return Result.Success(count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar diários");
-                return Result.Failure<int>(Error.Problem("Erro ao contar diários"));
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -132,7 +131,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todos os diários");
-                return Result.Failure<IEnumerable<DiaryDTO>>(Error.Problem("Erro ao buscar todos os diários"));
+                return Result.Failure<IEnumerable<DiaryDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -154,7 +153,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar diários do usuário {UserId}", userId);
-                return Result.Failure<IEnumerable<DiaryDTO>>(Error.Problem("Erro ao buscar diários do usuário"));
+                return Result.Failure<IEnumerable<DiaryDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -219,7 +218,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplos diários");
-                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplos diários"));
+                return Result.Failure<IEnumerable<int>>(Error.Failure(ex.Message));
             }
         }
 
@@ -310,7 +309,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplos diários {DiaryIds}", ids);
-                return Result.Failure<bool>(Error.Problem(DiaryErrors.DeleteError.Description));
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -326,6 +325,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<bool>(DiaryErrors.NotFound(diaryId));
 
                 var meal = dto.ToEntity();
+
                 diary.AddMeal(meal);
 
                 await _diaryRepository.Update(diary, cancellationToken);
@@ -343,7 +343,7 @@ namespace Nutrition.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao adicionar refeição ao diário {DiaryId}", diaryId);
-                return Result.Failure<bool>(Error.Problem("Erro ao adicionar refeição ao diário"));
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
     }

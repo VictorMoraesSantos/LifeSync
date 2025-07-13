@@ -36,12 +36,13 @@ namespace TaskManager.Infrastructure.Services
                     return Result.Failure<TaskItemDTO>(TaskItemErrors.NotFound(id));
 
                 var taskItemDTO = taskItem.ToDTO();
+
                 return Result.Success(taskItemDTO);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar tarefa {TaskId}", id);
-                return Result.Failure<TaskItemDTO>(TaskItemErrors.NotFound(id));
+                return Result.Failure<TaskItemDTO>(Error.Failure(ex.Message));
             }
         }
 
@@ -54,7 +55,6 @@ namespace TaskManager.Infrastructure.Services
 
                 var entities = await _taskItemRepository.GetAll(cancellationToken);
                 var totalCount = entities.Count();
-
                 var items = entities
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
@@ -67,7 +67,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao obter página de tarefas (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
-                return Result.Failure<(IEnumerable<TaskItemDTO>, int)>(Error.Problem("Erro ao obter página de tarefas"));
+                return Result.Failure<(IEnumerable<TaskItemDTO>, int)>(Error.Failure(ex.Message));
             }
         }
 
@@ -94,7 +94,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao filtrar tarefas {@Filter}", filter);
-                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem("Erro ao filtrar tarefas"));
+                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -106,6 +106,7 @@ namespace TaskManager.Infrastructure.Services
                     return Result.Failure<IEnumerable<TaskItemDTO>>(Error.NullValue);
 
                 var entities = await _taskItemRepository.GetAll(cancellationToken);
+
                 var dtos = entities
                     .Where(e => e != null)
                     .Select(TaskItemMapper.ToDTO)
@@ -118,7 +119,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar tarefas com predicado");
-                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem("Erro ao buscar tarefas"));
+                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -127,18 +128,20 @@ namespace TaskManager.Infrastructure.Services
             try
             {
                 var all = await _taskItemRepository.GetAll(cancellationToken);
+
                 var dtos = all
                     .Where(e => e != null)
                     .Select(TaskItemMapper.ToDTO)
                     .AsQueryable();
 
                 int count = predicate != null ? dtos.Count(predicate) : dtos.Count();
+
                 return Result.Success(count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao contar tarefas");
-                return Result.Failure<int>(Error.Problem("Erro ao contar tarefas"));
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -157,7 +160,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar todas as tarefas");
-                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Problem("Erro ao buscar todas as tarefas"));
+                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -178,7 +181,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar tarefa {@TaskData}", dto);
-                return Result.Failure<int>(TaskItemErrors.CreateError);
+                return Result.Failure<int>(Error.Failure(ex.Message));
             }
         }
 
@@ -219,7 +222,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao criar múltiplas tarefas");
-                return Result.Failure<IEnumerable<int>>(Error.Problem("Erro ao criar múltiplas tarefas"));
+                return Result.Failure<IEnumerable<int>>(Error.Failure(ex.Message));
             }
         }
 
@@ -246,7 +249,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar tarefa {TaskId}", dto.Id);
-                return Result.Failure<bool>(TaskItemErrors.UpdateError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -266,7 +269,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir tarefa {TaskId}", id);
-                return Result.Failure<bool>(TaskItemErrors.DeleteError);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
 
@@ -310,7 +313,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplas tarefas {TaskIds}", ids);
-                return Result.Failure<bool>(Error.Problem(TaskItemErrors.DeleteError.Description));
+                return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
     }
