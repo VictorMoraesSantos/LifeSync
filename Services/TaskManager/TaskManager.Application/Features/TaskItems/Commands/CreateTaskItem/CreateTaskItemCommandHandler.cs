@@ -16,7 +16,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
 
         public async Task<Result<CreateTaskItemResult>> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            CreateTaskItemDTO dto = new(
+            var dto = new CreateTaskItemDTO(
                 command.Title,
                 command.Description,
                 command.Priority,

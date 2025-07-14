@@ -1,44 +1,69 @@
 ﻿using Gym.Domain.Entities;
 using Gym.Domain.Repositories;
+using Gym.Infrastructure.Persistence.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Gym.Infrastructure.Persistence.Repositories
 {
     public class ExerciseRepository : IExerciseRepository
     {
-        public Task Create(Exercise entity, CancellationToken cancellationToken = default)
+        private readonly ApplicationDbContext _context;
+
+        public ExerciseRepository(ApplicationDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task CreateRange(IEnumerable<Exercise> entities, CancellationToken cancellationToken = default)
+        public async Task Create(Exercise entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _context.Exercises.AddAsync(entity, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Delete(Exercise entity, CancellationToken cancellationToken = default)
+        public async Task CreateRange(IEnumerable<Exercise> entities, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _context.Exercises.AddRangeAsync(entities, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<IEnumerable<Exercise?>> Find(Expression<Func<Exercise, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task Delete(Exercise entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.Exercises.Remove(entity);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<IEnumerable<Exercise?>> GetAll(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Exercise?>> Find(Expression<Func<Exercise, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entities = await _context.Exercises
+                .Where(predicate)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return entities;
         }
 
-        public Task<Exercise?> GetById(int id, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Exercise?>> GetAll(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entities = await _context.Exercises
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return entities;
         }
 
-        public Task Update(Exercise entity, CancellationToken cancellationToken = default)
+        public async Task<Exercise?> GetById(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entity = await _context.Exercises
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+            return entity;
+        }
+
+        public async Task Update(Exercise entity, CancellationToken cancellationToken = default)
+        {
+            _context.Exercises.Update(entity);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿using Gym.Domain.Repositories;
+﻿using Gym.Application.Contracts;
+using Gym.Domain.Repositories;
 using Gym.Infrastructure.Persistence.Data;
 using Gym.Infrastructure.Persistence.Repositories;
+using Gym.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,11 +37,11 @@ namespace Gym.Infrastructure
 
         private static IServiceCollection AddServices(this IServiceCollection services)
         {
-            //services.AddScoped<ICompletedExerciseService, CompletedExerciseService>();
-            //services.AddScoped<IExerciseService, ExerciseService>();
-            //services.AddScoped<IRoutineService, RoutineService>();
-            //services.AddScoped<IRoutineExerciseService, RoutineExerciseService>();
-            //services.AddScoped<ITrainingSessionService, TrainingSessionService>();
+            services.AddScoped<ICompletedExerciseService, CompletedExerciseService>();
+            services.AddScoped<IExerciseService, ExerciseService>();
+            services.AddScoped<IRoutineService, RoutineService>();
+            services.AddScoped<IRoutineExerciseService, RoutineExerciseService>();
+            services.AddScoped<ITrainingSessionService, TrainingSessionService>();
 
             return services;
         }

@@ -1,44 +1,78 @@
 ﻿using Gym.Domain.Entities;
 using Gym.Domain.Repositories;
+using Gym.Infrastructure.Persistence.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Gym.Infrastructure.Persistence.Repositories
 {
     public class RoutineExerciseRepository : IRoutineExerciseRepository
     {
-        public Task Create(RoutineExercise entity, CancellationToken cancellationToken = default)
+        private readonly ApplicationDbContext _context;
+
+        public RoutineExerciseRepository(ApplicationDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task CreateRange(IEnumerable<RoutineExercise> entities, CancellationToken cancellationToken = default)
+        public async Task Create(RoutineExercise entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _context.RoutineExercises.AddAsync(entity, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Delete(RoutineExercise entity, CancellationToken cancellationToken = default)
+        public async Task CreateRange(IEnumerable<RoutineExercise> entities, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _context.RoutineExercises.AddRangeAsync(entities, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<IEnumerable<RoutineExercise?>> Find(Expression<Func<RoutineExercise, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task Delete(RoutineExercise entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.RoutineExercises.Remove(entity);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<IEnumerable<RoutineExercise?>> GetAll(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<RoutineExercise?>> Find(
+            Expression<Func<RoutineExercise, bool>> predicate,
+            CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entities = await _context.RoutineExercises
+                .Where(predicate)
+                .Include(e => e.Routine)
+                .Include(e => e.Exercise)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return entities;
         }
 
-        public Task<RoutineExercise?> GetById(int id, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<RoutineExercise?>> GetAll(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entities = await _context.RoutineExercises
+                .Include(e => e.Routine)
+                .Include(e => e.Exercise)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return entities;
         }
 
-        public Task Update(RoutineExercise entity, CancellationToken cancellationToken = default)
+        public async Task<RoutineExercise?> GetById(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entities = await _context.RoutineExercises
+                .AsNoTracking()
+                .Include(e => e.Routine)
+                .Include(e => e.Exercise)
+                .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
+            return entities;
+        }
+
+        public async Task Update(RoutineExercise entity, CancellationToken cancellationToken = default)
+        {
+            _context.RoutineExercises.Update(entity);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

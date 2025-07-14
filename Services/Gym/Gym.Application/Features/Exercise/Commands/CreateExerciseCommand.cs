@@ -1,0 +1,15 @@
+﻿using BuildingBlocks.CQRS.Commands;
+using Gym.Domain.Enums;
+
+namespace Gym.Application.Features.Exercise.Commands
+{
+    public record CreateExerciseCommand(
+        string Name,
+        string Description,
+        MuscleGroup MuscleGroup,
+        ExerciseType Type,
+        EquipmentType? EquipmentType)
+        : ICommand<CreateExerciseResult>;
+
+    public record CreateExerciseResult(int Id);
+}

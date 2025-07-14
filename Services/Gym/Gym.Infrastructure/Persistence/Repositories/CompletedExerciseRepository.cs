@@ -1,44 +1,80 @@
 ﻿using Gym.Domain.Entities;
 using Gym.Domain.Repositories;
+using Gym.Infrastructure.Persistence.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Gym.Infrastructure.Persistence.Repositories
 {
     public class CompletedExerciseRepository : ICompletedExerciseRepository
     {
-        public Task Create(CompletedExercise entity, CancellationToken cancellationToken = default)
+        private readonly ApplicationDbContext _context;
+
+        public CompletedExerciseRepository(ApplicationDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task CreateRange(IEnumerable<CompletedExercise> entities, CancellationToken cancellationToken = default)
+        public async Task Create(CompletedExercise entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _context.CompletedExercises.AddAsync(entity, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Delete(CompletedExercise entity, CancellationToken cancellationToken = default)
+        public async Task CreateRange(IEnumerable<CompletedExercise> entities, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _context.CompletedExercises.AddRangeAsync(entities, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<IEnumerable<CompletedExercise?>> Find(Expression<Func<CompletedExercise, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task Delete(CompletedExercise entity, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _context.CompletedExercises.Remove(entity);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<IEnumerable<CompletedExercise?>> GetAll(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<CompletedExercise?>> Find(
+            Expression<Func<CompletedExercise, bool>> predicate,
+            CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entities = await _context.CompletedExercises
+                .Where(predicate)
+                .Include(e => e.Exercise)
+                .Include(re => re.RoutineExercise)
+                .Include(ts => ts.TrainingSession)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+            
+            return entities;
         }
 
-        public Task<CompletedExercise?> GetById(int id, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<CompletedExercise?>> GetAll(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entities = await _context.CompletedExercises
+                .Include(e => e.Exercise)
+                .Include(re => re.RoutineExercise)
+                .Include(ts => ts.TrainingSession)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            return entities;
         }
 
-        public Task Update(CompletedExercise entity, CancellationToken cancellationToken = default)
+        public async Task<CompletedExercise?> GetById(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var entity = await _context.CompletedExercises
+                .Include(e => e.Exercise)
+                .Include(re => re.RoutineExercise)
+                .Include(ts => ts.TrainingSession)
+                .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
+            return entity;
+        }
+
+        public async Task Update(CompletedExercise entity, CancellationToken cancellationToken = default)
+        {
+            _context.CompletedExercises.Update(entity);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

@@ -36,6 +36,7 @@ namespace Financial.Infrastructure.Persistence.Repositories
         {
             IEnumerable<Category?> entities = await _context.Categories
                 .Where(predicate)
+                .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
             return entities;
