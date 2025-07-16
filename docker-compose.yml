@@ -38,6 +38,11 @@ services:
       context: .
       dockerfile: Services/EmailSender/EmailSender.API/Dockerfile
 
+  gym.api:
+    image: ${DOCKER_REGISTRY-}gymapi
+    build:
+      context: .
+      dockerfile: Services/Gym/Gym.API/Dockerfile
+
 volumes:
   postgres_lifesync:
-

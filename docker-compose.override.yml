@@ -108,6 +108,23 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
+  gym.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
+    depends_on:
+      - lifesyncdb
+    ports:
+      - "6004:8080"
+      - "6064:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
   emailsender.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -126,8 +143,8 @@ services:
       - rabbitmq
       - mailhog
     ports:
-      - "6004:8080"
-      - "6064:8081"
+      - "6005:8080"
+      - "6065:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
