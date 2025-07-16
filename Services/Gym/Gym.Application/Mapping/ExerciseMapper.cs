@@ -1,5 +1,4 @@
-﻿using Gym.Application.DTOs.CompletedExercise;
-using Gym.Application.DTOs.Exercise;
+﻿using Gym.Application.DTOs.Exercise;
 using Gym.Domain.Entities;
 
 namespace Gym.Application.Mapping
@@ -21,16 +20,14 @@ namespace Gym.Application.Mapping
             return dto;
         }
 
-        public static CompletedExercise ToEntity(this CreateCompletedExerciseDTO dto)
+        public static Exercise ToEntity(this CreateExerciseDTO dto)
         {
-            var entity = new CompletedExercise(
-                dto.TrainingSessionId,
-                dto.ExerciseId,
-                dto.RoutineExerciseId,
-                dto.SetsCompleted,
-                dto.RepetitionsCompleted,
-                dto.WeightUsed,
-                dto.Notes);
+            var entity = new Exercise(
+                dto.Name,
+                dto.Description,
+                dto.MuscleGroup,
+                dto.Type,
+                dto.EquipmentType);
 
             return entity;
         }

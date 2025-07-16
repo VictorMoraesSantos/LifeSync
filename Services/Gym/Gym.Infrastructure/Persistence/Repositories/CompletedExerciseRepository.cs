@@ -44,7 +44,7 @@ namespace Gym.Infrastructure.Persistence.Repositories
                 .Include(ts => ts.TrainingSession)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
-            
+
             return entities;
         }
 

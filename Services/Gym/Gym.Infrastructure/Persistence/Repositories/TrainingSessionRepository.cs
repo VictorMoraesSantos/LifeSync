@@ -2,9 +2,7 @@
 using Gym.Domain.Repositories;
 using Gym.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq.Expressions;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Gym.Infrastructure.Persistence.Repositories
 {

@@ -5,7 +5,7 @@ namespace Gym.Application.Mapping
 {
     public static class RoutineMapper
     {
-        public static RoutineDTO ToDTO(this RoutineDTO entity)
+        public static RoutineDTO ToDTO(this Routine entity)
         {
             var dto = new RoutineDTO(
                 entity.Id,

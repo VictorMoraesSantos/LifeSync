@@ -241,6 +241,7 @@ namespace TaskManager.Infrastructure.Services
                     return Result.Failure<bool>(Error.Failure("Status ou prioridade inválidos"));
 
                 entity.Update(dto.Title, dto.Description, dto.Status, dto.Priority, dto.DueDate);
+
                 await _taskItemRepository.Update(entity, cancellationToken);
 
                 _logger.LogInformation("Tarefa atualizada com sucesso: {TaskId}", dto.Id);
