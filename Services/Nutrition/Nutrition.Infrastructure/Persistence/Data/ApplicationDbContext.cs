@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Nutrition.Domain.Entities;
 
-namespace Nutrition.Infrastructure.Data
+namespace Nutrition.Infrastructure.Persistence.Data
 {
     public class ApplicationDbContext : DbContext
     {

@@ -269,7 +269,7 @@ namespace Gym.Infrastructure.Services
                 if (entity == null)
                     return Result.Failure<bool>(ExerciseErrors.NotFound(dto.Id));
 
-                entity.Update(dto.Name, dto.Description, dto.MuscleGroup, dto.Type);
+                entity.Update(dto.Name, dto.Description, dto.MuscleGroup, dto.Type, dto.EquipmentType);
 
                 await _exerciseRepository.Update(entity, cancellationToken);
 

@@ -99,7 +99,7 @@ namespace TaskManager.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<DeleteTaskItemResult>.Deleted()
-                : HttpResult<DeleteTaskItemResult>.NotFound(result.Error!.Description);
+                : HttpResult<DeleteTaskItemResult>.BadRequest(result.Error!.Description);
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Repositories;
-using Nutrition.Infrastructure.Data;
+using Nutrition.Infrastructure.Persistence.Data;
 using System.Linq.Expressions;
 
-namespace Nutrition.Infrastructure.Repositories
+namespace Nutrition.Infrastructure.Persistence.Repositories
 {
     public class LiquidRepository : ILiquidRepository
     {

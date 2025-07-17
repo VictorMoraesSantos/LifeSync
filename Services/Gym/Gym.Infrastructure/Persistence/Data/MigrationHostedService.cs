@@ -15,7 +15,6 @@ namespace Gym.Infrastructure.Persistence.Data
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            // Cria um escopo, resolve o DbContext e aplica todas as migrations
             using var scope = _provider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             await db.Database.MigrateAsync(cancellationToken);

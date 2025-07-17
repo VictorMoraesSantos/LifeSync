@@ -1,5 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Gym.Domain.Enums;
+using System.Security;
 
 namespace Gym.Domain.Entities
 {
@@ -34,7 +35,8 @@ namespace Gym.Domain.Entities
             string name,
             string description,
             MuscleGroup muscleGroup,
-            ExerciseType type)
+            ExerciseType type,
+            EquipmentType? equipmentType)
         {
             Validate(name);
             Validate(description);
@@ -43,6 +45,7 @@ namespace Gym.Domain.Entities
             Description = description;
             MuscleGroup = muscleGroup;
             Type = type;
+            SetEquipmentType(equipmentType);
 
             MarkAsUpdated();
         }

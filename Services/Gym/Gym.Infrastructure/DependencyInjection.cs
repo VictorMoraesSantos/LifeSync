@@ -26,6 +26,8 @@ namespace Gym.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
                  options.UseNpgsql(connectionString));
 
+            services.AddHostedService<MigrationHostedService>();
+
             services.AddScoped<ICompletedExerciseRepository, CompletedExerciseRepository>();
             services.AddScoped<IExerciseRepository, ExerciseRepository>();
             services.AddScoped<IRoutineRepository, RoutineRepository>();

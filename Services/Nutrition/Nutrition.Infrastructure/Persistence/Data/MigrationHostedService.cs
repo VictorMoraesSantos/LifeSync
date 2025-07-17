@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Nutrition.Infrastructure.Data
+namespace Nutrition.Infrastructure.Persistence.Data
 {
     public class MigrationHostedService : IHostedService
     {

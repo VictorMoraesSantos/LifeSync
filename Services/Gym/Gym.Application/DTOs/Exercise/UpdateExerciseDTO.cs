@@ -8,5 +8,5 @@ namespace Gym.Application.DTOs.Exercise
         string Description,
         MuscleGroup MuscleGroup,
         ExerciseType Type,
-        EquipmentType EquipmentType);
+        EquipmentType? EquipmentType);
 }

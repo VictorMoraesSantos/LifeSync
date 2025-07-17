@@ -3,9 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nutrition.Application.Interfaces;
 using Nutrition.Domain.Repositories;
-using Nutrition.Infrastructure.Data;
-using Nutrition.Infrastructure.Repositories;
+using Nutrition.Infrastructure.Persistence.Data;
+using Nutrition.Infrastructure.Persistence.Repositories;
 using Nutrition.Infrastructure.Services;
+using System.Runtime.CompilerServices;
 
 namespace Nutrition.Infrastructure
 {
@@ -13,10 +14,20 @@ namespace Nutrition.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddDbContext(configuration);
+            services.AddServices();
+
+            return services;
+        }
+
+        private static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)
+        {
             string connectionString = configuration.GetConnectionString("Database")!;
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
+
+            services.AddHostedService<MigrationHostedService>();
 
             services.AddScoped<IDiaryRepository, DiaryRepository>();
             services.AddScoped<IMealRepository, MealRepository>();
@@ -24,13 +35,16 @@ namespace Nutrition.Infrastructure
             services.AddScoped<ILiquidRepository, LiquidRepository>();
             services.AddScoped<IDailyProgressRepository, DailyProgressRepository>();
 
+            return services;
+        }
+
+        private static IServiceCollection AddServices(this IServiceCollection services)
+        {
             services.AddScoped<IDiaryService, DiaryService>();
             services.AddScoped<IMealService, MealService>();
             services.AddScoped<IMealFoodService, MealFoodService>();
             services.AddScoped<ILiquidService, LiquidService>();
             services.AddScoped<IDailyProgressService, DailyProgressService>();
-
-            services.AddHostedService<MigrationHostedService>();
 
             return services;
         }
