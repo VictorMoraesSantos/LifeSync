@@ -6,6 +6,7 @@ namespace Gym.Application.DTOs.CompletedExercise
         int Id,
         SetCount SetsCompleted,
         RepetitionCount RepetitionsCompleted,
+        RestTime RestBetweenSets,
         Weight? WeightUsed,
         string? Notes);
 }

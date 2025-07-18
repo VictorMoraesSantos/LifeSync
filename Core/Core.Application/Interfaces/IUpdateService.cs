@@ -2,8 +2,8 @@
 
 namespace Core.Application.Interfaces
 {
-    public interface IUpdateService<TDelete>
+    public interface IUpdateService<TUpdate>
     {
-        Task<Result<bool>> UpdateAsync(TDelete dto, CancellationToken cancellationToken = default);
+        Task<Result<bool>> UpdateAsync(TUpdate dto, CancellationToken cancellationToken = default);
     }
 }

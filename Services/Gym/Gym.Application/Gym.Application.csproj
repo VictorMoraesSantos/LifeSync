@@ -14,9 +14,6 @@
   <ItemGroup>
     <Folder Include="Features\CompletedExercise\Commands\" />
     <Folder Include="Features\CompletedExercise\Queries\" />
-    <Folder Include="Features\RoutineExercise\Commands\" />
-    <Folder Include="Features\RoutineExercise\Queries\" />
-    <Folder Include="Features\Routine\Commands\" />
     <Folder Include="Features\Routine\Queries\" />
     <Folder Include="Features\TrainingSession\Commands\" />
     <Folder Include="Features\TrainingSession\Queries\" />
