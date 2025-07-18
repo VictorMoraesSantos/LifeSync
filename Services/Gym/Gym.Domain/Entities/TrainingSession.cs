@@ -31,6 +31,19 @@ namespace Gym.Domain.Entities
             EndTime = endTime;
         }
 
+        public void Update(
+            int routineId,
+            DateTime startTime,
+            DateTime endTime,
+            string notes)
+        {
+            RoutineId = routineId;
+            StartTime = startTime;
+            EndTime = endTime;
+            Notes = notes;
+            MarkAsUpdated();
+        }
+
         public void AddCompletedExercise(CompletedExercise completedExercise)
         {
             if (completedExercise == null)
