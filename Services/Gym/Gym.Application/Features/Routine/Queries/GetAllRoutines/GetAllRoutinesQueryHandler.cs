@@ -1,7 +1,6 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
 using Gym.Application.Contracts;
-using System.Runtime.InteropServices;
 
 namespace Gym.Application.Features.Routine.Queries.GetAllRoutines
 {

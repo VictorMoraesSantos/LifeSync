@@ -8,7 +8,6 @@ namespace Gym.Application.DTOs.CompletedExercise
         DateTime CreatedAt,
         DateTime? UpdatedAt,
         int TrainingSessionId,
-        int ExerciseId,
         int RoutineExerciseId,
         SetCount SetsCompleted,
         RepetitionCount RepetitionsCompleted,

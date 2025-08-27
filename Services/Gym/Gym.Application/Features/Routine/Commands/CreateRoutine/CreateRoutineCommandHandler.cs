@@ -17,7 +17,6 @@ namespace Gym.Application.Features.Routine.Commands.CreateRoutine
         public async Task<Result<CreateRoutineResponse>> Handle(CreateRoutineCommand command, CancellationToken cancellationToken)
         {
             var dto = new CreateRoutineDTO(
-                command.UserId,
                 command.Name,
                 command.Description);
 

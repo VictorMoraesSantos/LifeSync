@@ -26,7 +26,7 @@ namespace Gym.Application.Features.TrainingSession.Commands.UpdateTrainingSessio
             var result = await _trainingSessionService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
                 return Result<UpdateTrainingSessionResponse>.Failure(result.Error!);
-            
+
             return Result<UpdateTrainingSessionResponse>.Success(new UpdateTrainingSessionResponse(result.Value!));
         }
     }

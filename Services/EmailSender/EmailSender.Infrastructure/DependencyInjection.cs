@@ -10,7 +10,6 @@ using EmailSender.Infrastructure.Smtp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
-using System.Net.Mail;
 
 namespace EmailSender.Infrastructure
 {
@@ -25,17 +24,8 @@ namespace EmailSender.Infrastructure
 
         public static IServiceCollection AddEmailSenderInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var smtpSettings = configuration.GetSection("SmtpSettings")
-                                            .Get<SmtpSettings>();
-            services.AddSingleton(sp =>
-                new SmtpClient(smtpSettings.Host, smtpSettings.Port)
-                {
-                    Credentials = new System.Net.NetworkCredential(smtpSettings.User, smtpSettings.Password),
-                    EnableSsl = smtpSettings.EnableSsl
-                });
+            services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
             services.AddScoped<IEmailSender, SmtpEmailSender>();
-
-
             return services;
         }
 

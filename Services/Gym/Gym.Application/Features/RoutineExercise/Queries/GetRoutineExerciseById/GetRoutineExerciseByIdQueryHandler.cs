@@ -18,7 +18,7 @@ namespace Gym.Application.Features.RoutineExercise.Queries.GetRoutineExerciseByI
             var result = await _routineExerciseService.GetByIdAsync(query.Id, cancellationToken);
             if (!result.IsSuccess)
                 return Result.Failure<GetRoutineExerciseByIdResponse>(result.Error!);
-            
+
             return Result.Success(new GetRoutineExerciseByIdResponse(result.Value!));
         }
     }

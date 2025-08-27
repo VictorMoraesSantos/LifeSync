@@ -23,10 +23,11 @@ namespace Gym.Domain.Entities
             int userId,
             int routineId,
             DateTime startTime,
-            DateTime endTime)
+            DateTime? endTime)
         {
             UserId = userId;
             RoutineId = routineId;
+            ValidateDate(startTime, endTime);
             StartTime = startTime;
             EndTime = endTime;
         }
@@ -34,10 +35,11 @@ namespace Gym.Domain.Entities
         public void Update(
             int routineId,
             DateTime startTime,
-            DateTime endTime,
+            DateTime? endTime,
             string notes)
         {
             RoutineId = routineId;
+            ValidateDate(startTime, endTime);
             StartTime = startTime;
             EndTime = endTime;
             Notes = notes;
@@ -69,6 +71,12 @@ namespace Gym.Domain.Entities
         public TimeSpan GetDuration()
         {
             return (EndTime ?? DateTime.UtcNow) - StartTime;
+        }
+
+        private void ValidateDate(DateTime startTime, DateTime? endTime)
+        {
+            if (endTime.HasValue && endTime <= startTime)
+                throw new DomainException("End time must be after start time");
         }
     }
 }

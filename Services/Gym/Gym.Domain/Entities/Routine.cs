@@ -5,7 +5,6 @@ namespace Gym.Domain.Entities
 {
     public class Routine : BaseEntity<int>
     {
-        public int UserId { get; private set; }
         public string Name { get; private set; }
         public string Description { get; private set; }
 
@@ -15,14 +14,12 @@ namespace Gym.Domain.Entities
         private Routine() { }
 
         public Routine(
-            int userId,
             string name,
             string description)
         {
             Validate(name);
             Validate(description);
 
-            UserId = userId;
             Name = name;
             Description = description;
         }

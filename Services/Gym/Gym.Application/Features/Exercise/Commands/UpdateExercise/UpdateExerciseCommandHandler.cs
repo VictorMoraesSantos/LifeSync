@@ -27,7 +27,7 @@ namespace Gym.Application.Features.Exercise.Commands.UpdateExercise
             var result = await _exerciseService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
                 return Result.Failure<UpdateExerciseResult>(result.Error!);
-            
+
             return Result.Success(new UpdateExerciseResult(result.Value!));
         }
     }

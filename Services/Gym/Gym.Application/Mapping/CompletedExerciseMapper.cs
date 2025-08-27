@@ -12,7 +12,6 @@ namespace Gym.Application.Mapping
                 entity.CreatedAt,
                 entity.UpdatedAt,
                 entity.TrainingSessionId,
-                entity.ExerciseId,
                 entity.RoutineExerciseId,
                 entity.SetsCompleted,
                 entity.RepetitionsCompleted,
@@ -26,7 +25,6 @@ namespace Gym.Application.Mapping
         {
             var entity = new CompletedExercise(
                 dto.TrainingSessionId,
-                dto.ExerciseId,
                 dto.RoutineExerciseId,
                 dto.SetsCompleted,
                 dto.RepetitionsCompleted,

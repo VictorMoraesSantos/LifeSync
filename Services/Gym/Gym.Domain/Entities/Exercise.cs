@@ -1,6 +1,5 @@
 ﻿using Core.Domain.Entities;
 using Gym.Domain.Enums;
-using System.Security;
 
 namespace Gym.Domain.Entities
 {

@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Commands;
-using System.Windows.Input;
 
 namespace Gym.Application.Features.TrainingSession.Commands.UpdateTrainingSession
 {

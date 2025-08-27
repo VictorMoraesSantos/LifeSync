@@ -6,7 +6,6 @@ using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Persistence.Data;
 using Nutrition.Infrastructure.Persistence.Repositories;
 using Nutrition.Infrastructure.Services;
-using System.Runtime.CompilerServices;
 
 namespace Nutrition.Infrastructure
 {

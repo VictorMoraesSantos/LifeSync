@@ -8,9 +8,6 @@ namespace Gym.Domain.Entities
         public int TrainingSessionId { get; private set; }
         public TrainingSession TrainingSession { get; private set; }
 
-        public int ExerciseId { get; private set; }
-        public Exercise Exercise { get; private set; }
-
         public int RoutineExerciseId { get; private set; }
         public RoutineExercise RoutineExercise { get; private set; }
 
@@ -24,7 +21,6 @@ namespace Gym.Domain.Entities
 
         public CompletedExercise(
             int trainingSessionId,
-            int exerciseId,
             int routineExerciseId,
             SetCount setsCompleted,
             RepetitionCount repetitionsCompleted,
@@ -32,7 +28,6 @@ namespace Gym.Domain.Entities
             string? notes = null)
         {
             TrainingSessionId = trainingSessionId;
-            ExerciseId = exerciseId;
             RoutineExerciseId = routineExerciseId;
             SetsCompleted = setsCompleted;
             RepetitionsCompleted = repetitionsCompleted;

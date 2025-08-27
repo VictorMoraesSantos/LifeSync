@@ -39,7 +39,6 @@ namespace Gym.Infrastructure.Persistence.Repositories
         {
             var entities = await _context.CompletedExercises
                 .Where(predicate)
-                .Include(e => e.Exercise)
                 .Include(re => re.RoutineExercise)
                 .Include(ts => ts.TrainingSession)
                 .AsNoTracking()
@@ -51,7 +50,6 @@ namespace Gym.Infrastructure.Persistence.Repositories
         public async Task<IEnumerable<CompletedExercise?>> GetAll(CancellationToken cancellationToken = default)
         {
             var entities = await _context.CompletedExercises
-                .Include(e => e.Exercise)
                 .Include(re => re.RoutineExercise)
                 .Include(ts => ts.TrainingSession)
                 .AsNoTracking()
@@ -63,7 +61,6 @@ namespace Gym.Infrastructure.Persistence.Repositories
         public async Task<CompletedExercise?> GetById(int id, CancellationToken cancellationToken = default)
         {
             var entity = await _context.CompletedExercises
-                .Include(e => e.Exercise)
                 .Include(re => re.RoutineExercise)
                 .Include(ts => ts.TrainingSession)
                 .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);

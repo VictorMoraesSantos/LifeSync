@@ -1,6 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Commands;
 using Gym.Domain.ValueObjects;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Gym.Application.Features.RoutineExercise.Commands.UpdateRoutineExercise
 {

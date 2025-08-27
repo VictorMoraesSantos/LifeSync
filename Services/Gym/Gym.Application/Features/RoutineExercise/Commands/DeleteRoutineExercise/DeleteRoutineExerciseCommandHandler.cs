@@ -15,7 +15,7 @@ namespace Gym.Application.Features.RoutineExercise.Commands.DeleteRoutineExercis
 
         public async Task<Result<DeleteRoutineExerciseCommandResponse>> Handle(DeleteRoutineExerciseCommand command, CancellationToken cancellationToken)
         {
-            var result = await _routineExerciseService.DeleteAsync(command.Id,  cancellationToken);
+            var result = await _routineExerciseService.DeleteAsync(command.Id, cancellationToken);
             if (!result.IsSuccess)
                 return Result.Failure<DeleteRoutineExerciseCommandResponse>(result.Error!);
 

@@ -136,6 +136,7 @@ services:
       - RabbitMQSettings__Password=guest
       - SmtpSettings__Host=mailhog
       - SmtpSettings__Port=1025
+      - SmtpSettings__EnableSsl=false
       - SmtpSettings__User=            
       - SmtpSettings__Password=
       - SmtpSettings__From=no-reply@test.local
