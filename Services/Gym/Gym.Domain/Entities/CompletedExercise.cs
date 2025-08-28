@@ -6,7 +6,7 @@ namespace Gym.Domain.Entities
     public class CompletedExercise : BaseEntity<int>
     {
         public int TrainingSessionId { get; private set; }
-        public TrainingSession TrainingSession { get; private set; }
+        public TrainingSession TrainingSession { get; private set; } 
 
         public int RoutineExerciseId { get; private set; }
         public RoutineExercise RoutineExercise { get; private set; }
