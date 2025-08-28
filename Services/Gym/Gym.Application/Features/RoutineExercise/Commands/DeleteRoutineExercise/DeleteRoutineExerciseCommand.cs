@@ -2,6 +2,6 @@
 
 namespace Gym.Application.Features.RoutineExercise.Commands.DeleteRoutineExercise
 {
-    public record DeleteRoutineExerciseCommand(int Id) : ICommand<DeleteRoutineExerciseCommandResponse>;
-    public record DeleteRoutineExerciseCommandResponse(bool IsSuccess);
+    public record DeleteRoutineExerciseCommand(int Id) : ICommand<DeleteRoutineExerciseResult>;
+    public record DeleteRoutineExerciseResult(bool IsSuccess);
 }

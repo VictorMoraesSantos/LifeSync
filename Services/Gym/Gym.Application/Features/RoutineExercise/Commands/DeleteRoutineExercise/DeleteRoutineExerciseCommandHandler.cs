@@ -4,7 +4,7 @@ using Gym.Application.Contracts;
 
 namespace Gym.Application.Features.RoutineExercise.Commands.DeleteRoutineExercise
 {
-    public class DeleteRoutineExerciseCommandHandler : ICommandHandler<DeleteRoutineExerciseCommand, DeleteRoutineExerciseCommandResponse>
+    public class DeleteRoutineExerciseCommandHandler : ICommandHandler<DeleteRoutineExerciseCommand, DeleteRoutineExerciseResult>
     {
         private readonly IRoutineExerciseService _routineExerciseService;
 
@@ -13,13 +13,13 @@ namespace Gym.Application.Features.RoutineExercise.Commands.DeleteRoutineExercis
             _routineExerciseService = routineExerciseService;
         }
 
-        public async Task<Result<DeleteRoutineExerciseCommandResponse>> Handle(DeleteRoutineExerciseCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DeleteRoutineExerciseResult>> Handle(DeleteRoutineExerciseCommand command, CancellationToken cancellationToken)
         {
             var result = await _routineExerciseService.DeleteAsync(command.Id, cancellationToken);
             if (!result.IsSuccess)
-                return Result.Failure<DeleteRoutineExerciseCommandResponse>(result.Error!);
+                return Result.Failure<DeleteRoutineExerciseResult>(result.Error!);
 
-            return Result.Success(new DeleteRoutineExerciseCommandResponse(result.Value!));
+            return Result.Success(new DeleteRoutineExerciseResult(result.Value!));
         }
     }
 }

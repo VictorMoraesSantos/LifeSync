@@ -4,7 +4,7 @@ using Gym.Application.Contracts;
 
 namespace Gym.Application.Features.Routine.Commands.DeleteRoutine
 {
-    public class DeleteRoutineCommandHandler : ICommandHandler<DeleteRoutineCommand, DeleteRoutineResponse>
+    public class DeleteRoutineCommandHandler : ICommandHandler<DeleteRoutineCommand, DeleteRoutineResult>
     {
         private readonly IRoutineService _routineService;
 
@@ -13,13 +13,13 @@ namespace Gym.Application.Features.Routine.Commands.DeleteRoutine
             _routineService = routineService;
         }
 
-        public async Task<Result<DeleteRoutineResponse>> Handle(DeleteRoutineCommand command, CancellationToken cancellationToken)
+        public async Task<Result<DeleteRoutineResult>> Handle(DeleteRoutineCommand command, CancellationToken cancellationToken)
         {
             var result = await _routineService.DeleteAsync(command.Id, cancellationToken);
             if (!result.IsSuccess)
-                return Result.Failure<DeleteRoutineResponse>(result.Error!);
+                return Result.Failure<DeleteRoutineResult>(result.Error!);
 
-            return Result.Success(new DeleteRoutineResponse(result.Value!));
+            return Result.Success(new DeleteRoutineResult(result.Value!));
         }
     }
 }

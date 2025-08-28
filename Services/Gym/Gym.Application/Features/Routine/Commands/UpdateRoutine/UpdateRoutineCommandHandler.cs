@@ -5,7 +5,7 @@ using Gym.Application.DTOs.Routine;
 
 namespace Gym.Application.Features.Routine.Commands.UpdateRoutineCommand
 {
-    public class UpdateRoutineCommandHandler : ICommandHandler<UpdateRoutineCommand, UpdateRoutineResponse>
+    public class UpdateRoutineCommandHandler : ICommandHandler<UpdateRoutineCommand, UpdateRoutineResult>
     {
         private readonly IRoutineService _routineService;
 
@@ -14,7 +14,7 @@ namespace Gym.Application.Features.Routine.Commands.UpdateRoutineCommand
             _routineService = routineService;
         }
 
-        public async Task<Result<UpdateRoutineResponse>> Handle(UpdateRoutineCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateRoutineResult>> Handle(UpdateRoutineCommand command, CancellationToken cancellationToken)
         {
             var dto = new UpdateRoutineDTO(
                 command.Id,
@@ -23,9 +23,9 @@ namespace Gym.Application.Features.Routine.Commands.UpdateRoutineCommand
 
             var result = await _routineService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
-                return Result.Failure<UpdateRoutineResponse>(result.Error!);
+                return Result.Failure<UpdateRoutineResult>(result.Error!);
 
-            return Result.Success(new UpdateRoutineResponse(result.Value!));
+            return Result.Success(new UpdateRoutineResult(result.Value!));
         }
     }
 }

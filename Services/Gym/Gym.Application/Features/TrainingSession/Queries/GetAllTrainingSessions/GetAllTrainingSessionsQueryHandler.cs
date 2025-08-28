@@ -1,10 +1,11 @@
-﻿using BuildingBlocks.CQRS.Handlers;
+﻿
+using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 
 namespace Gym.Application.Features.TrainingSession.Queries.GetAllTrainingSessions
 {
-    public class GetAllTrainingSessionsQueryHandler : IQueryHandler<GetAllTrainingSessionsQuery, GetAllTrainingSessionsResponse>
+    public class GetAllTrainingSessionsQueryHandler : IQueryHandler<GetAllTrainingSessionsQuery, GetAllTrainingSessionsResult>
     {
         private readonly ITrainingSessionService _trainingSessionService;
 
@@ -13,13 +14,13 @@ namespace Gym.Application.Features.TrainingSession.Queries.GetAllTrainingSession
             _trainingSessionService = trainingSessionService;
         }
 
-        public async Task<Result<GetAllTrainingSessionsResponse>> Handle(GetAllTrainingSessionsQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetAllTrainingSessionsResult>> Handle(GetAllTrainingSessionsQuery query, CancellationToken cancellationToken)
         {
             var result = await _trainingSessionService.GetAllAsync(cancellationToken);
             if (!result.IsSuccess)
-                return Result<GetAllTrainingSessionsResponse>.Failure(result.Error!);
+                return Result.Failure<GetAllTrainingSessionsResult>(result.Error!);
 
-            return Result.Success(new GetAllTrainingSessionsResponse(result.Value!));
+            return Result.Success(new GetAllTrainingSessionsResult(result.Value!));
         }
     }
 }

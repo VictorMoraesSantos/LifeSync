@@ -6,6 +6,6 @@ namespace Gym.Application.Features.Routine.Commands.UpdateRoutineCommand
         int Id,
         string Name,
         string Description)
-        : ICommand<UpdateRoutineResponse>;
-    public record UpdateRoutineResponse(bool IsSuccess);
+        : ICommand<UpdateRoutineResult>;
+    public record UpdateRoutineResult(bool IsSuccess);
 }

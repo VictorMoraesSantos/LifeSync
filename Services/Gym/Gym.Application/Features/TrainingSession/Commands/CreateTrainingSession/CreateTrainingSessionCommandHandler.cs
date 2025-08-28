@@ -5,14 +5,14 @@ using Gym.Application.DTOs.TrainingSession;
 
 namespace Gym.Application.Features.TrainingSession.Commands.CreateTrainingSession
 {
-    public class CreateTrainingSessionCommandHandler : ICommandHandler<CreateTrainingSessionCommand, CreateTrainingSessionResponse>
+    public class CreateTrainingSessionCommandHandler : ICommandHandler<CreateTrainingSessionCommand, CreateTrainingSessionResult>
     {
         private readonly ITrainingSessionService _trainingSessionService;
         public CreateTrainingSessionCommandHandler(ITrainingSessionService trainingSessionService)
         {
             _trainingSessionService = trainingSessionService;
         }
-        public async Task<Result<CreateTrainingSessionResponse>> Handle(CreateTrainingSessionCommand command, CancellationToken cancellationToken)
+        public async Task<Result<CreateTrainingSessionResult>> Handle(CreateTrainingSessionCommand command, CancellationToken cancellationToken)
         {
             var dto = new CreateTrainingSessionDTO(
                 command.UserId,
@@ -22,9 +22,9 @@ namespace Gym.Application.Features.TrainingSession.Commands.CreateTrainingSessio
 
             var result = await _trainingSessionService.CreateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
-                return Result<CreateTrainingSessionResponse>.Failure(result.Error!);
+                return Result.Failure<CreateTrainingSessionResult>(result.Error!);
 
-            return Result<CreateTrainingSessionResponse>.Success(new CreateTrainingSessionResponse(result.Value!));
+            return Result.Success(new CreateTrainingSessionResult(result.Value!));
         }
     }
 }

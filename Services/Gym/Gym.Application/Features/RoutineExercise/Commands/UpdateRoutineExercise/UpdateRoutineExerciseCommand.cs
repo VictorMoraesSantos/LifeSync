@@ -10,6 +10,6 @@ namespace Gym.Application.Features.RoutineExercise.Commands.UpdateRoutineExercis
         RestTime RestBetweenSets,
         Weight? RecommendedWeight,
         string? Instructions)
-        : ICommand<UpdateRoutineExerciseCommandResponse>;
-    public record UpdateRoutineExerciseCommandResponse(bool IsSeccess);
+        : ICommand<UpdateRoutineExerciseResult>;
+    public record UpdateRoutineExerciseResult(bool IsSeccess);
 }

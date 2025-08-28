@@ -2,6 +2,6 @@
 
 namespace Gym.Application.Features.TrainingSession.Commands.DeleteTrainingSessions
 {
-    public record DeleteTrainingSessionsCommand(int Id) : ICommand<DeleteTrainingSessionsResponse>;
-    public record DeleteTrainingSessionsResponse(bool IsSuccess);
+    public record DeleteTrainingSessionsCommand(int Id) : ICommand<DeleteTrainingSessionsResult>;
+    public record DeleteTrainingSessionsResult(bool IsSuccess);
 }

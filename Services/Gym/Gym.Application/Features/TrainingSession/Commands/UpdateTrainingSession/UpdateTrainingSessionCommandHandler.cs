@@ -5,7 +5,7 @@ using Gym.Application.DTOs.TrainingSession;
 
 namespace Gym.Application.Features.TrainingSession.Commands.UpdateTrainingSession
 {
-    public class UpdateTrainingSessionCommandHandler : ICommandHandler<UpdateTrainingSessionCommand, UpdateTrainingSessionResponse>
+    public class UpdateTrainingSessionCommandHandler : ICommandHandler<UpdateTrainingSessionCommand, UpdateTrainingSessionResult>
     {
         private readonly ITrainingSessionService _trainingSessionService;
 
@@ -14,7 +14,7 @@ namespace Gym.Application.Features.TrainingSession.Commands.UpdateTrainingSessio
             _trainingSessionService = trainingSessionService;
         }
 
-        public async Task<Result<UpdateTrainingSessionResponse>> Handle(UpdateTrainingSessionCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateTrainingSessionResult>> Handle(UpdateTrainingSessionCommand command, CancellationToken cancellationToken)
         {
             var dto = new UpdateTrainingSessionDTO(
                 command.Id,
@@ -25,9 +25,9 @@ namespace Gym.Application.Features.TrainingSession.Commands.UpdateTrainingSessio
 
             var result = await _trainingSessionService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
-                return Result<UpdateTrainingSessionResponse>.Failure(result.Error!);
+                return Result.Failure<UpdateTrainingSessionResult>(result.Error!);
 
-            return Result<UpdateTrainingSessionResponse>.Success(new UpdateTrainingSessionResponse(result.Value!));
+            return Result.Success(new UpdateTrainingSessionResult(result.Value!));
         }
     }
 }

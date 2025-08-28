@@ -5,7 +5,7 @@ using Gym.Application.DTOs.RoutineExercise;
 
 namespace Gym.Application.Features.RoutineExercise.Commands.UpdateRoutineExercise
 {
-    public class UpdateRoutineExerciseCommandHandler : ICommandHandler<UpdateRoutineExerciseCommand, UpdateRoutineExerciseCommandResponse>
+    public class UpdateRoutineExerciseCommandHandler : ICommandHandler<UpdateRoutineExerciseCommand, UpdateRoutineExerciseResult>
     {
         private readonly IRoutineExerciseService _routineExerciseService;
 
@@ -14,7 +14,7 @@ namespace Gym.Application.Features.RoutineExercise.Commands.UpdateRoutineExercis
             _routineExerciseService = routineExerciseService;
         }
 
-        public async Task<Result<UpdateRoutineExerciseCommandResponse>> Handle(UpdateRoutineExerciseCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateRoutineExerciseResult>> Handle(UpdateRoutineExerciseCommand command, CancellationToken cancellationToken)
         {
             var dto = new UpdateRoutineExerciseDTO(
                 command.Id,
@@ -26,9 +26,9 @@ namespace Gym.Application.Features.RoutineExercise.Commands.UpdateRoutineExercis
 
             var result = await _routineExerciseService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
-                return Result.Failure<UpdateRoutineExerciseCommandResponse>(result.Error!);
+                return Result.Failure<UpdateRoutineExerciseResult>(result.Error!);
 
-            return Result.Success(new UpdateRoutineExerciseCommandResponse(result.Value!));
+            return Result.Success(new UpdateRoutineExerciseResult(result.Value!));
         }
     }
 }

@@ -14,8 +14,8 @@ namespace Gym.Domain.Entities
         public DateTime? EndTime { get; private set; }
         public string? Notes { get; private set; }
 
-        private readonly List<CompletedExercise> _completedExercises = new();
-        public IReadOnlyCollection<CompletedExercise> CompletedExercises => _completedExercises.AsReadOnly();
+        private readonly List<CompletedExercise?> _completedExercises = new();
+        public IReadOnlyCollection<CompletedExercise?> CompletedExercises => _completedExercises.AsReadOnly();
 
         private TrainingSession() { }
 

@@ -5,6 +5,6 @@ namespace Gym.Application.Features.Routine.Commands.CreateRoutine
     public record CreateRoutineCommand(
         string Name,
         string Description)
-        : ICommand<CreateRoutineResponse>;
-    public record CreateRoutineResponse(int Id);
+        : ICommand<CreateRoutineResult>;
+    public record CreateRoutineResult(int Id);
 }

@@ -4,7 +4,7 @@ using Gym.Application.Contracts;
 
 namespace Gym.Application.Features.RoutineExercise.Queries.GetRoutineExerciseById
 {
-    public class GetRoutineExerciseByIdQueryHandler : IQueryHandler<GetRoutineExerciseByIdQuery, GetRoutineExerciseByIdResponse>
+    public class GetRoutineExerciseByIdQueryHandler : IQueryHandler<GetRoutineExerciseByIdQuery, GetRoutineExerciseByIdResult>
     {
         private readonly IRoutineExerciseService _routineExerciseService;
 
@@ -13,13 +13,13 @@ namespace Gym.Application.Features.RoutineExercise.Queries.GetRoutineExerciseByI
             _routineExerciseService = routineExerciseService;
         }
 
-        public async Task<Result<GetRoutineExerciseByIdResponse>> Handle(GetRoutineExerciseByIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetRoutineExerciseByIdResult>> Handle(GetRoutineExerciseByIdQuery query, CancellationToken cancellationToken)
         {
             var result = await _routineExerciseService.GetByIdAsync(query.Id, cancellationToken);
             if (!result.IsSuccess)
-                return Result.Failure<GetRoutineExerciseByIdResponse>(result.Error!);
+                return Result.Failure<GetRoutineExerciseByIdResult>(result.Error!);
 
-            return Result.Success(new GetRoutineExerciseByIdResponse(result.Value!));
+            return Result.Success(new GetRoutineExerciseByIdResult(result.Value!));
         }
     }
 }

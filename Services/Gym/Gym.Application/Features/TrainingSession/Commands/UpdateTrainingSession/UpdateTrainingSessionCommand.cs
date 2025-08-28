@@ -8,6 +8,6 @@ namespace Gym.Application.Features.TrainingSession.Commands.UpdateTrainingSessio
         DateTime StartTime,
         DateTime EndTime,
         string Notes)
-        : ICommand<UpdateTrainingSessionResponse>;
-    public record UpdateTrainingSessionResponse(bool IsSuccess);
+        : ICommand<UpdateTrainingSessionResult>;
+    public record UpdateTrainingSessionResult(bool IsSuccess);
 }

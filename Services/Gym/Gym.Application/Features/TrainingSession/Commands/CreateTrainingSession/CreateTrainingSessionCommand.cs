@@ -7,6 +7,6 @@ namespace Gym.Application.Features.TrainingSession.Commands.CreateTrainingSessio
         int RoutineId,
         DateTime StartTime,
         DateTime EndTime)
-        : ICommand<CreateTrainingSessionResponse>;
-    public record CreateTrainingSessionResponse(int Id);
+        : ICommand<CreateTrainingSessionResult>;
+    public record CreateTrainingSessionResult(int Id);
 }

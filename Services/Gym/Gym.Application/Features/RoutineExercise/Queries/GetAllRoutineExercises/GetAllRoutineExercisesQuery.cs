@@ -3,6 +3,6 @@ using Gym.Application.DTOs.RoutineExercise;
 
 namespace Gym.Application.Features.RoutineExercise.Queries.GetAllExercises
 {
-    public record GetAllRoutineExercisesQuery() : IQuery<GetAllRoutineExercisesResponse>;
-    public record GetAllRoutineExercisesResponse(IEnumerable<RoutineExerciseDTO> RoutineExercise);
+    public record GetAllRoutineExercisesQuery() : IQuery<GetAllRoutineExercisesResult>;
+    public record GetAllRoutineExercisesResult(IEnumerable<RoutineExerciseDTO> RoutineExercise);
 }
