@@ -1,4 +1,5 @@
-﻿using Core.Application.Interfaces;
+﻿using BuildingBlocks.Results;
+using Core.Application.Interfaces;
 using Gym.Application.DTOs.TrainingSession;
 
 namespace Gym.Application.Contracts
@@ -9,5 +10,6 @@ namespace Gym.Application.Contracts
         IUpdateService<UpdateTrainingSessionDTO>,
         IDeleteService<int>
     {
+        Task<Result<IEnumerable<TrainingSessionDTO?>>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default!);
     }
 }

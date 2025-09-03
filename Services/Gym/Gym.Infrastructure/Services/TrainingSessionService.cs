@@ -234,6 +234,21 @@ namespace Gym.Infrastructure.Services
             }
         }
 
+        public async Task<Result<IEnumerable<TrainingSessionDTO?>>> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var entities = await _trainingSessionRepository.Find(ts => ts.UserId == userId, cancellationToken);
+                var dtos = entities.Select(ts => ts.ToDTO()!).ToList();
+                return Result.Success<IEnumerable<TrainingSessionDTO?>>(dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting training sessions for user {UserId}", userId);
+                return Result<IEnumerable<TrainingSessionDTO?>>.Failure(Error.Failure(ex.Message));
+            }
+        }
+
         public async Task<Result<(IEnumerable<TrainingSessionDTO?> Items, int TotalCount)>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             try

@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EmailSender.Application\EmailSender.Application.csproj" />
+    <ProjectReference Include="..\Notification.Application\Notification.Application.csproj" />
   </ItemGroup>
 
 </Project>
