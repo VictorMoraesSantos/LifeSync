@@ -3,7 +3,7 @@ name: Build and Deploy TaskManager.API (.NET 9) to Azure
 on:
   push:
     paths:
-      - "Services/TaskManager/TaskManager.API/**"
+      - "Services/TaskManager/**"
     branches:
       - master
 
