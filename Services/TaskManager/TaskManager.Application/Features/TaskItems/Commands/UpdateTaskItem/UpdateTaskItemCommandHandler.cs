@@ -16,7 +16,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
 
         public async Task<Result<UpdateTaskItemCommandResult>> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            var dto = new UpdateTaskItemDTO(
+            UpdateTaskItemDTO dto = new(
                 command.Id,
                 command.Title,
                 command.Description,
@@ -24,7 +24,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
                 command.Priority,
                 command.DueDate);
 
-            var result = await _taskItemService.UpdateAsync(dto, cancellationToken);
+            Result<bool> result = await _taskItemService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
                 return Result.Failure<UpdateTaskItemCommandResult>(result.Error!);
 

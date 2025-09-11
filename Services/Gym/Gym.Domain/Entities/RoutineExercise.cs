@@ -7,10 +7,8 @@ namespace Gym.Domain.Entities
     {
         public int RoutineId { get; private set; }
         public Routine Routine { get; private set; }
-
         public int ExerciseId { get; private set; }
         public Exercise Exercise { get; private set; }
-
         public SetCount Sets { get; private set; }
         public RepetitionCount Repetitions { get; private set; }
         public RestTime RestBetweenSets { get; private set; }

@@ -18,4 +18,9 @@
     <ProjectReference Include="..\Notification.Application\Notification.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\Data\" />
+    <Folder Include="Persistence\Repositories\" />
+  </ItemGroup>
+
 </Project>

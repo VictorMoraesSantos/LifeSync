@@ -16,7 +16,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.DeleteTaskItem
         public async Task<Result<DeleteTaskItemResult>> Handle(DeleteTaskItemCommand command, CancellationToken cancellationToken)
         {
 
-            var result = await _taskItemService.DeleteAsync(command.Id, cancellationToken);
+            Result<bool> result = await _taskItemService.DeleteAsync(command.Id, cancellationToken);
             if (!result.IsSuccess)
                 return Result.Failure<DeleteTaskItemResult>(result.Error!);
 

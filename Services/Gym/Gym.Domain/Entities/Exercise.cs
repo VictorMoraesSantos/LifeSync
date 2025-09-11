@@ -11,7 +11,7 @@ namespace Gym.Domain.Entities
         public ExerciseType Type { get; private set; }
         public EquipmentType? EquipmentType { get; private set; }
 
-        private Exercise() { }
+        protected Exercise() { }
 
         public Exercise(
             string name,

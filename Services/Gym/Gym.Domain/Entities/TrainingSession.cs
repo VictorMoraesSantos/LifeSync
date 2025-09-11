@@ -6,18 +6,15 @@ namespace Gym.Domain.Entities
     public class TrainingSession : BaseEntity<int>
     {
         public int UserId { get; private set; }
-
         public int RoutineId { get; private set; }
         public Routine Routine { get; private set; }
-
         public DateTime StartTime { get; private set; }
         public DateTime? EndTime { get; private set; }
         public string? Notes { get; private set; }
-
         private readonly List<CompletedExercise?> _completedExercises = new();
         public IReadOnlyCollection<CompletedExercise?> CompletedExercises => _completedExercises.AsReadOnly();
 
-        private TrainingSession() { }
+        protected TrainingSession() { }
 
         public TrainingSession(
             int userId,

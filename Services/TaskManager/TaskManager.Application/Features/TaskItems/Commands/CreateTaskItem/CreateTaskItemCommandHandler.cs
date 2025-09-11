@@ -16,14 +16,14 @@ namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
 
         public async Task<Result<CreateTaskItemResult>> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            var dto = new CreateTaskItemDTO(
+            CreateTaskItemDTO dto = new(
                 command.Title,
                 command.Description,
                 command.Priority,
                 command.DueDate,
                 command.UserId);
 
-            var result = await _taskItemService.CreateAsync(dto, cancellationToken);
+            Result<int> result = await _taskItemService.CreateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
                 return Result.Failure<CreateTaskItemResult>(result.Error!);
 
