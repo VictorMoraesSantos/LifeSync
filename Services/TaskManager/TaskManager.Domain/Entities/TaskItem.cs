@@ -16,7 +16,7 @@ namespace TaskManager.Domain.Entities
 
         private readonly List<TaskLabel> _labels = new();
         public IReadOnlyCollection<TaskLabel> Labels => _labels.AsReadOnly();
-
+         
         protected TaskItem() { }
 
         public TaskItem(
