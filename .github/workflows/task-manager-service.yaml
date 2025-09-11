@@ -8,7 +8,7 @@ on:
       - master
 
 env:
-  YOUR_AZURE_WEBAPP_NAME: life-sync-Service
+  YOUR_AZURE_WEBAPP_NAME: LifeSync
   AZURE_WEBAPP_PACKAGE_PATH: ./Services/TaskManager/TaskManager.API/publish
   DOTNET_VERSION: "9.x"
   SOLUTION_PATH: LifeSync.sln
