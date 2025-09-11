@@ -11,7 +11,7 @@ env:
   YOUR_AZURE_WEBAPP_NAME: life-sync-Service
   AZURE_WEBAPP_PACKAGE_PATH: ./Services/TaskManager/TaskManager.API/publish
   DOTNET_VERSION: "9.x"
-  SOLUTION_PATH: Services/TaskManager/TaskManager.sln
+  SOLUTION_PATH: LifeSync.sln
   API_PROJECT_PATH: Services/TaskManager/TaskManager.API/TaskManager.API.csproj
   PUBLISH_DIR: Services/TaskManager/TaskManager.API/publish
 
