@@ -11,9 +11,4 @@
     <ProjectReference Include="..\Gym.Domain\Gym.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\CompletedExercise\Commands\" />
-    <Folder Include="Features\CompletedExercise\Queries\" />
-  </ItemGroup>
-
 </Project>
