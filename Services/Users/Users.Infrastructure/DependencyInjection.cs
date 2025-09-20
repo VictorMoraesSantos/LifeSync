@@ -1,12 +1,10 @@
-﻿using BuildingBlocks.Messaging.Abstractions;
-using BuildingBlocks.Messaging.Settings;
+﻿using BuildingBlocks.Messaging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using RabbitMQ.Client;
 using System.Text;
 using Users.Application.Interfaces;
 using Users.Domain.Entities;
@@ -23,7 +21,7 @@ namespace Users.Infrastructure
         {
             services.AddDbContext(configuration);
             services.AddIdentityServices(configuration);
-            services.AddMessaging(configuration);
+            services.AddMessaging(configuration); 
             services.AddEmailService(configuration);
             return services;
         }
@@ -78,7 +76,7 @@ namespace Users.Infrastructure
                 // Default Password settings.
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = false; // For special character
+                options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 1;
@@ -97,23 +95,6 @@ namespace Users.Infrastructure
 
             services.AddAuthorization();
 
-            return services;
-        }
-
-        public static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
-        {
-            var rabbitCfg = configuration.GetSection("RabbitMQSettings").Get<RabbitMqSettings>();
-            services.AddSingleton<IConnectionFactory>(sp =>
-                new ConnectionFactory
-                {
-                    HostName = rabbitCfg.Host,
-                    UserName = rabbitCfg.User,
-                    Password = rabbitCfg.Password,
-                    Port = rabbitCfg.Port,
-                    DispatchConsumersAsync = false
-                });
-            services.AddSingleton<PersistentConnection>();
-            services.AddSingleton<IEventBus, EventBus>();
             return services;
         }
 

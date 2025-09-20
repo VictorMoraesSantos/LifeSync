@@ -1,7 +1,5 @@
-﻿using BuildingBlocks.CQRS.Publisher;
-using BuildingBlocks.Messaging.Abstractions;
-using BuildingBlocks.Messaging.RabbitMQ;
-using BuildingBlocks.Messaging.Settings;
+﻿using BuildingBlocks.Messaging.RabbitMQ;
+using BuildingBlocks.Messaging;
 using EmailSender.Application.Contracts;
 using EmailSender.Domain.Events;
 using EmailSender.Infrastructure.Messaging;
@@ -19,6 +17,7 @@ namespace EmailSender.Infrastructure
         {
             services.AddEmailSenderInfrastructure(configuration);
             services.AddMessaging(configuration);
+            services.AddEventConsumers();
             return services;
         }
 
@@ -29,22 +28,8 @@ namespace EmailSender.Infrastructure
             return services;
         }
 
-        public static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddEventConsumers(this IServiceCollection services)
         {
-            var rabbitCfg = configuration.GetSection("RabbitMQSettings").Get<RabbitMqSettings>();
-            services.AddSingleton<IConnectionFactory>(sp =>
-                new ConnectionFactory()
-                {
-                    HostName = rabbitCfg.Host,
-                    UserName = rabbitCfg.User,
-                    Password = rabbitCfg.Password,
-                    Port = rabbitCfg.Port,
-                    DispatchConsumersAsync = false
-                });
-            services.AddSingleton<PersistentConnection>();
-            services.AddSingleton<IEventConsumer, EventConsumer>();
-            services.AddScoped<IPublisher, Publisher>();
-
             services.AddEventConsumer<UserRegisteredIntegrationEvent>(opts =>
             {
                 opts.ExchangeName = "user_exchange";

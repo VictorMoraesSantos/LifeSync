@@ -1,9 +1,7 @@
-﻿using BuildingBlocks.Messaging.Abstractions;
-using BuildingBlocks.Messaging.Settings;
+﻿using BuildingBlocks.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client;
 using TaskManager.Application.BackgroundServices;
 using TaskManager.Application.Interfaces;
 using TaskManager.Domain.Repositories;
@@ -36,24 +34,6 @@ namespace TaskManager.Infrastructure
 
             services.AddScoped<ITaskItemRepository, TaskItemRepository>();
             services.AddScoped<ITaskLabelRepository, TaskLabelRepository>();
-
-            return services;
-        }
-
-        private static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
-        {
-            var rabbitCfg = configuration.GetSection("RabbitMQSettings").Get<RabbitMqSettings>();
-            services.AddSingleton<IConnectionFactory>(sp =>
-                new ConnectionFactory
-                {
-                    HostName = rabbitCfg.Host,
-                    UserName = rabbitCfg.User,
-                    Password = rabbitCfg.Password,
-                    Port = rabbitCfg.Port,
-                    DispatchConsumersAsync = false
-                });
-            services.AddSingleton<PersistentConnection>();
-            services.AddSingleton<IEventBus, EventBus>();
 
             return services;
         }
