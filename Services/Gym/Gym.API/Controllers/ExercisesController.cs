@@ -48,23 +48,23 @@ namespace Gym.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<HttpResult> Update(int id, [FromBody] UpdateExerciseCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<UpdateExerciseCommand>> Update(int id, [FromBody] UpdateExerciseCommand command, CancellationToken cancellationToken)
         {
             var updatedCommand = new UpdateExerciseCommand(id, command.Name, command.Description, command.MuscleGroup, command.ExerciseType, command.EquipmentType);
             var result = await _sender.Send(updatedCommand, cancellationToken);
             return result.IsSuccess
-                ? HttpResult.Updated()
-                : HttpResult.BadRequest(result.Error!.Description);
+                ? HttpResult<UpdateExerciseCommand>.Updated()
+                : HttpResult<UpdateExerciseCommand>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<HttpResult> Delete(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<DeleteExerciseCommand>> Delete(int id, CancellationToken cancellationToken)
         {
             var command = new DeleteExerciseCommand(id);
             var result = await _sender.Send(command, cancellationToken);
             return result.IsSuccess
-                ? HttpResult.Deleted()
-                : HttpResult.BadRequest(result.Error!.Description);
+                ? HttpResult<DeleteExerciseCommand>.Deleted()
+                : HttpResult<DeleteExerciseCommand>.BadRequest(result.Error!.Description);
         }
     }
 }

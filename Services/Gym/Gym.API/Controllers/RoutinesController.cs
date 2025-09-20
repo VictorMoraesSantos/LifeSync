@@ -58,13 +58,13 @@ namespace Gym.API.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<HttpResult> Delete(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<DeleteRoutineCommand>> Delete(int id, CancellationToken cancellationToken)
         {
             var command = new DeleteRoutineCommand(id);
             var result = await _sender.Send(command, cancellationToken);
             return result.IsSuccess
-                ? HttpResult.Deleted()
-                : HttpResult.BadRequest(result.Error!.Description);
+                ? HttpResult<DeleteRoutineCommand>.Deleted()
+                : HttpResult<DeleteRoutineCommand>.BadRequest(result.Error!.Description);
         }
     }
 }

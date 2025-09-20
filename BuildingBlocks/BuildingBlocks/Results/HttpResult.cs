@@ -7,24 +7,23 @@ namespace BuildingBlocks.Results
     {
         public HttpResult() : base() { }
 
-        public HttpResult(object data) : base(data) { }
+        public HttpResult(HttpStatusCode statusCode) : base(statusCode) { }
+        public HttpResult(object data, HttpStatusCode statusCode) : base(data, statusCode) { }
+        public HttpResult(HttpStatusCode statusCode, params string[] errors) : base(statusCode, errors) { }
 
-        public HttpResult(HttpStatusCode statusCode, params string[] errors)
-            : base(statusCode, errors) { }
+        public static HttpResult Ok(object data) => new HttpResult(data, HttpStatusCode.OK);
+        public static HttpResult Ok(HttpStatusCode statusCode) => new HttpResult(HttpStatusCode.OK);
 
-        public static HttpResult Ok(object data) => new(data) { StatusCode = HttpStatusCode.OK };
-        public static HttpResult Ok() => new() { StatusCode = HttpStatusCode.OK };
+        public static HttpResult Created(object data) => new HttpResult(data, HttpStatusCode.Created);
+        public static HttpResult Created(HttpStatusCode statusCode) => new HttpResult(HttpStatusCode.Created);
 
-        public static HttpResult Created(object data) => new(data) { StatusCode = HttpStatusCode.Created };
-        public static HttpResult Created() => new() { StatusCode = HttpStatusCode.Created };
+        public static HttpResult Updated(HttpStatusCode statusCode) => new HttpResult(HttpStatusCode.NoContent);
+        public static HttpResult Deleted(HttpStatusCode statusCode) => new HttpResult(HttpStatusCode.NoContent);
 
-        public static HttpResult Updated() => new() { StatusCode = HttpStatusCode.NoContent };
-        public static HttpResult Deleted() => new() { StatusCode = HttpStatusCode.NoContent };
-
-        public static HttpResult BadRequest(params string[] errors) => new(HttpStatusCode.BadRequest, errors);
-        public static HttpResult NotFound(params string[] errors) => new(HttpStatusCode.NotFound, errors);
-        public static HttpResult Forbidden(params string[] errors) => new(HttpStatusCode.Forbidden, errors);
-        public static HttpResult InternalError(params string[] errors) => new(HttpStatusCode.InternalServerError, errors);
+        public static HttpResult BadRequest(params string[] errors) => new HttpResult(HttpStatusCode.BadRequest, errors);
+        public static HttpResult NotFound(params string[] errors) => new HttpResult(HttpStatusCode.NotFound, errors);
+        public static HttpResult Forbidden(params string[] errors) => new HttpResult(HttpStatusCode.Forbidden, errors);
+        public static HttpResult InternalError(params string[] errors) => new HttpResult(HttpStatusCode.InternalServerError, errors);
     }
 
     public class HttpResult<T>
@@ -34,11 +33,16 @@ namespace BuildingBlocks.Results
             Errors = Array.Empty<string>();
         }
 
-        public HttpResult(T data)
+        public HttpResult(HttpStatusCode statusCode)
+        {
+            StatusCode = statusCode;
+        }
+
+        public HttpResult(T data, HttpStatusCode statusCode)
         {
             Data = data;
             Errors = Array.Empty<string>();
-            StatusCode = HttpStatusCode.OK;
+            StatusCode = statusCode;
         }
 
         public HttpResult(HttpStatusCode statusCode, params string[] errors)
@@ -65,16 +69,16 @@ namespace BuildingBlocks.Results
             Errors = Errors.Concat(errors.Where(e => !string.IsNullOrWhiteSpace(e))).ToArray();
         }
 
-        public static HttpResult<T> Ok(T data) => new(data) { StatusCode = HttpStatusCode.OK };
-        public static HttpResult<T> Created(T data) => new(data) { StatusCode = HttpStatusCode.Created };
+        public static HttpResult<T> Ok(T data) => new HttpResult<T>(data, HttpStatusCode.OK);
+        public static HttpResult<T> Created(T data) => new HttpResult<T>(data, HttpStatusCode.Created);
 
-        public static HttpResult<T> Updated() => new() { StatusCode = HttpStatusCode.NoContent };
-        public static HttpResult<T> Deleted() => new() { StatusCode = HttpStatusCode.NoContent };
+        public static HttpResult<T> Updated() => new HttpResult<T>(HttpStatusCode.NoContent);
+        public static HttpResult<T> Deleted() => new HttpResult<T>(HttpStatusCode.NoContent);
 
-        public static HttpResult<T> BadRequest(params string[] errors) => new(HttpStatusCode.BadRequest, errors);
-        public static HttpResult<T> NotFound(params string[] errors) => new(HttpStatusCode.NotFound, errors);
-        public static HttpResult<T> Forbidden(params string[] errors) => new(HttpStatusCode.Forbidden, errors);
-        public static HttpResult<T> InternalError(params string[] errors) => new(HttpStatusCode.InternalServerError, errors);
+        public static HttpResult<T> BadRequest(params string[] errors) => new HttpResult<T>(HttpStatusCode.BadRequest, errors);
+        public static HttpResult<T> NotFound(params string[] errors) => new HttpResult<T>(HttpStatusCode.NotFound, errors);
+        public static HttpResult<T> Forbidden(params string[] errors) => new HttpResult<T>(HttpStatusCode.Forbidden, errors);
+        public static HttpResult<T> InternalError(params string[] errors) => new HttpResult<T>(HttpStatusCode.InternalServerError, errors);
 
         public static HttpResult<T> FromException(Exception ex)
         {

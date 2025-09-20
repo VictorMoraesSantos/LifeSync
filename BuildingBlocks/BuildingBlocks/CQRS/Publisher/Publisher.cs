@@ -17,7 +17,6 @@ namespace BuildingBlocks.CQRS.Publisher
         {
             var handlerType = typeof(INotificationHandler<>).MakeGenericType(notification.GetType());
             var handlers = _serviceProvider.GetServices(handlerType);
-
             var tasks = handlers
                 .Cast<object>()
                 .Select(handler =>
