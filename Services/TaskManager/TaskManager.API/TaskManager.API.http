@@ -1,0 +1,19 @@
+﻿@TaskManager.API_HostAddress = https://localhost:6060
+
+@id=4
+GET {{TaskManager.API_HostAddress}}/api/v1/task-items/{{id}}
+
+###
+
+POST {{TaskManager.API_HostAddress}}/api/v1/task-items
+Content-Type: application/json
+
+{
+  "title": "Completar projeto LifeSync",
+  "description": "Finalizar implementação dos serviços microservices do LifeSync",
+  "priority": 3,
+  "dueDate": "2025-10-01",
+  "userId": 1
+}
+
+###

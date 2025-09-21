@@ -151,3 +151,16 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+ 
+  yarp.apigateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development        
+    depends_on:
+      - taskmanager.api
+      - nutrition.api
+      - financial.api
+      - users.api
+      - gym.api
+      - emailsender.api
+    ports:
+      - "8010:8080" 

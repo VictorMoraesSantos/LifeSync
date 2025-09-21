@@ -237,9 +237,6 @@ namespace TaskManager.Infrastructure.Services
                 if (entity == null)
                     return Result.Failure<bool>(TaskItemErrors.NotFound(dto.Id));
 
-                if (!Enum.IsDefined(typeof(Status), dto.Status) || !Enum.IsDefined(typeof(Priority), dto.Status))
-                    return Result.Failure<bool>(Error.Failure("Status ou prioridade inválidos"));
-
                 entity.Update(dto.Title, dto.Description, dto.Status, dto.Priority, dto.DueDate);
 
                 await _taskItemRepository.Update(entity, cancellationToken);

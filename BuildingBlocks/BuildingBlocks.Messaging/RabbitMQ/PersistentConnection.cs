@@ -26,20 +26,12 @@ public class PersistentConnection : IDisposable
         {
             if (IsConnected) return true;
 
-            // retry/back-off
             const int maxAttempts = 5;
             for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
-                try
-                {
-                    _connection = _factory.CreateConnection();
-                    _connection.ConnectionShutdown += OnConnectionShutdown;
-                    return true;
-                }
-                catch
-                {
-                    Thread.Sleep(TimeSpan.FromSeconds(2 * attempt));
-                }
+                _connection = _factory.CreateConnection();
+                _connection.ConnectionShutdown += OnConnectionShutdown;
+                return true;
             }
 
             return false;
@@ -48,7 +40,6 @@ public class PersistentConnection : IDisposable
 
     private void OnConnectionShutdown(object? sender, ShutdownEventArgs e)
     {
-        // limpa para que a próxima tentativa reconecte
         _connection?.Dispose();
         _connection = null;
     }
@@ -65,7 +56,6 @@ public class PersistentConnection : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
-        try { _connection?.Dispose(); }
-        catch { /* swallow */ }
+        _connection?.Dispose();
     }
 }

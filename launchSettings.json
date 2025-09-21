@@ -9,7 +9,8 @@
         "financial.api": "StartDebugging",
         "users.api": "StartDebugging",
         "emailsender.api": "StartDebugging",
-        "gym.api": "StartDebugging"
+        "gym.api": "StartDebugging",
+        "yarp.apigateway": "StartDebugging"
       }
     }
   }

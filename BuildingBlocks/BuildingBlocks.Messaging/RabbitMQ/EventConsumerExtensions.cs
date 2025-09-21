@@ -6,16 +6,12 @@ namespace BuildingBlocks.Messaging.RabbitMQ
 {
     public static class EventConsumerExtensions
     {
-        public static IServiceCollection AddEventConsumer<TEvent>(
-            this IServiceCollection services,
-            Action<ConsumerOptions> configure
-        ) where TEvent : IntegrationEvent
+        public static IServiceCollection AddEventConsumer<TEvent>(this IServiceCollection services, Action<ConsumerOptions> configure) where TEvent : IntegrationEvent
         {
             var opts = new ConsumerOptions();
             configure(opts);
-            services.AddSingleton<IConsumerDefinition>(
-                new ConsumerDefinition(typeof(TEvent), opts)
-            );
+            services.AddSingleton<IConsumerDefinition>(new ConsumerDefinition(typeof(TEvent), opts));
+
             return services;
         }
     }
