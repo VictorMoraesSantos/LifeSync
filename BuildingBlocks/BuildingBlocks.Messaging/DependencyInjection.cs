@@ -12,7 +12,7 @@ namespace BuildingBlocks.Messaging
     {
         public static IServiceCollection AddMessaging(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<RabbitMqSettings>(options => 
+            services.Configure<RabbitMqSettings>(options =>
                 configuration.GetSection("RabbitMQSettings").Bind(options));
 
             services.AddSingleton<IConnectionFactory>(sp =>

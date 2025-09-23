@@ -1,8 +1,6 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
-using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
-using TaskManager.Domain.Entities;
 
 namespace TaskManager.Application.Features.TaskItems.Queries.GetByUser
 {

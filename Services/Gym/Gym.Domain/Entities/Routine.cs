@@ -9,7 +9,7 @@ namespace Gym.Domain.Entities
         public string Description { get; private set; }
         private readonly List<RoutineExercise> _routineExercises = new();
         public IReadOnlyCollection<RoutineExercise> RoutineExercises => _routineExercises.AsReadOnly();
-        
+
         protected Routine() { }
 
         public Routine(

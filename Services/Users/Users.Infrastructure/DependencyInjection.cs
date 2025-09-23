@@ -21,7 +21,7 @@ namespace Users.Infrastructure
         {
             services.AddDbContext(configuration);
             services.AddIdentityServices(configuration);
-            services.AddMessaging(configuration); 
+            services.AddMessaging(configuration);
             services.AddEmailService(configuration);
             return services;
         }

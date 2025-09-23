@@ -7,7 +7,6 @@ using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
-using TaskManager.Domain.Enums;
 using TaskManager.Domain.Errors;
 using TaskManager.Domain.Repositories;
 using TaskManager.Domain.ValueObjects;

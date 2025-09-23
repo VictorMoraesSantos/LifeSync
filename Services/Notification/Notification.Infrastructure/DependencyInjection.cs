@@ -1,5 +1,5 @@
-﻿using BuildingBlocks.Messaging.RabbitMQ;
-using BuildingBlocks.Messaging;
+﻿using BuildingBlocks.Messaging;
+using BuildingBlocks.Messaging.RabbitMQ;
 using EmailSender.Application.Contracts;
 using EmailSender.Domain.Events;
 using EmailSender.Infrastructure.Messaging;

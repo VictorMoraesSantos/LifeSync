@@ -16,7 +16,7 @@ namespace Gym.Application.Features.CompletedExercise.Queries.GetCompletedExercis
         public async Task<Result<CompletedExerciseResult>> Handle(GetCompletedExerciseByIdQuery query, CancellationToken cancellationToken)
         {
             var result = await _completedExerciseService.GetByIdAsync(query.Id, cancellationToken);
-            if(!result.IsSuccess)
+            if (!result.IsSuccess)
                 return Result.Failure<CompletedExerciseResult>(result.Error!);
 
             return Result.Success(new CompletedExerciseResult(result.Value!));
