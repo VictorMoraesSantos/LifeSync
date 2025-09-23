@@ -8,43 +8,43 @@ services:
   mailhog:
     image: mailhog/mailhog
 
-  taskmanager.api:
+  taskmanagerapi:
     image: ${DOCKER_REGISTRY-}taskmanagerapi
     build:
       context: .
       dockerfile: Services/TaskManager/TaskManager.API/Dockerfile
 
-  nutrition.api:
+  nutritionapi:
     image: ${DOCKER_REGISTRY-}nutritionapi
     build:
       context: .
       dockerfile: Services/Nutrition/Nutrition.API/Dockerfile
 
-  financial.api:
+  financialapi:
     image: ${DOCKER_REGISTRY-}financialapi
     build:
       context: .
       dockerfile: Services/Financial/Financial.API/Dockerfile
 
-  users.api:
+  usersapi:
     image: ${DOCKER_REGISTRY-}usersapi
     build:
       context: .
       dockerfile: Services/Users/Users.API/Dockerfile
 
-  emailsender.api:
+  emailsenderapi:
     image: ${DOCKER_REGISTRY-}emailsenderapi
     build:
       context: .
       dockerfile: Services/Notification/Notification.API/Dockerfile
 
-  gym.api:
+  gymapi:
     image: ${DOCKER_REGISTRY-}gymapi
     build:
       context: .
       dockerfile: Services/Gym/Gym.API/Dockerfile
 
-  yarp.apigateway:
+  yarpapigateway:
     image: ${DOCKER_REGISTRY-}yarpgateway
     build:
       context: .

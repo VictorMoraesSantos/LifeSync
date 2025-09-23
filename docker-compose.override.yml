@@ -30,7 +30,7 @@ services:
       - "1025:1025"
       - "8025:8025"
 
-  taskmanager.api:
+  taskmanagerapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -52,7 +52,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   
-  nutrition.api:
+  nutritionapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -69,7 +69,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
-  financial.api:
+  financialapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -86,7 +86,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
-  users.api:
+  usersapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -108,7 +108,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
-  gym.api:
+  gymapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -125,7 +125,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
-  emailsender.api:
+  emailsenderapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -152,18 +152,18 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
  
-  yarp.apigateway:
+  yarpapigateway:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development        
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
     depends_on:
-      - taskmanager.api
-      - nutrition.api
-      - financial.api
-      - users.api
-      - gym.api
-      - emailsender.api
+      - taskmanagerapi
+      - nutritionapi
+      - financialapi
+      - usersapi
+      - gymapi
+      - emailsenderapi
     ports:
-      - "8010:8080" 
-      - "8011:8081"
+      - "6006:8080" 
+      - "6066:8081"
