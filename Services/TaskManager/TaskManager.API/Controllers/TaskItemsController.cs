@@ -9,6 +9,7 @@ using TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem;
 using TaskManager.Application.Features.TaskItems.Queries.GetAll;
 using TaskManager.Application.Features.TaskItems.Queries.GetByFilter;
 using TaskManager.Application.Features.TaskItems.Queries.GetById;
+using TaskManager.Application.Features.TaskItems.Queries.GetByUser;
 
 namespace TaskManager.API.Controllers
 {
@@ -31,6 +32,17 @@ namespace TaskManager.API.Controllers
             return result.IsSuccess
                 ? HttpResult<GetTaskItemByIdResult>.Ok(result.Value!)
                 : HttpResult<GetTaskItemByIdResult>.NotFound(result.Error!.Description);
+        }
+
+        [HttpGet("user/{userId:int}")]
+        public async Task<HttpResult<GetByUserResponse>> GetByUserId(int userId, CancellationToken cancellationToken)
+        {
+            var query = new GetByUserQuery(userId);
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<GetByUserResponse>.Ok(result.Value!)
+                : HttpResult<GetByUserResponse>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("search")]

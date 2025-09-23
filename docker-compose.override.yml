@@ -155,6 +155,8 @@ services:
   yarp.apigateway:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development        
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
     depends_on:
       - taskmanager.api
       - nutrition.api
@@ -164,3 +166,4 @@ services:
       - emailsender.api
     ports:
       - "8010:8080" 
+      - "8011:8081"

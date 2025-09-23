@@ -7,9 +7,9 @@ namespace TaskManager.Domain.Entities
 {
     public class TaskLabel : BaseEntity<int>
     {
+        public int UserId { get; private set; }
         public string Name { get; private set; }
         public LabelColor LabelColor { get; private set; }
-        public int UserId { get; private set; }
         public int? TaskItemId { get; private set; }
         public TaskItem? TaskItem { get; private set; }
 

@@ -9,6 +9,7 @@ using TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel;
 using TaskManager.Application.Features.TaskLabels.Queries.GetAll;
 using TaskManager.Application.Features.TaskLabels.Queries.GetByFilter;
 using TaskManager.Application.Features.TaskLabels.Queries.GetById;
+using TaskManager.Application.Features.TaskLabels.Queries.GetByUser;
 
 namespace TaskManager.API.Controllers
 {
@@ -31,6 +32,16 @@ namespace TaskManager.API.Controllers
             return result.IsSuccess
                 ? HttpResult<GetTaskLabelByIdResult>.Ok(result.Value!)
                 : HttpResult<GetTaskLabelByIdResult>.NotFound(result.Error!.Description);
+        }
+
+        [HttpGet("user/{userId:int}")]
+        public async Task<HttpResult<GetByUserResponse>> GetByUserId(int userId, CancellationToken cancellationToken)
+        {
+            var query = new GetByUserQuery(userId);
+            var result = await _sender.Send(query, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<GetByUserResponse>.Ok(result.Value!)
+                : HttpResult<GetByUserResponse>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("search")]

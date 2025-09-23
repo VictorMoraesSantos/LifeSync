@@ -67,7 +67,7 @@ namespace TaskManager.Domain.Entities
 
         private void SetDueDate(DateOnly dueDate)
         {
-            if (dueDate < DateOnly.FromDateTime(DateTime.Today))
+            if (dueDate < DateOnly.FromDateTime(DateTime.UtcNow))
                 throw new DomainException(TaskItemErrors.DueDateInPast);
 
             DueDate = dueDate;
@@ -117,7 +117,7 @@ namespace TaskManager.Domain.Entities
             MarkAsUpdated();
         }
 
-        public bool IsOverdue() => DueDate < DateOnly.FromDateTime(DateTime.Today);
+        public bool IsOverdue() => DueDate < DateOnly.FromDateTime(DateTime.UtcNow);
 
         public bool IsComplete() => Status == Status.Completed;
 
