@@ -22,7 +22,6 @@ namespace BuildingBlocks.CQRS.Extensions
                 .GetTypes()
                 .Where(t => !t.IsAbstract && !t.IsInterface);
 
-            // Register IRequestHandler<,>
             var handlerTypes = types
                 .SelectMany(t => t.GetInterfaces()
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
@@ -33,7 +32,6 @@ namespace BuildingBlocks.CQRS.Extensions
                 services.AddScoped(handler.Interface, handler.Implementation);
             }
 
-            // Register INotificationHandler<>
             var notificationHandlerTypes = types
                 .SelectMany(t => t.GetInterfaces()
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == notificationHandlerInterfaceType)

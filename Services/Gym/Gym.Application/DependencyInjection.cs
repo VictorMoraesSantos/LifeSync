@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Extensions;
+﻿using BuildingBlocks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gym.Application
@@ -7,7 +7,7 @@ namespace Gym.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddMediatorService();
+            services.AddBuildingBlocks();
 
             return services;
         }
