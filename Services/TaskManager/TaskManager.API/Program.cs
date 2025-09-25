@@ -1,3 +1,4 @@
+using BuildingBlocks.Validation.Extensions;
 using TaskManager.Application;
 using TaskManager.Infrastructure;
 
@@ -21,6 +22,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseValidationExceptionHandling();
 
 app.UseAuthentication();
 app.UseAuthorization();

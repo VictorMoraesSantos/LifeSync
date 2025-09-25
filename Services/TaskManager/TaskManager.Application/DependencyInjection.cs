@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace TaskManager.Application
 {
@@ -7,7 +8,7 @@ namespace TaskManager.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddBuildingBlocks();
+            services.AddBuildingBlocks(Assembly.GetExecutingAssembly());
 
             return services;
         }
