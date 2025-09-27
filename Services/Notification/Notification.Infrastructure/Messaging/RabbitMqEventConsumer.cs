@@ -36,7 +36,6 @@ public class RabbitMqEventConsumer : BackgroundService
                     def.EventType,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 
-                // publica dentro do escopo
                 publisher.Publish(@event, stoppingToken).GetAwaiter().GetResult();
             }
 

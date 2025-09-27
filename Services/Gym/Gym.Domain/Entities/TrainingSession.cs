@@ -1,5 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Exceptions;
+using Gym.Domain.Errors;
 
 namespace Gym.Domain.Entities
 {
@@ -46,7 +47,7 @@ namespace Gym.Domain.Entities
         public void AddCompletedExercise(CompletedExercise completedExercise)
         {
             if (completedExercise == null)
-                throw new DomainException("Completed exercise cannot be null");
+                throw new DomainException(TrainingSessionErrors.NullCompletedExercise);
 
             _completedExercises.Add(completedExercise);
             MarkAsUpdated();

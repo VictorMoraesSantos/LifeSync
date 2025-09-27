@@ -5,8 +5,12 @@ using EmailSender.Domain.Events;
 using EmailSender.Infrastructure.Messaging;
 using EmailSender.Infrastructure.Services;
 using EmailSender.Infrastructure.Smtp;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Notification.Domain.Repositories;
+using Notification.Infrastructure.Persistence.Data;
+using Notification.Infrastructure.Persistence.Repositories;
 using RabbitMQ.Client;
 
 namespace EmailSender.Infrastructure
@@ -15,20 +19,35 @@ namespace EmailSender.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddDbContext(configuration);
             services.AddEmailSenderInfrastructure(configuration);
             services.AddMessaging(configuration);
             services.AddEventConsumers();
             return services;
         }
 
-        public static IServiceCollection AddEmailSenderInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            string connectionString = configuration.GetConnectionString("Database")!;
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                 options.UseNpgsql(connectionString));
+
+            services.AddHostedService<MigrationHostedService>();
+
+            services.AddScoped<IEmailMessageRepository, EmailMessageRepository>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddEmailSenderInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
             services.AddScoped<IEmailSender, SmtpEmailSender>();
             return services;
         }
 
-        public static IServiceCollection AddEventConsumers(this IServiceCollection services)
+        private static IServiceCollection AddEventConsumers(this IServiceCollection services)
         {
             services.AddEventConsumer<UserRegisteredIntegrationEvent>(opts =>
             {

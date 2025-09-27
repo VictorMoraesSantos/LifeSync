@@ -2,7 +2,9 @@
 using BuildingBlocks.CQRS.Publisher;
 using EmailSender.Application.Contracts;
 using EmailSender.Application.DTO;
+using EmailSender.Domain.Entities;
 using EmailSender.Domain.Events;
+using Notification.Domain.Repositories;
 
 namespace EmailSender.Application.EventHandlers
 {
@@ -10,21 +12,26 @@ namespace EmailSender.Application.EventHandlers
     {
         private readonly IEmailSender _emailSender;
         private readonly IPublisher _publisher;
+        private readonly IEmailMessageRepository emailMessageRepository;
 
-        public UserRegisteredEventHandler(IEmailSender emailSender, IPublisher publisher)
+        public UserRegisteredEventHandler(IEmailSender emailSender, IPublisher publisher, IEmailMessageRepository emailMessageRepository)
         {
             _emailSender = emailSender;
             _publisher = publisher;
+            this.emailMessageRepository = emailMessageRepository;
         }
 
         public async Task Handle(UserRegisteredIntegrationEvent notification, CancellationToken cancellationToken)
         {
-            var email = new EmailMessageDTO(
+            var dto = new EmailMessageDTO(
                 To: notification.Email,
                 Subject: "Welcome!",
                 Body: "Thanks for registering.");
 
-            await _emailSender.SendEmailAsync(email);
+            var emailMessage = new EmailMessage("no-reply@test.local", dto.To, dto.Subject, dto.Body);
+            await emailMessageRepository.Create(emailMessage);
+
+            await _emailSender.SendEmailAsync(dto);
 
             var emailSentEvent = new EmailSentEvent(notification.Email, DateTime.Now);
 

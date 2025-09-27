@@ -1,4 +1,6 @@
 ﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
+using Nutrition.Domain.Errors;
 
 namespace Nutrition.Domain.Entities
 {
@@ -29,21 +31,21 @@ namespace Nutrition.Domain.Entities
         public void SetName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be empty.", nameof(name));
+                throw new DomainException(LiquidErrors.InvalidName);
             Name = name.Trim();
         }
 
         public void SetQuantityMl(int quantityMl)
         {
             if (quantityMl <= 0)
-                throw new ArgumentOutOfRangeException(nameof(quantityMl), "Quantity must be positive.");
+                throw new DomainException(LiquidErrors.InvalidQuantity);
             QuantityMl = quantityMl;
         }
 
         public void SetCaloriesPerMl(int caloriesPerMl)
         {
             if (caloriesPerMl < 0)
-                throw new ArgumentOutOfRangeException(nameof(caloriesPerMl), "Calories per ml cannot be negative.");
+                throw new DomainException(LiquidErrors.NegativeCalories);
             CaloriesPerMl = caloriesPerMl;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Exceptions;
+using Gym.Domain.Errors;
 
 namespace Gym.Domain.Entities
 {
@@ -37,7 +38,7 @@ namespace Gym.Domain.Entities
         public void AddExercise(RoutineExercise routineExercise)
         {
             if (routineExercise == null)
-                throw new DomainException("Routine exercise cannot be null");
+                throw new DomainException(RoutineErrors.NullRoutineExercise);
 
             _routineExercises.Add(routineExercise);
             MarkAsUpdated();
@@ -46,7 +47,7 @@ namespace Gym.Domain.Entities
         public void RemoveExercise(RoutineExercise routineExercise)
         {
             if (routineExercise == null)
-                throw new DomainException("Routine exercise cannot be found");
+                throw new DomainException(RoutineErrors.NullRoutineExercise);
 
             _routineExercises.Remove(routineExercise);
             MarkAsUpdated();

@@ -1,5 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Exceptions;
+using Nutrition.Domain.Errors;
 using Nutrition.Domain.ValueObjects;
 
 namespace Nutrition.Domain.Entities
@@ -18,7 +19,7 @@ namespace Nutrition.Domain.Entities
         public DailyProgress(int userId, DateOnly date, int caloriesConsumed, int liquidsConsumedMl)
         {
             if (userId <= 0)
-                throw new DomainException($"{nameof(userId)} must be valid.");
+                throw new DomainException(DailyProgressErrors.InvalidUserId);
             Validate(caloriesConsumed);
             Validate(liquidsConsumedMl);
 
@@ -31,7 +32,7 @@ namespace Nutrition.Domain.Entities
         public void SetGoal(DailyGoal goal)
         {
             if (goal == null)
-                throw new DomainException($"{nameof(goal)} cannot be null.");
+                throw new DomainException(DailyProgressErrors.NullGoal);
             Goal = goal;
         }
 
@@ -90,7 +91,7 @@ namespace Nutrition.Domain.Entities
         private void SetDate(DateOnly date)
         {
             if (date < DateOnly.FromDateTime(DateTime.UtcNow))
-                throw new DomainException("Date cannot be in the past.");
+                throw new DomainException(DailyProgressErrors.InvalidDate);
             Date = date;
         }
 

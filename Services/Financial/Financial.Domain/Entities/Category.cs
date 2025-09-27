@@ -1,4 +1,6 @@
 ﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
+using Financial.Domain.Errors;
 
 namespace Financial.Domain.Entities
 {
@@ -12,9 +14,10 @@ namespace Financial.Domain.Entities
 
         public Category(int userId, string name, string? description = null)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(userId);
+            if (userId <= 0)
+                throw new DomainException(CategoryErrors.InvalidUserId);
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name), "Name cannot be null or whitespace.");
+                throw new DomainException(CategoryErrors.InvalidName);
 
             UserId = userId;
             Name = name;
@@ -24,7 +27,7 @@ namespace Financial.Domain.Entities
         public void Update(string name, string? description = null)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name), "Name cannot be null or whitespace.");
+                throw new DomainException(CategoryErrors.InvalidName);
 
             Name = name;
             Description = description;

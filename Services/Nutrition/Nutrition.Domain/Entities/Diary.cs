@@ -1,5 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Exceptions;
+using Nutrition.Domain.Errors;
 using Nutrition.Domain.Events;
 
 namespace Nutrition.Domain.Entities
@@ -23,7 +24,7 @@ namespace Nutrition.Domain.Entities
         public Diary(int userId, DateOnly date)
         {
             if (userId <= 0)
-                throw new DomainException("UserId must be positive.");
+                throw new DomainException(DiaryErrors.InvalidUserId);
 
             Date = date;
             UserId = userId;
@@ -33,7 +34,7 @@ namespace Nutrition.Domain.Entities
         {
             Validate(meal.Id.ToString());
             if (meal == null)
-                throw new DomainException("Meal cannot be null");
+                throw new DomainException(DiaryErrors.NullMeal);
 
             _meals.Add(meal);
             AddDomainEvent(new MealAddedToDiaryEvent(UserId, Date, meal.Id));
@@ -42,16 +43,16 @@ namespace Nutrition.Domain.Entities
         public void RemoveMeal(Meal meal)
         {
             if (meal == null)
-                throw new DomainException("Meal cannot be null");
+                throw new DomainException(DiaryErrors.NullMeal);
 
             if (!_meals.Remove(meal))
-                throw new DomainException("Meal not found in diary.");
+                throw new DomainException(DiaryErrors.MealNotFound);
         }
 
         public void AddLiquid(Liquid liquid)
         {
             if (liquid == null)
-                throw new DomainException("Liquid cannot be null");
+                throw new DomainException(DiaryErrors.NullLiquid);
 
             _liquids.Add(liquid);
         }
@@ -59,10 +60,10 @@ namespace Nutrition.Domain.Entities
         public void RemoveLiquid(Liquid liquid)
         {
             if (liquid == null)
-                throw new DomainException("Liquid cannot be null");
+                throw new DomainException(DiaryErrors.NullLiquid);
 
             if (!_liquids.Remove(liquid))
-                throw new DomainException("Liquid not found in diary.");
+                throw new DomainException(DiaryErrors.LiquidNotFound);
         }
 
         public void UpdateDate(DateOnly newDate)

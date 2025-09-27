@@ -1,5 +1,6 @@
 ﻿using Core.Domain.Entities;
 using Core.Domain.Exceptions;
+using Nutrition.Domain.Errors;
 using Nutrition.Domain.Events;
 
 namespace Nutrition.Domain.Entities
@@ -26,7 +27,7 @@ namespace Nutrition.Domain.Entities
         public void SetDiaryId(int diaryId)
         {
             if (diaryId <= 0)
-                throw new DomainException("DiaryId must be positive.");
+                throw new DomainException(MealErrors.InvalidDiaryId);
 
             DiaryId = diaryId;
         }
@@ -43,7 +44,7 @@ namespace Nutrition.Domain.Entities
         public void AddMealFood(MealFood mealFood)
         {
             if (mealFood == null)
-                throw new DomainException("MealFood cannot be null");
+                throw new DomainException(MealErrors.NullMealFood);
 
             _mealFoods.Add(mealFood);
 
@@ -53,7 +54,7 @@ namespace Nutrition.Domain.Entities
         public void RemoveMealFood(int mealFoodId)
         {
             if (mealFoodId == null)
-                throw new DomainException("MealFood cannot be null");
+                throw new DomainException(MealErrors.NullMealFood);
 
             var mealFood = _mealFoods.FirstOrDefault(mf => mf.Id == mealFoodId);
 

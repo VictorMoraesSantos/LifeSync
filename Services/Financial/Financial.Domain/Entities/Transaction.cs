@@ -1,5 +1,7 @@
 ﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
 using Financial.Domain.Enums;
+using Financial.Domain.Errors;
 using FinancialControl.Domain.ValueObjects;
 
 namespace Financial.Domain.Entities
@@ -51,9 +53,11 @@ namespace Financial.Domain.Entities
             DateTime transactionDate,
             bool isRecurring = false)
         {
-            ArgumentNullException.ThrowIfNull(amount);
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(description);
-            if (categoryId.HasValue) ArgumentOutOfRangeException.ThrowIfNegativeOrZero(categoryId.Value);
+            SetAmout(amount);
+            SetDescription(description);
+
+            if (categoryId.HasValue)
+                throw new DomainException(TransactionErrors.InvalidCategoryId);
 
             CategoryId = categoryId;
             PaymentMethod = paymentMethod;
@@ -63,6 +67,20 @@ namespace Financial.Domain.Entities
             TransactionDate = DateTime.SpecifyKind(transactionDate, DateTimeKind.Utc);
             IsRecurring = isRecurring;
             MarkAsUpdated();
+        }
+
+        private void SetAmout(Money amount)
+        {
+            if (amount == null)
+                throw new DomainException(TransactionErrors.InvalidAmount);
+            Amount = amount;
+        }
+
+        private void SetDescription(string description)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+                throw new DomainException(TransactionErrors.InvalidDescription);
+            Description = description.Trim();
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿namespace EmailSender.Domain.Entities
+﻿using Core.Domain.Entities;
+
+namespace EmailSender.Domain.Entities
 {
-    public class EmailMessage
+    public class EmailMessage : BaseEntity<int>
     {
         public string From { get; set; }
         public string To { get; private set; }

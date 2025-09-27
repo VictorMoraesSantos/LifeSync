@@ -10,6 +10,7 @@ namespace Gym.Domain.Errors
         public static Error InvalidStartTime => Error.Failure("Hora de início inválida");
         public static Error InvalidEndTime => Error.Failure("Hora de término inválida");
         public static Error EndTimeNotAfterStart => Error.Failure("Hora de término deve ser posterior à hora de início");
+        public static Error NullCompletedExercise => Error.Failure("O exercício completado não pode ser nulo");
         public static Error NotesTooLong(int max) => Error.Failure($"Observações devem ter no máximo {max} caracteres");
 
         // Relacionamentos / Consistência

@@ -1,4 +1,6 @@
 ﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
+using Nutrition.Domain.Errors;
 
 namespace Nutrition.Domain.Entities
 {
@@ -29,7 +31,7 @@ namespace Nutrition.Domain.Entities
         public void SetMeal(int mealId)
         {
             if (mealId <= 0)
-                throw new ArgumentOutOfRangeException(nameof(mealId), "MealId must be positive.");
+                throw new DomainException(MealFoodErrors.InvalidMealId);
             MealId = mealId;
         }
 
@@ -42,14 +44,14 @@ namespace Nutrition.Domain.Entities
         private void SetQuantity(int quantity)
         {
             if (quantity <= 0)
-                throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity must be positive.");
+                throw new DomainException(MealFoodErrors.InvalidQuantity);
             Quantity = quantity;
         }
 
         private void SetCaloriesPerUnit(int caloriesPerUnit)
         {
             if (caloriesPerUnit < 0)
-                throw new ArgumentOutOfRangeException(nameof(caloriesPerUnit), "Calories per unit cannot be negative.");
+                throw new DomainException(MealFoodErrors.NegativeCalories);
             CaloriesPerUnit = caloriesPerUnit;
         }
 

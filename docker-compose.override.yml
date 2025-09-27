@@ -13,6 +13,20 @@ services:
     volumes:
       - postgres_lifesync:/var/lib/postgresql/data/ 
 
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    restart: always
+    depends_on:
+      - lifesyncdb
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
   rabbitmq:
     container_name: rabbitmq
     hostname: lifesync-mq
@@ -130,6 +144,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
       - RabbitMQSettings__Host=rabbitmq
       - RabbitMQSettings__Port=5672
       - RabbitMQSettings__User=guest
@@ -143,6 +158,7 @@ services:
     depends_on:
       - rabbitmq
       - mailhog
+      - lifesyncdb
     ports:
       - "6005:8080"
       - "6065:8081"
