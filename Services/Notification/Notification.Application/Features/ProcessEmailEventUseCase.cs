@@ -5,9 +5,9 @@ namespace EmailSender.Application.Features
 {
     public class ProcessEmailEventUseCase
     {
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
 
-        public ProcessEmailEventUseCase(IEmailSender emailSender)
+        public ProcessEmailEventUseCase(IEmailService emailSender)
         {
             _emailSender = emailSender;
         }

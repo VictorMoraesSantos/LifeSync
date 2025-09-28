@@ -43,7 +43,7 @@ namespace EmailSender.Infrastructure
         private static IServiceCollection AddEmailSenderInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
-            services.AddScoped<IEmailSender, SmtpEmailSender>();
+            services.AddScoped<IEmailService, EmailService>();
             return services;
         }
 

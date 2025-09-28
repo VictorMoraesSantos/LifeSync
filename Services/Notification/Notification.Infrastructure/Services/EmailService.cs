@@ -6,16 +6,39 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Notification.Infrastructure.Persistence.Data;
 
 namespace EmailSender.Infrastructure.Services
 {
-    public class SmtpEmailSender : IEmailSender
+    public class EmailService : IEmailService
     {
         private readonly SmtpSettings _cfg;
+        private readonly ApplicationDbContext _context;
 
-        public SmtpEmailSender(IOptions<SmtpSettings> options)
+        public EmailService(IOptions<SmtpSettings> options, ApplicationDbContext context)
         {
             _cfg = options.Value;
+            _context = context;
+        }
+
+        public Task<int> CreateEmail(EmailMessageDTO dto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteEmail(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<EmailMessageDTO>> GetAllEmailMessages()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<EmailMessageDTO> GetEmailById(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task SendEmailAsync(EmailMessageDTO dto)
@@ -36,6 +59,11 @@ namespace EmailSender.Infrastructure.Services
 
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
+        }
+
+        public Task<bool> UpdateEmail(EmailMessageDTO dto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

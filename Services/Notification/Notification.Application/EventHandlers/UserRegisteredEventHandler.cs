@@ -10,11 +10,11 @@ namespace EmailSender.Application.EventHandlers
 {
     public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredIntegrationEvent>
     {
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
         private readonly IPublisher _publisher;
         private readonly IEmailMessageRepository emailMessageRepository;
 
-        public UserRegisteredEventHandler(IEmailSender emailSender, IPublisher publisher, IEmailMessageRepository emailMessageRepository)
+        public UserRegisteredEventHandler(IEmailService emailSender, IPublisher publisher, IEmailMessageRepository emailMessageRepository)
         {
             _emailSender = emailSender;
             _publisher = publisher;
