@@ -1,5 +1,4 @@
 ﻿using EmailSender.Application.DTO;
-using EmailSender.Domain.Entities;
 
 namespace EmailSender.Application.Contracts
 {
