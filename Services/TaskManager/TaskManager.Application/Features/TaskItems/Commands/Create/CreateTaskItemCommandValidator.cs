@@ -13,8 +13,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Create
                 .MaximumLength(100).WithMessage("O título deve ter no máximo 100 caracteres.");
 
             RuleFor(command => command.Description)
-                .NotEmpty()
-                .WithMessage("A descrição é obrigatória.")
+                .NotEmpty().WithMessage("A descrição é obrigatória.")
                 .MinimumLength(5).WithMessage("a descrição deve ter no mínimo 5 caracteres.")
                 .MaximumLength(500).WithMessage("a descrição deve ter no máximo 500 caracteres.");
 
@@ -22,10 +21,8 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Create
                 .IsInEnum().WithMessage("A prioridade informada é inválida.");
 
             RuleFor(command => command.DueDate)
+                .NotEmpty().WithMessage("A data de vencimento é obrigatória.")
                 .GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow)).WithMessage("A data de vencimento não pode ser anterior à data atual.");
-
-            RuleFor(command => command.UserId)
-                .GreaterThan(0).WithMessage("O identificador do usuário deve ser maior que zero.");
         }
     }
 }

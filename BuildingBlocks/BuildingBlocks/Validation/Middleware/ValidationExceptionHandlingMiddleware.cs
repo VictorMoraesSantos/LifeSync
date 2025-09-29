@@ -22,7 +22,6 @@ namespace BuildingBlocks.Validation.Middleware
             }
             catch (ValidationException ex)
             {
-
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 context.Response.ContentType = "application/json";
 
@@ -31,9 +30,11 @@ namespace BuildingBlocks.Validation.Middleware
                     type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                     title = "Validation Failed",
                     status = (int)HttpStatusCode.BadRequest,
-                    errors = ex.Errors.ToDictionary(
-                        error => error.PropertyName,
-                        error => new[] { error.ErrorMessage })
+                    errors = ex.Errors
+                        .GroupBy(error => error.PropertyName)
+                        .ToDictionary(
+                            group => group.Key,
+                            group => group.Select(error => error.ErrorMessage).ToArray())
                 };
 
                 var json = JsonSerializer.Serialize(response);
