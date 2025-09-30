@@ -6,6 +6,6 @@ namespace Gym.Application.DTOs.Exercise
         string Name,
         string Description,
         MuscleGroup MuscleGroup,
-        ExerciseType Type,
+        ExerciseType ExerciseType,
         EquipmentType? EquipmentType);
 }

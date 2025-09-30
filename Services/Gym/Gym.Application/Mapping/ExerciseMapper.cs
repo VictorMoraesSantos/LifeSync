@@ -26,7 +26,7 @@ namespace Gym.Application.Mapping
                 dto.Name,
                 dto.Description,
                 dto.MuscleGroup,
-                dto.Type,
+                dto.ExerciseType,
                 dto.EquipmentType);
 
             return entity;

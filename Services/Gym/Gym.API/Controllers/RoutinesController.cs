@@ -3,7 +3,7 @@ using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Gym.Application.Features.Routine.Commands.CreateRoutine;
 using Gym.Application.Features.Routine.Commands.DeleteRoutine;
-using Gym.Application.Features.Routine.Commands.UpdateRoutineCommand;
+using Gym.Application.Features.Routine.Commands.UpdateRoutine;
 using Gym.Application.Features.Routine.Queries.GetAllRoutines;
 using Gym.Application.Features.Routine.Queries.GetRoutineById;
 using Microsoft.AspNetCore.Mvc;

@@ -7,7 +7,7 @@ namespace Gym.Application.Features.Exercise.Commands.CreateExercise
         string Name,
         string Description,
         MuscleGroup MuscleGroup,
-        ExerciseType Type,
+        ExerciseType ExerciseType,
         EquipmentType? EquipmentType)
         : ICommand<CreateExerciseResult>;
 

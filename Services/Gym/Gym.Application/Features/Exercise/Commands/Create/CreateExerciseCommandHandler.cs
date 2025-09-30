@@ -20,7 +20,7 @@ namespace Gym.Application.Features.Exercise.Commands.CreateExercise
                 command.Name,
                 command.Description,
                 command.MuscleGroup,
-                command.Type,
+                command.ExerciseType,
                 command.EquipmentType);
 
             var result = await _exerciseService.CreateAsync(dto, cancellationToken);
