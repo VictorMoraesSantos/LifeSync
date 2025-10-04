@@ -11,7 +11,7 @@ using Nutrition.Application.Features.MealFood.Queries.GetByMeal;
 
 namespace Nutrition.API.Controllers
 {
-    [Route("api/v1/meals-food")]
+    [Route("api/meals-food")]
     public class MealsFoodController : ApiController
     {
         private readonly ISender _sender;
@@ -22,51 +22,51 @@ namespace Nutrition.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<HttpResult<GetMealFoodResult>> Get(int id)
+        public async Task<HttpResult<object>> Get(int id)
         {
             GetMealFoodQuery query = new(id);
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<GetMealFoodResult>.Ok(result.Value!)
-                : HttpResult<GetMealFoodResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("meal/{id:int}")]
-        public async Task<HttpResult<GetByMealResult>> GetByMeal(int id)
+        public async Task<HttpResult<object>> GetByMeal(int id)
         {
             GetByMealQuery query = new(id);
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<GetByMealResult>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!)
                 : result.Error!.Description.Contains("NotFound")
-                    ? HttpResult<GetByMealResult>.NotFound(result.Error!.Description!)
-                    : HttpResult<GetByMealResult>.InternalError(result.Error!.Description);
+                    ? HttpResult<object>.NotFound(result.Error!.Description!)
+                    : HttpResult<object>.InternalError(result.Error!.Description);
         }
 
         [HttpGet]
-        public async Task<HttpResult<GetMealFoodsResult>> GetAll([FromQuery] GetMealFoodsQuery query)
+        public async Task<HttpResult<object>> GetAll([FromQuery] GetMealFoodsQuery query)
         {
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<GetMealFoodsResult>.Ok(result.Value!)
-                : HttpResult<GetMealFoodsResult>.InternalError(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.InternalError(result.Error!.Description);
         }
 
         [HttpPost]
-        public async Task<HttpResult<CreateMealFoodResult>> Create([FromBody] CreateMealFoodCommand command)
+        public async Task<HttpResult<object>> Create([FromBody] CreateMealFoodCommand command)
         {
             var result = await _sender.Send(command);
 
             return result.IsSuccess
-                ? HttpResult<CreateMealFoodResult>.Created(result.Value!)
-                : HttpResult<CreateMealFoodResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Created(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<HttpResult<UpdateMealFoodResult>> Update(int id, [FromBody] UpdateMealFoodCommand command)
+        public async Task<HttpResult<object>> Update(int id, [FromBody] UpdateMealFoodCommand command)
         {
             UpdateMealFoodCommand updateMealFoodCommand = new(
                 id,
@@ -76,21 +76,21 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(updateMealFoodCommand);
 
             return result.IsSuccess
-                ? HttpResult<UpdateMealFoodResult>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!)
                 : result.Error!.Description.Contains("NotFound")
-                    ? HttpResult<UpdateMealFoodResult>.NotFound(result.Error!.Description)
-                    : HttpResult<UpdateMealFoodResult>.BadRequest(result.Error!.Description);
+                    ? HttpResult<object>.NotFound(result.Error!.Description)
+                    : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<HttpResult<DeleteMealFoodResult>> Delete(int id)
+        public async Task<HttpResult<object>> Delete(int id)
         {
             DeleteMealFoodCommand command = new(id);
             var result = await _sender.Send(command);
 
             return result.IsSuccess
-                ? HttpResult<DeleteMealFoodResult>.Deleted()
-                : HttpResult<DeleteMealFoodResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Deleted()
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
     }
 }

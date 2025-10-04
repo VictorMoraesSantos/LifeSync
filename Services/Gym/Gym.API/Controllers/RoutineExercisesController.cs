@@ -1,20 +1,22 @@
 ﻿using BuildingBlocks.CQRS.Sender;
 using BuildingBlocks.Results;
 using Core.API.Controllers;
-using Gym.Application.Features.Exercise.Commands.CreateExercise;
-using Gym.Application.Features.Exercise.Commands.DeleteExerciseCommand;
-using Gym.Application.Features.Exercise.Commands.UpdateExercise;
-using Gym.Application.Features.Exercise.Queries.GetAll;
-using Gym.Application.Features.Exercise.Queries.GetById;
+using Gym.Application.Features.RoutineExercise.Commands.CreateRoutineExercise;
+using Gym.Application.Features.RoutineExercise.Commands.DeleteRoutineExercise;
+using Gym.Application.Features.RoutineExercise.Commands.UpdateRoutineExercise;
+using Gym.Application.Features.RoutineExercise.Queries.GetAllExercises;
+using Gym.Application.Features.RoutineExercise.Queries.GetRoutineExerciseById;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gym.API.Controllers
 {
-    public class ExercisesController : ApiController
+    [ApiController]
+    [Route("api/routine-exercises")]
+    public class RoutineExercisesController
     {
         private readonly ISender _sender;
 
-        public ExercisesController(ISender sender)
+        public RoutineExercisesController(ISender sender)
         {
             _sender = sender;
         }
@@ -22,7 +24,7 @@ namespace Gym.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<HttpResult<object>> GetById(int id, CancellationToken cancellationToken)
         {
-            var query = new GetExerciseByIdQuery(id);
+            var query = new GetRoutineExerciseByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!)
@@ -30,8 +32,9 @@ namespace Gym.API.Controllers
         }
 
         [HttpGet]
-        public async Task<HttpResult<object>> GetAll([FromQuery] GetAllExercisesQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetAll(CancellationToken cancellationToken)
         {
+            var query = new GetAllRoutineExercisesQuery();
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!)
@@ -39,18 +42,24 @@ namespace Gym.API.Controllers
         }
 
         [HttpPost]
-        public async Task<HttpResult<object>> Create([FromBody] CreateExerciseCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Create([FromBody] CreateRoutineExerciseCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Created(result.Value!)
-                : HttpResult<object>.BadRequest(result.Error!.Description);
+                 ? HttpResult<object>.Created(result.Value!)
+                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<HttpResult<object>> Update(int id, [FromBody] UpdateExerciseCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Update(int id, [FromBody] UpdateRoutineExerciseCommand command, CancellationToken cancellationToken)
         {
-            var updatedCommand = new UpdateExerciseCommand(id, command.Name, command.Description, command.MuscleGroup, command.ExerciseType, command.EquipmentType);
+            var updatedCommand = new UpdateRoutineExerciseCommand(
+                id,
+                command.Sets,
+                command.Repetitions,
+                command.RestBetweenSets,
+                command.RecommendedWeight,
+                command.Instructions);
             var result = await _sender.Send(updatedCommand, cancellationToken);
             return result.IsSuccess
                 ? HttpResult<object>.Updated()
@@ -60,7 +69,7 @@ namespace Gym.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<HttpResult<object>> Delete(int id, CancellationToken cancellationToken)
         {
-            var command = new DeleteExerciseCommand(id);
+            var command = new DeleteRoutineExerciseCommand(id);
             var result = await _sender.Send(command, cancellationToken);
             return result.IsSuccess
                 ? HttpResult<object>.Deleted()

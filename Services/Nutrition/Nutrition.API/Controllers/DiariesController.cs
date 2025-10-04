@@ -21,71 +21,71 @@ namespace Nutrition.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<HttpResult<GetDiaryResult>> Get(int id)
+        public async Task<HttpResult<object>> Get(int id)
         {
             GetDiaryQuery query = new(id);
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<GetDiaryResult>.Ok(result.Value!)
-                : HttpResult<GetDiaryResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("user/{userId:int}")]
-        public async Task<HttpResult<GetAllDiariesByUserIdResult>> GetByUserId(int userId)
+        public async Task<HttpResult<object>> GetByUserId(int userId)
         {
             GetAllDiariesByUserIdQuery query = new(userId);
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<GetAllDiariesByUserIdResult>.Ok(result.Value!)
-                : HttpResult<GetAllDiariesByUserIdResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
-        public async Task<HttpResult<GetDiariesResult>> GetAll([FromQuery] GetDiariesQuery query)
+        public async Task<HttpResult<object>> GetAll([FromQuery] GetDiariesQuery query)
         {
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<GetDiariesResult>.Ok(result.Value!)
-                : HttpResult<GetDiariesResult>.InternalError(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.InternalError(result.Error!.Description);
         }
 
         [HttpPost]
-        public async Task<HttpResult<CreateDiaryResult>> Create([FromBody] CreateDiaryCommand command)
+        public async Task<HttpResult<object>> Create([FromBody] CreateDiaryCommand command)
         {
             var result = await _sender.Send(command);
 
             return result.IsSuccess
-                ? HttpResult<CreateDiaryResult>.Created(result.Value!)
-                : HttpResult<CreateDiaryResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Created(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<HttpResult<UpdateDiaryResult>> Update(int id, [FromBody] UpdateDiaryCommand command)
+        public async Task<HttpResult<object>> Update(int id, [FromBody] UpdateDiaryCommand command)
         {
             UpdateDiaryCommand updateDiary = new(id, command.Date);
             var result = await _sender.Send(updateDiary);
 
             if (result.IsSuccess)
-                return HttpResult<UpdateDiaryResult>.Ok(result.Value!);
+                return HttpResult<object>.Ok(result.Value!);
 
             if (result.Error!.Description.Contains("NotFound"))
-                return HttpResult<UpdateDiaryResult>.NotFound(result.Error!.Description);
+                return HttpResult<object>.NotFound(result.Error!.Description);
 
-            return HttpResult<UpdateDiaryResult>.BadRequest(result.Error!.Description);
+            return HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<HttpResult<DeleteDiaryResult>> Delete(int id)
+        public async Task<HttpResult<object>> Delete(int id)
         {
             DeleteDiaryCommand command = new(id);
             var result = await _sender.Send(command);
 
             return result.IsSuccess
-                ? HttpResult<DeleteDiaryResult>.Deleted()
-                : HttpResult<DeleteDiaryResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Deleted()
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
     }
 }

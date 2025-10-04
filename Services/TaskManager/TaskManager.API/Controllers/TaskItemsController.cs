@@ -13,7 +13,7 @@ using TaskManager.Application.Features.TaskItems.Queries.GetByUser;
 
 namespace TaskManager.API.Controllers
 {
-    [Route("api/v1/task-items")]
+    [Route("api/task-items")]
     public class TaskItemsController : ApiController
     {
         private readonly ISender _sender;
@@ -24,63 +24,63 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<HttpResult<GetTaskItemByIdResult>> GetById(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetById(int id, CancellationToken cancellationToken)
         {
             var query = new GetTaskItemByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<GetTaskItemByIdResult>.Ok(result.Value!)
-                : HttpResult<GetTaskItemByIdResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("user/{userId:int}")]
-        public async Task<HttpResult<GetByUserResponse>> GetByUserId(int userId, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetByUserId(int userId, CancellationToken cancellationToken)
         {
             var query = new GetByUserQuery(userId);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<GetByUserResponse>.Ok(result.Value!)
-                : HttpResult<GetByUserResponse>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("search")]
-        public async Task<HttpResult<GetByFilterResult>> Find([FromQuery] TaskItemFilterDTO filter, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Find([FromQuery] TaskItemFilterDTO filter, CancellationToken cancellationToken)
         {
             var query = new GetByFilterQuery(filter);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<GetByFilterResult>.Ok(result.Value!)
-                : HttpResult<GetByFilterResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
-        public async Task<HttpResult<GetAllTaskItemsResult>> GetAll([FromQuery] GetAllTaskItemsQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetAll([FromQuery] GetAllTaskItemsQuery query, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<GetAllTaskItemsResult>.Ok(result.Value!)
-                : HttpResult<GetAllTaskItemsResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpPost]
-        public async Task<HttpResult<CreateTaskItemResult>> Create([FromBody] CreateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Create([FromBody] CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<CreateTaskItemResult>.Created(result.Value!)
-                : HttpResult<CreateTaskItemResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Created(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost("batch")]
-        public async Task<HttpResult<int>> CreateBatch([FromBody] IEnumerable<CreateTaskItemCommand> commands, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> CreateBatch([FromBody] IEnumerable<CreateTaskItemCommand> commands, CancellationToken cancellationToken)
         {
             if (commands == null || !commands.Any())
-                return HttpResult<int>.BadRequest("A lista de tarefas não pode ser vazia");
+                return HttpResult<object>.BadRequest("A lista de tarefas não pode ser vazia");
 
             var tasks = commands.Select(command => _sender.Send(command, cancellationToken));
             var results = await Task.WhenAll(tasks);
@@ -88,30 +88,30 @@ namespace TaskManager.API.Controllers
             var failedResults = results.Where(r => !r.IsSuccess).ToList();
 
             return !failedResults.Any()
-                ? HttpResult<int>.Created(results.Length)
-                : HttpResult<int>.BadRequest(failedResults.Select(r => r.Error!.Description).ToArray());
+                ? HttpResult<object>.Created(results.Length)
+                : HttpResult<object>.BadRequest(failedResults.Select(r => r.Error!.Description).ToArray());
         }
 
         [HttpPut("{id:int}")]
-        public async Task<HttpResult<UpdateTaskItemCommandResult>> Update(int id, [FromBody] UpdateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Update(int id, [FromBody] UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
             var updateCommand = new UpdateTaskItemCommand(id, command.Title, command.Description, command.Status, command.Priority, command.DueDate);
             var result = await _sender.Send(updateCommand, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<UpdateTaskItemCommandResult>.Updated()
-                : HttpResult<UpdateTaskItemCommandResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Updated()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<HttpResult<DeleteTaskItemResult>> Delete(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Delete(int id, CancellationToken cancellationToken)
         {
             var command = new DeleteTaskItemCommand(id);
             var result = await _sender.Send(command, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<DeleteTaskItemResult>.Deleted()
-                : HttpResult<DeleteTaskItemResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Deleted()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
     }
 }

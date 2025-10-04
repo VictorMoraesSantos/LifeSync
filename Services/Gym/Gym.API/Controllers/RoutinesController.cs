@@ -20,51 +20,51 @@ namespace Gym.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<HttpResult<GetRoutineByIdResult>> GetById(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetById(int id, CancellationToken cancellationToken)
         {
             var query = new GetRoutineByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<GetRoutineByIdResult>.Ok(result.Value!)
-                : HttpResult<GetRoutineByIdResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpGet]
-        public async Task<HttpResult<GetAllRoutinesResult>> GetAll([FromQuery] GetAllRoutinesQuery query, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetAll([FromQuery] GetAllRoutinesQuery query, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<GetAllRoutinesResult>.Ok(result.Value!)
-                : HttpResult<GetAllRoutinesResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost]
-        public async Task<HttpResult<CreateRoutineResult>> Create([FromBody] CreateRoutineCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Create([FromBody] CreateRoutineCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<CreateRoutineResult>.Created(result.Value!)
-                : HttpResult<CreateRoutineResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Created(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<HttpResult<UpdateRoutineCommand>> Update(int id, [FromBody] UpdateRoutineCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Update(int id, [FromBody] UpdateRoutineCommand command, CancellationToken cancellationToken)
         {
             var updatedCommand = new UpdateRoutineCommand(id, command.Name, command.Description);
             var result = await _sender.Send(updatedCommand, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<UpdateRoutineCommand>.Updated()
-                : HttpResult<UpdateRoutineCommand>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Updated()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<HttpResult<DeleteRoutineCommand>> Delete(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Delete(int id, CancellationToken cancellationToken)
         {
             var command = new DeleteRoutineCommand(id);
             var result = await _sender.Send(command, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<DeleteRoutineCommand>.Deleted()
-                : HttpResult<DeleteRoutineCommand>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Deleted()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
     }
 }

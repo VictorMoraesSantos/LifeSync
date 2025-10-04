@@ -21,50 +21,46 @@ namespace Financial.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<HttpResult<GetTransactionByIdResult>> GetByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             var query = new GetTransactionByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
-
             return result.IsSuccess
-                ? HttpResult<GetTransactionByIdResult>.Ok(result.Value!)
-                : HttpResult<GetTransactionByIdResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet("user/{id:int}")]
-        public async Task<HttpResult<GetTransactionsByUserIdResult>> GetByUserIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetByUserIdAsync(int id, CancellationToken cancellationToken)
         {
             var query = new GetTransactionsByUserIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
-
             return result.IsSuccess
-                ? HttpResult<GetTransactionsByUserIdResult>.Ok(result.Value!)
-                : HttpResult<GetTransactionsByUserIdResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]
-        public async Task<HttpResult<GetAllTransactionsResult>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> GetAllAsync(CancellationToken cancellationToken)
         {
             var query = new GetAllTransactionsQuery();
             var result = await _sender.Send(query, cancellationToken);
-
             return result.IsSuccess
-                ? HttpResult<GetAllTransactionsResult>.Ok(result.Value!)
-                : HttpResult<GetAllTransactionsResult>.InternalError(result.Error!.Description);
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.InternalError(result.Error!.Description);
         }
 
         [HttpPost]
-        public async Task<HttpResult<CreateTransactionResult>> CreateAsync([FromBody] CreateTransactionCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> CreateAsync([FromBody] CreateTransactionCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
-
             return result.IsSuccess
-                ? HttpResult<CreateTransactionResult>.Created(result.Value!)
-                : HttpResult<CreateTransactionResult>.BadRequest(result.Error!.Description);
+                ? HttpResult<object>.Created(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<HttpResult<UpdateTransactionResult>> UpdateAsync(int id, [FromBody] UpdateTransactionCommand command, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> UpdateAsync(int id, [FromBody] UpdateTransactionCommand command, CancellationToken cancellationToken)
         {
             var updatedCommand = new UpdateTransactionCommand(
                 id,
@@ -75,23 +71,21 @@ namespace Financial.API.Controllers
                 command.Description,
                 command.TransactionDate);
             var result = await _sender.Send(updatedCommand, cancellationToken);
-
             return result.IsSuccess
-                ? HttpResult<UpdateTransactionResult>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!)
                 : result.Error!.Description.Contains("NotFound")
-                    ? HttpResult<UpdateTransactionResult>.NotFound(result.Error!.Description)
-                    : HttpResult<UpdateTransactionResult>.BadRequest(result.Error!.Description);
+                    ? HttpResult<object>.NotFound(result.Error!.Description)
+                    : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<HttpResult<DeleteTransactionResult>> DeleteAsync(int id, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             var command = new DeleteTransactionCommand(id);
             var result = await _sender.Send(command, cancellationToken);
-
             return result.IsSuccess
-                ? HttpResult<DeleteTransactionResult>.Deleted()
-                : HttpResult<DeleteTransactionResult>.NotFound(result.Error!.Description);
+                ? HttpResult<object>.Deleted()
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
     }
 }
