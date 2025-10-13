@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem;
+using TaskManager.Application.Features.TaskItems.Commands.Create;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Create
 {

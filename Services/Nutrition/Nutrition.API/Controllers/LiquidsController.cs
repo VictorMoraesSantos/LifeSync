@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.Features.Liquid.Commands.Create;
 using Nutrition.Application.Features.Liquid.Commands.Delete;
 using Nutrition.Application.Features.Liquid.Commands.Update;
-using Nutrition.Application.Features.Liquid.Queries.Get;
+using Nutrition.Application.Features.Liquid.Queries.GetById;
 using Nutrition.Application.Features.Liquid.Queries.GetAll;
 using Nutrition.Application.Features.Liquid.Queries.GetByDiary;
 

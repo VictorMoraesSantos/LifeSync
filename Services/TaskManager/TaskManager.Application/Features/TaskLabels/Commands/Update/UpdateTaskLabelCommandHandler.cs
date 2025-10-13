@@ -3,7 +3,7 @@ using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;
 
-namespace TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel
+namespace TaskManager.Application.Features.TaskLabels.Commands.Update
 {
     public class UpdateTaskLabelCommandHandler : ICommandHandler<UpdateTaskLabelCommand, UpdateTaskLabelResult>
     {

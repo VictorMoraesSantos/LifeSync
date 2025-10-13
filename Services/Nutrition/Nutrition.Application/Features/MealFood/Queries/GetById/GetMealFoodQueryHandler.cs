@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
-namespace Nutrition.Application.Features.MealFood.Queries.Get
+namespace Nutrition.Application.Features.MealFood.Queries.GetById
 {
     public class GetMealFoodQueryHandler : IQueryHandler<GetMealFoodQuery, GetMealFoodResult>
     {

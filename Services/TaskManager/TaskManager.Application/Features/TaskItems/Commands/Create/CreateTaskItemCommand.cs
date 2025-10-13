@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.CQRS.Commands;
 using TaskManager.Domain.Enums;
 
-namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
+namespace TaskManager.Application.Features.TaskItems.Commands.Create
 {
     public record CreateTaskItemCommand(
         string Title,

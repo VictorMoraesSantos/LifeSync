@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.CQRS.Commands;
 using TaskManager.Domain.Enums;
 
-namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
+namespace TaskManager.Application.Features.TaskItems.Commands.Update
 {
     public record UpdateTaskItemCommand(
         int Id,

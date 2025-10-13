@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.Features.MealFood.Commands.Create;
 using Nutrition.Application.Features.MealFood.Commands.Delete;
 using Nutrition.Application.Features.MealFood.Commands.Update;
-using Nutrition.Application.Features.MealFood.Queries.Get;
+using Nutrition.Application.Features.MealFood.Queries.GetById;
 using Nutrition.Application.Features.MealFood.Queries.GetAll;
 using Nutrition.Application.Features.MealFood.Queries.GetByMeal;
 

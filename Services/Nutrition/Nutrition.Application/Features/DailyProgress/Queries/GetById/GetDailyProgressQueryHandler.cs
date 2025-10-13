@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
-namespace Nutrition.Application.Features.DailyProgress.Queries.Get
+namespace Nutrition.Application.Features.DailyProgress.Queries.GetById
 {
     public class GetDailyProgressQueryHandler : IQueryHandler<GetDailyProgressQuery, GetDailyProgressResult>
     {

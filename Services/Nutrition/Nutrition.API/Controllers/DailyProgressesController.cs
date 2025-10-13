@@ -7,7 +7,7 @@ using Nutrition.Application.Features.DailyProgress.Commands.Create;
 using Nutrition.Application.Features.DailyProgress.Commands.Delete;
 using Nutrition.Application.Features.DailyProgress.Commands.SetGoal;
 using Nutrition.Application.Features.DailyProgress.Commands.Update;
-using Nutrition.Application.Features.DailyProgress.Queries.Get;
+using Nutrition.Application.Features.DailyProgress.Queries.GetById;
 using Nutrition.Application.Features.DailyProgress.Queries.GetAll;
 using Nutrition.Application.Features.DailyProgress.Queries.GetByUser;
 

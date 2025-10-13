@@ -3,7 +3,7 @@ using BuildingBlocks.Results;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
-namespace TaskManager.Application.Features.TaskItems.Commands.UpdateTaskItem
+namespace TaskManager.Application.Features.TaskItems.Commands.Update
 {
     public class UpdateTaskItemCommandHandler : ICommandHandler<UpdateTaskItemCommand, UpdateTaskItemCommandResult>
     {

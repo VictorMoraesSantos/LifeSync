@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using TaskManager.Application.Interfaces;
 
-namespace TaskManager.Application.Features.TaskItems.Commands.DeleteTaskItem
+namespace TaskManager.Application.Features.TaskItems.Commands.Delete
 {
     public class DeleteTaskItemCommandHandler : ICommandHandler<DeleteTaskItemCommand, DeleteTaskItemResult>
     {

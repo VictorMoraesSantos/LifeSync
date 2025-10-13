@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
-using Nutrition.Application.Features.DailyProgress.Commands.Update;
 
-namespace Nutrition.Application.Features.DailyProgress.Commands.Create
+namespace Nutrition.Application.Features.DailyProgress.Commands.Update
 {
     public class UpdateDailyProgressCommandValidator : AbstractValidator<UpdateDailyProgressCommand>
     {

@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
-namespace Nutrition.Application.Features.Diary.Queries.Get
+namespace Nutrition.Application.Features.Diary.Queries.GetById
 {
     public class GetDiaryQueryHandler : IQueryHandler<GetDiaryQuery, GetDiaryResult>
     {

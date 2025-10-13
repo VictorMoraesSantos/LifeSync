@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gym.API.Controllers
 {
+    [Route("api/training-sessions")]
     public class TrainingSessionsController : ApiController
     {
         private readonly ISender _sender;

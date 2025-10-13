@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Nutrition.Application.Interfaces;
 
-namespace Nutrition.Application.Features.Liquid.Queries.Get
+namespace Nutrition.Application.Features.Liquid.Queries.GetById
 {
     public class GetLiquidQueryHandler : IQueryHandler<GetLiquidQuery, GetLiquidResult>
     {

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nutrition.Application.Features.Diary.Commands.Create;
 using Nutrition.Application.Features.Diary.Commands.Delete;
 using Nutrition.Application.Features.Diary.Commands.Update;
-using Nutrition.Application.Features.Diary.Queries.Get;
+using Nutrition.Application.Features.Diary.Queries.GetById;
 using Nutrition.Application.Features.Diary.Queries.GetAll;
 using Nutrition.Application.Features.Diary.Queries.GetByUser;
 

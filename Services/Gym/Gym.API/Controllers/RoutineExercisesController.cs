@@ -10,9 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gym.API.Controllers
 {
-    [ApiController]
     [Route("api/routine-exercises")]
-    public class RoutineExercisesController
+    public class RoutineExercisesController : ApiController
     {
         private readonly ISender _sender;
 

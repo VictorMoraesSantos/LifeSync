@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Nutrition.Application.Features.Meal.Commands.Update;
 
-namespace Nutrition.Application.Features.Meal.Commands.Create
+namespace Nutrition.Application.Features.Meal.Commands.Update
 {
     public class UpdateMealCommandValidator : AbstractValidator<UpdateMealCommand>
     {

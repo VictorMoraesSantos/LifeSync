@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using TaskManager.Application.Features.TaskLabels.Commands.UpdateTaskLabel;
+using TaskManager.Application.Features.TaskLabels.Commands.Update;
 
 namespace TaskManager.Application.Features.TaskLabels.Commands.Create
 {

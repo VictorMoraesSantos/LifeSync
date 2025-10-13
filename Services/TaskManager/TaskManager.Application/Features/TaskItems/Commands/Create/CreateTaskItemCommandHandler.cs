@@ -5,7 +5,7 @@ using FluentValidation.Results;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
-namespace TaskManager.Application.Features.TaskItems.Commands.CreateTaskItem
+namespace TaskManager.Application.Features.TaskItems.Commands.Create
 {
     public class CreateTaskItemCommandHandler : ICommandHandler<CreateTaskItemCommand, CreateTaskItemResult>
     {
