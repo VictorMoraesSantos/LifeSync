@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.CQRS.Commands;
 using Gym.Domain.Enums;
 
-namespace Gym.Application.Features.Exercise.Commands.CreateExercise
+namespace Gym.Application.Features.Exercise.Commands.Create
 {
     public record CreateExerciseCommand(
         string Name,

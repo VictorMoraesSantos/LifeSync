@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.CQRS.Commands;
 using Gym.Domain.ValueObjects;
 
-namespace Gym.Application.Features.RoutineExercise.Commands.UpdateRoutineExercise
+namespace Gym.Application.Features.RoutineExercise.Commands.Update
 {
     public record UpdateRoutineExerciseCommand(
         int Id,

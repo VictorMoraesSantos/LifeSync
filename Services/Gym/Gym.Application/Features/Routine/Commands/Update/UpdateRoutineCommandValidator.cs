@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Gym.Application.Features.Routine.Commands.UpdateRoutine;
 
 namespace Gym.Application.Features.Routine.Commands.Update
 {

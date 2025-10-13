@@ -27,14 +27,11 @@ namespace EmailSender.Application.EventHandlers
                 To: notification.Email,
                 Subject: "Welcome!",
                 Body: "Thanks for registering.");
-
             var emailMessage = new EmailMessage("no-reply@test.local", dto.To, dto.Subject, dto.Body);
-            await emailMessageRepository.Create(emailMessage);
-
-            await _emailSender.SendEmailAsync(dto);
-
             var emailSentEvent = new EmailSentEvent(notification.Email, DateTime.Now);
 
+            await emailMessageRepository.Create(emailMessage);
+            await _emailSender.SendEmailAsync(dto);
             await _publisher.Publish(emailSentEvent, cancellationToken);
         }
     }

@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 
-namespace Gym.Application.Features.RoutineExercise.Queries.GetAllExercises
+namespace Gym.Application.Features.RoutineExercise.Queries.GetAll
 {
     public class GetAllRoutineExercisesQueryHandler : IQueryHandler<GetAllRoutineExercisesQuery, GetAllRoutineExercisesResult>
     {

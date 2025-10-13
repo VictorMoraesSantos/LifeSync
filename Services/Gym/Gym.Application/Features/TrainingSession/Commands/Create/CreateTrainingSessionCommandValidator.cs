@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Gym.Application.Features.TrainingSession.Commands.CreateTrainingSession
+namespace Gym.Application.Features.TrainingSession.Commands.Create
 {
     public class CreateTrainingSessionCommandValidator : AbstractValidator<CreateTrainingSessionCommand>
     {

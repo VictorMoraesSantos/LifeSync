@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.CQRS.Commands;
 
-namespace Gym.Application.Features.Routine.Commands.UpdateRoutine
+namespace Gym.Application.Features.Routine.Commands.Update
 {
     public record UpdateRoutineCommand(
         int Id,

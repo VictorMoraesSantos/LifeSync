@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.CQRS.Commands;
 using Gym.Domain.ValueObjects;
 
-namespace Gym.Application.Features.CompletedExercise.Commands.CreateCompletedExercise
+namespace Gym.Application.Features.CompletedExercise.Commands.Create
 {
     public record CreateCompletedExerciseCommand(
         int TrainingSessionId,

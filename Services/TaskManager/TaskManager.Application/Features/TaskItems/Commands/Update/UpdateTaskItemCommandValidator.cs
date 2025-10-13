@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using TaskManager.Application.Features.TaskItems.Commands.Update;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Update
 {

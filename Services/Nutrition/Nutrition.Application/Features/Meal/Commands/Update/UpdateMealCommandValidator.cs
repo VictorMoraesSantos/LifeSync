@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Nutrition.Application.Features.Meal.Commands.Update;
 
 namespace Nutrition.Application.Features.Meal.Commands.Update
 {

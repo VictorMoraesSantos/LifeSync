@@ -3,7 +3,7 @@ using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 using Gym.Application.DTOs.Exercise;
 
-namespace Gym.Application.Features.Exercise.Commands.CreateExercise
+namespace Gym.Application.Features.Exercise.Commands.Create
 {
     public class CreateExerciseCommandHandler : ICommandHandler<CreateExerciseCommand, CreateExerciseResult>
     {

@@ -3,7 +3,7 @@ using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 using Gym.Application.DTOs.RoutineExercise;
 
-namespace Gym.Application.Features.RoutineExercise.Commands.UpdateRoutineExercise
+namespace Gym.Application.Features.RoutineExercise.Commands.Update
 {
     public class UpdateRoutineExerciseCommandHandler : ICommandHandler<UpdateRoutineExerciseCommand, UpdateRoutineExerciseResult>
     {

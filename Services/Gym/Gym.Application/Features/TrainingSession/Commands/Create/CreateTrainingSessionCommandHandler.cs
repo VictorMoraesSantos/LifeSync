@@ -3,7 +3,7 @@ using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 using Gym.Application.DTOs.TrainingSession;
 
-namespace Gym.Application.Features.TrainingSession.Commands.CreateTrainingSession
+namespace Gym.Application.Features.TrainingSession.Commands.Create
 {
     public class CreateTrainingSessionCommandHandler : ICommandHandler<CreateTrainingSessionCommand, CreateTrainingSessionResult>
     {

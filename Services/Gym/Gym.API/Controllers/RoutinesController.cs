@@ -1,11 +1,11 @@
 ﻿using BuildingBlocks.CQRS.Sender;
 using BuildingBlocks.Results;
 using Core.API.Controllers;
-using Gym.Application.Features.Routine.Commands.CreateRoutine;
-using Gym.Application.Features.Routine.Commands.DeleteRoutine;
-using Gym.Application.Features.Routine.Commands.UpdateRoutine;
-using Gym.Application.Features.Routine.Queries.GetAllRoutines;
-using Gym.Application.Features.Routine.Queries.GetRoutineById;
+using Gym.Application.Features.Routine.Commands.Create;
+using Gym.Application.Features.Routine.Commands.Delete;
+using Gym.Application.Features.Routine.Commands.Update;
+using Gym.Application.Features.Routine.Queries.GetAll;
+using Gym.Application.Features.Routine.Queries.GetById;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gym.API.Controllers

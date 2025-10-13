@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.CQRS.Commands;
 using Gym.Domain.Enums;
 
-namespace Gym.Application.Features.Exercise.Commands.UpdateExercise
+namespace Gym.Application.Features.Exercise.Commands.Update
 {
     public record UpdateExerciseCommand(
         int Id,

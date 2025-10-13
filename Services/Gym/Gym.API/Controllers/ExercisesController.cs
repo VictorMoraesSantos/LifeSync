@@ -1,9 +1,9 @@
 ﻿using BuildingBlocks.CQRS.Sender;
 using BuildingBlocks.Results;
 using Core.API.Controllers;
-using Gym.Application.Features.Exercise.Commands.CreateExercise;
-using Gym.Application.Features.Exercise.Commands.DeleteExerciseCommand;
-using Gym.Application.Features.Exercise.Commands.UpdateExercise;
+using Gym.Application.Features.Exercise.Commands.Create;
+using Gym.Application.Features.Exercise.Commands.Delete;
+using Gym.Application.Features.Exercise.Commands.Update;
 using Gym.Application.Features.Exercise.Queries.GetAll;
 using Gym.Application.Features.Exercise.Queries.GetById;
 using Microsoft.AspNetCore.Mvc;

@@ -3,7 +3,7 @@ using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 
-namespace Gym.Application.Features.TrainingSession.Queries.GetAllTrainingSessions
+namespace Gym.Application.Features.TrainingSession.Queries.GetAll
 {
     public class GetAllTrainingSessionsQueryHandler : IQueryHandler<GetAllTrainingSessionsQuery, GetAllTrainingSessionsResult>
     {

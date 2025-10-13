@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 
-namespace Gym.Application.Features.TrainingSession.Queries.GetTrainingSessionById
+namespace Gym.Application.Features.TrainingSession.Queries.GetById
 {
     public class GetTrainingSessionByIdQueryHandler : IQueryHandler<GetTrainingSessionByIdQuery, GetTrainingSessionByIdResult>
     {

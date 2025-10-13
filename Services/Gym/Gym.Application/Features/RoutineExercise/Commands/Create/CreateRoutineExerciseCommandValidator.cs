@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Gym.Application.Features.RoutineExercise.Commands.CreateRoutineExercise
+namespace Gym.Application.Features.RoutineExercise.Commands.Create
 {
     public class CreateRoutineExerciseCommandValidator : AbstractValidator<CreateRoutineExerciseCommand>
     {

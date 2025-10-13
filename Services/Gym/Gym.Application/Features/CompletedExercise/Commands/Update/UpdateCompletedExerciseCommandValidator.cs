@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Gym.Application.Features.CompletedExercise.Commands.UpdateCompletedExercise;
 
 namespace Gym.Application.Features.CompletedExercise.Commands.Update
 {

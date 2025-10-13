@@ -8,9 +8,9 @@ using Nutrition.Application.Features.Meal.Commands.Create;
 using Nutrition.Application.Features.Meal.Commands.Delete;
 using Nutrition.Application.Features.Meal.Commands.RemoveMealFood;
 using Nutrition.Application.Features.Meal.Commands.Update;
-using Nutrition.Application.Features.Meal.Queries.GetById;
 using Nutrition.Application.Features.Meal.Queries.GetAll;
 using Nutrition.Application.Features.Meal.Queries.GetByDiary;
+using Nutrition.Application.Features.Meal.Queries.GetById;
 
 namespace Nutrition.API.Controllers
 {

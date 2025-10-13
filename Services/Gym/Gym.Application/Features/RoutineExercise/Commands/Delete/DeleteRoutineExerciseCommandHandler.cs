@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 
-namespace Gym.Application.Features.RoutineExercise.Commands.DeleteRoutineExercise
+namespace Gym.Application.Features.RoutineExercise.Commands.Delete
 {
     public class DeleteRoutineExerciseCommandHandler : ICommandHandler<DeleteRoutineExerciseCommand, DeleteRoutineExerciseResult>
     {

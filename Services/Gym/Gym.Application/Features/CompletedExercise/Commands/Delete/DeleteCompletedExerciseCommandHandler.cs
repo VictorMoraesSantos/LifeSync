@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Gym.Application.Contracts;
 
-namespace Gym.Application.Features.CompletedExercise.Commands.DeleteCompletedExercise
+namespace Gym.Application.Features.CompletedExercise.Commands.Delete
 {
     public record DeleteCompletedExerciseCommandHandler : ICommandHandler<DeleteCompletedExerciseCommand, DeleteCompletedExerciseResult>
     {
