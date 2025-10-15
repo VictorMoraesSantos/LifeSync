@@ -21,27 +21,27 @@ namespace EmailSender.Infrastructure.Services
             _context = context;
         }
 
-        public Task<int> CreateEmail(EmailMessageDTO dto)
+        public Task<int> CreateEmail(EmailMessageDTO dto, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteEmail(int id)
+        public Task<bool> DeleteEmail(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<EmailMessageDTO>> GetAllEmailMessages()
+        public Task<IEnumerable<EmailMessageDTO>> GetAllEmailMessages(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<EmailMessageDTO> GetEmailById(int id)
+        public Task<EmailMessageDTO> GetEmailById(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task SendEmailAsync(EmailMessageDTO dto)
+        public async Task SendEmailAsync(EmailMessageDTO dto, CancellationToken cancellationToken)
         {
             var mail = new EmailMessage("no-reply@yourdomain.com", dto.To, dto.Subject, dto.Body);
             var message = new MimeMessage();
@@ -53,15 +53,15 @@ namespace EmailSender.Infrastructure.Services
             message.Body = new TextPart("plain") { Text = dto.Body };
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(_cfg.Host, _cfg.Port, SecureSocketOptions.None);
+            await client.ConnectAsync(_cfg.Host, _cfg.Port, SecureSocketOptions.None, cancellationToken);
             if (!string.IsNullOrWhiteSpace(_cfg.User))
-                await client.AuthenticateAsync(_cfg.User, _cfg.Password);
+                await client.AuthenticateAsync(_cfg.User, _cfg.Password, cancellationToken);
 
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            await client.SendAsync(message, cancellationToken);
+            await client.DisconnectAsync(true, cancellationToken);
         }
 
-        public Task<bool> UpdateEmail(EmailMessageDTO dto)
+        public Task<bool> UpdateEmail(EmailMessageDTO dt, CancellationToken cancellationTokeno)
         {
             throw new NotImplementedException();
         }

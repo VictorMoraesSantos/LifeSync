@@ -1,43 +1,28 @@
 ﻿using EmailSender.Application.Contracts;
-using EmailSender.Application.DTO;
+using Notification.Application.Contracts;
 
 namespace EmailSender.Application.Features
 {
-    public class ProcessEmailEventUseCase
+    public class ProcessEmailEventUseCase : IProcessEmailEventUseCase
     {
         private readonly IEmailService _emailSender;
+        private readonly IEmailEventStrategyResolver _strategyResolver;
 
-        public ProcessEmailEventUseCase(IEmailService emailSender)
+        public ProcessEmailEventUseCase(IEmailService emailSender, IEmailEventStrategyResolver strategyResolver)
         {
             _emailSender = emailSender;
+            _strategyResolver = strategyResolver;
         }
 
-        public async Task HandleAsync(string eventType, string eventData)
+        public async Task HandleAsync(string eventType, string eventData, CancellationToken cancellationToken)
         {
-            var email = eventType switch
-            {
-                "UserRegistered" => new EmailMessageDTO(
-                    To: ExtractEmail(eventData),
-                    Subject: "Welcome!",
-                    Body: "Thanks for registering."),
-                "OrderPlaced" => new EmailMessageDTO(
-                    To: ExtractEmail(eventData),
-                    Subject: "Order Confirmation",
-                    Body: "Your order has been placed."),
-                _ => null
-            };
+            var strategy = _strategyResolver.Resolve(eventType);
+            if (strategy == null)
+                return;
 
-            if (email != null)
-            {
-                await _emailSender.SendEmailAsync(email);
-            }
-        }
+            var email = strategy?.CreateEmail(eventData);
 
-        private string ExtractEmail(string eventData)
-        {
-            // Aqui você pode desserializar o eventData e extrair o email
-            // Exemplo simplificado:
-            return eventData;
+            await _emailSender.SendEmailAsync(email, cancellationToken);
         }
     }
 }

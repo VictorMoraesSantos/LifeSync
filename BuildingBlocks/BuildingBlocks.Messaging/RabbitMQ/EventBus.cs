@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Messaging.Options;
-using Newtonsoft.Json;
+using System.Text.Json;
 using RabbitMQ.Client;
 using System.Text;
 
@@ -26,11 +26,13 @@ public class EventBus : IEventBus
             autoDelete: opts.AutoDelete,
             arguments: opts.Arguments);
 
-        var json = JsonConvert.SerializeObject(@event);
+        var json = JsonSerializer.Serialize(@event);
         var body = Encoding.UTF8.GetBytes(json);
 
         var props = channel.CreateBasicProperties();
         props.Persistent = true;
+        props.ContentType = "application/json";
+        props.MessageId = @event.Id.ToString();     
 
         channel.BasicPublish(
             exchange: opts.ExchangeName,
