@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using Core.Domain.Exceptions;
+using System.Text.RegularExpressions;
+using Users.Domain.Errors;
 
 namespace Users.Domain.ValueObjects
 {
@@ -11,7 +13,7 @@ namespace Users.Domain.ValueObjects
         public Contact(string? email = null)
         {
             if (email != null && !EmailRegex.IsMatch(email))
-                throw new ArgumentException("Alternate email format is invalid.", nameof(email));
+                throw new DomainException(ContactErrors.InvalidFormat);
 
             Email = email;
         }

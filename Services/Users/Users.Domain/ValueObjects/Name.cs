@@ -1,4 +1,7 @@
-﻿namespace Users.Domain.ValueObjects
+﻿using Core.Domain.Exceptions;
+using Users.Domain.Errors;
+
+namespace Users.Domain.ValueObjects
 {
     public class Name
     {
@@ -17,7 +20,7 @@
         private void Validate(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException($"{nameof(value)} name cannot be empty.", nameof(value));
+                throw new DomainException(NameErrors.NullName);
         }
     }
 }
