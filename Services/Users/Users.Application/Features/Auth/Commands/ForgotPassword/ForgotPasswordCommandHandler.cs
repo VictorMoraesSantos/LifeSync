@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using Users.Application.DTOs.Email;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Auth.Commands.ForgotPassword
@@ -16,8 +17,20 @@ namespace Users.Application.Features.Auth.Commands.ForgotPassword
 
         public async Task Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
         {
-            string token = await _authService.SendPasswordResetAsync(command.Email);
-            await _emailService.SendForgotPasswordEmailAsync(command.Email, token);
+            var tokenResult = await _authService.SendPasswordResetAsync(command.Email);
+            if (!tokenResult.IsSuccess) return;
+
+            var dto = new EmailMessageDTO(
+                To: command.Email,
+                Subject: "Redefinição de Senha",
+                Body: null,
+                IsHtml: true,
+                Attachments: null,
+                Token: tokenResult.Value,
+                CallbackUrl: null
+            );
+
+            await _emailService.SendForgotPasswordEmailAsync(dto);
         }
     }
 }

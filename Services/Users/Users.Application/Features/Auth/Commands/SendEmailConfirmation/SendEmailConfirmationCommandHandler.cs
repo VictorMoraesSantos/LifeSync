@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Request;
+using Users.Application.DTOs.Email;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Auth.Commands.SendEmailConfirmation
@@ -16,8 +17,20 @@ namespace Users.Application.Features.Auth.Commands.SendEmailConfirmation
 
         public async Task Handle(SendEmailConfirmationCommand command, CancellationToken cancellationToken)
         {
-            string token = await _authService.SendEmailConfirmationAsync(command.Email);
-            await _emailService.SendConfirmationEmailAsync(command.Email, token);
+            var tokenResult = await _authService.SendEmailConfirmationAsync(command.Email);
+            if (!tokenResult.IsSuccess) return;
+
+            var dto = new EmailMessageDTO(
+                To: command.Email,
+                Subject: "Confirmação de E-mail",
+                Body: null,
+                IsHtml: true,
+                Attachments: null,
+                Token: tokenResult.Value,
+                CallbackUrl: null
+            );
+
+            await _emailService.SendConfirmationEmailAsync(dto);
         }
     }
 }

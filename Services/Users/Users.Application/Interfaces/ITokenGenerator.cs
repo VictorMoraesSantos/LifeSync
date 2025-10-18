@@ -1,11 +1,12 @@
-﻿using System.Security.Claims;
+﻿using BuildingBlocks.Results;
+using System.Security.Claims;
 
 namespace Users.Application.Interfaces
 {
     public interface ITokenGenerator
     {
-        string GenerateTokenAsync(string userId, string email, IList<string> roles, CancellationToken cancellationToken);
-        string GenerateRefreshToken();
-        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        Result<string> GenerateTokenAsync(string userId, string email, IList<string> roles, CancellationToken cancellationToken);
+        Result<string> GenerateRefreshToken();
+        Result<ClaimsPrincipal> GetPrincipalFromExpiredToken(string token);
     }
 }

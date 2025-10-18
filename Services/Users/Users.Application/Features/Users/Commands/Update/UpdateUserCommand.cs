@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
+using BuildingBlocks.CQRS.Request;
 
 namespace Users.Application.Features.Users.Commands.UpdateUser
 {
@@ -8,6 +9,6 @@ namespace Users.Application.Features.Users.Commands.UpdateUser
         string LastName,
         string Email,
         DateOnly? BirthDate)
-        : IRequest<UpdateUserCommandResponse>;
-    public record UpdateUserCommandResponse(bool Success);
+        : ICommand<UpdateUserCommandResult>;
+    public record UpdateUserCommandResult(bool Success);
 }

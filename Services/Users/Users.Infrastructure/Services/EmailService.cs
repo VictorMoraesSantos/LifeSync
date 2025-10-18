@@ -1,7 +1,8 @@
-﻿using BuildingBlocks.Exceptions;
+﻿using BuildingBlocks.Results;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
+using Users.Application.DTOs.Email;
 using Users.Application.Interfaces;
 using Users.Infrastructure.Smtp;
 
@@ -25,85 +26,82 @@ namespace Users.Infrastructure.Services
             };
         }
 
-        public async Task SendConfirmationEmailAsync(string email, string token, string subject = null, string body = null)
+        public async Task<Result> SendConfirmationEmailAsync(EmailMessageDTO message)
         {
-            subject ??= "Confirmação de E-mail";
-            string confirmationLink = $"https://seusite.com/confirm-email?email={WebUtility.UrlEncode(email)}&token={WebUtility.UrlEncode(token)}";
+            try
+            {
+                var subject = message.Subject ?? "Confirmação de E-mail";
 
-            body ??= $@"
-                <p>Olá,</p>
-                <p>Por favor, confirme seu e-mail clicando no link abaixo:</p>
-                <p><a href='{confirmationLink}'>Confirmar E-mail</a></p>
-                <p>Se você não solicitou este e-mail, ignore-o.</p>";
+                var link = message.CallbackUrl ?? $"https://seusite.com/confirm-email?email={WebUtility.UrlEncode(message.To)}&token={WebUtility.UrlEncode(message.Token ?? string.Empty)}";
 
-            await SendEmailHtmlAsync(email, subject, body);
+                var body = message.Body ?? $@"
+                    <p>Olá,</p>
+                    <p>Por favor, confirme seu e-mail clicando no link abaixo:</p>
+                    <p><a href='{link}'>Confirmar E-mail</a></p>
+                    <p>Se você não solicitou este e-mail, ignore-o.</p>";
+
+                var dto = message with { Subject = subject, Body = body, IsHtml = true };
+                return await SendEmailAsync(dto);
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure(Error.Problem($"Failed to send confirmation email: {ex.Message}"));
+            }
         }
 
-        public async Task SendEmailAsync(string to, string subject, string body)
+        public async Task<Result> SendForgotPasswordEmailAsync(EmailMessageDTO message)
         {
-            var mailMessage = new MailMessage(_fromAddress, to, subject, body)
+            try
             {
-                IsBodyHtml = false
-            };
-
-            await _smtpClient.SendMailAsync(mailMessage);
+                var subject = message.Subject ?? "Redefinição de Senha";
+                var link = message.CallbackUrl ?? $"https://seusite.com/reset-password?email={WebUtility.UrlEncode(message.To)}&token={WebUtility.UrlEncode(message.Token ?? string.Empty)}";
+                var body = message.Body ?? $@"
+                    <p>Olá,</p>
+                    <p>Você solicitou a redefinição de sua senha. Clique no link abaixo para criar uma nova senha:</p>
+                    <p><a href='{link}'>Redefinir Senha</a></p>
+                    <p>token: {WebUtility.HtmlEncode(message.Token ?? string.Empty)}</p>
+                    <p>Se você não solicitou essa alteração, ignore este e-mail.</p>";
+                var dto = message with { Subject = subject, Body = body, IsHtml = true };
+                return await SendEmailAsync(dto);
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure(Error.Problem($"Failed to send forgot-password email: {ex.Message}"));
+            }
         }
 
-        public async Task SendEmailHtmlAsync(string to, string subject, string htmlBody)
+        public async Task<Result> SendEmailAsync(EmailMessageDTO message)
         {
-            var mailMessage = new MailMessage(_fromAddress, to, subject, htmlBody)
+            try
             {
-                IsBodyHtml = true
-            };
-
-            await _smtpClient.SendMailAsync(mailMessage);
-        }
-
-        public async Task SendEmailWithAttachmentsAsync(string to, string subject, string body, bool isHtml = false, IEnumerable<(string FileName, byte[] Content)> attachments = null)
-        {
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(_fromAddress),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = isHtml
-            };
-            mailMessage.To.Add(to);
-
-            if (attachments != null)
-            {
-                foreach (var (FileName, Content) in attachments)
+                using var mailMessage = new MailMessage(_fromAddress, message.To, message.Subject ?? string.Empty, message.Body ?? string.Empty)
                 {
-                    var stream = new MemoryStream(Content);
-                    var attachment = new Attachment(stream, FileName);
-                    mailMessage.Attachments.Add(attachment);
+                    IsBodyHtml = message.IsHtml
+                };
+
+                if (message.Attachments != null)
+                {
+                    foreach (var att in message.Attachments)
+                    {
+                        var stream = new MemoryStream(att.Content);
+                        var attachment = new Attachment(stream, att.FileName);
+                        mailMessage.Attachments.Add(attachment);
+                    }
                 }
+
+                await _smtpClient.SendMailAsync(mailMessage);
+                return Result.Success();
             }
-
-            await _smtpClient.SendMailAsync(mailMessage);
-
-            foreach (var attachment in mailMessage.Attachments)
+            catch (Exception ex)
             {
-                attachment.ContentStream.Dispose();
+                return Result.Failure(Error.Problem($"Failed to send email: {ex.Message}"));
             }
         }
 
-        public async Task SendForgotPasswordEmailAsync(string email, string resetToken)
+        public async Task<Result> SendEmailWithAttachmentsAsync(EmailMessageDTO message)
         {
-            if (resetToken == null)
-                throw new BadRequestException("Invalid credentials");
-
-            string subject = "Redefinição de Senha";
-            string resetLink = $"https://seusite.com/reset-password?email={WebUtility.UrlEncode(email)}&token={WebUtility.UrlEncode(resetToken)}";
-
-            string body = $@"
-                <p>Olá,</p>
-                <p>Você solicitou a redefinição de sua senha. Clique no link abaixo para criar uma nova senha:</p>
-                <p><a href='{resetLink}'>Redefinir Senha</a></p>
-                <p>token: {resetToken}</p>
-                <p>Se você não solicitou essa alteração, ignore este e-mail.</p>";
-
-            await SendEmailHtmlAsync(email, subject, body);
+            // Alias to SendEmailAsync since attachments are already included in the DTO
+            return await SendEmailAsync(message);
         }
     }
 }

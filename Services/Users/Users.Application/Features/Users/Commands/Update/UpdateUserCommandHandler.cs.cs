@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.Results;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Users.Commands.UpdateUser
 {
-    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UpdateUserCommandResponse>
+    public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, UpdateUserCommandResult>
     {
         private readonly IUserService _userService;
 
@@ -13,18 +15,20 @@ namespace Users.Application.Features.Users.Commands.UpdateUser
             _userService = userService;
         }
 
-        public async Task<UpdateUserCommandResponse> Handle(UpdateUserCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateUserCommandResult>> Handle(UpdateUserCommand command, CancellationToken cancellationToken)
         {
-            UpdateUserDTO dto = new(
+            var dto = new UpdateUserDTO(
                 command.Id,
                 command.FirstName,
                 command.LastName,
                 command.Email,
                 command.BirthDate);
 
-            bool result = await _userService.UpdateUserProfileAsync(dto);
-            UpdateUserCommandResponse response = new(result);
-            return response;
+            var result = await _userService.UpdateUserProfileAsync(dto);
+            if(!result.IsSuccess)
+                return Result.Failure<UpdateUserCommandResult>(result.Error!);
+
+            return Result.Success(new UpdateUserCommandResult(result.Value));
         }
     }
 }

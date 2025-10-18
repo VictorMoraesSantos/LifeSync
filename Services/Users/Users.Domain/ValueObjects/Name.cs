@@ -5,8 +5,8 @@ namespace Users.Domain.ValueObjects
 {
     public class Name
     {
-        public string FirstName { get; private set; }
-        public string LastName { get; private set; }
+        public string FirstName { get; private set; } = string.Empty;
+        public string LastName { get; private set; } = string.Empty;
         public string FullName => $"{FirstName} {LastName}";
 
         public Name(string firstName, string lastName)

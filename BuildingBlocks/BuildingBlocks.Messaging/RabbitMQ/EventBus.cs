@@ -1,8 +1,8 @@
 ﻿using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Messaging.Options;
-using System.Text.Json;
 using RabbitMQ.Client;
 using System.Text;
+using System.Text.Json;
 
 public class EventBus : IEventBus
 {
@@ -32,7 +32,7 @@ public class EventBus : IEventBus
         var props = channel.CreateBasicProperties();
         props.Persistent = true;
         props.ContentType = "application/json";
-        props.MessageId = @event.Id.ToString();     
+        props.MessageId = @event.Id.ToString();
 
         channel.BasicPublish(
             exchange: opts.ExchangeName,

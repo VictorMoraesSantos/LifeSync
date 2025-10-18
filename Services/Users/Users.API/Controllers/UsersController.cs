@@ -7,11 +7,11 @@ using Users.Application.Features.Users.Queries.GetUser;
 
 namespace Users.API.Controllers
 {
-    public class UserController : ApiController
+    public class UsersController : ApiController
     {
         private readonly ISender _sender;
 
-        public UserController(ISender sender)
+        public UsersController(ISender sender)
         {
             _sender = sender;
         }
@@ -42,7 +42,7 @@ namespace Users.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserCommand request)
         {
-            UpdateUserCommandResponse result = await _sender.Send(request);
+            UpdateUserCommandResult result = await _sender.Send(request);
             return Ok(result);
         }
     }

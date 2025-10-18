@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using BuildingBlocks.Results;
+using System.Security.Claims;
 using Users.Application.DTOs.User;
 
 namespace Users.Application.Interfaces
@@ -6,17 +7,17 @@ namespace Users.Application.Interfaces
     public interface IUserService
     {
         // Operações do usuário autenticado
-        Task<UserDTO> GetCurrentUserDetailsAsync(ClaimsPrincipal user);
-        Task<bool> UpdateCurrentUserProfileAsync(ClaimsPrincipal user, string firstName, string lastName, string email);
-        Task<bool> ChangeCurrentUserPasswordAsync(ClaimsPrincipal user, string currentPassword, string newPassword);
-        Task<bool> DeleteCurrentUserAsync(ClaimsPrincipal user);
+        Task<Result<UserDTO>> GetCurrentUserDetailsAsync(ClaimsPrincipal user);
+        Task<Result<bool>> UpdateCurrentUserProfileAsync(ClaimsPrincipal user, string firstName, string lastName, string email);
+        Task<Result<bool>> ChangeCurrentUserPasswordAsync(ClaimsPrincipal user, string currentPassword, string newPassword);
+        Task<Result<bool>> DeleteCurrentUserAsync(ClaimsPrincipal user);
 
         // Operações administrativas
-        Task<UserDTO> GetUserDetailsAsync(string userId);
-        Task<IList<UserDTO>> GetAllUsersAsync();
-        Task<IList<UserDTO>> GetAllUsersDetailsAsync();
-        Task<bool> IsUserEmailUniqueAsync(string email);
-        Task<bool> UpdateUserProfileAsync(UpdateUserDTO dto);
-        Task<bool> DeleteUserAsync(string userId);
+        Task<Result<UserDTO>> GetUserDetailsAsync(string userId);
+        Task<Result<IList<UserDTO>>> GetAllUsersAsync();
+        Task<Result<IList<UserDTO>>> GetAllUsersDetailsAsync();
+        Task<Result<bool>> IsUserEmailUniqueAsync(string email);
+        Task<Result<bool>> UpdateUserProfileAsync(UpdateUserDTO dto);
+        Task<Result<bool>> DeleteUserAsync(string userId);
     }
 }

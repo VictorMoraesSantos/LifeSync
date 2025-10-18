@@ -1,6 +1,7 @@
-﻿using BuildingBlocks.Exceptions;
+﻿using BuildingBlocks.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
@@ -14,138 +15,245 @@ namespace Users.Infrastructure.Services
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             UserManager<User> userManager,
-            SignInManager<User> SignInManager)
+            SignInManager<User> SignInManager,
+            ILogger<AuthService> logger)
         {
             _userManager = userManager;
             _signInManager = SignInManager;
+            _logger = logger;
         }
 
-        public async Task<UserDTO> LoginAsync(string email, string password)
+        public async Task<Result<UserDTO>> LoginAsync(string email, string password)
         {
-            User user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                throw new BadRequestException("Invalid credentials");
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                    return Result<UserDTO>.Failure(Error.Problem("Invalid credentials"));
 
-            SignInResult result = await _signInManager.PasswordSignInAsync(user, password, false, false);
-            if (!result.Succeeded)
-                throw new BadRequestException("Invalid credentials");
+                var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
+                if (!result.Succeeded)
+                    return Result<UserDTO>.Failure(Error.Problem("Invalid credentials"));
 
-            IList<string> roles = await _userManager.GetRolesAsync(user);
-            UserDTO userDTO = UserMapper.ToDto(user);
-            userDTO = userDTO with { Roles = roles.ToList() };
+                var roles = await _userManager.GetRolesAsync(user);
+                var dto = UserMapper.ToDto(user) with { Roles = roles.ToList() };
 
-            return userDTO;
+                return Result<UserDTO>.Success(dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while logging in user {Email}", email);
+                return Result<UserDTO>.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task<UserDTO> SignUpAsync(string firstName, string lastName, string email, string password)
+        public async Task<Result<UserDTO>> SignUpAsync(string firstName, string lastName, string email, string password)
         {
-            Name name = new Name(firstName, lastName);
-            Contact contact = new Contact(email);
+            try
+            {
+                var name = new Name(firstName, lastName);
+                var contact = new Contact(email);
+                var user = new User(name, contact);
+                var result = await _userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
+                    return Result<UserDTO>.Failure(Error.Problem(string.Join("; ", result.Errors.Select(e => e.Description))));
 
-            User user = new User(name, contact);
+                var createdUser = await _userManager.FindByEmailAsync(email);
+                var roles = await _userManager.GetRolesAsync(createdUser);
+                var dto = UserMapper.ToDto(createdUser) with { Roles = roles.ToList() };
 
-            IdentityResult result = await _userManager.CreateAsync(user, password);
-            if (!result.Succeeded)
-                throw new BadRequestException("Invalid credentials", result.Errors.Select(e => e.Description));
-
-            User createdUser = await _userManager.FindByEmailAsync(email);
-            IList<string> roles = await _userManager.GetRolesAsync(createdUser);
-
-            UserDTO userDTO = UserMapper.ToDto(createdUser);
-            userDTO = userDTO with { Roles = roles.ToList() };
-
-            return userDTO;
+                _logger.LogInformation("User created successfully: {Email}", email);
+                return Result<UserDTO>.Success(dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while signing up user {Email}", email);
+                return Result<UserDTO>.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task LogoutAsync(ClaimsPrincipal user)
+        public async Task<Result> LogoutAsync(ClaimsPrincipal user)
         {
-            await _signInManager.SignOutAsync();
+            try
+            {
+                await _signInManager.SignOutAsync();
 
-            User currentUser = await _userManager.GetUserAsync(user);
-            currentUser.RefreshToken = null;
-            currentUser.RefreshTokenExpiryTime = DateTime.MinValue;
+                var currentUser = await _userManager.GetUserAsync(user);
+                if (currentUser == null)
+                    return Result.Failure(Error.Failure("Invalid request"));
 
-            IdentityResult result = await _userManager.UpdateAsync(currentUser);
+                currentUser.RefreshToken = null;
+                currentUser.RefreshTokenExpiryTime = DateTime.MinValue;
+                await _userManager.UpdateAsync(currentUser);
+
+                _logger.LogInformation("User logged out successfully");
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while logging out");
+                return Result.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task<bool> ConfirmEmailAsync(string userId, string token)
+        public async Task<Result<bool>> ConfirmEmailAsync(string userId, string token)
         {
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return false;
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                    return Result<bool>.Failure(Error.NotFound("User not found"));
 
-            IdentityResult result = await _userManager.ConfirmEmailAsync(user, token);
-            return result.Succeeded;
+                var result = await _userManager.ConfirmEmailAsync(user, token);
+                if (!result.Succeeded)
+                    return Result<bool>.Failure(Error.Problem(string.Join("; ", result.Errors.Select(e => e.Description))));
+
+                _logger.LogInformation("Email confirmed for user {UserId}", userId);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while confirming email for user {UserId}", userId);
+                return Result<bool>.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task<bool> UpdateRefreshTokenAsync(string userId, string refreshToken)
+        public async Task<Result<bool>> UpdateRefreshTokenAsync(string userId, string refreshToken)
         {
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-                return false;
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                    return Result<bool>.Failure(Error.Problem("Invalid or expired refresh token"));
 
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
-            IdentityResult result = await _userManager.UpdateAsync(user);
-            return result.Succeeded;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                    return Result<bool>.Failure(Error.Problem(string.Join("; ", result.Errors.Select(e => e.Description))));
+
+                _logger.LogInformation("Refresh token updated for user {UserId}", userId);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while updating refresh token for user {UserId}", userId);
+                return Result<bool>.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task<bool> ResetPasswordAsync(string userId, string token, string newPassword)
+        public async Task<Result<bool>> ResetPasswordAsync(string userId, string token, string newPassword)
         {
-            User user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return false;
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                    return Result<bool>.Failure(Error.NotFound("User not found"));
 
-            IdentityResult result = await _userManager.ResetPasswordAsync(user, token, newPassword);
-            if (!result.Succeeded)
-                throw new BadRequestException("Invalid token", result.Errors.Select(e => e.Description));
+                var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+                if (!result.Succeeded)
+                    return Result<bool>.Failure(Error.Problem(string.Join("; ", result.Errors.Select(e => e.Description))));
 
-            return result.Succeeded;
+                _logger.LogInformation("Password reset for user {UserId}", userId);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while resetting password for user {UserId}", userId);
+                return Result<bool>.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task<bool> RevokeRefreshTokenAsync(string refreshToken)
+        public async Task<Result<bool>> RevokeRefreshTokenAsync(string refreshToken)
         {
-            User user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
-            if (user == null) return false;
+            try
+            {
+                var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
+                if (user == null)
+                    return Result<bool>.Failure(Error.NotFound("User not found"));
 
-            user.RefreshToken = null;
-            user.RefreshTokenExpiryTime = DateTime.MinValue;
+                user.RefreshToken = null;
+                user.RefreshTokenExpiryTime = DateTime.MinValue;
 
-            IdentityResult result = await _userManager.UpdateAsync(user);
-            return result.Succeeded;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                    return Result<bool>.Failure(Error.Problem(string.Join("; ", result.Errors.Select(e => e.Description))));
+
+                _logger.LogInformation("Refresh token revoked for user {UserId}", user.Id);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while revoking refresh token");
+                return Result<bool>.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task<string> SendEmailConfirmationAsync(string email)
+        public async Task<Result<string>> SendEmailConfirmationAsync(string email)
         {
-            User user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                throw new BadRequestException("Invalid request");
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                    return Result<string>.Failure(Error.NotFound("User not found"));
 
-            string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                _logger.LogInformation("Email confirmation token generated for {Email}", email);
 
-            return token;
+                return Result<string>.Success(token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while generating email confirmation token for {Email}", email);
+                return Result<string>.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task<string> SendPasswordResetAsync(string email)
+        public async Task<Result<string>> SendPasswordResetAsync(string email)
         {
-            User user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                throw new BadRequestException("Invalid request");
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                    return Result<string>.Failure(Error.NotFound("User not found"));
 
-            string token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            return token;
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                _logger.LogInformation("Password reset token generated for {Email}", email);
+
+                return Result<string>.Success(token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while generating password reset token for {Email}", email);
+                return Result<string>.Failure(Error.Failure(ex.Message));
+            }
         }
 
-        public async Task<bool> ChangePasswordAsync(ClaimsPrincipal user, string currentPassword, string newPassword)
+        public async Task<Result<bool>> ChangePasswordAsync(ClaimsPrincipal user, string currentPassword, string newPassword)
         {
-            User currentUser = await _userManager.GetUserAsync(user);
-            if (currentUser == null || !user.Identity.IsAuthenticated)
-                throw new BadRequestException("InvalidRequest");
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(user);
+                if (currentUser == null || !(user.Identity?.IsAuthenticated ?? false))
+                    return Result<bool>.Failure(Error.Problem("Invalid request"));
 
-            IdentityResult result = await _userManager.ChangePasswordAsync(currentUser, currentPassword, newPassword);
-            return result.Succeeded;
+                var result = await _userManager.ChangePasswordAsync(currentUser, currentPassword, newPassword);
+                if (!result.Succeeded)
+                    return Result<bool>.Failure(Error.Problem(string.Join("; ", result.Errors.Select(e => e.Description))));
+
+                _logger.LogInformation("Password changed for user {UserId}", currentUser.Id);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while changing password");
+                return Result<bool>.Failure(Error.Failure(ex.Message));
+            }
         }
     }
 }
