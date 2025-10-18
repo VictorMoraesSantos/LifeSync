@@ -1,8 +1,8 @@
 ﻿using BuildingBlocks.CQRS.Sender;
+using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Users.Application.DTOs.Auth;
 using Users.Application.Features.Auth.Commands.ChangePassword;
 using Users.Application.Features.Auth.Commands.ForgotPassword;
 using Users.Application.Features.Auth.Commands.Login;
@@ -23,55 +23,72 @@ namespace Users.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResult>> Login([FromBody] LoginCommand command)
+        public async Task<HttpResult<object>> Login([FromBody] LoginCommand command, CancellationToken cancellationToken)
         {
-            var result = await _sender.Send(command);
-            return Ok(result);
+            var result = await _sender.Send(command, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResult>> Register([FromBody] SignUpCommand command)
+        public async Task<HttpResult<object>> Register([FromBody] SignUpCommand command, CancellationToken cancellationToken)
         {
-            var result = await _sender.Send(command);
-            return Ok(result);
+            var result = await _sender.Send(command, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
-        [HttpPost("Logout")]
-        public async Task<ActionResult> Logout()
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<HttpResult<object>> Logout(CancellationToken cancellationToken)
         {
-            var command = new LogoutCommand(User);
-            await _sender.Send(command);
-            return NoContent();
+            var result = await _sender.Send(new LogoutCommand(User), cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Updated()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost("send-email-confirmation")]
-        public async Task<ActionResult> SendEmailConfirmation([FromBody] SendEmailConfirmationCommand command)
+        public async Task<HttpResult<object>> SendEmailConfirmation([FromBody] SendEmailConfirmationCommand command, CancellationToken cancellationToken)
         {
-            await _sender.Send(command);
-            return NoContent();
+            var result = await _sender.Send(command, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<object>.Updated()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost("forgot-password")]
-        public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
+        public async Task<HttpResult<object>> ForgotPassword([FromBody] ForgotPasswordCommand command, CancellationToken cancellationToken)
         {
-            await _sender.Send(command);
-            return NoContent();
+            var result = await _sender.Send(command, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<object>.Updated()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPost("reset-password")]
-        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+        public async Task<HttpResult<object>> ResetPassword([FromBody] ResetPasswordCommand command, CancellationToken cancellationToken)
         {
-            await _sender.Send(command);
-            return NoContent();
+            var result = await _sender.Send(command, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<object>.Updated()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [Authorize]
         [HttpPost("change-password")]
-        public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordCommand request)
+        public async Task<HttpResult<object>> ChangePassword([FromBody] ChangePasswordCommand request, CancellationToken cancellationToken)
         {
             var command = new ChangePasswordCommand(User, request.CurrentPassword, request.NewPassword);
-            await _sender.Send(command);
-            return NoContent();
+            var result = await _sender.Send(command, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<object>.Updated()
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
     }
 }

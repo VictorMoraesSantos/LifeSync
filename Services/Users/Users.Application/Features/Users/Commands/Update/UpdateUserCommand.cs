@@ -3,7 +3,7 @@
 namespace Users.Application.Features.Users.Commands.UpdateUser
 {
     public record UpdateUserCommand(
-        string Id,
+        int Id,
         string FirstName,
         string LastName,
         string Email,

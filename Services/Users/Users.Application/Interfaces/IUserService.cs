@@ -14,8 +14,8 @@ namespace Users.Application.Interfaces
 
         // Operações administrativas
         Task<Result<UserDTO>> GetUserDetailsAsync(string userId);
-        Task<Result<IList<UserDTO>>> GetAllUsersAsync();
-        Task<Result<IList<UserDTO>>> GetAllUsersDetailsAsync();
+        Task<Result<IEnumerable<UserDTO>>> GetAllUsersAsync();
+        Task<Result<IEnumerable<UserDTO>>> GetAllUsersDetailsAsync();
         Task<Result<bool>> IsUserEmailUniqueAsync(string email);
         Task<Result<bool>> UpdateUserProfileAsync(UpdateUserDTO dto);
         Task<Result<bool>> DeleteUserAsync(string userId);

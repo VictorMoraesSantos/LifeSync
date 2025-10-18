@@ -89,43 +89,43 @@ namespace Users.Infrastructure.Services
             }
         }
 
-        public async Task<Result<IList<string>>> GetUserRolesAsync(string userId)
+        public async Task<Result<IEnumerable<string>>> GetUserRolesAsync(string userId)
         {
             try
             {
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
-                    return Result.Failure<IList<string>>(Error.NotFound("User not found"));
+                    return Result.Failure<IEnumerable<string>>(Error.NotFound("User not found"));
 
                 var roles = await _userManager.GetRolesAsync(user);
-                return Result.Success(roles);
+                return Result.Success(roles.AsEnumerable());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while getting roles for user {UserId}", userId);
-                return Result.Failure<IList<string>>(Error.Failure(ex.Message));
+                return Result.Failure<IEnumerable<string>>(Error.Failure(ex.Message));
             }
         }
 
-        public async Task<Result<IList<string>>> GetCurrentUserRolesAsync(ClaimsPrincipal userPrincipal)
+        public async Task<Result<IEnumerable<string>>> GetCurrentUserRolesAsync(ClaimsPrincipal userPrincipal)
         {
             try
             {
                 var user = await _userManager.GetUserAsync(userPrincipal);
                 if (user == null)
-                    return Result.Failure<IList<string>>(Error.NotFound("User not found"));
+                    return Result.Failure<IEnumerable<string>>(Error.NotFound("User not found"));
 
                 var roles = await _userManager.GetRolesAsync(user);
-                return Result.Success(roles);
+                return Result.Success(roles.AsEnumerable());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while getting current user roles");
-                return Result.Failure<IList<string>>(Error.Failure(ex.Message));
+                return Result.Failure<IEnumerable<string>>(Error.Failure(ex.Message));
             }
         }
 
-        public async Task<Result<bool>> AssignUserToRolesAsync(string userId, IList<string> roles)
+        public async Task<Result<bool>> AssignUserToRolesAsync(string userId, IEnumerable<string> roles)
         {
             try
             {
@@ -147,7 +147,7 @@ namespace Users.Infrastructure.Services
             }
         }
 
-        public async Task<Result<bool>> RemoveUserFromRolesAsync(string userId, IList<string> roles)
+        public async Task<Result<bool>> RemoveUserFromRolesAsync(string userId, IEnumerable<string> roles)
         {
             try
             {
@@ -169,7 +169,7 @@ namespace Users.Infrastructure.Services
             }
         }
 
-        public async Task<Result<bool>> UpdateUserRolesAsync(string userId, IList<string> roles)
+        public async Task<Result<bool>> UpdateUserRolesAsync(string userId, IEnumerable<string> roles)
         {
             try
             {

@@ -138,23 +138,23 @@ namespace Users.Infrastructure.Services
             }
         }
 
-        public async Task<Result<IList<UserDTO>>> GetAllUsersAsync()
+        public async Task<Result<IEnumerable<UserDTO>>> GetAllUsersAsync()
         {
             try
             {
                 var users = await _userManager.Users.AsNoTracking().ToListAsync();
                 var dtos = users.Select(UserMapper.ToDto).ToList();
 
-                return Result.Success<IList<UserDTO>>(dtos);
+                return Result.Success<IEnumerable<UserDTO>>(dtos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting all users");
-                return Result.Failure<IList<UserDTO>>(Error.Failure(ex.Message));
+                return Result.Failure<IEnumerable<UserDTO>>(Error.Failure(ex.Message));
             }
         }
 
-        public async Task<Result<IList<UserDTO>>> GetAllUsersDetailsAsync()
+        public async Task<Result<IEnumerable<UserDTO>>> GetAllUsersDetailsAsync()
         {
             try
             {
@@ -167,12 +167,12 @@ namespace Users.Infrastructure.Services
                     list.Add(UserMapper.ToDto(u) with { Roles = roles.ToList() });
                 }
 
-                return Result.Success<IList<UserDTO>>(list);
+                return Result.Success<IEnumerable<UserDTO>>(list);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting all users details");
-                return Result.Failure<IList<UserDTO>>(Error.Failure(ex.Message));
+                return Result.Failure<IEnumerable<UserDTO>>(Error.Failure(ex.Message));
             }
         }
 
@@ -194,7 +194,7 @@ namespace Users.Infrastructure.Services
         {
             try
             {
-                var entity = await _userManager.FindByIdAsync(dto.Id);
+                var entity = await _userManager.FindByIdAsync(dto.Id.ToString());
                 if (entity is null)
                     return Result.Failure<bool>(Error.NotFound("User not found"));
 

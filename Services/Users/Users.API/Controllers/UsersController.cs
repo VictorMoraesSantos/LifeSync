@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Sender;
+using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.Features.Users.Commands.UpdateUser;
@@ -16,34 +17,37 @@ namespace Users.API.Controllers
             _sender = sender;
         }
 
-        [HttpGet("{userId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetUser(string userId)
+        [HttpGet("{userId:int}")]
+        public async Task<HttpResult<object>> GetUser(string userId, CancellationToken cancellationToken)
         {
-            GetUserQuery request = new(userId);
-            GetUserQueryResult result = await _sender.Send(request);
-            return Ok(result);
+            var query = new GetUserQuery(userId);
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
-        [HttpGet("")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAllUsers()
+        [HttpGet]
+        public async Task<HttpResult<object>> GetAllUsers(CancellationToken cancellationToken)
         {
-            GetAllUsersQuery request = new();
-            GetAllUsersQueryResult result = await _sender.Send(request);
-            return Ok(result);
+            var query = new GetAllUsersQuery();
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
-        [HttpPut("")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserCommand request)
+        [HttpPut("{userId:int}")]
+        public async Task<HttpResult<object>> UpdateUser(int userId, [FromBody] UpdateUserCommand command, CancellationToken cancellationToken)
         {
-            UpdateUserCommandResult result = await _sender.Send(request);
-            return Ok(result);
+            var updateCommand = new UpdateUserCommand(userId, command.FirstName, command.LastName, command.Email, command.BirthDate);
+            var result = await _sender.Send(command, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Updated()
+                : HttpResult<object>.BadRequest("Could not update user");
         }
     }
 }
