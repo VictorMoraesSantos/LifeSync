@@ -1,15 +1,15 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Messaging.Options;
+using BuildingBlocks.Results;
 using RabbitMQ.Client;
 using Users.Application.DTOs.Auth;
-using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
 using Users.Domain.Events;
 
 namespace Users.Application.Features.Auth.Commands.SignUp
 {
-    public class SignUpCommandHandler : IRequestHandler<SignUpCommand, AuthResponse>
+    public class SignUpCommandHandler : ICommandHandler<SignUpCommand, AuthResult>
     {
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
@@ -24,26 +24,28 @@ namespace Users.Application.Features.Auth.Commands.SignUp
             _eventBus = eventBus;
         }
 
-        public async Task<AuthResponse> Handle(SignUpCommand command, CancellationToken cancellationToken)
+        public async Task<Result<AuthResult>> Handle(SignUpCommand command, CancellationToken cancellationToken)
         {
-            UserDTO dto = await _authService.SignUpAsync(
+            var userResult = await _authService.SignUpAsync(
                 command.FirstName,
                 command.LastName,
                 command.Email,
                 command.Password);
 
-            string accessToken = _tokenGenerator.GenerateTokenAsync(
-                dto.Id,
-                dto.Email,
-                dto.Roles,
+            var accessTokenResult = _tokenGenerator.GenerateToken(
+                userResult.Value!.Id,
+                userResult.Value.Email,
+                userResult.Value.Roles,
                 cancellationToken);
+            if (!accessTokenResult.IsSuccess)
+                return Result.Failure<AuthResult>(accessTokenResult.Error!);
 
-            string refreshToken = _tokenGenerator.GenerateRefreshToken();
+            var refreshTokenResult = _tokenGenerator.GenerateRefreshToken();
+            if (!userResult.IsSuccess)
+                return Result.Failure<AuthResult>(userResult.Error!);
 
-            await _authService.UpdateRefreshTokenAsync(dto.Id, refreshToken);
-
-            var @event = new UserRegisteredEvent(int.Parse(dto.Id), dto.Email);
-
+            var result = await _authService.UpdateRefreshTokenAsync(userResult.Value.Id, refreshTokenResult.Value!);
+            var @event = new UserRegisteredEvent(int.Parse(userResult.Value.Id), userResult.Value.Email);
             var options = new PublishOptions
             {
                 ExchangeName = "user_exchange",
@@ -54,7 +56,7 @@ namespace Users.Application.Features.Auth.Commands.SignUp
 
             _eventBus.PublishAsync(@event, options);
 
-            return new AuthResponse(accessToken, refreshToken, dto);
+            return Result.Success(new AuthResult(accessTokenResult.Value!, refreshTokenResult.Value!, userResult.Value));
         }
     }
 }

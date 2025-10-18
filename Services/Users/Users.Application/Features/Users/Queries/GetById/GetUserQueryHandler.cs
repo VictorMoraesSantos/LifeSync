@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
-using Users.Application.DTOs.User;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Users.Queries.GetUser
 {
-    public record GetUserQueryHandler : IRequestHandler<GetUserQuery, GetUserQueryResponse>
+    public record GetUserQueryHandler : IQueryHandler<GetUserQuery, GetUserQueryResult>
     {
         private readonly IUserService _userService;
 
@@ -13,11 +13,13 @@ namespace Users.Application.Features.Users.Queries.GetUser
             _userService = userService;
         }
 
-        public async Task<GetUserQueryResponse> Handle(GetUserQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetUserQueryResult>> Handle(GetUserQuery query, CancellationToken cancellationToken)
         {
-            UserDTO result = await _userService.GetUserDetailsAsync(query.userId);
-            GetUserQueryResponse response = new(result);
-            return response;
+            var result = await _userService.GetUserDetailsAsync(query.userId);
+            if (!result.IsSuccess)
+                return Result.Failure<GetUserQueryResult>(result.Error!);
+
+            return Result.Success(new GetUserQueryResult(result.Value!));
         }
     }
 }

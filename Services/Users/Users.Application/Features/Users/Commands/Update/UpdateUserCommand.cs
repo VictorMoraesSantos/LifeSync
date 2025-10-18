@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Commands;
-using BuildingBlocks.CQRS.Request;
 
 namespace Users.Application.Features.Users.Commands.UpdateUser
 {

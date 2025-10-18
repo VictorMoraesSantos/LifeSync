@@ -23,14 +23,14 @@ namespace Users.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginCommand command)
+        public async Task<ActionResult<AuthResult>> Login([FromBody] LoginCommand command)
         {
             var result = await _sender.Send(command);
             return Ok(result);
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register([FromBody] SignUpCommand command)
+        public async Task<ActionResult<AuthResult>> Register([FromBody] SignUpCommand command)
         {
             var result = await _sender.Send(command);
             return Ok(result);
@@ -39,7 +39,7 @@ namespace Users.API.Controllers
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
         {
-            LogoutCommand command = new LogoutCommand(User);
+            var command = new LogoutCommand(User);
             await _sender.Send(command);
             return NoContent();
         }
@@ -67,9 +67,9 @@ namespace Users.API.Controllers
 
         [Authorize]
         [HttpPost("change-password")]
-        public async Task<ActionResult> ChangePassword([FromBody] ChangePassword request)
+        public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordCommand request)
         {
-            ChangePasswordCommand command = new ChangePasswordCommand(User, request.CurrentPassword, request.NewPassword);
+            var command = new ChangePasswordCommand(User, request.CurrentPassword, request.NewPassword);
             await _sender.Send(command);
             return NoContent();
         }

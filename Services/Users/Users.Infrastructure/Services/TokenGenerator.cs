@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using BuildingBlocks.Results;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -24,11 +25,10 @@ namespace Users.Infrastructure.Services
             _expiryMinutes = jwtSettings.Value.ExpiryMinutes;
         }
 
-        public string GenerateTokenAsync(string userId, string email, IList<string> roles, CancellationToken cancellationToken)
+        public Result<string> GenerateToken(string userId, string email, IList<string> roles, CancellationToken cancellationToken)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
             var claims = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId),
@@ -44,22 +44,25 @@ namespace Users.Infrastructure.Services
                 audience: _audience,
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(Convert.ToDouble(_expiryMinutes)),
-                signingCredentials: signingCredentials
-           );
-
+                signingCredentials: signingCredentials);
             var encodedToken = new JwtSecurityTokenHandler().WriteToken(token);
-            return encodedToken;
+
+            return Result.Success(encodedToken);
         }
 
-        public string GenerateRefreshToken()
+        public Result<string> GenerateRefreshToken()
         {
+
             byte[] randomNumber = new byte[64];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
+
+            var refreshToken = Convert.ToBase64String(randomNumber);
+
+            return Result.Success(refreshToken);
         }
 
-        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        public Result<ClaimsPrincipal> GetPrincipalFromExpiredToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -71,7 +74,6 @@ namespace Users.Infrastructure.Services
                 ValidIssuer = _issuer,
                 ValidAudience = _audience
             };
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
 
@@ -82,7 +84,7 @@ namespace Users.Infrastructure.Services
                 throw new SecurityTokenException("Token inválido");
             }
 
-            return principal;
+            return Result.Success(principal);
         }
     }
 }

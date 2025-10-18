@@ -1,11 +1,11 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Users.Application.DTOs.Auth;
-using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Auth.Commands.Login
 {
-    public class LogInCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
+    public class LogInCommandHandler : ICommandHandler<LoginCommand, AuthResult>
     {
         private readonly IAuthService _authService;
         private readonly ITokenGenerator _tokenGenerator;
@@ -16,23 +16,27 @@ namespace Users.Application.Features.Auth.Commands.Login
             _tokenGenerator = tokenGenerator;
         }
 
-        public async Task<AuthResponse> Handle(LoginCommand command, CancellationToken cancellationToken)
+        public async Task<Result<AuthResult>> Handle(LoginCommand command, CancellationToken cancellationToken)
         {
-            UserDTO userDTO = await _authService.LoginAsync(command.Email, command.Password);
+            var userResult = await _authService.LoginAsync(command.Email, command.Password);
+            if (!userResult.IsSuccess)
+                return Result.Failure<AuthResult>(userResult.Error!);
 
-            string accessToken = _tokenGenerator.GenerateTokenAsync(
-                userDTO.Id,
-                userDTO.Email,
-                userDTO.Roles,
+            var accessTokenResult = _tokenGenerator.GenerateToken(
+                userResult.Value!.Id,
+                userResult.Value.Email,
+                userResult.Value.Roles,
                 cancellationToken);
+            if (!accessTokenResult.IsSuccess)
+                return Result.Failure<AuthResult>(accessTokenResult.Error!);
 
-            string refreshToken = _tokenGenerator.GenerateRefreshToken();
+            var refreshTokenResult = _tokenGenerator.GenerateRefreshToken();
+            if (!refreshTokenResult.IsSuccess)
+                return Result.Failure<AuthResult>(refreshTokenResult.Error!);
 
-            // Aqui você pode atualizar o refresh token no banco via _authService ou outro serviço, se necessário
-            // await _authService.UpdateUserRefreshTokenAsync(userDTO.Id, refreshToken, expirationDate);
+            await _authService.UpdateRefreshTokenAsync(userResult.Value.Id, refreshTokenResult.Value!);
 
-            // Monta e retorna a resposta de autenticação
-            return new AuthResponse(accessToken, refreshToken, userDTO);
+            return Result.Success(new AuthResult(accessTokenResult.Value!, refreshTokenResult.Value!, userResult.Value));
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
-using BuildingBlocks.CQRS.Request;
 using BuildingBlocks.Results;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
@@ -25,7 +24,7 @@ namespace Users.Application.Features.Users.Commands.UpdateUser
                 command.BirthDate);
 
             var result = await _userService.UpdateUserProfileAsync(dto);
-            if(!result.IsSuccess)
+            if (!result.IsSuccess)
                 return Result.Failure<UpdateUserCommandResult>(result.Error!);
 
             return Result.Success(new UpdateUserCommandResult(result.Value));

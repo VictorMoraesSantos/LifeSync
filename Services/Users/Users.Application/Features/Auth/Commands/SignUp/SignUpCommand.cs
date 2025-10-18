@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
 using Users.Application.DTOs.Auth;
 
 namespace Users.Application.Features.Auth.Commands.SignUp
@@ -8,5 +8,5 @@ namespace Users.Application.Features.Auth.Commands.SignUp
         string LastName,
         string Email,
         string Password)
-        : IRequest<AuthResponse>;
+        : ICommand<AuthResult>;
 }

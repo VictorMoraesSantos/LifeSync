@@ -1,8 +1,8 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Queries;
 using Users.Application.DTOs.User;
 
 namespace Users.Application.Features.Users.Queries.GetAllUsers
 {
-    public record GetAllUsersQuery() : IRequest<GetAllUsersQueryResponse>;
-    public record GetAllUsersQueryResponse(IList<UserDTO> Users);
+    public record GetAllUsersQuery() : IQuery<GetAllUsersQueryResult>;
+    public record GetAllUsersQueryResult(IEnumerable<UserDTO> Users);
 }

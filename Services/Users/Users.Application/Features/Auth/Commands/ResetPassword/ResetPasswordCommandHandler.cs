@@ -1,9 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Auth.Commands.ResetPassword
 {
-    public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, bool>
+    public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand, ResetPasswordResult>
     {
         private readonly IAuthService _authService;
 
@@ -12,10 +13,13 @@ namespace Users.Application.Features.Auth.Commands.ResetPassword
             _authService = authService;
         }
 
-        public async Task<bool> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
+        public async Task<Result<ResetPasswordResult>> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
         {
-            bool result = await _authService.ResetPasswordAsync(command.UserId, command.Token, command.NewPassword);
-            return result;
+            var result = await _authService.ResetPasswordAsync(command.UserId, command.Token, command.NewPassword);
+            if (!result.IsSuccess)
+                return Result.Failure<ResetPasswordResult>(result.Error!);
+
+            return Result.Success(new ResetPasswordResult(result.Value));
         }
     }
 }

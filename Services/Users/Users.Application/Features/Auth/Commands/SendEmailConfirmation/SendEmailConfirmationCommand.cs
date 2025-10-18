@@ -1,6 +1,6 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Commands;
 
 namespace Users.Application.Features.Auth.Commands.SendEmailConfirmation
 {
-    public record SendEmailConfirmationCommand(string Email) : IRequest;
+    public record SendEmailConfirmationCommand(string Email) : ICommand;
 }

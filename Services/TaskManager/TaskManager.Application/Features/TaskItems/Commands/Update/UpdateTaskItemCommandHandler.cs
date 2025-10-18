@@ -5,7 +5,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Update
 {
-    public class UpdateTaskItemCommandHandler : ICommandHandler<UpdateTaskItemCommand, UpdateTaskItemCommandResult>
+    public class UpdateTaskItemCommandHandler : ICommandHandler<UpdateTaskItemCommand, UpdateTaskItemResult>
     {
         private readonly ITaskItemService _taskItemService;
 
@@ -14,7 +14,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
             _taskItemService = taskItemService;
         }
 
-        public async Task<Result<UpdateTaskItemCommandResult>> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
+        public async Task<Result<UpdateTaskItemResult>> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
             var dto = new UpdateTaskItemDTO(
                 command.Id,
@@ -26,9 +26,9 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
 
             var result = await _taskItemService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
-                return Result.Failure<UpdateTaskItemCommandResult>(result.Error!);
+                return Result.Failure<UpdateTaskItemResult>(result.Error!);
 
-            return Result.Success(new UpdateTaskItemCommandResult(result.Value!));
+            return Result.Success(new UpdateTaskItemResult(result.Value!));
         }
     }
 }

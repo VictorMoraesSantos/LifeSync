@@ -1,9 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Auth.Commands.ChangePassword
 {
-    public record ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand>
+    public record ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand>
     {
         private readonly IAuthService _authService;
 
@@ -12,9 +13,13 @@ namespace Users.Application.Features.Auth.Commands.ChangePassword
             _authService = authService;
         }
 
-        public async Task Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(ChangePasswordCommand command, CancellationToken cancellationToken)
         {
-            await _authService.ChangePasswordAsync(command.User, command.CurrentPassword, command.NewPassword);
+            var result = await _authService.ChangePasswordAsync(command.User, command.CurrentPassword, command.NewPassword);
+            if (!result.IsSuccess)
+                return Result.Failure(result.Error!);
+
+            return Result.Success();
         }
     }
 }

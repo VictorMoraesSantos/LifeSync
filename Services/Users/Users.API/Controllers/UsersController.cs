@@ -22,7 +22,7 @@ namespace Users.API.Controllers
         public async Task<IActionResult> GetUser(string userId)
         {
             GetUserQuery request = new(userId);
-            GetUserQueryResponse result = await _sender.Send(request);
+            GetUserQueryResult result = await _sender.Send(request);
             return Ok(result);
         }
 
@@ -32,7 +32,7 @@ namespace Users.API.Controllers
         public async Task<IActionResult> GetAllUsers()
         {
             GetAllUsersQuery request = new();
-            GetAllUsersQueryResponse result = await _sender.Send(request);
+            GetAllUsersQueryResult result = await _sender.Send(request);
             return Ok(result);
         }
 

@@ -1,9 +1,10 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Handlers;
+using BuildingBlocks.Results;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Auth.Commands.Logout
 {
-    public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
+    public class LogoutCommandHandler : ICommandHandler<LogoutCommand, LogoutResult>
     {
         private readonly IAuthService _authService;
 
@@ -12,9 +13,13 @@ namespace Users.Application.Features.Auth.Commands.Logout
             _authService = authService;
         }
 
-        public async Task Handle(LogoutCommand command, CancellationToken cancellationToken)
+        public async Task<Result<LogoutResult>> Handle(LogoutCommand command, CancellationToken cancellationToken)
         {
-            await _authService.LogoutAsync(command.User);
+            var result = await _authService.LogoutAsync(command.User);
+            if (!result.IsSuccess)
+                return Result.Failure<LogoutResult>(result.Error!);
+
+            return Result.Success(new LogoutResult(result.IsSuccess));
         }
     }
 }
