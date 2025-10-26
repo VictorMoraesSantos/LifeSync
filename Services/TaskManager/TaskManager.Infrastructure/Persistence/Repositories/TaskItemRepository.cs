@@ -37,7 +37,7 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
                 query = query.Where(t => t.UserId == filter.UserId.Value);
 
             if (!string.IsNullOrEmpty(filter.TitleContains))
-                query = query.Where(t => t.Title.Contains(filter.TitleContains));
+                query = query.Where(t => t.Title.ToLower().Trim().Contains(filter.TitleContains.ToLower().Trim()));
 
             if (filter.LabelId.HasValue)
                 query = query.Where(t => t.Labels.Any(l => l.Id == filter.LabelId.Value));

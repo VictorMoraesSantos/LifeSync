@@ -7,6 +7,7 @@ using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
 using Users.Application.Mapping;
 using Users.Domain.Entities;
+using Users.Domain.Errors;
 using Users.Domain.ValueObjects;
 
 namespace Users.Infrastructure.Services
@@ -33,7 +34,7 @@ namespace Users.Infrastructure.Services
             {
                 var entity = await _userManager.GetUserAsync(user);
                 if (entity is null)
-                    return Result.Failure<UserDTO>(Error.NotFound("User not found"));
+                    return Result.Failure<UserDTO>(UserErrors.NotFound(int.Parse(user.Identity?.ToString()!)));
 
                 var roles = await _userManager.GetRolesAsync(entity);
                 var dto = UserMapper.ToDto(entity) with { Roles = roles.ToList() };
@@ -53,7 +54,7 @@ namespace Users.Infrastructure.Services
             {
                 var entity = await _userManager.GetUserAsync(user);
                 if (entity is null)
-                    return Result.Failure<bool>(Error.NotFound("User not found"));
+                    return Result.Failure<bool>(UserErrors.NotFound(int.Parse(user.Identity?.ToString()!)));
 
                 var name = new Name(firstName, lastName);
                 var contact = new Contact(email);
@@ -196,11 +197,22 @@ namespace Users.Infrastructure.Services
             {
                 var entity = await _userManager.FindByIdAsync(dto.Id.ToString());
                 if (entity is null)
-                    return Result.Failure<bool>(Error.NotFound("User not found"));
+                    return Result.Failure<bool>(UserErrors.NotFound(dto.Id));
+
+                if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName))
+                    return Result.Failure<bool>(NameErrors.NullName);
+
+                Contact contact;
+                try
+                {
+                    contact = new Contact(dto.Email);
+                }
+                catch
+                {
+                    return Result.Failure<bool>(ContactErrors.InvalidFormat);
+                }
 
                 var name = new Name(dto.FirstName, dto.LastName);
-                var contact = new Contact(dto.Email);
-
                 entity.UpdateProfile(name, contact);
 
                 var result = await _userManager.UpdateAsync(entity);

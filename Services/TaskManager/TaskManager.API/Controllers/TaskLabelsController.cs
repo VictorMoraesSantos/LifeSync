@@ -39,6 +39,7 @@ namespace TaskManager.API.Controllers
         {
             var query = new GetByUserQuery(userId);
             var result = await _sender.Send(query, cancellationToken);
+
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!)
                 : HttpResult<object>.NotFound(result.Error!.Description);

@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Repositories;
-using TaskManager.Domain.ValueObjects;
+using TaskManager.Domain.Filters;
 using TaskManager.Infrastructure.Persistence.Data;
 
 namespace TaskManager.Infrastructure.Persistence.Repositories

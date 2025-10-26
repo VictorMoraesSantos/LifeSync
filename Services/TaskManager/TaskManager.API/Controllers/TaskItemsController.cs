@@ -79,12 +79,8 @@ namespace TaskManager.API.Controllers
         [HttpPost("batch")]
         public async Task<HttpResult<object>> CreateBatch([FromBody] IEnumerable<CreateTaskItemCommand> commands, CancellationToken cancellationToken)
         {
-            if (commands == null || !commands.Any())
-                return HttpResult<object>.BadRequest("A lista de tarefas não pode ser vazia");
-
             var tasks = commands.Select(command => _sender.Send(command, cancellationToken));
             var results = await Task.WhenAll(tasks);
-
             var failedResults = results.Where(r => !r.IsSuccess).ToList();
 
             return !failedResults.Any()

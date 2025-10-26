@@ -1,6 +1,6 @@
 ﻿using TaskManager.Domain.Enums;
 
-namespace TaskManager.Domain.ValueObjects
+namespace TaskManager.Domain.Filters
 {
     public class TaskLabelFilter
     {

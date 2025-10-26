@@ -10,7 +10,7 @@ using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Errors;
 using TaskManager.Domain.Repositories;
-using TaskManager.Domain.ValueObjects;
+using TaskManager.Domain.Filters;
 
 namespace TaskManager.Infrastructure.Services
 {

@@ -1,6 +1,6 @@
 ﻿using Core.Domain.Repositories;
 using TaskManager.Domain.Entities;
-using TaskManager.Domain.ValueObjects;
+using TaskManager.Domain.Filters;
 
 namespace TaskManager.Domain.Repositories
 {
