@@ -73,24 +73,25 @@ namespace TaskManager.Infrastructure.Services
         public async Task<Result<(IEnumerable<TaskItemDTO> Items, PaginationData Pagination)>> GetByFilterAsync(TaskItemFilterDTO filter, CancellationToken cancellationToken)
         {
             var domainFilter = new TaskItemFilter(
-           filter.UserId,
-           filter.TitleContains,
-           filter.Status,
-           filter.Priority,
-           filter.DueDate,
-           filter.LabelId,
-           filter.Id,
-           filter.CreatedAt,
-           filter.UpdatedAt,
-           filter.IsDeleted,
-           filter.SortBy,
-           filter.SortDesc,
-           filter.Page,
-           filter.PageSize);
+                filter.UserId,
+                filter.TitleContains,
+                filter.Status,
+                filter.Priority,
+                filter.DueDate,
+                filter.LabelId,
+                filter.Id,
+                filter.CreatedAt,
+                filter.UpdatedAt,
+                filter.IsDeleted,
+                filter.SortBy,
+                filter.SortDesc,
+                filter.Page,
+                filter.PageSize);
 
             // Obtém os resultados com a contagem total
-            var entities = await _taskItemRepository.FindByFilter(domainFilter, cancellationToken);
-            if (entities == null || !entities.Any())
+            var (entities, totalItems) = await _taskItemRepository.FindByFilter(domainFilter, cancellationToken);
+
+            if (!entities.Any())
                 return Result.Success<(IEnumerable<TaskItemDTO> Items, PaginationData Pagination)>((
                     Items: new List<TaskItemDTO>(),
                     Pagination: new PaginationData(
@@ -107,7 +108,6 @@ namespace TaskManager.Infrastructure.Services
 
             // Calcula a paginação
             var pageSize = filter.PageSize ?? 50;
-            var totalItems = entities.Count();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
             var pagination = new PaginationData(

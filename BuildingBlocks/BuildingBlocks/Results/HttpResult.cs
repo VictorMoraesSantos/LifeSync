@@ -67,6 +67,7 @@ namespace BuildingBlocks.Results
         public T Data { get; set; }
 
         [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public PaginationData? Pagination { get; set; }
 
         public void AddError(params string[] errors)
@@ -114,22 +115,6 @@ namespace BuildingBlocks.Results
                 return BadRequest(result.Error!.Description);
 
             return Ok(result.Value.Items, result.Value.Pagination);
-        }
-    }
-
-    public class PaginationData
-    {
-        public int CurrentPage { get; private set; }
-        public int PageSize { get; private set; }
-        public int TotalItems { get; private set; }
-        public int TotalPages { get; private set; }
-
-        public PaginationData(int currentPage = 1, int pageSize = 50, int totalItems = 0, int totalPages = 0)
-        {
-            this.CurrentPage = currentPage;
-            this.PageSize = pageSize;
-            this.TotalItems = totalItems;
-            this.TotalPages = totalPages;
         }
     }
 }
