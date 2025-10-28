@@ -28,11 +28,13 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
 
         public async Task<IEnumerable<TaskItem?>> FindByFilter(TaskItemFilter filter, CancellationToken cancellationToken = default)
         {
+
             IQueryable<TaskItem> query = _context.TaskItems
                 .AsNoTracking()
                 .Include(t => t.Labels)
                 .AsQueryable();
 
+            // Filtros específicos do TaskItem
             if (filter.UserId.HasValue)
                 query = query.Where(t => t.UserId == filter.UserId.Value);
 
@@ -51,8 +53,48 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
             if (filter.DueDate.HasValue)
                 query = query.Where(t => t.DueDate == filter.DueDate.Value);
 
-            IEnumerable<TaskItem> entities = await query.ToListAsync(cancellationToken);
-            return entities;
+            // Filtros herdados do DomainQueryFilter
+            if (filter.Id.HasValue)
+                query = query.Where(t => t.Id == filter.Id.Value);
+
+            if (filter.CreatedAt.HasValue)
+                query = query.Where(t => t.CreatedAt.Date == filter.CreatedAt.Value.ToDateTime(TimeOnly.MinValue));
+
+            if (filter.UpdatedAt.HasValue)
+                query = query.Where(t => t.UpdatedAt.HasValue && t.UpdatedAt.Value.Date == filter.UpdatedAt.Value.ToDateTime(TimeOnly.MinValue));
+
+            if (filter.IsDeleted.HasValue)
+                query = query.Where(t => t.IsDeleted == filter.IsDeleted.Value);
+
+            // Ordenação
+            if (!string.IsNullOrEmpty(filter.SortBy))
+            {
+                query = filter.SortBy.ToLower() switch
+                {
+                    "id" => filter.SortDesc == true ? query.OrderByDescending(t => t.Id) : query.OrderBy(t => t.Id),
+                    "title" => filter.SortDesc == true ? query.OrderByDescending(t => t.Title) : query.OrderBy(t => t.Title),
+                    "duedate" => filter.SortDesc == true ? query.OrderByDescending(t => t.DueDate) : query.OrderBy(t => t.DueDate),
+                    "priority" => filter.SortDesc == true ? query.OrderByDescending(t => t.Priority) : query.OrderBy(t => t.Priority),
+                    "status" => filter.SortDesc == true ? query.OrderByDescending(t => t.Status) : query.OrderBy(t => t.Status),
+                    "createdat" => filter.SortDesc == true ? query.OrderByDescending(t => t.CreatedAt) : query.OrderBy(t => t.CreatedAt),
+                    "updatedat" => filter.SortDesc == true ? query.OrderByDescending(t => t.UpdatedAt) : query.OrderBy(t => t.UpdatedAt),
+                    _ => query.OrderBy(t => t.Id)
+                };
+            }
+            else
+            {
+                query = query.OrderBy(t => t.Id); // Ordenação padrão
+            }
+
+            // Paginação
+            if (filter.Page.HasValue && filter.PageSize.HasValue)
+            {
+                query = query
+                    .Skip((filter.Page.Value - 1) * filter.PageSize.Value)
+                    .Take(filter.PageSize.Value);
+            }
+
+            return await query.ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<TaskItem?>> GetAll(CancellationToken cancellationToken = default)

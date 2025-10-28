@@ -11,6 +11,6 @@ namespace TaskManager.Application.Interfaces
         IUpdateService<UpdateTaskItemDTO>,
         IDeleteService<int>
     {
-        Task<Result<IEnumerable<TaskItemDTO>>> GetByFilterAsync(TaskItemFilterDTO filter, CancellationToken cancellationToken);
+        Task<Result<(IEnumerable<TaskItemDTO> Items, PaginationData Pagination)>> GetByFilterAsync(TaskItemFilterDTO filter, CancellationToken cancellationToken);
     }
 }

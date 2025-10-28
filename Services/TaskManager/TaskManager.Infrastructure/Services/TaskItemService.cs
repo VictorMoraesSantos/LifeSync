@@ -70,31 +70,53 @@ namespace TaskManager.Infrastructure.Services
             }
         }
 
-        public async Task<Result<IEnumerable<TaskItemDTO>>> GetByFilterAsync(TaskItemFilterDTO filter, CancellationToken cancellationToken)
+        public async Task<Result<(IEnumerable<TaskItemDTO> Items, PaginationData Pagination)>> GetByFilterAsync(TaskItemFilterDTO filter, CancellationToken cancellationToken)
         {
-            try
-            {
-                var domainFilter = new TaskItemFilter(
-                    filter.UserId,
-                    filter.TitleContains,
-                    filter.Status,
-                    filter.Priority,
-                    filter.DueDate,
-                    filter.LabelId);
+            var domainFilter = new TaskItemFilter(
+           filter.UserId,
+           filter.TitleContains,
+           filter.Status,
+           filter.Priority,
+           filter.DueDate,
+           filter.LabelId,
+           filter.Id,
+           filter.CreatedAt,
+           filter.UpdatedAt,
+           filter.IsDeleted,
+           filter.SortBy,
+           filter.SortDesc,
+           filter.Page,
+           filter.PageSize);
 
-                var entities = await _taskItemRepository.FindByFilter(domainFilter, cancellationToken);
-                if (entities == null || !entities.Any())
-                    return Result.Success<IEnumerable<TaskItemDTO>>(new List<TaskItemDTO>());
+            // Obtém os resultados com a contagem total
+            var entities = await _taskItemRepository.FindByFilter(domainFilter, cancellationToken);
+            if (entities == null || !entities.Any())
+                return Result.Success<(IEnumerable<TaskItemDTO> Items, PaginationData Pagination)>((
+                    Items: new List<TaskItemDTO>(),
+                    Pagination: new PaginationData(
+                        filter.Page ?? 1,
+                        filter.PageSize ?? 50,
+                        0,
+                        0)));
 
-                var dtos = entities.Where(e => e != null).Select(TaskItemMapper.ToDTO).ToList();
+            // Converte para DTOs
+            var dtos = entities
+                .Where(e => e != null)
+                .Select(TaskItemMapper.ToDTO)
+                .ToList();
 
-                return Result.Success<IEnumerable<TaskItemDTO>>(dtos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao filtrar tarefas {@Filter}", filter);
-                return Result.Failure<IEnumerable<TaskItemDTO>>(Error.Failure(ex.Message));
-            }
+            // Calcula a paginação
+            var pageSize = filter.PageSize ?? 50;
+            var totalItems = entities.Count();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var pagination = new PaginationData(
+                filter.Page ?? 1,
+                pageSize,
+                totalItems,
+                totalPages);
+
+            return Result.Success<(IEnumerable<TaskItemDTO> Items, PaginationData Pagination)>((Items: dtos, Pagination: pagination));
         }
 
         public async Task<Result<IEnumerable<TaskItemDTO>>> FindAsync(Expression<Func<TaskItemDTO, bool>> predicate, CancellationToken cancellationToken = default)

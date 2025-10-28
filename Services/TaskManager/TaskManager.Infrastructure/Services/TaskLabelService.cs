@@ -9,8 +9,8 @@ using TaskManager.Application.Interfaces;
 using TaskManager.Application.Mapping;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Errors;
-using TaskManager.Domain.Repositories;
 using TaskManager.Domain.Filters;
+using TaskManager.Domain.Repositories;
 
 namespace TaskManager.Infrastructure.Services
 {

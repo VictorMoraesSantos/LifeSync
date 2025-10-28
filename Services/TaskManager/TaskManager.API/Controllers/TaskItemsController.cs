@@ -46,13 +46,13 @@ namespace TaskManager.API.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<HttpResult<object>> Find([FromQuery] TaskItemFilterDTO filter, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> Search([FromQuery] TaskItemFilterDTO filter, CancellationToken cancellationToken)
         {
             var query = new GetByFilterQuery(filter);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value?.Items!, result.Value?.Pagination!)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 

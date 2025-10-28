@@ -1,4 +1,5 @@
-﻿using TaskManager.Domain.Enums;
+﻿using Core.Application.DTOs;
+using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.DTOs.Filters
 {
@@ -8,5 +9,14 @@ namespace TaskManager.Application.DTOs.Filters
         Status? Status,
         Priority? Priority,
         DateOnly? DueDate,
-        int? LabelId);
+        int? LabelId,
+        int? Id,
+        DateOnly? CreatedAt,
+        DateOnly? UpdatedAt,
+        bool? IsDeleted,
+        string? SortBy,
+        bool? SortDesc,
+        int? Page,
+        int? PageSize
+    ) : DomainQueryFilterDTO<int?>(Id, CreatedAt, UpdatedAt, IsDeleted, SortBy, SortDesc, Page, PageSize);
 }

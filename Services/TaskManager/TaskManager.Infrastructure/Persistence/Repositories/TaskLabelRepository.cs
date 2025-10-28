@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
-using TaskManager.Domain.Repositories;
 using TaskManager.Domain.Filters;
+using TaskManager.Domain.Repositories;
 using TaskManager.Infrastructure.Persistence.Data;
 
 namespace TaskManager.Infrastructure.Persistence.Repositories
