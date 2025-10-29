@@ -1,9 +1,9 @@
-﻿using BuildingBlocks.Helpers;
+﻿using Core.Infrastructure.Persistence.Specifications;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
+using TaskManager.Domain.Filters;
 using TaskManager.Domain.Repositories;
-using TaskManager.Domain.ValueObjects;
 using TaskManager.Infrastructure.Persistence.Data;
 
 namespace TaskManager.Infrastructure.Persistence.Repositories
@@ -29,36 +29,16 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
 
         public async Task<(IEnumerable<TaskItem> Items, int TotalCount)> FindByFilter(TaskItemFilter filter, CancellationToken cancellationToken = default)
         {
+            var spec = new TaskItemFilterSpecification(filter);
+            var query = _context.TaskItems.AsNoTracking();
 
-            IQueryable<TaskItem> query = _context.TaskItems
-                .AsNoTracking()
-                .Include(t => t.Labels)
-                .AsQueryable();
+            if (filter.LabelId.HasValue)
+                query = query.Include(t => t.Labels);
 
-            // Filtros específicos do TaskItem
-            query = query
-                .ApplyFilter(filter.UserId, t => t.UserId)
-                .ApplyStringContains(filter.TitleContains, t => t.Title)
-                .ApplyFilter(filter.Priority, t => t.Priority)
-                .ApplyFilter(filter.Status, t => t.Status)
-                .ApplyFilter(filter.DueDate, t => t.DueDate)
-                .ApplyFilter(filter.Id, t => t.Id)
-                .ApplyFilter(filter.IsDeleted, t => t.IsDeleted);
-
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            // Ordenação
-            query = string.IsNullOrEmpty(filter.SortBy) ? query.OrderBy(t => t.Id) : query.ApplyOrderBy(filter.SortBy, filter.SortDesc ?? false);
-
-            // Paginação
-            if (filter.Page.HasValue && filter.PageSize.HasValue)
-            {
-                query = query
-                    .Skip((filter.Page.Value - 1) * filter.PageSize.Value)
-                    .Take(filter.PageSize.Value);
-            }
-
-            var items = await query.ToListAsync(cancellationToken);
+            var countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
+            var totalCount = await countQuery.CountAsync(cancellationToken);
+            var finalQuery = SpecificationEvaluator.GetQuery(_context.TaskItems.AsNoTracking(), spec);
+            var items = await finalQuery.ToListAsync(cancellationToken);
 
             return (items, totalCount);
         }

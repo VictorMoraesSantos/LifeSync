@@ -1,11 +1,10 @@
 ﻿using Core.Domain.Repositories;
 using TaskManager.Domain.Entities;
-using TaskManager.Domain.ValueObjects;
+using TaskManager.Domain.Filters;
 
 namespace TaskManager.Domain.Repositories
 {
-    public interface ITaskItemRepository : IRepository<TaskItem, int>
+    public interface ITaskItemRepository : IRepository<TaskItem, int, TaskItemFilter>
     {
-        public Task<(IEnumerable<TaskItem> Items, int TotalCount)> FindByFilter(TaskItemFilter filter, CancellationToken cancellationToken = default);
     }
 }

@@ -1,9 +1,9 @@
 ﻿using Core.Domain.Filters;
 using TaskManager.Domain.Enums;
 
-namespace TaskManager.Domain.ValueObjects
+namespace TaskManager.Domain.Filters
 {
-    public class TaskItemFilter : DomainQueryFilter<int?>
+    public class TaskItemFilter : DomainQueryFilter<int>
     {
         public int? UserId { get; private set; }
         public string? TitleContains { get; private set; }
@@ -26,7 +26,8 @@ namespace TaskManager.Domain.ValueObjects
             string? sortBy = null,
             bool? sortDesc = null,
             int? page = null,
-            int? pageSize = null) : base(id, createdAt, updatedAt, isDeleted, sortBy, sortDesc, page, pageSize)
+            int? pageSize = null)
+            : base(id ?? default, createdAt, updatedAt, isDeleted, sortBy, sortDesc, page, pageSize)
         {
             UserId = userId;
             TitleContains = titleContains;

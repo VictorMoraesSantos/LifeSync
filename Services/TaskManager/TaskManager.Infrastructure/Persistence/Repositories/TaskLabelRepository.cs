@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BuildingBlocks.Helpers;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Filters;
@@ -25,26 +26,37 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
             return entity;
         }
 
-        public async Task<IEnumerable<TaskLabel?>> FindByFilter(TaskLabelFilter filter, CancellationToken cancellationToken = default)
+        public async Task<(IEnumerable<TaskLabel> Items, int TotalCount)> FindByFilter(TaskLabelFilter filter, CancellationToken cancellationToken = default)
         {
             IQueryable<TaskLabel> query = _context.TaskLabels
                 .AsNoTracking()
                 .AsQueryable();
 
-            if (filter.UserId.HasValue)
-                query = query.Where(x => x.UserId == filter.UserId.Value);
+            // Filtros específicos do TaskLabel
+            query = query
+                .ApplyFilter(filter.UserId, t => t.UserId)
+                .ApplyFilter(filter.TaskItemId, t => (int)t.TaskItemId)
+                .ApplyStringContains(filter.NameContains, t => t.Name)
+                .ApplyFilter(filter.LabelColor, t => t.LabelColor)
+                .ApplyFilter(filter.Id, t => t.Id)
+                .ApplyFilter(filter.IsDeleted, t => t.IsDeleted);
 
-            if (filter.TaskItemId.HasValue)
-                query = query.Where(x => x.TaskItemId == filter.TaskItemId.Value);
+            var totalCount = await query.CountAsync(cancellationToken);
 
-            if (!string.IsNullOrWhiteSpace(filter.NameContains))
-                query = query.Where(x => x.Name.Contains(filter.NameContains));
+            // Ordenação
+            query = string.IsNullOrEmpty(filter.SortBy) ? query.OrderBy(t => t.Id) : query.ApplyOrderBy(filter.SortBy, filter.SortDesc ?? false);
 
-            if (filter.LabelColor.HasValue)
-                query = query.Where(x => x.LabelColor == filter.LabelColor.Value);
+            // Paginação
+            if (filter.Page.HasValue && filter.PageSize.HasValue)
+            {
+                query = query
+                    .Skip((filter.Page.Value - 1) * filter.PageSize.Value)
+                    .Take(filter.PageSize.Value);
+            }
 
-            IEnumerable<TaskLabel> entities = await query.ToListAsync(cancellationToken);
-            return entities;
+            var items = await query.ToListAsync(cancellationToken);
+
+            return (items, totalCount);
         }
 
         public async Task<IEnumerable<TaskLabel?>> GetAll(CancellationToken cancellationToken = default)
