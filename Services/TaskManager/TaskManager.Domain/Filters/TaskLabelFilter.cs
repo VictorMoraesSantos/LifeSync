@@ -3,19 +3,20 @@ using TaskManager.Domain.Enums;
 
 namespace TaskManager.Domain.Filters
 {
-    public class TaskLabelFilter : DomainQueryFilter<int>
+    public class TaskLabelFilter : DomainQueryFilter
     {
-        public int? UserId { get; }
-        public int? TaskItemId { get; }
-        public string? NameContains { get; }
-        public LabelColor? LabelColor { get; }
+        public int? Id { get; private set; }
+        public int? UserId { get; private set; }
+        public int? TaskItemId { get; private set; }
+        public string? NameContains { get; private set; }
+        public LabelColor? LabelColor { get; private set; }
 
         public TaskLabelFilter(
+            int? id = null,
             int? userId = null,
             int? taskItemId = null,
             string? nameContains = null,
             LabelColor? labelColor = null,
-            int? id = null,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
             bool? isDeleted = null,
@@ -23,12 +24,19 @@ namespace TaskManager.Domain.Filters
             bool? sortDesc = null,
             int? page = null,
             int? pageSize = null)
-            : base(id ?? default, createdAt, updatedAt, isDeleted, sortBy, sortDesc, page, pageSize)
         {
+            Id = id;
             UserId = userId;
             TaskItemId = taskItemId;
             NameContains = nameContains;
             LabelColor = labelColor;
+            CreatedAt = createdAt;
+            UpdatedAt = updatedAt;
+            IsDeleted = isDeleted;
+            SortBy = sortBy;
+            SortDesc = sortDesc;
+            Page = page ?? 1;
+            PageSize = pageSize ?? 50;
         }
     }
 }

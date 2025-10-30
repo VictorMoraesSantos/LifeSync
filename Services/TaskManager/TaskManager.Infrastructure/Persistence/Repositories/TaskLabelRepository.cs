@@ -1,8 +1,9 @@
-﻿using BuildingBlocks.Helpers;
+﻿using Core.Infrastructure.Persistence.Specifications;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Filters;
+using TaskManager.Domain.Filters.Specifications;
 using TaskManager.Domain.Repositories;
 using TaskManager.Infrastructure.Persistence.Data;
 
@@ -28,33 +29,12 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
 
         public async Task<(IEnumerable<TaskLabel> Items, int TotalCount)> FindByFilter(TaskLabelFilter filter, CancellationToken cancellationToken = default)
         {
-            IQueryable<TaskLabel> query = _context.TaskLabels
-                .AsNoTracking()
-                .AsQueryable();
-
-            // Filtros específicos do TaskLabel
-            query = query
-                .ApplyFilter(filter.UserId, t => t.UserId)
-                .ApplyFilter(filter.TaskItemId, t => (int)t.TaskItemId)
-                .ApplyStringContains(filter.NameContains, t => t.Name)
-                .ApplyFilter(filter.LabelColor, t => t.LabelColor)
-                .ApplyFilter(filter.Id, t => t.Id)
-                .ApplyFilter(filter.IsDeleted, t => t.IsDeleted);
-
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            // Ordenação
-            query = string.IsNullOrEmpty(filter.SortBy) ? query.OrderBy(t => t.Id) : query.ApplyOrderBy(filter.SortBy, filter.SortDesc ?? false);
-
-            // Paginação
-            if (filter.Page.HasValue && filter.PageSize.HasValue)
-            {
-                query = query
-                    .Skip((filter.Page.Value - 1) * filter.PageSize.Value)
-                    .Take(filter.PageSize.Value);
-            }
-
-            var items = await query.ToListAsync(cancellationToken);
+            var spec = new TaskLabelFilterSpecification(filter);
+            IQueryable<TaskLabel> query = _context.TaskLabels.AsNoTracking();
+            IQueryable<TaskLabel> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
+            int totalCount = await countQuery.CountAsync(cancellationToken);
+            IQueryable<TaskLabel> finalQuery = SpecificationEvaluator.GetQuery(_context.TaskLabels.AsNoTracking(), spec);
+            IEnumerable<TaskLabel> items = await finalQuery.ToListAsync(cancellationToken);
 
             return (items, totalCount);
         }

@@ -1,7 +1,6 @@
 ﻿namespace Core.Application.DTOs
 {
-    public record DomainQueryFilterDTO<TId>(
-        TId? Id,
+    public record DomainQueryFilterDTO(
         DateOnly? CreatedAt,
         DateOnly? UpdatedAt,
         bool? IsDeleted,

@@ -19,7 +19,7 @@ namespace TaskManager.Application.Features.TaskLabels.Queries.GetByFilter
             if (!result.IsSuccess)
                 return Result.Failure<GetByFilterResult>(result.Error!);
 
-            return Result.Success(new GetByFilterResult(result.Value!));
+            return Result.Success(new GetByFilterResult(result.Value.Items, result.Value.Pagination));
         }
     }
 }

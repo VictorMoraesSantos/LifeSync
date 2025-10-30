@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Filters;
+using TaskManager.Domain.Filters.Specifications;
 using TaskManager.Domain.Repositories;
 using TaskManager.Infrastructure.Persistence.Data;
 
@@ -30,15 +31,11 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
         public async Task<(IEnumerable<TaskItem> Items, int TotalCount)> FindByFilter(TaskItemFilter filter, CancellationToken cancellationToken = default)
         {
             var spec = new TaskItemFilterSpecification(filter);
-            var query = _context.TaskItems.AsNoTracking();
-
-            if (filter.LabelId.HasValue)
-                query = query.Include(t => t.Labels);
-
-            var countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
-            var totalCount = await countQuery.CountAsync(cancellationToken);
-            var finalQuery = SpecificationEvaluator.GetQuery(_context.TaskItems.AsNoTracking(), spec);
-            var items = await finalQuery.ToListAsync(cancellationToken);
+            IQueryable<TaskItem> query = _context.TaskItems.AsNoTracking();
+            IQueryable<TaskItem> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
+            int totalCount = await countQuery.CountAsync(cancellationToken);
+            IQueryable<TaskItem> finalQuery = SpecificationEvaluator.GetQuery(_context.TaskItems.AsNoTracking(), spec);
+            IEnumerable<TaskItem> items = await finalQuery.ToListAsync(cancellationToken);
 
             return (items, totalCount);
         }

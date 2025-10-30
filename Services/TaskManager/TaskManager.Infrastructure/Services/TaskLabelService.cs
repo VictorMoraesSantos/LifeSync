@@ -46,36 +46,53 @@ namespace TaskManager.Infrastructure.Services
             }
         }
 
-        public async Task<Result<IEnumerable<TaskLabelDTO>>> GetByFilterAsync(TaskLabelFilterDTO filter, CancellationToken cancellationToken)
+        public async Task<Result<(IEnumerable<TaskLabelDTO> Items, PaginationData Pagination)>> GetByFilterAsync(TaskLabelFilterDTO filter, CancellationToken cancellationToken)
         {
             try
             {
                 var domainFilter = new TaskLabelFilter(
+                    filter.Id,
                     filter.UserId,
                     filter.TaskItemId,
                     filter.NameContains,
-                    filter.LabelColor);
+                    filter.LabelColor,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
 
-                var entities = await _taskLabelRepository.FindByFilter(domainFilter, cancellationToken);
-                var dtos = entities.Where(e => e != null).Select(TaskLabelMapper.ToDTO).ToList();
+                var (entities, totalItems) = await _taskLabelRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<TaskLabelDTO> Items, PaginationData Pagination)>((new List<TaskLabelDTO>(), new PaginationData(filter.Page, filter.PageSize)));
 
-                return Result.Success<IEnumerable<TaskLabelDTO>>(dtos);
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(TaskLabelMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<TaskLabelDTO> Items, PaginationData Pagination)>((dtos, pagination));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao filtrar rótulos");
-                return Result.Failure<IEnumerable<TaskLabelDTO>>(Error.Failure(ex.Message));
+                return Result.Failure<(IEnumerable<TaskLabelDTO> Items, PaginationData Pagination)>(Error.Failure(ex.Message));
             }
         }
 
-        public async Task<Result<TaskLabelDTO>> GetByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<Result<TaskLabelDTO?>> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             try
             {
                 var entity = await _taskLabelRepository.GetById(id, cancellationToken);
-
                 if (entity == null)
-                    return Result.Failure<TaskLabelDTO>(TaskLabelErrors.NotFound(id));
+                    return Result.Failure<TaskLabelDTO?>(TaskLabelErrors.NotFound(id));
 
                 var dto = entity.ToDTO();
                 return Result.Success(dto);
@@ -83,7 +100,7 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao buscar rótulo {LabelId}", id);
-                return Result.Failure<TaskLabelDTO>(Error.Failure(ex.Message));
+                return Result.Failure<TaskLabelDTO?>(Error.Failure(ex.Message));
             }
         }
 

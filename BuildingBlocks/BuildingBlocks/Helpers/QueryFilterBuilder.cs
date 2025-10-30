@@ -55,7 +55,7 @@ namespace BuildingBlocks.Helpers
             var parameter = propertySelector.Parameters[0];
             var property = propertySelector.Body;
             var constant = Expression.Constant(filterValue, typeof(string));
-            
+
             // Método Contains que EF Core traduz para LIKE '%value%'
             var containsMethod = typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) })!;
             var containsCall = Expression.Call(property, containsMethod, constant);
@@ -76,7 +76,7 @@ namespace BuildingBlocks.Helpers
 
             var parameter = collectionSelector.Parameters[0];
             var collection = collectionSelector.Body;
-            
+
             var itemParameter = propertySelector.Parameters[0];
             var itemProperty = propertySelector.Body;
             var constant = Expression.Constant(filterValue.Value, typeof(int));
@@ -87,7 +87,7 @@ namespace BuildingBlocks.Helpers
             var anyMethod = typeof(Queryable).GetMethods()
                 .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
                 .MakeGenericMethod(typeof(TCollection));
-            
+
             var collectionAsQueryable = Expression.Call(
                 typeof(Queryable),
                 nameof(Queryable.AsQueryable),

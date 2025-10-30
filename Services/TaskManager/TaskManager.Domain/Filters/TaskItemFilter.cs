@@ -3,8 +3,9 @@ using TaskManager.Domain.Enums;
 
 namespace TaskManager.Domain.Filters
 {
-    public class TaskItemFilter : DomainQueryFilter<int>
+    public class TaskItemFilter : DomainQueryFilter
     {
+        public int? Id { get; private set; }
         public int? UserId { get; private set; }
         public string? TitleContains { get; private set; }
         public Status? Status { get; private set; }
@@ -13,13 +14,13 @@ namespace TaskManager.Domain.Filters
         public int? LabelId { get; private set; }
 
         public TaskItemFilter(
+            int? id = null,
             int? userId = null,
             string? titleContains = null,
             Status? status = null,
             Priority? priority = null,
             DateOnly? dueDate = null,
             int? labelId = null,
-            int? id = null,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
             bool? isDeleted = null,
@@ -27,14 +28,21 @@ namespace TaskManager.Domain.Filters
             bool? sortDesc = null,
             int? page = null,
             int? pageSize = null)
-            : base(id ?? default, createdAt, updatedAt, isDeleted, sortBy, sortDesc, page, pageSize)
         {
+            Id = id;
             UserId = userId;
             TitleContains = titleContains;
             Status = status;
             Priority = priority;
             DueDate = dueDate;
             LabelId = labelId;
+            CreatedAt = createdAt;
+            UpdatedAt = updatedAt;
+            IsDeleted = isDeleted;
+            SortBy = sortBy;
+            SortDesc = sortDesc;
+            Page = page ?? 1;
+            PageSize = pageSize ?? 50;
         }
     }
 }

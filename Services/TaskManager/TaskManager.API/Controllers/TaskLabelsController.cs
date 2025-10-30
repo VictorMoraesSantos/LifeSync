@@ -52,7 +52,7 @@ namespace TaskManager.API.Controllers
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value?.TaskLabels!, result.Value?.Pagination!)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 

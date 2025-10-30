@@ -1,10 +1,5 @@
 ﻿using Core.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using static BuildingBlocks.Helpers.QueryFilterBuilder;
 
 namespace Core.Domain.Filters
@@ -13,8 +8,8 @@ namespace Core.Domain.Filters
         where T : IBaseEntity<TId>
     {
         public BaseFilterSpecification(
-            IDomainQueryFilter<TId> filter,
-            Func<IDomainQueryFilter<TId>, Expression<Func<T, bool>>?> buildCriteria,
+            IDomainQueryFilter filter,
+            Func<IDomainQueryFilter, Expression<Func<T, bool>>?> buildCriteria,
             Action<BaseFilterSpecification<T, TId>>? configureIncludes = null)
             : base(buildCriteria(filter))
         {

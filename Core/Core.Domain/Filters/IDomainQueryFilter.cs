@@ -1,8 +1,7 @@
 ﻿namespace Core.Domain.Filters
 {
-    public interface IDomainQueryFilter<T>
+    public interface IDomainQueryFilter
     {
-        T? Id { get; }
         DateOnly? CreatedAt { get; }
         DateOnly? UpdatedAt { get; }
         bool? IsDeleted { get; }
@@ -12,35 +11,14 @@
         int? PageSize { get; }
     }
 
-    public class DomainQueryFilter<T> : IDomainQueryFilter<T>
+    public abstract class DomainQueryFilter : IDomainQueryFilter
     {
-        public T? Id { get; private set; }
-        public DateOnly? CreatedAt { get; private set; }
-        public DateOnly? UpdatedAt { get; private set; }
-        public bool? IsDeleted { get; private set; }
-        public string? SortBy { get; private set; }
-        public bool? SortDesc { get; private set; }
-        public int? Page { get; private set; } = 1;
-        public int? PageSize { get; private set; } = 50;
-
-        public DomainQueryFilter(
-            T? id,
-            DateOnly? createdAt,
-            DateOnly? updatedAt,
-            bool? isDeleted,
-            string? sortBy,
-            bool? sortDesc,
-            int? page,
-            int? pageSize)
-        {
-            Id = id;
-            CreatedAt = createdAt;
-            UpdatedAt = updatedAt;
-            IsDeleted = isDeleted;
-            SortBy = sortBy;
-            SortDesc = sortDesc;
-            Page = page;
-            PageSize = pageSize;
-        }
+        public DateOnly? CreatedAt { get; protected set; }
+        public DateOnly? UpdatedAt { get; protected set; }
+        public bool? IsDeleted { get; protected set; }
+        public string? SortBy { get; protected set; }
+        public bool? SortDesc { get; protected set; }
+        public int? Page { get; protected set; } = 1;
+        public int? PageSize { get; protected set; } = 50;
     }
 }
