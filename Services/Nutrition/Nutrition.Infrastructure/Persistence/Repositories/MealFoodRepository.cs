@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Core.Infrastructure.Persistence.Specifications;
+using Microsoft.EntityFrameworkCore;
 using Nutrition.Domain.Entities;
+using Nutrition.Domain.Filters;
+using Nutrition.Domain.Filters.Specifications;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Persistence.Data;
 using System.Linq.Expressions;
@@ -65,6 +68,18 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
         {
             _context.Entry(entity).State = EntityState.Deleted;
             await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<(IEnumerable<MealFood> Items, int TotalCount)> FindByFilter(MealFoodQueryFilter filter, CancellationToken cancellationToken = default)
+        {
+            var spec = new MealFoodSpecification(filter);
+            IQueryable<MealFood> query = _context.MealFoods.AsNoTracking();
+            IQueryable<MealFood> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
+            int totalCount = await countQuery.CountAsync(cancellationToken);
+            IQueryable<MealFood> finalQuery = SpecificationEvaluator.GetQuery(_context.MealFoods.AsNoTracking(), spec);
+            IEnumerable<MealFood> items = await finalQuery.ToListAsync(cancellationToken);
+
+            return (items, totalCount);
         }
     }
 }

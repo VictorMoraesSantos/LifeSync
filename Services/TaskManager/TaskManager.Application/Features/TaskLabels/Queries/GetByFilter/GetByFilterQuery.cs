@@ -1,6 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Queries;
 using BuildingBlocks.Results;
-using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskLabel;
 
 namespace TaskManager.Application.Features.TaskLabels.Queries.GetByFilter

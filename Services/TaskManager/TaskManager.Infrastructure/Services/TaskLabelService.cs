@@ -2,7 +2,6 @@
 using Core.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
-using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskLabel;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 using TaskManager.Application.Interfaces;

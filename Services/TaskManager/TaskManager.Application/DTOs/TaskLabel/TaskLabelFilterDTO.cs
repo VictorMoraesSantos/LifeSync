@@ -1,16 +1,14 @@
 ﻿using Core.Application.DTOs;
 using TaskManager.Domain.Enums;
 
-namespace TaskManager.Application.DTOs.Filters
+namespace TaskManager.Application.DTOs.TaskLabel
 {
-    public record TaskItemFilterDTO(
+    public record TaskLabelFilterDTO(
         int? Id,
         int? UserId,
-        string? TitleContains,
-        Status? Status,
-        Priority? Priority,
-        DateOnly? DueDate,
-        int? LabelId,
+        int? TaskItemId,
+        string? NameContains,
+        LabelColor? LabelColor,
         DateOnly? CreatedAt,
         DateOnly? UpdatedAt,
         bool? IsDeleted,

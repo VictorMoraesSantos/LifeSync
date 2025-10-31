@@ -4,9 +4,9 @@ using TaskManager.Domain.Entities;
 
 namespace TaskManager.Domain.Filters.Specifications
 {
-    public class TaskLabelFilterSpecification : BaseFilterSpecification<TaskLabel, int>
+    public class TaskLabelSpecification : BaseFilterSpecification<TaskLabel, int>
     {
-        public TaskLabelFilterSpecification(TaskLabelFilter filter)
+        public TaskLabelSpecification(TaskLabelFilter filter)
             : base(filter, BuildCriteria, ConfigureIncludes)
         { }
 

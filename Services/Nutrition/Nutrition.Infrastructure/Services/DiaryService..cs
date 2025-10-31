@@ -8,6 +8,7 @@ using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Errors;
+using Nutrition.Domain.Filters;
 using Nutrition.Domain.Repositories;
 using System.Linq.Expressions;
 
@@ -346,5 +347,54 @@ namespace Nutrition.Infrastructure.Services
                 return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }
+
+        public async Task<Result<(IEnumerable<DiaryDTO> Items, PaginationData Pagination)>> GetByFilterAsync(
+    DiaryFilterQueryDTO filter,
+    CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new DiaryQueryFilter(
+                    filter.Id,
+                    filter.UserId,
+                    filter.TotalCaloriesEqual,
+                    filter.TotalCaloriesGreaterThen,
+                    filter.TotalCaloriesLessThen,
+                    filter.TotalLiquidsMlEqual,
+                    filter.TotalLiquidsMlGreaterThen,
+                    filter.TotalLiquidsMlLessThen,
+                    filter.MealId,
+                    filter.LiquidId,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
+
+                var (entities, totalItems) = await _diaryRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<DiaryDTO> Items, PaginationData Pagination)>(
+                        (new List<DiaryDTO>(), new PaginationData(filter.Page, filter.PageSize)));
+
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(DiaryMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<DiaryDTO> Items, PaginationData Pagination)>((dtos, pagination));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar diários com filtro {@Filter}", filter);
+                return Result.Failure<(IEnumerable<DiaryDTO>, PaginationData)>(Error.Failure(ex.Message));
+            }
+        }
+
     }
 }

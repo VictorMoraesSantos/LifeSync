@@ -1,5 +1,4 @@
 ﻿using Core.Application.Interfaces;
-using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskLabel;
 using TaskManager.Application.DTOs.TaskLabel.TaskLabel;
 

@@ -5,7 +5,7 @@ using Nutrition.Application.DTOs.DailyProgress;
 namespace Nutrition.Application.Interfaces
 {
     public interface IDailyProgressService
-        : IReadService<DailyProgressDTO, int>,
+        : IReadService<DailyProgressDTO, int, DailyProgressQueryFilterDTO>,
         ICreateService<CreateDailyProgressDTO>,
         IUpdateService<UpdateDailyProgressDTO>,
         IDeleteService<int>

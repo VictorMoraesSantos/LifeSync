@@ -8,6 +8,7 @@ using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Errors;
+using Nutrition.Domain.Filters;
 using Nutrition.Domain.Repositories;
 using System.Linq.Expressions;
 
@@ -350,6 +351,50 @@ namespace Nutrition.Infrastructure.Services
             {
                 _logger.LogError(ex, "Erro ao remover alimento {FoodId} da refeição {MealId}", foodId, mealId);
                 return Result.Failure<bool>(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<MealDTO> Items, PaginationData Pagination)>> GetByFilterAsync(MealQueryFilterDTO filter, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new MealQueryFilter(
+                    filter.Id,
+                    filter.NameContains,
+                    filter.DescriptionContains,
+                    filter.DiaryId,
+                    filter.TotalCaloriesEqual,
+                    filter.TotalCaloriesGreaterThen,
+                    filter.TotalCaloriesLessThen,
+                    filter.MealFoodId,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
+
+                var (entities, totalItems) = await _mealRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<MealDTO> Items, PaginationData Pagination)>(
+                        (new List<MealDTO>(), new PaginationData(filter.Page, filter.PageSize)));
+
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(MealMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<MealDTO> Items, PaginationData Pagination)>((dtos, pagination));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar meals com filtro {@Filter}", filter);
+                return Result.Failure<(IEnumerable<MealDTO>, PaginationData)>(Error.Failure(ex.Message));
             }
         }
     }

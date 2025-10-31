@@ -5,6 +5,7 @@ using Nutrition.Application.Interfaces;
 using Nutrition.Application.Mapping;
 using Nutrition.Domain.Entities;
 using Nutrition.Domain.Errors;
+using Nutrition.Domain.Filters;
 using Nutrition.Domain.Repositories;
 using System.Linq.Expressions;
 
@@ -19,8 +20,8 @@ namespace Nutrition.Infrastructure.Services
             ILiquidRepository liquidRepository,
             ILogger<LiquidService> logger)
         {
-            _liquidRepository = liquidRepository ?? throw new ArgumentNullException(nameof(liquidRepository));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _liquidRepository = liquidRepository;
+            _logger = logger;
         }
 
         public async Task<Result<LiquidDTO>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -277,6 +278,54 @@ namespace Nutrition.Infrastructure.Services
             {
                 _logger.LogError(ex, "Erro ao excluir múltiplos líquidos {LiquidIds}", ids);
                 return Result.Failure<bool>(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<LiquidDTO> Items, PaginationData Pagination)>> GetByFilterAsync(LiquidQueryFilterDTO filter, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new LiquidQueryFilter(
+                    filter.Id,
+                    filter.NameContains,
+                    filter.QuantityMlEqual,
+                    filter.QuantityMlGreaterThen,
+                    filter.QuantityMlLessThen,
+                    filter.CaloriesPerMlEqual,
+                    filter.CaloriesPerMlGreaterThen,
+                    filter.CaloriesPerMlLessThen,
+                    filter.DiaryId,
+                    filter.TotalCaloriesEqual,
+                    filter.TotalCaloriesGreaterThen,
+                    filter.TotalCaloriesLessThen,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
+
+                var (entities, totalItems) = await _liquidRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<LiquidDTO> Items, PaginationData Pagination)>(
+                        (new List<LiquidDTO>(), new PaginationData(filter.Page, filter.PageSize)));
+
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(LiquidMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<LiquidDTO> Items, PaginationData Pagination)>((dtos, pagination));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar líquidos com filtro {@Filter}", filter);
+                return Result.Failure<(IEnumerable<LiquidDTO>, PaginationData)>(Error.Failure(ex.Message));
             }
         }
     }

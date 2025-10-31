@@ -1,5 +1,4 @@
 ﻿using Core.Application.Interfaces;
-using TaskManager.Application.DTOs.Filters;
 using TaskManager.Application.DTOs.TaskItem;
 
 namespace TaskManager.Application.Interfaces

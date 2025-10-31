@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Core.Infrastructure.Persistence.Specifications;
+using Microsoft.EntityFrameworkCore;
 using Nutrition.Domain.Entities;
+using Nutrition.Domain.Filters;
+using Nutrition.Domain.Filters.Specifications;
 using Nutrition.Domain.Repositories;
 using Nutrition.Infrastructure.Persistence.Data;
 using System.Linq.Expressions;
@@ -86,6 +89,18 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                 .Include(dp => dp.Goal)
                 .FirstOrDefaultAsync(dp => dp.UserId == userId && dp.Date == date, cancellationToken);
             return dailyProgress;
+        }
+
+        public async Task<(IEnumerable<DailyProgress> Items, int TotalCount)> FindByFilter(DailyProgressQueryFilter filter, CancellationToken cancellationToken = default)
+        {
+            var spec = new DailyProgressSpecification(filter);
+            IQueryable<DailyProgress> query = _context.DailyProgresses.AsNoTracking();
+            IQueryable<DailyProgress> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
+            int totalCount = await countQuery.CountAsync(cancellationToken);
+            IQueryable<DailyProgress> finalQuery = SpecificationEvaluator.GetQuery(_context.DailyProgresses.AsNoTracking(), spec);
+            IEnumerable<DailyProgress> items = await finalQuery.ToListAsync(cancellationToken);
+
+            return (items, totalCount);
         }
     }
 }

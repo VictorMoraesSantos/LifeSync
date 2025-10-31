@@ -2,7 +2,7 @@
 using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Application.DTOs.Filters;
+using TaskManager.Application.DTOs.TaskLabel;
 using TaskManager.Application.Features.TaskLabels.Commands.Create;
 using TaskManager.Application.Features.TaskLabels.Commands.Delete;
 using TaskManager.Application.Features.TaskLabels.Commands.Update;

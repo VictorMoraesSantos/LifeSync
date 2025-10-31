@@ -30,7 +30,7 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
 
         public async Task<(IEnumerable<TaskItem> Items, int TotalCount)> FindByFilter(TaskItemFilter filter, CancellationToken cancellationToken = default)
         {
-            var spec = new TaskItemFilterSpecification(filter);
+            var spec = new TaskItemSpecification(filter);
             IQueryable<TaskItem> query = _context.TaskItems.AsNoTracking();
             IQueryable<TaskItem> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
             int totalCount = await countQuery.CountAsync(cancellationToken);
