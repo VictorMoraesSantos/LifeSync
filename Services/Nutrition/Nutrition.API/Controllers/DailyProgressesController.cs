@@ -8,6 +8,7 @@ using Nutrition.Application.Features.DailyProgress.Commands.Delete;
 using Nutrition.Application.Features.DailyProgress.Commands.SetGoal;
 using Nutrition.Application.Features.DailyProgress.Commands.Update;
 using Nutrition.Application.Features.DailyProgress.Queries.GetAll;
+using Nutrition.Application.Features.DailyProgress.Queries.GetByFilter;
 using Nutrition.Application.Features.DailyProgress.Queries.GetById;
 using Nutrition.Application.Features.DailyProgress.Queries.GetByUser;
 
@@ -42,6 +43,17 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
+        }
+
+        [HttpGet("search")]
+        public async Task<HttpResult<object>> Search([FromQuery] DailyProgressQueryFilterDTO filter, CancellationToken cancellationToken)
+        {
+            var query = new GetByFilterQuery(filter);
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value?.Items!, result.Value?.Pagination!)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 

@@ -6,7 +6,7 @@ using Nutrition.Application.DTOs.Meal;
 namespace Nutrition.Application.Interfaces
 {
     public interface IDiaryService
-        : IReadService<DiaryDTO, int, DiaryFilterQueryDTO>,
+        : IReadService<DiaryDTO, int, DiaryQueryFilterDTO>,
         ICreateService<CreateDiaryDTO>,
         IUpdateService<UpdateDiaryDTO>,
         IDeleteService<int>

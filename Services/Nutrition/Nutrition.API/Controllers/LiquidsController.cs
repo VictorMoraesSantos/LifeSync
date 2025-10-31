@@ -2,11 +2,13 @@
 using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Nutrition.Application.DTOs.Liquid;
 using Nutrition.Application.Features.Liquid.Commands.Create;
 using Nutrition.Application.Features.Liquid.Commands.Delete;
 using Nutrition.Application.Features.Liquid.Commands.Update;
 using Nutrition.Application.Features.Liquid.Queries.GetAll;
 using Nutrition.Application.Features.Liquid.Queries.GetByDiary;
+using Nutrition.Application.Features.Liquid.Queries.GetByFilter;
 using Nutrition.Application.Features.Liquid.Queries.GetById;
 
 namespace Nutrition.API.Controllers
@@ -52,6 +54,17 @@ namespace Nutrition.API.Controllers
                 : result.Error!.Description.Contains("NotFound")
                     ? HttpResult<object>.NotFound(result.Error!.Description)
                     : HttpResult<object>.InternalError(result.Error!.Description);
+        }
+
+        [HttpGet("search")]
+        public async Task<HttpResult<object>> Search([FromQuery] LiquidQueryFilterDTO filter, CancellationToken cancellationToken)
+        {
+            var query = new GetByFilterQuery(filter);
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value?.Items!, result.Value?.Pagination!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpPost]

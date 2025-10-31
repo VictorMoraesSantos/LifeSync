@@ -2,10 +2,12 @@
 using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Application.Features.MealFood.Commands.Create;
 using Nutrition.Application.Features.MealFood.Commands.Delete;
 using Nutrition.Application.Features.MealFood.Commands.Update;
 using Nutrition.Application.Features.MealFood.Queries.GetAll;
+using Nutrition.Application.Features.MealFood.Queries.GetByFilter;
 using Nutrition.Application.Features.MealFood.Queries.GetById;
 using Nutrition.Application.Features.MealFood.Queries.GetByMeal;
 
@@ -43,6 +45,17 @@ namespace Nutrition.API.Controllers
                 : result.Error!.Description.Contains("NotFound")
                     ? HttpResult<object>.NotFound(result.Error!.Description!)
                     : HttpResult<object>.InternalError(result.Error!.Description);
+        }
+
+        [HttpGet("search")]
+        public async Task<HttpResult<object>> Search([FromQuery] MealFoodQueryFilterDTO filter, CancellationToken cancellationToken)
+        {
+            var query = new GetByFilterQuery(filter);
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value?.Items!, result.Value?.Pagination!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
         [HttpGet]

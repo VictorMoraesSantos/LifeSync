@@ -2,10 +2,12 @@
 using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Nutrition.Application.DTOs.Diary;
 using Nutrition.Application.Features.Diary.Commands.Create;
 using Nutrition.Application.Features.Diary.Commands.Delete;
 using Nutrition.Application.Features.Diary.Commands.Update;
 using Nutrition.Application.Features.Diary.Queries.GetAll;
+using Nutrition.Application.Features.Diary.Queries.GetByFilter;
 using Nutrition.Application.Features.Diary.Queries.GetById;
 using Nutrition.Application.Features.Diary.Queries.GetByUser;
 
@@ -39,6 +41,17 @@ namespace Nutrition.API.Controllers
 
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.NotFound(result.Error!.Description);
+        }
+
+        [HttpGet("search")]
+        public async Task<HttpResult<object>> Search([FromQuery] DiaryQueryFilterDTO filter, CancellationToken cancellationToken)
+        {
+            var query = new GetByFilterQuery(filter);
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value?.Items!, result.Value?.Pagination!)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 

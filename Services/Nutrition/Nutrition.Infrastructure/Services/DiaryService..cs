@@ -349,7 +349,7 @@ namespace Nutrition.Infrastructure.Services
         }
 
         public async Task<Result<(IEnumerable<DiaryDTO> Items, PaginationData Pagination)>> GetByFilterAsync(
-    DiaryFilterQueryDTO filter,
+    DiaryQueryFilterDTO filter,
     CancellationToken cancellationToken)
         {
             try

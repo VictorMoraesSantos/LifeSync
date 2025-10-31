@@ -2,7 +2,7 @@
 
 namespace Nutrition.Application.DTOs.Diary
 {
-    public record DiaryFilterQueryDTO(
+    public record DiaryQueryFilterDTO(
         int? Id,
         int? UserId,
         int? TotalCaloriesEqual,
