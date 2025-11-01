@@ -18,13 +18,13 @@ namespace Nutrition.Domain.Filters.Specifications
                 .AddIf(filter.Id.HasValue, mf => mf.Id == filter.Id!.Value)
                 .AddIf(!string.IsNullOrWhiteSpace(filter.NameContains), mf => mf.Name.Contains(filter.NameContains!))
                 .AddIf(filter.Quantity.HasValue, mf => mf.Quantity == filter.Quantity!.Value)
-                .AddIf(filter.CaloriesPerUnitEqual.HasValue, mf => mf.CaloriesPerUnit == filter.CaloriesPerUnitEqual!.Value)
-                .AddIf(filter.CaloriesPerUnitGreaterThen.HasValue, mf => mf.CaloriesPerUnit > filter.CaloriesPerUnitGreaterThen!.Value)
-                .AddIf(filter.CaloriesPerUnitLessThen.HasValue, mf => mf.CaloriesPerUnit < filter.CaloriesPerUnitLessThen!.Value)
+                .AddIf(filter.CaloriesPerUnitEquals.HasValue, mf => mf.CaloriesPerUnit == filter.CaloriesPerUnitEquals!.Value)
+                .AddIf(filter.CaloriesPerUnitGreaterThan.HasValue, mf => mf.CaloriesPerUnit > filter.CaloriesPerUnitGreaterThan!.Value)
+                .AddIf(filter.CaloriesPerUnitLessThan.HasValue, mf => mf.CaloriesPerUnit < filter.CaloriesPerUnitLessThan!.Value)
                 .AddIf(filter.MealId.HasValue, mf => mf.MealId == filter.MealId!.Value)
-                .AddIf(filter.TotalCaloriesEqual.HasValue, mf => mf.TotalCalories == filter.TotalCaloriesEqual!.Value)
-                .AddIf(filter.TotalCaloriesGreaterThen.HasValue, mf => mf.TotalCalories > filter.TotalCaloriesGreaterThen!.Value)
-                .AddIf(filter.TotalCaloriesLessThen.HasValue, mf => mf.TotalCalories < filter.TotalCaloriesLessThen!.Value);
+                .AddIf(filter.TotalCaloriesEquals.HasValue, mf => mf.TotalCalories == filter.TotalCaloriesEquals!.Value)
+                .AddIf(filter.TotalCaloriesGreaterThan.HasValue, mf => mf.TotalCalories > filter.TotalCaloriesGreaterThan!.Value)
+                .AddIf(filter.TotalCaloriesLessThan.HasValue, mf => mf.TotalCalories < filter.TotalCaloriesLessThan!.Value);
 
             return builder.Build();
         }

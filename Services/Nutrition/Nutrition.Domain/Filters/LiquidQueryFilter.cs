@@ -6,30 +6,30 @@ namespace Nutrition.Domain.Filters
     {
         public int? Id { get; private set; }
         public string? NameContains { get; private set; }
-        public int? QuantityMlEqual { get; private set; }
-        public int? QuantityMlGreaterThen { get; private set; }
-        public int? QuantityMlLessThen { get; private set; }
-        public int? CaloriesPerMlEqual { get; private set; }
-        public int? CaloriesPerMlGreaterThen { get; private set; }
-        public int? CaloriesPerMlLessThen { get; private set; }
+        public int? QuantityMlEquals { get; private set; }
+        public int? QuantityMlGreaterThan { get; private set; }
+        public int? QuantityMlLessThan { get; private set; }
+        public int? CaloriesPerMlEquals { get; private set; }
+        public int? CaloriesPerMlGreaterThan { get; private set; }
+        public int? CaloriesPerMlLessTaen { get; private set; }
         public int? DiaryId { get; private set; }
-        public int? TotalCaloriesEqual { get; private set; }
-        public int? TotalCaloriesGreaterThen { get; private set; }
-        public int? TotalCaloriesLessThen { get; private set; }
+        public int? TotalCaloriesEquals { get; private set; }
+        public int? TotalCaloriesGreaterThan { get; private set; }
+        public int? TotalCaloriesLessThan { get; private set; }
 
         public LiquidQueryFilter(
             int? id = null,
             string? name = null,
-            int? quantityMlEqual = null,
-            int? quantityMlGreaterThen = null,
-            int? quantityMlLessThen = null,
+            int? quantityMlEquals = null,
+            int? quantityMlGreaterThan = null,
+            int? quantityMlLessThan = null,
             int? caloriesPerMl = null,
-            int? caloriesPerMlGreaterThen = null,
-            int? caloriesPerMlLessThen = null,
+            int? caloriesPerMlGreaterThan = null,
+            int? caloriesPerMlLessThan = null,
             int? diaryId = null,
-            int? totalCaloriesEqual = null,
-            int? totalCaloriesGreaterThen = null,
-            int? totalCaloriesLessThen = null,
+            int? totalCaloriesEquals = null,
+            int? totalCaloriesGreaterThan = null,
+            int? totalCaloriesLessThan = null,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
             bool? isDeleted = null,
@@ -40,16 +40,16 @@ namespace Nutrition.Domain.Filters
         {
             Id = id;
             NameContains = name;
-            QuantityMlEqual = quantityMlEqual;
-            QuantityMlGreaterThen = quantityMlGreaterThen;
-            QuantityMlLessThen = quantityMlLessThen;
-            CaloriesPerMlEqual = caloriesPerMl;
-            CaloriesPerMlGreaterThen = caloriesPerMlGreaterThen;
-            CaloriesPerMlLessThen = caloriesPerMlLessThen;
+            QuantityMlEquals = quantityMlEquals;
+            QuantityMlGreaterThan = quantityMlGreaterThan;
+            QuantityMlLessThan = quantityMlLessThan;
+            CaloriesPerMlEquals = caloriesPerMl;
+            CaloriesPerMlGreaterThan = caloriesPerMlGreaterThan;
+            CaloriesPerMlLessTaen = caloriesPerMlLessThan;
             DiaryId = diaryId;
-            TotalCaloriesEqual = totalCaloriesEqual;
-            TotalCaloriesGreaterThen = totalCaloriesGreaterThen;
-            TotalCaloriesLessThen = totalCaloriesLessThen;
+            TotalCaloriesEquals = totalCaloriesEquals;
+            TotalCaloriesGreaterThan = totalCaloriesGreaterThan;
+            TotalCaloriesLessThan = totalCaloriesLessThan;
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
             IsDeleted = isDeleted;

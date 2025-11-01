@@ -12,7 +12,7 @@ namespace Gym.Domain.Entities
         public SetCount SetsCompleted { get; private set; }
         public RepetitionCount RepetitionsCompleted { get; private set; }
         public Weight? WeightUsed { get; private set; }
-        public DateTime CompletedAt { get; private set; } = DateTime.UtcNow;
+        public DateTime CompletedAt { get; private set; }
         public string? Notes { get; private set; }
 
         protected CompletedExercise() { }
@@ -43,6 +43,12 @@ namespace Gym.Domain.Entities
             RepetitionsCompleted = repetitionsCompleted;
             WeightUsed = weightUsed;
             Notes = notes;
+            MarkAsUpdated();
+        }
+
+        public void MarkCompleted()
+        {
+            CompletedAt = DateTime.UtcNow;
             MarkAsUpdated();
         }
     }

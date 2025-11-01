@@ -7,25 +7,25 @@ namespace Nutrition.Domain.Filters
         public int? Id { get; private set; }
         public string? NameContains { get; private set; }
         public int? Quantity { get; private set; }
-        public int? CaloriesPerUnitEqual { get; private set; }
-        public int? CaloriesPerUnitGreaterThen { get; private set; }
-        public int? CaloriesPerUnitLessThen { get; private set; }
+        public int? CaloriesPerUnitEquals { get; private set; }
+        public int? CaloriesPerUnitGreaterThan { get; private set; }
+        public int? CaloriesPerUnitLessThan { get; private set; }
         public int? MealId { get; private set; }
-        public int? TotalCaloriesEqual { get; private set; }
-        public int? TotalCaloriesGreaterThen { get; private set; }
-        public int? TotalCaloriesLessThen { get; private set; }
+        public int? TotalCaloriesEquals { get; private set; }
+        public int? TotalCaloriesGreaterThan { get; private set; }
+        public int? TotalCaloriesLessThan { get; private set; }
 
         public MealFoodQueryFilter(
             int? id = null,
             string? nameContains = null,
             int? quantity = null,
-            int? caloriesPerUnitEqual = null,
-            int? caloriesPerUnitGreaterThen = null,
-            int? caloriesPerUnitLessThen = null,
+            int? caloriesPerUnitEquals = null,
+            int? caloriesPerUnitGreaterThan = null,
+            int? caloriesPerUnitLessThan = null,
             int? mealId = null,
-            int? totalCaloriesEqual = null,
-            int? totalCaloriesGreaterThen = null,
-            int? totalCaloriesLessThen = null,
+            int? totalCaloriesEquals = null,
+            int? totalCaloriesGreaterThan = null,
+            int? totalCaloriesLessThan = null,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
             bool? isDeleted = null,
@@ -37,13 +37,13 @@ namespace Nutrition.Domain.Filters
             Id = id;
             NameContains = nameContains;
             Quantity = quantity;
-            CaloriesPerUnitEqual = caloriesPerUnitEqual;
-            CaloriesPerUnitGreaterThen = caloriesPerUnitGreaterThen;
-            CaloriesPerUnitLessThen = caloriesPerUnitLessThen;
+            CaloriesPerUnitEquals = caloriesPerUnitEquals;
+            CaloriesPerUnitGreaterThan = caloriesPerUnitGreaterThan;
+            CaloriesPerUnitLessThan = caloriesPerUnitLessThan;
             MealId = mealId;
-            TotalCaloriesEqual = totalCaloriesEqual;
-            TotalCaloriesGreaterThen = totalCaloriesGreaterThen;
-            TotalCaloriesLessThen = totalCaloriesLessThen;
+            TotalCaloriesEquals = totalCaloriesEquals;
+            TotalCaloriesGreaterThan = totalCaloriesGreaterThan;
+            TotalCaloriesLessThan = totalCaloriesLessThan;
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
             IsDeleted = isDeleted;

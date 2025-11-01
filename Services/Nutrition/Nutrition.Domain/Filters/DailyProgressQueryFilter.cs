@@ -7,23 +7,23 @@ namespace Nutrition.Domain.Filters
         public int? Id { get; private set; }
         public int? UserId { get; private set; }
         public DateOnly? Date { get; private set; }
-        public int? CaloriesConsumedEqual { get; private set; }
-        public int? CaloriesConsumedGreaterThen { get; private set; }
-        public int? CaloriesConsumedLessThen { get; private set; }
-        public int? LiquidsConsumedMlEqual { get; private set; }
-        public int? LiquidsConsumedMlGreaterThen { get; private set; }
-        public int? LiquidsConsumedMlLessThen { get; private set; }
+        public int? CaloriesConsumedEquals { get; private set; }
+        public int? CaloriesConsumedGreaterThan { get; private set; }
+        public int? CaloriesConsumedLessThan { get; private set; }
+        public int? LiquidsConsumedMlEquals { get; private set; }
+        public int? LiquidsConsumedMlGreaterThan { get; private set; }
+        public int? LiquidsConsumedMlLessThan { get; private set; }
 
         public DailyProgressQueryFilter(
             int? id = null,
             int? userId = null,
             DateOnly? date = null,
-            int? caloriesConsumedEqual = null,
-            int? caloriesConsumedGreaterThen = null,
-            int? caloriesConsumedLessThen = null,
-            int? liquidsConsumedMlEqual = null,
-            int? liquidsConsumedMlGreaterThen = null,
-            int? liquidsConsumedMlLessThen = null,
+            int? caloriesConsumedEquals = null,
+            int? caloriesConsumedGreaterThan = null,
+            int? caloriesConsumedLessThan = null,
+            int? liquidsConsumedMlEquals = null,
+            int? liquidsConsumedMlGreaterThan = null,
+            int? liquidsConsumedMlLessThan = null,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
             bool? isDeleted = null,
@@ -35,12 +35,12 @@ namespace Nutrition.Domain.Filters
             Id = id;
             UserId = userId;
             Date = date;
-            CaloriesConsumedEqual = caloriesConsumedEqual;
-            CaloriesConsumedGreaterThen = caloriesConsumedGreaterThen;
-            CaloriesConsumedLessThen = caloriesConsumedLessThen;
-            LiquidsConsumedMlEqual = liquidsConsumedMlEqual;
-            LiquidsConsumedMlGreaterThen = liquidsConsumedMlGreaterThen;
-            LiquidsConsumedMlLessThen = liquidsConsumedMlLessThen;
+            CaloriesConsumedEquals = caloriesConsumedEquals;
+            CaloriesConsumedGreaterThan = caloriesConsumedGreaterThan;
+            CaloriesConsumedLessThan = caloriesConsumedLessThan;
+            LiquidsConsumedMlEquals = liquidsConsumedMlEquals;
+            LiquidsConsumedMlGreaterThan = liquidsConsumedMlGreaterThan;
+            LiquidsConsumedMlLessThan = liquidsConsumedMlLessThan;
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
             IsDeleted = isDeleted;

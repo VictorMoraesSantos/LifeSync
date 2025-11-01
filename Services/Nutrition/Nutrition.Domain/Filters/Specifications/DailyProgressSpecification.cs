@@ -18,12 +18,12 @@ namespace Nutrition.Domain.Filters.Specifications
                 .AddIf(filter.Id.HasValue, dp => dp.Id == filter.Id!.Value)
                 .AddIf(filter.UserId.HasValue, dp => dp.UserId == filter.UserId!.Value)
                 .AddIf(filter.Date.HasValue, dp => dp.Date == filter.Date!.Value)
-                .AddIf(filter.CaloriesConsumedEqual.HasValue, dp => dp.CaloriesConsumed == filter.CaloriesConsumedEqual!.Value)
-                .AddIf(filter.CaloriesConsumedGreaterThen.HasValue, dp => dp.CaloriesConsumed > filter.CaloriesConsumedGreaterThen!.Value)
-                .AddIf(filter.CaloriesConsumedLessThen.HasValue, dp => dp.CaloriesConsumed < filter.CaloriesConsumedLessThen!.Value)
-                .AddIf(filter.LiquidsConsumedMlEqual.HasValue, dp => dp.LiquidsConsumedMl == filter.LiquidsConsumedMlEqual!.Value)
-                .AddIf(filter.LiquidsConsumedMlGreaterThen.HasValue, dp => dp.LiquidsConsumedMl > filter.LiquidsConsumedMlGreaterThen!.Value)
-                .AddIf(filter.LiquidsConsumedMlLessThen.HasValue, dp => dp.LiquidsConsumedMl < filter.LiquidsConsumedMlLessThen!.Value);
+                .AddIf(filter.CaloriesConsumedEquals.HasValue, dp => dp.CaloriesConsumed == filter.CaloriesConsumedEquals!.Value)
+                .AddIf(filter.CaloriesConsumedGreaterThan.HasValue, dp => dp.CaloriesConsumed > filter.CaloriesConsumedGreaterThan!.Value)
+                .AddIf(filter.CaloriesConsumedLessThan.HasValue, dp => dp.CaloriesConsumed < filter.CaloriesConsumedLessThan!.Value)
+                .AddIf(filter.LiquidsConsumedMlEquals.HasValue, dp => dp.LiquidsConsumedMl == filter.LiquidsConsumedMlEquals!.Value)
+                .AddIf(filter.LiquidsConsumedMlGreaterThan.HasValue, dp => dp.LiquidsConsumedMl > filter.LiquidsConsumedMlGreaterThan!.Value)
+                .AddIf(filter.LiquidsConsumedMlLessThan.HasValue, dp => dp.LiquidsConsumedMl < filter.LiquidsConsumedMlLessThan!.Value);
 
             return builder.Build();
         }

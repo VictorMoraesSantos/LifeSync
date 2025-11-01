@@ -6,24 +6,24 @@ namespace Nutrition.Domain.Filters
     {
         public int? Id { get; private set; }
         public int? UserId { get; private set; }
-        public int? TotalCaloriesEqual { get; private set; }
-        public int? TotalCaloriesGreaterThen { get; private set; }
-        public int? TotalCaloriesLessThen { get; private set; }
-        public int? TotalLiquidsMlEqual { get; private set; }
-        public int? TotalLiquidsMlGreaterThen { get; private set; }
-        public int? TotalLiquidsMlLessThen { get; private set; }
+        public int? TotalCaloriesEquals { get; private set; }
+        public int? TotalCaloriesGreaterThan { get; private set; }
+        public int? TotalCaloriesLessThan { get; private set; }
+        public int? TotalLiquidsMlEquals { get; private set; }
+        public int? TotalLiquidsMlGreaterThan { get; private set; }
+        public int? TotalLiquidsMlLessThan { get; private set; }
         public int? MealId { get; private set; }
         public int? LiquidId { get; private set; }
 
         public DiaryQueryFilter(
             int? id = null,
             int? userId = null,
-            int? totalCaloriesEqual = null,
-            int? totalCaloriesGreaterThen = null,
-            int? totalCaloriesLessThen = null,
-            int? totalLiquidsMlEqual = null,
-            int? totalLiquidsMlGreaterThen = null,
-            int? totalLiquidsMlLessThen = null,
+            int? totalCaloriesEquals = null,
+            int? totalCaloriesGreaterThan = null,
+            int? totalCaloriesLessThan = null,
+            int? totalLiquidsMlEquals = null,
+            int? totalLiquidsMlGreaterThan = null,
+            int? totalLiquidsMlLessThan = null,
             int? mealId = null,
             int? liquidId = null,
             DateOnly? createdAt = null,
@@ -36,12 +36,12 @@ namespace Nutrition.Domain.Filters
         {
             Id = id;
             UserId = userId;
-            TotalCaloriesEqual = totalCaloriesEqual;
-            TotalCaloriesGreaterThen = totalCaloriesGreaterThen;
-            TotalCaloriesLessThen = totalCaloriesLessThen;
-            TotalLiquidsMlEqual = totalLiquidsMlEqual;
-            TotalLiquidsMlGreaterThen = totalLiquidsMlGreaterThen;
-            TotalLiquidsMlLessThen = totalLiquidsMlLessThen;
+            TotalCaloriesEquals = totalCaloriesEquals;
+            TotalCaloriesGreaterThan = totalCaloriesGreaterThan;
+            TotalCaloriesLessThan = totalCaloriesLessThan;
+            TotalLiquidsMlEquals = totalLiquidsMlEquals;
+            TotalLiquidsMlGreaterThan = totalLiquidsMlGreaterThan;
+            TotalLiquidsMlLessThan = totalLiquidsMlLessThan;
             MealId = mealId;
             LiquidId = liquidId;
             CreatedAt = createdAt;

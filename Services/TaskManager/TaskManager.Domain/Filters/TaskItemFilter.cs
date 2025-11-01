@@ -41,8 +41,8 @@ namespace TaskManager.Domain.Filters
             IsDeleted = isDeleted;
             SortBy = sortBy;
             SortDesc = sortDesc;
-            Page = page ?? 1;
-            PageSize = pageSize ?? 50;
+            Page = page;
+            PageSize = pageSize;
         }
     }
 }

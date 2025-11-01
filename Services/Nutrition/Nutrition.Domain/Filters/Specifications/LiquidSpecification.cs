@@ -17,16 +17,16 @@ namespace Nutrition.Domain.Filters.Specifications
                 .AddCommonFilters()
                 .AddIf(filter.Id.HasValue, l => l.Id == filter.Id!.Value)
                 .AddIf(!string.IsNullOrWhiteSpace(filter.NameContains), l => l.Name.Contains(filter.NameContains!))
-                .AddIf(filter.QuantityMlEqual.HasValue, l => l.QuantityMl == filter.QuantityMlEqual!.Value)
-                .AddIf(filter.QuantityMlGreaterThen.HasValue, l => l.QuantityMl > filter.QuantityMlGreaterThen!.Value)
-                .AddIf(filter.QuantityMlLessThen.HasValue, l => l.QuantityMl < filter.QuantityMlLessThen!.Value)
-                .AddIf(filter.CaloriesPerMlEqual.HasValue, l => l.CaloriesPerMl == filter.CaloriesPerMlEqual!.Value)
-                .AddIf(filter.CaloriesPerMlGreaterThen.HasValue, l => l.CaloriesPerMl > filter.CaloriesPerMlGreaterThen!.Value)
-                .AddIf(filter.CaloriesPerMlLessThen.HasValue, l => l.CaloriesPerMl < filter.CaloriesPerMlLessThen!.Value)
+                .AddIf(filter.QuantityMlEquals.HasValue, l => l.QuantityMl == filter.QuantityMlEquals!.Value)
+                .AddIf(filter.QuantityMlGreaterThan.HasValue, l => l.QuantityMl > filter.QuantityMlGreaterThan!.Value)
+                .AddIf(filter.QuantityMlLessThan.HasValue, l => l.QuantityMl < filter.QuantityMlLessThan!.Value)
+                .AddIf(filter.CaloriesPerMlEquals.HasValue, l => l.CaloriesPerMl == filter.CaloriesPerMlEquals!.Value)
+                .AddIf(filter.CaloriesPerMlGreaterThan.HasValue, l => l.CaloriesPerMl > filter.CaloriesPerMlGreaterThan!.Value)
+                .AddIf(filter.CaloriesPerMlLessTaen.HasValue, l => l.CaloriesPerMl < filter.CaloriesPerMlLessTaen!.Value)
                 .AddIf(filter.DiaryId.HasValue, l => l.DiaryId == filter.DiaryId!.Value)
-                .AddIf(filter.TotalCaloriesEqual.HasValue, l => l.TotalCalories == filter.TotalCaloriesEqual!.Value)
-                .AddIf(filter.TotalCaloriesGreaterThen.HasValue, l => l.TotalCalories > filter.TotalCaloriesGreaterThen!.Value)
-                .AddIf(filter.TotalCaloriesLessThen.HasValue, l => l.TotalCalories < filter.TotalCaloriesLessThen!.Value);
+                .AddIf(filter.TotalCaloriesEquals.HasValue, l => l.TotalCalories == filter.TotalCaloriesEquals!.Value)
+                .AddIf(filter.TotalCaloriesGreaterThan.HasValue, l => l.TotalCalories > filter.TotalCaloriesGreaterThan!.Value)
+                .AddIf(filter.TotalCaloriesLessThan.HasValue, l => l.TotalCalories < filter.TotalCaloriesLessThan!.Value);
 
             return builder.Build();
         }

@@ -1,27 +1,19 @@
 ﻿using Core.Domain.Filters;
 
-namespace Nutrition.Domain.Filters
+namespace Gym.Domain.Filters
 {
-    public class MealQueryFilter : DomainQueryFilter
+    public class RoutineFilter : DomainQueryFilter
     {
         public int? Id { get; private set; }
         public string? NameContains { get; private set; }
         public string? DescriptionContains { get; private set; }
-        public int? DiaryId { get; private set; }
-        public int? TotalCaloriesEqual { get; private set; }
-        public int? TotalCaloriesGreaterThen { get; private set; }
-        public int? TotalCaloriesLessThen { get; private set; }
-        public int? MealFoodId { get; private set; }
+        public int? RoutineExerciseId { get; private set; }
 
-        public MealQueryFilter(
+        public RoutineFilter(
             int? id = null,
             string? nameContains = null,
             string? descriptionContains = null,
-            int? diaryId = null,
-            int? totalCaloriesEquals = null,
-            int? totalCaloriesGreaterThan = null,
-            int? totalCaloriesLessThan = null,
-            int? mealFoodId = null,
+            int? routineExerciseId = null,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
             bool? isDeleted = null,
@@ -33,11 +25,7 @@ namespace Nutrition.Domain.Filters
             Id = id;
             NameContains = nameContains;
             DescriptionContains = descriptionContains;
-            DiaryId = diaryId;
-            TotalCaloriesEqual = totalCaloriesEquals;
-            TotalCaloriesGreaterThen = totalCaloriesGreaterThan;
-            TotalCaloriesLessThen = totalCaloriesLessThan;
-            MealFoodId = mealFoodId;
+            RoutineExerciseId = routineExerciseId;
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
             IsDeleted = isDeleted;

@@ -17,12 +17,12 @@ namespace Nutrition.Domain.Filters.Specifications
                 .AddCommonFilters()
                 .AddIf(filter.Id.HasValue, d => d.Id == filter.Id!.Value)
                 .AddIf(filter.UserId.HasValue, d => d.UserId == filter.UserId!.Value)
-                .AddIf(filter.TotalCaloriesEqual.HasValue, d => d.TotalCalories == filter.TotalCaloriesEqual!.Value)
-                .AddIf(filter.TotalCaloriesGreaterThen.HasValue, d => d.TotalCalories > filter.TotalCaloriesGreaterThen!.Value)
-                .AddIf(filter.TotalCaloriesLessThen.HasValue, d => d.TotalCalories < filter.TotalCaloriesLessThen!.Value)
-                .AddIf(filter.TotalLiquidsMlEqual.HasValue, d => d.TotalLiquidsMl == filter.TotalLiquidsMlEqual!.Value)
-                .AddIf(filter.TotalLiquidsMlGreaterThen.HasValue, d => d.TotalLiquidsMl > filter.TotalLiquidsMlGreaterThen!.Value)
-                .AddIf(filter.TotalLiquidsMlLessThen.HasValue, d => d.TotalLiquidsMl < filter.TotalLiquidsMlLessThen!.Value)
+                .AddIf(filter.TotalCaloriesEquals.HasValue, d => d.TotalCalories == filter.TotalCaloriesEquals!.Value)
+                .AddIf(filter.TotalCaloriesGreaterThan.HasValue, d => d.TotalCalories > filter.TotalCaloriesGreaterThan!.Value)
+                .AddIf(filter.TotalCaloriesLessThan.HasValue, d => d.TotalCalories < filter.TotalCaloriesLessThan!.Value)
+                .AddIf(filter.TotalLiquidsMlEquals.HasValue, d => d.TotalLiquidsMl == filter.TotalLiquidsMlEquals!.Value)
+                .AddIf(filter.TotalLiquidsMlGreaterThan.HasValue, d => d.TotalLiquidsMl > filter.TotalLiquidsMlGreaterThan!.Value)
+                .AddIf(filter.TotalLiquidsMlLessThan.HasValue, d => d.TotalLiquidsMl < filter.TotalLiquidsMlLessThan!.Value)
                 .AddIf(filter.MealId.HasValue, d => d.Meals.Any(m => m.Id == filter.MealId!.Value))
                 .AddIf(filter.LiquidId.HasValue, d => d.Liquids.Any(l => l.Id == filter.LiquidId!.Value));
 
