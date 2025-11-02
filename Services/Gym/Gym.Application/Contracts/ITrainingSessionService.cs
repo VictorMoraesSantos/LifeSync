@@ -5,7 +5,7 @@ using Gym.Application.DTOs.TrainingSession;
 namespace Gym.Application.Contracts
 {
     public interface ITrainingSessionService
-        : IReadService<TrainingSessionDTO, int>,
+        : IReadService<TrainingSessionDTO, int, TrainingSessionFilterDTO>,
         ICreateService<CreateTrainingSessionDTO>,
         IUpdateService<UpdateTrainingSessionDTO>,
         IDeleteService<int>

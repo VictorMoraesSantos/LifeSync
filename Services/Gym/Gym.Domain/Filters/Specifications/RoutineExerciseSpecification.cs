@@ -19,7 +19,7 @@ namespace Gym.Domain.Filters.Specifications
                 .AddIf(filter.Id.HasValue, re => re.Id == filter.Id!.Value)
                 .AddIf(filter.RoutineId.HasValue, re => re.RoutineId == filter.RoutineId!.Value)
                 .AddIf(filter.ExerciseId.HasValue, re => re.ExerciseId == filter.ExerciseId!.Value)
-                .AddIf(filter.SetsLessEquals.HasValue, re => re.Sets.Value <= filter.SetsLessEquals!.Value)
+                .AddIf(filter.SetsEquals.HasValue, re => re.Sets.Value <= filter.SetsEquals!.Value)
                 .AddIf(filter.SetsLessThan.HasValue, re => re.Sets.Value < filter.SetsLessThan!.Value)
                 .AddIf(filter.SetsGreaterThan.HasValue, re => re.Sets.Value > filter.SetsGreaterThan!.Value)
                 .AddIf(filter.RepetitionsEquals.HasValue, re => re.Repetitions.Value == filter.RepetitionsEquals!.Value)

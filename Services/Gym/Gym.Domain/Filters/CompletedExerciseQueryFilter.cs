@@ -16,7 +16,7 @@ namespace Gym.Domain.Filters
         public int? WeightUsedCompletedEquals { get; private set; }
         public int? WeightUsedCompletedLessThan { get; private set; }
         public int? WeightUsedCompletedGreaterThan { get; private set; }
-        public DateTime CompletedAt { get; private set; }
+        public DateOnly CompletedAt { get; private set; }
         public string? NotesContains { get; private set; }
 
         public CompletedExerciseQueryFilter(
@@ -32,7 +32,7 @@ namespace Gym.Domain.Filters
             int? weightUsedCompletedEquals = null,
             int? weightUsedCompletedLessThan = null,
             int? weightUsedCompletedGreaterThan = null,
-            DateTime? completedAt = null,
+            DateOnly? completedAt = null,
             string? notesContains = null,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,

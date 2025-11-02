@@ -7,7 +7,7 @@ namespace Gym.Domain.Filters
         public int? Id { get; private set; }
         public int? RoutineId { get; private set; }
         public int? ExerciseId { get; private set; }
-        public int? SetsLessEquals { get; private set; }
+        public int? SetsEquals { get; private set; }
         public int? SetsLessThan { get; private set; }
         public int? SetsGreaterThan { get; private set; }
         public int? RepetitionsEquals { get; private set; }
@@ -25,7 +25,7 @@ namespace Gym.Domain.Filters
             int? id = null,
             int? routineId = null,
             int? exerciseId = null,
-            int? setsLessEquals = null,
+            int? setsEquals = null,
             int? setsLessThan = null,
             int? setsGreaterThan = null,
             int? repetitionsEquals = null,
@@ -49,7 +49,7 @@ namespace Gym.Domain.Filters
             Id = id;
             RoutineId = routineId;
             ExerciseId = exerciseId;
-            SetsLessEquals = setsLessEquals;
+            SetsEquals = setsEquals;
             SetsLessThan = setsLessThan;
             SetsGreaterThan = setsGreaterThan;
             RepetitionsEquals = repetitionsEquals;

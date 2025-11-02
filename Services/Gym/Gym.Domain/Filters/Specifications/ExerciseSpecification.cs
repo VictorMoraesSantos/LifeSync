@@ -19,7 +19,7 @@ namespace Gym.Domain.Filters.Specifications
                 .AddIf(!string.IsNullOrWhiteSpace(filter.NameContains), e => e.Name.Contains(filter.NameContains!))
                 .AddIf(!string.IsNullOrWhiteSpace(filter.DescriptionContains), e => e.Description.Contains(filter.DescriptionContains!))
                 .AddIf(!string.IsNullOrWhiteSpace(filter.MuscleGroupContains), e => e.MuscleGroup.ToString().Contains(filter.MuscleGroupContains!))
-                .AddIf(!string.IsNullOrWhiteSpace(filter.TypeContains), e => e.Type.ToString().Contains(filter.TypeContains!))
+                .AddIf(!string.IsNullOrWhiteSpace(filter.ExerciseTypeContains), e => e.Type.ToString().Contains(filter.ExerciseTypeContains!))
                 .AddIf(!string.IsNullOrWhiteSpace(filter.EquipamentTypeContains), e => e.EquipmentType.ToString()!.Contains(filter.EquipamentTypeContains!));
 
             return builder.Build();

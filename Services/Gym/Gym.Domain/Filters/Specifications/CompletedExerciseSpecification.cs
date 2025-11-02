@@ -27,7 +27,7 @@ namespace Gym.Domain.Filters.Specifications
                 .AddIf(filter.WeightUsedCompletedEquals.HasValue, ce => ce.WeightUsed.Value == filter.WeightUsedCompletedEquals!.Value)
                 .AddIf(filter.WeightUsedCompletedLessThan.HasValue, ce => ce.WeightUsed.Value < filter.WeightUsedCompletedLessThan!.Value)
                 .AddIf(filter.WeightUsedCompletedGreaterThan.HasValue, ce => ce.WeightUsed.Value > filter.WeightUsedCompletedGreaterThan!.Value)
-                .AddIf(filter.CompletedAt != default, ce => ce.CompletedAt.Date == filter.CompletedAt.Date)
+                .AddIf(filter.CompletedAt != default, ce => DateOnly.FromDateTime(ce.CompletedAt.Date) == filter.CompletedAt)
                 .AddIf(!string.IsNullOrWhiteSpace(filter.NotesContains), ce => ce.Notes.Contains(filter.NotesContains!));
 
             return builder.Build();

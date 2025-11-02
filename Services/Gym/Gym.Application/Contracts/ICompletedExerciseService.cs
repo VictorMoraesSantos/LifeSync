@@ -4,7 +4,7 @@ using Gym.Application.DTOs.CompletedExercise;
 namespace Gym.Application.Contracts
 {
     public interface ICompletedExerciseService
-        : IReadService<CompletedExerciseDTO, int>,
+        : IReadService<CompletedExerciseDTO, int, CompletedExerciseFilterDTO>,
         ICreateService<CreateCompletedExerciseDTO>,
         IUpdateService<UpdateCompletedExerciseDTO>,
         IDeleteService<int>

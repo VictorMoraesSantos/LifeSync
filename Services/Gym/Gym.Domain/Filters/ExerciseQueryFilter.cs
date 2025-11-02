@@ -8,7 +8,7 @@ namespace Gym.Domain.Filters
         public string? NameContains { get; private set; }
         public string? DescriptionContains { get; private set; }
         public string? MuscleGroupContains { get; private set; }
-        public string? TypeContains { get; private set; }
+        public string? ExerciseTypeContains { get; private set; }
         public string? EquipamentTypeContains { get; private set; }
 
         public ExerciseQueryFilter(
@@ -16,7 +16,7 @@ namespace Gym.Domain.Filters
             string? nameContains,
             string? descriptionContains,
             string? muscleGroupContains,
-            string? typeContains,
+            string? exercuseTypeContains,
             string? equipamentTypeContains,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
@@ -30,7 +30,7 @@ namespace Gym.Domain.Filters
             NameContains = nameContains;
             DescriptionContains = descriptionContains;
             MuscleGroupContains = muscleGroupContains;
-            TypeContains = typeContains;
+            ExerciseTypeContains = exercuseTypeContains;
             EquipamentTypeContains = equipamentTypeContains;
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
