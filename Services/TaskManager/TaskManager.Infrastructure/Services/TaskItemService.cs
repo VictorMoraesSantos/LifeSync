@@ -74,7 +74,7 @@ namespace TaskManager.Infrastructure.Services
             try
             {
 
-                var domainFilter = new TaskItemFilter(
+                var domainFilter = new TaskItemQueryFilter(
                     filter.Id,
                     filter.UserId,
                     filter.TitleContains,

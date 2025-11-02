@@ -3,7 +3,7 @@ using TaskManager.Domain.Enums;
 
 namespace TaskManager.Domain.Filters
 {
-    public class TaskItemFilter : DomainQueryFilter
+    public class TaskItemQueryFilter : DomainQueryFilter
     {
         public int? Id { get; private set; }
         public int? UserId { get; private set; }
@@ -13,7 +13,7 @@ namespace TaskManager.Domain.Filters
         public DateOnly? DueDate { get; private set; }
         public int? LabelId { get; private set; }
 
-        public TaskItemFilter(
+        public TaskItemQueryFilter(
             int? id = null,
             int? userId = null,
             string? titleContains = null,

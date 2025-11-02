@@ -4,6 +4,6 @@ using TaskManager.Domain.Filters;
 
 namespace TaskManager.Domain.Repositories
 {
-    public interface ITaskLabelRepository : IRepository<TaskLabel, int, TaskLabelFilter>
+    public interface ITaskLabelRepository : IRepository<TaskLabel, int, TaskLabelQueryFilter>
     { }
 }

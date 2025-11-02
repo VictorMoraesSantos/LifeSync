@@ -2,22 +2,18 @@
 
 namespace Gym.Domain.Filters
 {
-    public class ExerciseFilter : DomainQueryFilter
+    public class RoutineQueryFilter : DomainQueryFilter
     {
         public int? Id { get; private set; }
         public string? NameContains { get; private set; }
         public string? DescriptionContains { get; private set; }
-        public string? MuscleGroupContains { get; private set; }
-        public string? TypeContains { get; private set; }
-        public string? EquipamentTypeContains { get; private set; }
+        public int? RoutineExerciseId { get; private set; }
 
-        public ExerciseFilter(
-            int? id,
-            string? nameContains,
-            string? descriptionContains,
-            string? muscleGroupContains,
-            string? typeContains,
-            string? equipamentTypeContains,
+        public RoutineQueryFilter(
+            int? id = null,
+            string? nameContains = null,
+            string? descriptionContains = null,
+            int? routineExerciseId = null,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
             bool? isDeleted = null,
@@ -29,9 +25,7 @@ namespace Gym.Domain.Filters
             Id = id;
             NameContains = nameContains;
             DescriptionContains = descriptionContains;
-            MuscleGroupContains = muscleGroupContains;
-            TypeContains = typeContains;
-            EquipamentTypeContains = equipamentTypeContains;
+            RoutineExerciseId = routineExerciseId;
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
             IsDeleted = isDeleted;

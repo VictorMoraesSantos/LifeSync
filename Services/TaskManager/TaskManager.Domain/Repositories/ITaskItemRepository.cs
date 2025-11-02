@@ -4,7 +4,7 @@ using TaskManager.Domain.Filters;
 
 namespace TaskManager.Domain.Repositories
 {
-    public interface ITaskItemRepository : IRepository<TaskItem, int, TaskItemFilter>
+    public interface ITaskItemRepository : IRepository<TaskItem, int, TaskItemQueryFilter>
     {
     }
 }

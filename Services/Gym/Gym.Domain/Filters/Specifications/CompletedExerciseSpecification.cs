@@ -6,15 +6,16 @@ namespace Gym.Domain.Filters.Specifications
 {
     public class CompletedExerciseSpecification : BaseFilterSpecification<CompletedExercise, int>
     {
-        public CompletedExerciseSpecification(CompletedExerciseFilter filter)
+        public CompletedExerciseSpecification(CompletedExerciseQueryFilter filter)
             : base(filter, BuildCriteria, ConfigureIncludes)
         { }
 
         private static Expression<Func<CompletedExercise, bool>>? BuildCriteria(IDomainQueryFilter baseFilter)
         {
-            var filter = (CompletedExerciseFilter)baseFilter;
+            var filter = (CompletedExerciseQueryFilter)baseFilter;
             var builder = new FilterCriteriaBuilder<CompletedExercise, int>(filter)
                 .AddCommonFilters()
+                .AddIf(filter.Id.HasValue, ce => ce.Id == filter.Id!.Value)
                 .AddIf(filter.TrainingSessionId.HasValue, ce => ce.TrainingSessionId == filter.TrainingSessionId!.Value)
                 .AddIf(filter.RoutineExerciseId.HasValue, ce => ce.RoutineExerciseId == filter.RoutineExerciseId!.Value)
                 .AddIf(filter.SetsCompletedEquals.HasValue, ce => ce.SetsCompleted.Value == filter.SetsCompletedEquals!.Value)
@@ -23,11 +24,11 @@ namespace Gym.Domain.Filters.Specifications
                 .AddIf(filter.RepetitionsCompletedEquals.HasValue, ce => ce.RepetitionsCompleted.Value == filter.RepetitionsCompletedEquals!.Value)
                 .AddIf(filter.RepetitionsCompletedLessThan.HasValue, ce => ce.RepetitionsCompleted.Value < filter.RepetitionsCompletedLessThan!.Value)
                 .AddIf(filter.RepetitionsCompletedGreaterThan.HasValue, ce => ce.RepetitionsCompleted.Value > filter.RepetitionsCompletedGreaterThan!.Value)
-                .AddIf(filter.WeightUsedCompletedEquals.HasValue, ce => ce.WeightUsed != null && ce.WeightUsed.Value == filter.WeightUsedCompletedEquals!.Value)
-                .AddIf(filter.WeightUsedCompletedLessThan.HasValue, ce => ce.WeightUsed != null && ce.WeightUsed.Value < filter.WeightUsedCompletedLessThan!.Value)
-                .AddIf(filter.WeightUsedCompletedGreaterThan.HasValue, ce => ce.WeightUsed != null && ce.WeightUsed.Value > filter.WeightUsedCompletedGreaterThan!.Value)
+                .AddIf(filter.WeightUsedCompletedEquals.HasValue, ce => ce.WeightUsed.Value == filter.WeightUsedCompletedEquals!.Value)
+                .AddIf(filter.WeightUsedCompletedLessThan.HasValue, ce => ce.WeightUsed.Value < filter.WeightUsedCompletedLessThan!.Value)
+                .AddIf(filter.WeightUsedCompletedGreaterThan.HasValue, ce => ce.WeightUsed.Value > filter.WeightUsedCompletedGreaterThan!.Value)
                 .AddIf(filter.CompletedAt != default, ce => ce.CompletedAt.Date == filter.CompletedAt.Date)
-                .AddIf(!string.IsNullOrWhiteSpace(filter.NotesContains), ce => ce.Notes != null && ce.Notes.Contains(filter.NotesContains!));
+                .AddIf(!string.IsNullOrWhiteSpace(filter.NotesContains), ce => ce.Notes.Contains(filter.NotesContains!));
 
             return builder.Build();
         }

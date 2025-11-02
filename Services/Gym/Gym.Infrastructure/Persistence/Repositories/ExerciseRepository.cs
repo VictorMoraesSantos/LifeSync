@@ -1,4 +1,7 @@
-﻿using Gym.Domain.Entities;
+﻿using Core.Infrastructure.Persistence.Specifications;
+using Gym.Domain.Entities;
+using Gym.Domain.Filters;
+using Gym.Domain.Filters.Specifications;
 using Gym.Domain.Repositories;
 using Gym.Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +44,18 @@ namespace Gym.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
 
             return entities;
+        }
+
+        public async Task<(IEnumerable<Exercise> Items, int TotalCount)> FindByFilter(ExerciseQueryFilter filter, CancellationToken cancellationToken = default)
+        {
+            var spec = new ExerciseSpecification(filter);
+            IQueryable<Exercise> query = _context.Exercises.AsNoTracking();
+            IQueryable<Exercise> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
+            int totalCount = await countQuery.CountAsync(cancellationToken);
+            IQueryable<Exercise> finalQuery = SpecificationEvaluator.GetQuery(_context.Exercises.AsNoTracking(), spec);
+            IEnumerable<Exercise> items = await finalQuery.ToListAsync(cancellationToken);
+
+            return (items, totalCount);
         }
 
         public async Task<IEnumerable<Exercise?>> GetAll(CancellationToken cancellationToken = default)

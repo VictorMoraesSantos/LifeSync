@@ -49,7 +49,7 @@ namespace TaskManager.Infrastructure.Services
         {
             try
             {
-                var domainFilter = new TaskLabelFilter(
+                var domainFilter = new TaskLabelQueryFilter(
                     filter.Id,
                     filter.UserId,
                     filter.TaskItemId,

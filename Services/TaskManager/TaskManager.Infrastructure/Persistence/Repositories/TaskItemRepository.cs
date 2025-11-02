@@ -28,7 +28,7 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
             return entity;
         }
 
-        public async Task<(IEnumerable<TaskItem> Items, int TotalCount)> FindByFilter(TaskItemFilter filter, CancellationToken cancellationToken = default)
+        public async Task<(IEnumerable<TaskItem> Items, int TotalCount)> FindByFilter(TaskItemQueryFilter filter, CancellationToken cancellationToken = default)
         {
             var spec = new TaskItemSpecification(filter);
             IQueryable<TaskItem> query = _context.TaskItems.AsNoTracking();

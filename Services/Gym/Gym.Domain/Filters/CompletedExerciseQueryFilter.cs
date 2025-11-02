@@ -2,8 +2,9 @@
 
 namespace Gym.Domain.Filters
 {
-    public class CompletedExerciseFilter : DomainQueryFilter
+    public class CompletedExerciseQueryFilter : DomainQueryFilter
     {
+        public int? Id { get; private set; }
         public int? TrainingSessionId { get; private set; }
         public int? RoutineExerciseId { get; private set; }
         public int? SetsCompletedEquals { get; private set; }
@@ -18,7 +19,8 @@ namespace Gym.Domain.Filters
         public DateTime CompletedAt { get; private set; }
         public string? NotesContains { get; private set; }
 
-        public CompletedExerciseFilter(
+        public CompletedExerciseQueryFilter(
+            int? id,
             int? trainingSessionId = null,
             int? routineExerciseId = null,
             int? setsCompletedEquals = null,
@@ -40,6 +42,7 @@ namespace Gym.Domain.Filters
             int? page = null,
             int? pageSize = null)
         {
+            Id = id;
             TrainingSessionId = trainingSessionId;
             RoutineExerciseId = routineExerciseId;
             SetsCompletedEquals = setsCompletedEquals;

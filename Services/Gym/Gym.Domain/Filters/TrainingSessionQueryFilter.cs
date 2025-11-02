@@ -2,7 +2,7 @@
 
 namespace Gym.Domain.Filters
 {
-    public class TrainingSessionFilter : DomainQueryFilter
+    public class TrainingSessionQueryFilter : DomainQueryFilter
     {
         public int? Id { get; private set; }
         public int? UserId { get; private set; }
@@ -12,7 +12,7 @@ namespace Gym.Domain.Filters
         public string? NotesContains { get; private set; }
         public int? CompletedExerciseId { get; private set; }
 
-        public TrainingSessionFilter(
+        public TrainingSessionQueryFilter(
             int? id = null,
             int? userId = null,
             int? routineId = null,

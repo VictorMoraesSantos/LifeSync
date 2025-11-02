@@ -6,13 +6,13 @@ namespace TaskManager.Domain.Filters.Specifications
 {
     public class TaskLabelSpecification : BaseFilterSpecification<TaskLabel, int>
     {
-        public TaskLabelSpecification(TaskLabelFilter filter)
+        public TaskLabelSpecification(TaskLabelQueryFilter filter)
             : base(filter, BuildCriteria, ConfigureIncludes)
         { }
 
         private static Expression<Func<TaskLabel, bool>>? BuildCriteria(IDomainQueryFilter baseFilter)
         {
-            var filter = (TaskLabelFilter)baseFilter;
+            var filter = (TaskLabelQueryFilter)baseFilter;
             var builder = new FilterCriteriaBuilder<TaskLabel, int>(filter)
                 .AddCommonFilters()
                 .AddIf(filter.Id.HasValue, tl => tl.Id == filter.Id.Value)
