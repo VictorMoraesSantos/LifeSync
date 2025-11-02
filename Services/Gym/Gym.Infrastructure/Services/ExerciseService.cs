@@ -5,6 +5,7 @@ using Gym.Application.DTOs.Exercise;
 using Gym.Application.Mapping;
 using Gym.Domain.Entities;
 using Gym.Domain.Errors;
+using Gym.Domain.Filters;
 using Gym.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
@@ -280,6 +281,47 @@ namespace Gym.Infrastructure.Services
             {
                 _logger.LogError(ex, "Erro ao atualizar exercício {Id}", dto.Id);
                 return Result<bool>.Failure(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<ExerciseDTO> Items, PaginationData Pagination)>> GetByFilterAsync(ExerciseFilterDTO filter, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new ExerciseQueryFilter(
+                    filter.Id,
+                    filter.NameContains,
+                    filter.DescriptionContains,
+                    filter.MuscleGroupContains,
+                    filter.ExerciseTypeContains,
+                    filter.EquipmentTypeContains,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
+
+                var (entities, totalItems) = await _exerciseRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<ExerciseDTO> Items, PaginationData Pagination)>((new List<ExerciseDTO>(), new PaginationData(filter.Page, filter.PageSize, totalItems)));
+
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(ExerciseMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<ExerciseDTO> Items, PaginationData Pagination)>((dtos, pagination));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar exercícios com filtro");
+                return Result<(IEnumerable<ExerciseDTO> Items, PaginationData Pagination)>.Failure(Error.Failure(ex.Message));
             }
         }
     }

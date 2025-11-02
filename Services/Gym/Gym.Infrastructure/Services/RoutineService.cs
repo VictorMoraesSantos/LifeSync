@@ -4,6 +4,7 @@ using Gym.Application.Contracts;
 using Gym.Application.DTOs.Routine;
 using Gym.Application.Mapping;
 using Gym.Domain.Entities;
+using Gym.Domain.Filters;
 using Gym.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
@@ -212,6 +213,45 @@ namespace Gym.Infrastructure.Services
             {
                 _logger.LogError(ex, "Error getting all routines");
                 return Result<IEnumerable<RoutineDTO?>>.Failure(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<RoutineDTO> Items, PaginationData Pagination)>> GetByFilterAsync(RoutineFilterDTO filter, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new RoutineQueryFilter(
+                    filter.Id,
+                    filter.NameContains,
+                    filter.DescriptionContains,
+                    filter.RoutineExerciseId,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
+
+                var (entities, totalItems) = await _routineRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<RoutineDTO> Items, PaginationData Pagination)>((new List<RoutineDTO>(), new PaginationData(filter.Page, filter.PageSize)));
+
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(RoutineMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<RoutineDTO> Items, PaginationData Pagination)>((dtos, pagination));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting routines by filter");
+                return Result<(IEnumerable<RoutineDTO> Items, PaginationData Pagination)>.Failure(Error.Failure(ex.Message));
             }
         }
 

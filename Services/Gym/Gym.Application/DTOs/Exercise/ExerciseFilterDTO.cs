@@ -1,5 +1,4 @@
 ﻿using Core.Application.DTOs;
-using Gym.Domain.Enums;
 
 namespace Gym.Application.DTOs.Exercise
 {
@@ -7,9 +6,9 @@ namespace Gym.Application.DTOs.Exercise
         int? Id,
         string? NameContains,
         string? DescriptionContains,
-        MuscleGroup? MuscleGroupContains,
-        ExerciseType? ExerciseTypeContains,
-        EquipmentType? EquipmentTypeContains,
+        string? MuscleGroupContains,
+        string? ExerciseTypeContains,
+        string? EquipmentTypeContains,
         DateOnly? CreatedAt,
         DateOnly? UpdatedAt,
         bool? IsDeleted,

@@ -382,8 +382,7 @@ namespace Nutrition.Infrastructure.Services
 
                 var (entities, totalItems) = await _dailyProgressRepository.FindByFilter(domainFilter, cancellationToken);
                 if (!entities.Any())
-                    return Result.Success<(IEnumerable<DailyProgressDTO> Items, PaginationData Pagination)>(
-                        (new List<DailyProgressDTO>(), new PaginationData(filter.Page, filter.PageSize)));
+                    return Result.Success<(IEnumerable<DailyProgressDTO> Items, PaginationData Pagination)>((new List<DailyProgressDTO>(), new PaginationData(filter.Page, filter.PageSize)));
 
                 var dtos = entities
                     .Where(e => e != null)

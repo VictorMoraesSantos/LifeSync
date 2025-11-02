@@ -1,9 +1,4 @@
 ﻿using Core.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gym.Application.DTOs.CompletedExercise
 {
@@ -28,5 +23,5 @@ namespace Gym.Application.DTOs.CompletedExercise
         string? SortBy,
         bool? SortDesc,
         int? Page,
-        int? PageSize) : DomainQueryFilterDTO(CreatedAt, UpdatedAt, IsDeleted, SortBy, SortDesc, Page, PageSize)
+        int? PageSize) : DomainQueryFilterDTO(CreatedAt, UpdatedAt, IsDeleted, SortBy, SortDesc, Page, PageSize);
 }

@@ -4,6 +4,7 @@ using Gym.Application.Contracts;
 using Gym.Application.DTOs.RoutineExercise;
 using Gym.Application.Mapping;
 using Gym.Domain.Entities;
+using Gym.Domain.Filters;
 using Gym.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
@@ -212,6 +213,57 @@ namespace Gym.Infrastructure.Services
             {
                 _logger.LogError(ex, "Error getting all routine exercises");
                 return Result<IEnumerable<RoutineExerciseDTO?>>.Failure(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<RoutineExerciseDTO> Items, PaginationData Pagination)>> GetByFilterAsync(RoutineExerciseFilterDTO filter, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new RoutineExerciseQueryFilter(
+                    filter.Id,
+                    filter.RoutineId,
+                    filter.ExerciseId,
+                    filter.SetsEquals,
+                    filter.SetsLessThan,
+                    filter.SetsGreaterThan,
+                    filter.RepetitionsEquals,
+                    filter.RepetitionsLessThan,
+                    filter.RepetitionsGreaterThan,
+                    filter.RestTimeEquals,
+                    filter.RestTimeLessThan,
+                    filter.RestTimeGreaterThan,
+                    filter.RecommendedWeightEquals,
+                    filter.RecommendedWeightLessThan,
+                    filter.RecommendedWeightGreaterThan,
+                    filter.InstructionsContains,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
+
+                var (entities, totalItems) = await _routineExerciseRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<RoutineExerciseDTO>, PaginationData)>((new List<RoutineExerciseDTO>(), new PaginationData(domainFilter.Page, domainFilter.PageSize)));
+
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(RoutineExerciseMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<RoutineExerciseDTO> Items, PaginationData Pagination)>((dtos, pagination));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting routine exercises by filter");
+                return Result<(IEnumerable<RoutineExerciseDTO>, PaginationData)>.Failure(Error.Failure(ex.Message));
             }
         }
 

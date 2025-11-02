@@ -16,7 +16,7 @@ namespace Gym.Domain.Filters
             string? nameContains,
             string? descriptionContains,
             string? muscleGroupContains,
-            string? exercuseTypeContains,
+            string? exerciseTypeContains,
             string? equipamentTypeContains,
             DateOnly? createdAt = null,
             DateOnly? updatedAt = null,
@@ -30,7 +30,7 @@ namespace Gym.Domain.Filters
             NameContains = nameContains;
             DescriptionContains = descriptionContains;
             MuscleGroupContains = muscleGroupContains;
-            ExerciseTypeContains = exercuseTypeContains;
+            ExerciseTypeContains = exerciseTypeContains;
             EquipamentTypeContains = equipamentTypeContains;
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
