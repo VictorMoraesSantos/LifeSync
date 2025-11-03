@@ -615,7 +615,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE.txt` para mais de
 
 ## 👥 Autores
 
-- **Seu Nome** - _Desenvolvimento Inicial_
+- **Victor Moraes** - _Desenvolvimento Inicial_
 
 ## 🙏 Agradecimentos
 
