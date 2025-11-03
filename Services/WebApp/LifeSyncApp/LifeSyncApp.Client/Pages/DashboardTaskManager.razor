@@ -1,0 +1,163 @@
+@page "/dashboard/tasks"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inject IDashboardService DashboardService
+@inject IAuthService AuthService
+
+<PageTitle>Dashboard - Tarefas - LifeSync</PageTitle>
+
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Dashboard - Gerenciamento de Tarefas</h2>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    }
+    else if (dashboard != null)
+    {
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total de Tarefas</h5>
+                        <h2 class="mb-0">@dashboard.TotalTasks</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Completadas</h5>
+                        <h2 class="mb-0">@dashboard.CompletedTasks</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Em Progresso</h5>
+                        <h2 class="mb-0">@dashboard.InProgressTasks</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Pendentes</h5>
+                        <h2 class="mb-0">@dashboard.PendingTasks</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Distribuição por Status</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var item in dashboard.StatusBreakdown)
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>@item.Status</span>
+                                    <span><strong>@item.Count (@item.Percentage.ToString("F1"))%</strong></span>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar" role="progressbar" style="width: @item.Percentage%" aria-valuenow="@item.Percentage" aria-valuemin="0" aria-valuemax="100">
+                                        @item.Percentage.ToString("F1")%
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Distribuição por Prioridade</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var item in dashboard.PriorityBreakdown)
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>@item.Priority</span>
+                                    <span><strong>@item.Count (@item.Percentage.ToString("F1"))%</strong></span>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: @item.Percentage%" aria-valuenow="@item.Percentage" aria-valuemin="0" aria-valuemax="100">
+                                        @item.Percentage.ToString("F1")%
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Atividade Recente (Últimos 7 dias)</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (dashboard.RecentTasks.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Tarefas Criadas</th>
+                                            <th>Tarefas Completadas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var trend in dashboard.RecentTasks.OrderBy(t => t.Date))
+                                        {
+                                            <tr>
+                                                <td>@trend.Date.ToString("dd/MM/yyyy")</td>
+                                                <td><span class="badge bg-primary">@trend.Created</span></td>
+                                                <td><span class="badge bg-success">@trend.Completed</span></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Nenhuma atividade recente</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private TaskManagerDashboardDto? dashboard;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user != null)
+        {
+            dashboard = await DashboardService.GetTaskManagerDashboardAsync(user.Id);
+        }
+        isLoading = false;
+    }
+}

@@ -25,7 +25,7 @@ namespace Gym.API.Controllers
             var query = new GetExerciseByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.Exercise)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
@@ -34,7 +34,7 @@ namespace Gym.API.Controllers
         {
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.Exercises)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
@@ -43,7 +43,7 @@ namespace Gym.API.Controllers
         {
             var result = await _sender.Send(command, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Created(result.Value!)
+                ? HttpResult<object>.Created(result.Value!.Id)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 

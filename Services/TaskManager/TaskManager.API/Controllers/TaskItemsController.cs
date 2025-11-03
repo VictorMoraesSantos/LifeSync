@@ -30,7 +30,7 @@ namespace TaskManager.API.Controllers
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.TaskItem)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -41,7 +41,7 @@ namespace TaskManager.API.Controllers
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.TaskItems)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -62,7 +62,7 @@ namespace TaskManager.API.Controllers
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.TaskItems)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -72,7 +72,7 @@ namespace TaskManager.API.Controllers
             var result = await _sender.Send(command, cancellationToken);
 
             return result.IsSuccess
-                ? HttpResult<object>.Created(result.Value!)
+                ? HttpResult<object>.Created(result.Value!.Id)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 

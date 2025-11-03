@@ -1,0 +1,211 @@
+@page "/financial"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inject IFinancialService FinancialService
+@inject IAuthService AuthService
+
+<PageTitle>Financeiro - LifeSync</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Transações Financeiras</h2>
+        <button class="btn btn-primary" @onclick="ShowCreateModal">Nova Transação</button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    }
+    else if (transactions.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Tipo</th>
+                        <th>Categoria</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in transactions)
+                    {
+                        <tr>
+                            <td>@transaction.TransactionDate.ToString("dd/MM/yyyy")</td>
+                            <td>@transaction.Description</td>
+                            <td class="@(transaction.TransactionType == 1 ? "text-success" : "text-danger")">
+                                @(transaction.TransactionType == 1 ? "+" : "-") R$ @transaction.Amount.ToString("F2")
+                            </td>
+                            <td>@(transaction.TransactionType == 1 ? "Receita" : "Despesa")</td>
+                            <td>@(transaction.Category?.Name ?? "Sem categoria")</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => EditTransaction(transaction)">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTransaction(transaction.Id)">Excluir</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Nenhuma transação encontrada.</div>
+    }
+</div>
+
+<!-- Create/Edit Modal -->
+@if (showModal)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingTransaction == null ? "Nova Transação" : "Editar Transação")</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@transactionForm" OnValidSubmit="@SaveTransaction">
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <InputText @bind-Value="transactionForm.Description" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Valor</label>
+                            <InputNumber @bind-Value="transactionForm.Amount" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo</label>
+                            <InputSelect @bind-Value="transactionForm.TransactionType" class="form-select">
+                                <option value="1">Receita</option>
+                                <option value="2">Despesa</option>
+                            </InputSelect>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Data</label>
+                            <InputDate @bind-Value="transactionDateInput" class="form-control" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<FinancialModels.TransactionDto> transactions = new();
+    private bool isLoading = true;
+    private bool showModal = false;
+    private FinancialModels.TransactionDto? editingTransaction = null;
+    private FinancialModels.CreateTransactionRequest transactionForm = new();
+    private DateTime transactionDateInput = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTransactions();
+    }
+
+    private async Task LoadTransactions()
+    {
+        isLoading = true;
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user != null)
+        {
+            var result = await FinancialService.GetTransactionsAsync(user.Id);
+            if (result.Success && result.Data != null)
+            {
+                transactions = result.Data;
+            }
+        }
+        isLoading = false;
+    }
+
+    private void ShowCreateModal()
+    {
+        editingTransaction = null;
+        transactionDateInput = DateTime.Now;
+        transactionForm = new FinancialModels.CreateTransactionRequest
+        {
+            TransactionDate = DateTime.Now,
+            PaymentMethod = 1
+        };
+        showModal = true;
+    }
+
+    private void EditTransaction(FinancialModels.TransactionDto transaction)
+    {
+        editingTransaction = transaction;
+        transactionDateInput = transaction.TransactionDate;
+        transactionForm = new FinancialModels.CreateTransactionRequest
+        {
+            Description = transaction.Description,
+            Amount = transaction.Amount,
+            TransactionType = transaction.TransactionType,
+            TransactionDate = transaction.TransactionDate,
+            PaymentMethod = transaction.PaymentMethod,
+            CategoryId = transaction.Category?.Id
+        };
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        editingTransaction = null;
+    }
+
+    private async Task SaveTransaction()
+    {
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user == null) return;
+
+        transactionForm.TransactionDate = transactionDateInput;
+
+        if (editingTransaction == null)
+        {
+            transactionForm.UserId = user.Id;
+            var result = await FinancialService.CreateTransactionAsync(transactionForm);
+            if (result.Success)
+            {
+                await LoadTransactions();
+                CloseModal();
+            }
+        }
+        else
+        {
+            var updateRequest = new FinancialModels.UpdateTransactionRequest
+            {
+                Description = transactionForm.Description,
+                Amount = transactionForm.Amount,
+                TransactionType = transactionForm.TransactionType,
+                TransactionDate = transactionDateInput,
+                PaymentMethod = transactionForm.PaymentMethod
+            };
+            var result = await FinancialService.UpdateTransactionAsync(editingTransaction.Id, updateRequest);
+            if (result.Success)
+            {
+                await LoadTransactions();
+                CloseModal();
+            }
+        }
+    }
+
+    private async Task DeleteTransaction(int id)
+    {
+        var result = await FinancialService.DeleteTransactionAsync(id);
+        if (result.Success)
+        {
+            await LoadTransactions();
+        }
+    }
+}

@@ -1,5 +1,29 @@
+using LifeSyncApp.Client.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+// Configure a URL do API Gateway corretamente
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:6006";
+
+// Register LocalStorage first
+builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
+
+// Register HttpClient with authentication handler
+builder.Services.AddScoped<AuthHttpMessageHandler>();
+builder.Services.AddScoped(sp =>
+{
+    var handler = sp.GetRequiredService<AuthHttpMessageHandler>();
+    handler.InnerHandler = new HttpClientHandler();
+    return new HttpClient(handler) { BaseAddress = new Uri(apiBaseUrl) };
+});
+
+// Register services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITaskManagerService, TaskManagerService>();
+builder.Services.AddScoped<INutritionService, NutritionService>();
+builder.Services.AddScoped<IFinancialService, FinancialService>();
+builder.Services.AddScoped<IGymService, GymService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 await builder.Build().RunAsync();

@@ -1,0 +1,150 @@
+@page "/nutrition"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inject INutritionService NutritionService
+@inject IAuthService AuthService
+
+<PageTitle>Nutrição - LifeSync</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Diário Nutricional</h2>
+        <button class="btn btn-primary" @onclick="ShowCreateDiaryModal">Novo Diário</button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    }
+    else if (diaries.Any())
+    {
+        <div class="row">
+            @foreach (var diary in diaries)
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>@diary.Date.ToString("dd/MM/yyyy")</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Total de Calorias:</strong> @diary.TotalCalories kcal</p>
+                            <p><strong>Refeições:</strong> @diary.Meals.Count</p>
+                            <p><strong>Líquidos:</strong> @diary.Liquids.Count</p>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewDiaryDetails(diary)">Ver Detalhes</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteDiary(diary.Id)">Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Nenhum diário encontrado.</div>
+    }
+</div>
+
+<!-- Create Diary Modal -->
+@if (showDiaryModal)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Diário</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDiaryModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@diaryForm" OnValidSubmit="@SaveDiary">
+                        <div class="mb-3">
+                            <label class="form-label">Data</label>
+                            <InputDate @bind-Value="diaryDateInput" class="form-control" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseDiaryModal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<DiaryDto> diaries = new();
+    private bool isLoading = true;
+    private bool showDiaryModal = false;
+    private CreateDiaryRequest diaryForm = new();
+    private DateTime diaryDateInput = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDiaries();
+    }
+
+    private async Task LoadDiaries()
+    {
+        isLoading = true;
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user != null)
+        {
+            var result = await NutritionService.GetDiariesAsync(user.Id);
+            if (result.Success && result.Data != null)
+            {
+                diaries = result.Data;
+            }
+        }
+        isLoading = false;
+    }
+
+    private void ShowCreateDiaryModal()
+    {
+        diaryDateInput = DateTime.Now;
+        diaryForm = new CreateDiaryRequest
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now)
+        };
+        showDiaryModal = true;
+    }
+
+    private void CloseDiaryModal()
+    {
+        showDiaryModal = false;
+        diaryForm = new CreateDiaryRequest();
+    }
+
+    private async Task SaveDiary()
+    {
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user == null) return;
+
+        diaryForm.Date = DateOnly.FromDateTime(diaryDateInput);
+        diaryForm.UserId = user.Id;
+        var result = await NutritionService.CreateDiaryAsync(diaryForm);
+        if (result.Success)
+        {
+            await LoadDiaries();
+            CloseDiaryModal();
+        }
+    }
+
+    private void ViewDiaryDetails(DiaryDto diary)
+    {
+        // Navigate to diary details page or show modal
+    }
+
+    private async Task DeleteDiary(int id)
+    {
+        var result = await NutritionService.DeleteDiaryAsync(id);
+        if (result.Success)
+        {
+            await LoadDiaries();
+        }
+    }
+}

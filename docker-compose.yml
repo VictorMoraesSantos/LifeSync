@@ -50,6 +50,12 @@ services:
       context: .
       dockerfile: Services/ApiGateways/YarpApiGateway/Dockerfile
 
+  lifesyncapp.webapp:
+    image: ${DOCKER_REGISTRY-}lifesyncappwebapp
+    build:
+      context: .
+      dockerfile: Services/WebApp/LifeSyncApp/LifeSyncApp/Dockerfile
+
 volumes:
   postgres_lifesync:
   pgadmin_data:

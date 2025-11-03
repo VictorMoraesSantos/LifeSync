@@ -1,0 +1,147 @@
+@page "/dashboard/nutrition"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inject IDashboardService DashboardService
+@inject IAuthService AuthService
+
+<PageTitle>Dashboard - Nutrição - LifeSync</PageTitle>
+
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Dashboard - Nutrição</h2>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    }
+    else if (dashboard != null)
+    {
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total de Diários</h5>
+                        <h2 class="mb-0">@dashboard.TotalDiaries</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total de Refeições</h5>
+                        <h2 class="mb-0">@dashboard.TotalMeals</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Média Calorias/Dia</h5>
+                        <h2 class="mb-0">@dashboard.AverageCaloriesPerDay.ToString("F0") kcal</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Média Líquidos/Dia</h5>
+                        <h2 class="mb-0">@dashboard.AverageLiquidsPerDay.ToString("F0") ml</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-8 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Tendência de Calorias (Últimos 14 dias)</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (dashboard.DailyCaloriesTrend.Any())
+                        {
+                            <div style="height: 300px; position: relative;">
+                                @foreach (var trend in dashboard.DailyCaloriesTrend)
+                                {
+                                    var maxCalories = dashboard.DailyCaloriesTrend.Any() ? dashboard.DailyCaloriesTrend.Max(t => t.Calories) : 1;
+                                    var height = maxCalories > 0 ? (trend.Calories / (double)maxCalories * 100) : 0;
+                                    <div class="d-inline-block me-2" style="width: 40px; vertical-align: bottom;">
+                                        <div class="bg-primary text-white text-center" style="height: @(height)px; min-height: 20px; line-height: @(height)px;">
+                                            @trend.Calories
+                                        </div>
+                                        <small class="d-block text-center mt-1">@trend.Date.ToString("dd/MM")</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Nenhum dado disponível</p>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Top Refeições por Calorias</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (dashboard.MealBreakdown.Any())
+                        {
+                            @foreach (var meal in dashboard.MealBreakdown.Take(5))
+                            {
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span><strong>@meal.MealType</strong></span>
+                                        <span>@meal.TotalCalories kcal</span>
+                                    </div>
+                                    <div class="small text-muted">@meal.Count refeições</div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted">Nenhum dado disponível</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Estatísticas Gerais</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Total de Líquidos Registrados:</strong> @dashboard.TotalLiquids</p>
+                        <p><strong>Total de Refeições:</strong> @dashboard.TotalMeals</p>
+                        <p><strong>Total de Diários:</strong> @dashboard.TotalDiaries</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private NutritionDashboardDto? dashboard;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user != null)
+        {
+            dashboard = await DashboardService.GetNutritionDashboardAsync(user.Id);
+        }
+        isLoading = false;
+    }
+}

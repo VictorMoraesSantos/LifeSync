@@ -29,7 +29,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.Diary)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -40,7 +40,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.Diaries)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -61,7 +61,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.Diaries)
                 : HttpResult<object>.InternalError(result.Error!.Description);
         }
 
@@ -71,7 +71,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(command);
 
             return result.IsSuccess
-                ? HttpResult<object>.Created(result.Value!)
+                ? HttpResult<object>.Created(result.Value!.Id)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
@@ -82,7 +82,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(updateDiary);
 
             if (result.IsSuccess)
-                return HttpResult<object>.Ok(result.Value!);
+                return HttpResult<object>.Ok(result.Value!.IsSuccess);
 
             if (result.Error!.Description.Contains("NotFound"))
                 return HttpResult<object>.NotFound(result.Error!.Description);

@@ -1,0 +1,222 @@
+@page "/gym"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inject IGymService GymService
+@inject IAuthService AuthService
+
+<PageTitle>Academia - LifeSync</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Treinos</h2>
+        <button class="btn btn-primary" @onclick="ShowCreateSessionModal">Nova Sessão</button>
+    </div>
+
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "sessions" ? "active" : "")" @onclick='() => SetActiveTab("sessions")'>Sessões de Treino</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "routines" ? "active" : "")" @onclick='() => SetActiveTab("routines")'>Rotinas</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "exercises" ? "active" : "")" @onclick='() => SetActiveTab("exercises")'>Exercícios</button>
+        </li>
+    </ul>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    }
+    else if (activeTab == "sessions")
+    {
+        @if (trainingSessions.Any())
+        {
+            <div class="row">
+                @foreach (var session in trainingSessions)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">@session.StartTime.ToString("dd/MM/yyyy HH:mm")</h5>
+                                <p class="card-text">Rotina: @session.RoutineId</p>
+                                @if (session.EndTime.HasValue)
+                                {
+                                    <p class="card-text">Duração: @((session.EndTime.Value - session.StartTime).TotalMinutes.ToString("F0")) minutos</p>
+                                }
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => EditSession(session)">Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteSession(session.Id)">Excluir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Nenhuma sessão de treino encontrada.</div>
+        }
+    }
+    else if (activeTab == "routines")
+    {
+        @if (routines.Any())
+        {
+            <div class="row">
+                @foreach (var routine in routines)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">@routine.Name</h5>
+                                <p class="card-text">@routine.Description</p>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => EditRoutine(routine)">Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteRoutine(routine.Id)">Excluir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Nenhuma rotina encontrada.</div>
+        }
+    }
+    else if (activeTab == "exercises")
+    {
+        @if (exercises.Any())
+        {
+            <div class="row">
+                @foreach (var exercise in exercises)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">@exercise.Name</h5>
+                                <p class="card-text">@exercise.Description</p>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => EditExercise(exercise)">Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteExercise(exercise.Id)">Excluir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Nenhum exercício encontrado.</div>
+        }
+    }
+</div>
+
+@code {
+    private List<TrainingSessionDto> trainingSessions = new();
+    private List<RoutineDto> routines = new();
+    private List<ExerciseDto> exercises = new();
+    private bool isLoading = true;
+    private string activeTab = "sessions";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        await Task.WhenAll(
+            LoadSessions(),
+            LoadRoutines(),
+            LoadExercises()
+        );
+        isLoading = false;
+    }
+
+    private async Task LoadSessions()
+    {
+        var result = await GymService.GetTrainingSessionsAsync();
+        if (result.Success && result.Data != null)
+        {
+            trainingSessions = result.Data;
+        }
+    }
+
+    private async Task LoadRoutines()
+    {
+        var result = await GymService.GetRoutinesAsync();
+        if (result.Success && result.Data != null)
+        {
+            routines = result.Data;
+        }
+    }
+
+    private async Task LoadExercises()
+    {
+        var result = await GymService.GetExercisesAsync();
+        if (result.Success && result.Data != null)
+        {
+            exercises = result.Data;
+        }
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+    }
+
+    private void ShowCreateSessionModal()
+    {
+        // Implement modal for creating session
+    }
+
+    private void EditSession(TrainingSessionDto session)
+    {
+        // Implement edit
+    }
+
+    private async Task DeleteSession(int id)
+    {
+        var result = await GymService.DeleteTrainingSessionAsync(id);
+        if (result.Success)
+        {
+            await LoadSessions();
+        }
+    }
+
+    private void EditRoutine(RoutineDto routine)
+    {
+        // Implement edit
+    }
+
+    private async Task DeleteRoutine(int id)
+    {
+        var result = await GymService.DeleteRoutineAsync(id);
+        if (result.Success)
+        {
+            await LoadRoutines();
+        }
+    }
+
+    private void EditExercise(ExerciseDto exercise)
+    {
+        // Implement edit
+    }
+
+    private async Task DeleteExercise(int id)
+    {
+        var result = await GymService.DeleteExerciseAsync(id);
+        if (result.Success)
+        {
+            await LoadExercises();
+        }
+    }
+}

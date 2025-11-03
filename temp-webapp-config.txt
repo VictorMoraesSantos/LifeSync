@@ -1,0 +1,16 @@
+
+  lifesyncapp.webapp:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+ - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    depends_on:
+      - yarpapigateway
+    ports:
+      - "6007:8080"
+      - "6067:8081"
+    volumes:
+    - PLACEHOLDER_APPDATA/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - PLACEHOLDER_APPDATA/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - PLACEHOLDER_APPDATA/ASP.NET/Https:/home/app/.aspnet/https:ro
+  - PLACEHOLDER_APPDATA/ASP.NET/Https:/root/.aspnet/https:ro

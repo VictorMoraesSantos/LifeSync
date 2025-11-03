@@ -26,7 +26,7 @@ namespace Financial.API.Controllers
             var query = new GetTransactionByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.Transaction)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -36,7 +36,7 @@ namespace Financial.API.Controllers
             var query = new GetTransactionsByUserIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.Transactions)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -46,7 +46,7 @@ namespace Financial.API.Controllers
             var query = new GetAllTransactionsQuery();
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.Transactions)
                 : HttpResult<object>.InternalError(result.Error!.Description);
         }
 
@@ -55,7 +55,7 @@ namespace Financial.API.Controllers
         {
             var result = await _sender.Send(command, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Created(result.Value!)
+                ? HttpResult<object>.Created(result.Value!.TransactionId)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
@@ -72,7 +72,7 @@ namespace Financial.API.Controllers
                 command.TransactionDate);
             var result = await _sender.Send(updatedCommand, cancellationToken);
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.IsSuccess)
                 : result.Error!.Description.Contains("NotFound")
                     ? HttpResult<object>.NotFound(result.Error!.Description)
                     : HttpResult<object>.BadRequest(result.Error!.Description);

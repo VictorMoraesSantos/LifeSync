@@ -31,7 +31,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.DailyProgress)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -42,7 +42,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.DailyProgresses)
                 : HttpResult<object>.NotFound(result.Error!.Description);
         }
 
@@ -64,7 +64,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(query);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.DailyProgresses)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
@@ -74,7 +74,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(command);
 
             return result.IsSuccess
-                ? HttpResult<object>.Created(result.Value!)
+                ? HttpResult<object>.Created(result.Value!.Id)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
@@ -90,7 +90,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(updateCommand);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.IsSuccess)
                 : result.Error!.Description.Contains("NotFound")
                     ? HttpResult<object>.NotFound(result.Error!.Description)
                     : HttpResult<object>.BadRequest(result.Error!.Description);
@@ -115,7 +115,7 @@ namespace Nutrition.API.Controllers
             var result = await _sender.Send(setConsumedCommand);
 
             return result.IsSuccess
-                ? HttpResult<object>.Ok(result.Value!)
+                ? HttpResult<object>.Ok(result.Value!.IsSuccess)
                 : result.Error!.Description.Contains("NotFound")
                     ? HttpResult<object>.NotFound(result.Error!.Description!)
                     : HttpResult<object>.BadRequest(result.Error!.Description);
