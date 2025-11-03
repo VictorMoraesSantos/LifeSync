@@ -60,7 +60,8 @@
         var isAuthenticated = await AuthService.IsAuthenticatedAsync();
     if (!isAuthenticated)
    {
-  Navigation.NavigateTo("/login");
+             // Preserve returnUrl back to home after login
+ Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
         }
     }
 }

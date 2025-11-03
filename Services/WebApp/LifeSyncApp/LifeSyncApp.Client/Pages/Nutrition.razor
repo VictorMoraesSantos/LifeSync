@@ -15,7 +15,7 @@
     {
         <div class="text-center">
             <div class="spinner-border" role="status">
-                <span class="visually-hidden">Carregando...</span>
+                <span class="visualmente-oculto">Carregando...</span>
             </div>
         </div>
     }
@@ -49,7 +49,6 @@
     }
 </div>
 
-<!-- Create Diary Modal -->
 @if (showDiaryModal)
 {
     <div class="modal show d-block" tabindex="-1">
@@ -126,12 +125,15 @@
 
         diaryForm.Date = DateOnly.FromDateTime(diaryDateInput);
         diaryForm.UserId = user.Id;
+
+        // Agora espera pelo Id (int), não pelo DTO
         var result = await NutritionService.CreateDiaryAsync(diaryForm);
         if (result.Success)
         {
             await LoadDiaries();
             CloseDiaryModal();
         }
+        // opcional: else exibir erros
     }
 
     private void ViewDiaryDetails(DiaryDto diary)

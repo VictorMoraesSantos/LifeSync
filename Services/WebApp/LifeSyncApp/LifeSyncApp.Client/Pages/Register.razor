@@ -18,25 +18,25 @@
                         
                         <div class="mb-3">
                             <label class="form-label">Nome</label>
-                            <InputText @bind-Value="registerRequest.FirstName" class="form-control" />
+                            <SfTextBox @bind-Value="registerRequest.FirstName" Placeholder="Seu nome" FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Auto"></SfTextBox>
                             <ValidationMessage For="@(() => registerRequest.FirstName)" />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Sobrenome</label>
-                            <InputText @bind-Value="registerRequest.LastName" class="form-control" />
+                            <SfTextBox @bind-Value="registerRequest.LastName" Placeholder="Seu sobrenome" FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Auto"></SfTextBox>
                             <ValidationMessage For="@(() => registerRequest.LastName)" />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <InputText @bind-Value="registerRequest.Email" class="form-control" />
+                            <SfTextBox @bind-Value="registerRequest.Email" Placeholder="email@dominio.com" FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Auto"></SfTextBox>
                             <ValidationMessage For="@(() => registerRequest.Email)" />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Senha</label>
-                            <InputText @bind-Value="registerRequest.Password" type="password" class="form-control" />
+                            <SfTextBox @bind-Value="registerRequest.Password" Type="InputType.Password" Placeholder="••••••" FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Auto"></SfTextBox>
                             <ValidationMessage For="@(() => registerRequest.Password)" />
                         </div>
 
@@ -54,13 +54,13 @@
                             </div>
                         }
 
-                        <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
+                        <SfButton CssClass="e-primary w-100" IsPrimary="true" Disabled="@isLoading" Type="Submit">
                             @if (isLoading)
                             {
                                 <span class="spinner-border spinner-border-sm me-2"></span>
                             }
                             Registrar
-                        </button>
+                        </SfButton>
                     </EditForm>
 
                     <div class="mt-3 text-center">

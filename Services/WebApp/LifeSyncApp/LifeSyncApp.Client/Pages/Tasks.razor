@@ -1,5 +1,5 @@
 @page "/tasks"
-@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))   
 @inject ITaskManagerService TaskService
 @inject IAuthService AuthService
 
@@ -10,6 +10,11 @@
         <h2>Tarefas</h2>
         <button class="btn btn-primary" @onclick="ShowCreateModal">Nova Tarefa</button>
     </div>
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
 
     @if (isLoading)
     {
@@ -24,7 +29,7 @@
         <div class="row">
             @foreach (var task in tasks)
             {
-                <div class="col-md-4 mb-3">
+                <div class="col-md-4 mb-3" @key="task.Id">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">@task.Title</h5>
@@ -48,7 +53,6 @@
     }
 </div>
 
-<!-- Create/Edit Modal -->
 @if (showModal)
 {
     <div class="modal show d-block" tabindex="-1">
@@ -99,6 +103,7 @@
     private TaskItemDto? editingTask = null;
     private CreateTaskItemRequest taskForm = new();
     private DateTime dueDateInput = DateTime.Now;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,13 +113,18 @@
     private async Task LoadTasks()
     {
         isLoading = true;
-        var user = await AuthService.GetCurrentUserAsync(); // ✅ ASYNC
+        errorMessage = null;
+        var user = await AuthService.GetCurrentUserAsync();
         if (user != null)
         {
             var result = await TaskService.GetTaskItemsAsync(user.Id);
             if (result.Success && result.Data != null)
             {
                 tasks = result.Data;
+            }
+            else
+            {
+                errorMessage = result.Errors.ToString() ?? "Falha ao carregar tarefas.";
             }
         }
         isLoading = false;
@@ -126,6 +136,7 @@
         dueDateInput = DateTime.Now;
         taskForm = new CreateTaskItemRequest();
         showModal = true;
+        errorMessage = null;
     }
 
     private void EditTask(TaskItemDto task)
@@ -140,6 +151,7 @@
             DueDate = task.DueDate
         };
         showModal = true;
+        errorMessage = null;
     }
 
     private void CloseModal()
@@ -151,37 +163,53 @@
 
     private async Task SaveTask()
     {
-        var user = await AuthService.GetCurrentUserAsync(); // ✅ ASYNC
-        if (user == null) return;
+        errorMessage = null;
 
-        taskForm.DueDate = DateOnly.FromDateTime(dueDateInput);
-
-        if (editingTask == null)
+        try
         {
-            taskForm.UserId = user.Id;
-            var result = await TaskService.CreateTaskItemAsync(taskForm);
-            if (result.Success)
+            var user = await AuthService.GetCurrentUserAsync();
+            if (user == null) return;
+
+            taskForm.DueDate = DateOnly.FromDateTime(dueDateInput);
+
+            if (editingTask == null)
             {
-                await LoadTasks();
-                CloseModal();
+                taskForm.UserId = user.Id;
+                var result = await TaskService.CreateTaskItemAsync(taskForm);
+                if (!result.Success)
+                {
+                    errorMessage = result.Errors.ToString() ?? "Falha ao criar a tarefa.";
+                    return;
+                }
             }
+            else
+            {
+                var updateRequest = new UpdateTaskItemRequest
+                {
+                    Title = taskForm.Title,
+                    Description = taskForm.Description,
+                    Priority = taskForm.Priority,
+                    DueDate = taskForm.DueDate,
+                    Status = editingTask.Status
+                };
+                var result = await TaskService.UpdateTaskItemAsync(editingTask.Id, updateRequest);
+                if (!result.Success)
+                {
+                    errorMessage = result.Errors.ToString() ?? "Falha ao atualizar a tarefa.";
+                    return;
+                }
+            }
+
+            // Close the modal first to avoid any form re-render issues
+            CloseModal();
+
+            // Then refresh the list
+            await LoadTasks();
+            await InvokeAsync(StateHasChanged);
         }
-        else
+        catch (Exception ex)
         {
-            var updateRequest = new UpdateTaskItemRequest
-            {
-                Title = taskForm.Title,
-                Description = taskForm.Description,
-                Priority = taskForm.Priority,
-                DueDate = taskForm.DueDate,
-                Status = editingTask.Status
-            };
-            var result = await TaskService.UpdateTaskItemAsync(editingTask.Id, updateRequest);
-            if (result.Success)
-            {
-                await LoadTasks();
-                CloseModal();
-            }
+            errorMessage = $"Erro ao salvar tarefa: {ex.Message}";
         }
     }
 
@@ -194,12 +222,12 @@
             {
                 await LoadTasks();
             }
+            else
+            {
+                errorMessage = result.Errors.ToString() ?? "Falha ao excluir a tarefa.";
+            }
         }
     }
 
-    private async Task<bool> ConfirmDelete()
-    {
-        // Simple confirmation - in production, use JSInterop for browser confirm
-        return await Task.FromResult(true);
-    }
+    private async Task<bool> ConfirmDelete() => await Task.FromResult(true);
 }

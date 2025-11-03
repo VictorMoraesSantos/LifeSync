@@ -7,7 +7,7 @@ namespace LifeSyncApp.Client.Services
     {
         Task<HttpResult<List<DiaryDto>>> GetDiariesAsync(int? userId = null);
         Task<HttpResult<DiaryDto>> GetDiaryByIdAsync(int id);
-        Task<HttpResult<DiaryDto>> CreateDiaryAsync(CreateDiaryRequest request);
+        Task<HttpResult<int>> CreateDiaryAsync(CreateDiaryRequest request); // <- alterado para int (Id)
         Task<HttpResult> UpdateDiaryAsync(int id, DateOnly date);
         Task<HttpResult> DeleteDiaryAsync(int id);
 

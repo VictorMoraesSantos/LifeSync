@@ -1,0 +1,58 @@
+@using Microsoft.AspNetCore.Components.Routing
+@inject NavigationManager Navigation
+@inject LifeSyncApp.Client.Services.IAuthService AuthService
+
+@code {
+    [Parameter]
+    public RenderFragment? NotFound { get; set; }
+
+    [Parameter]
+    public Type? DefaultLayout { get; set; }
+
+    [Parameter]
+    public RouteData? RouteData { get; set; }
+
+    private bool _initialized;
+    private bool _isAuthenticated;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Skip auth redirects during server routing/prerendering. Let the WASM app handle it client-side.
+        if (!OperatingSystem.IsBrowser())
+        {
+            _isAuthenticated = true;
+            _initialized = true;
+            return;
+        }
+
+        // Do auth check BEFORE rendering protected pages; allow public pages
+        var path = new Uri(Navigation.Uri).AbsolutePath.Trim('/').ToLowerInvariant();
+        var isPublic = path is "login" or "register";
+
+        _isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        _initialized = true;
+
+        if (!_isAuthenticated && !isPublic)
+        {
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}", forceLoad: false);
+        }
+    }
+}
+
+@if (!_initialized)
+{
+    <div class="d-flex justify-content-center align-items-center" style="min-height:40vh;">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else
+{
+    // Only render the RouteView if allowed
+    var path = new Uri(Navigation.Uri).AbsolutePath.Trim('/').ToLowerInvariant();
+    var isPublic = path is "login" or "register";
+    if (_isAuthenticated || isPublic)
+    {
+        <RouteView RouteData="@RouteData" DefaultLayout="@DefaultLayout" />
+    }
+}
+

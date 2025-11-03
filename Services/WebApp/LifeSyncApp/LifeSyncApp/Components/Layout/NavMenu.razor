@@ -1,6 +1,24 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
+﻿@inject LifeSyncApp.Client.Services.IAuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
         <a class="navbar-brand" href="">LifeSync</a>
+        <div>
+            @if (isAuthenticated && !string.IsNullOrWhiteSpace(userInitials))
+            {
+                <div class="d-inline-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center" style="width:36px;height:36px;">
+                        @userInitials
+                    </div>
+                    <button class="btn btn-sm btn-outline-light" @onclick="Logout">Sair</button>
+                </div>
+            }
+            else
+            {
+                <a class="btn btn-sm btn-outline-light" href="/login">Login</a>
+            }
+        </div>
     </div>
 </div>
 
@@ -67,11 +85,34 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
+        @* Login link moved to header *@
     </nav>
 </div>
 
+@code {
+    private bool isAuthenticated;
+    private string userInitials = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (isAuthenticated)
+        {
+            var user = await AuthService.GetCurrentUserAsync();
+            if (user != null)
+            {
+                var first = string.IsNullOrWhiteSpace(user.FirstName) ? string.Empty : user.FirstName.Trim()[0].ToString().ToUpperInvariant();
+                var last = string.IsNullOrWhiteSpace(user.LastName) ? string.Empty : user.LastName.Trim()[0].ToString().ToUpperInvariant();
+                userInitials = $"{first}{last}";
+            }
+        }
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        isAuthenticated = false;
+        userInitials = string.Empty;
+        Navigation.NavigateTo("/login", forceLoad: false);
+    }
+}
