@@ -5,7 +5,7 @@ using Financial.Application.DTOs.Category;
 namespace Financial.Application.Contracts
 {
     public interface ICategoryService
-        : IReadService<CategoryDTO, int>,
+        : IReadService<CategoryDTO, int, CategoryFilterDTO>,
         ICreateService<CreateCategoryDTO>,
         IUpdateService<UpdateCategoryDTO>,
         IDeleteService<int>

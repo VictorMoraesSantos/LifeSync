@@ -302,13 +302,13 @@ namespace LifeSyncApp.Client.Services
             try
             {
                 var created = JsonSerializer.Deserialize<HttpResult<int>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                if (created?.Success == true && created.Data >0)
+                if (created?.Success == true && created.Data > 0)
                 {
                     // Constrói DTO básico com dados enviados
                     return new HttpResult<TrainingSessionDto>
                     {
                         Success = true,
-                        StatusCode =201,
+                        StatusCode = 201,
                         Data = new TrainingSessionDto
                         {
                             Id = created.Data,
@@ -398,7 +398,7 @@ namespace LifeSyncApp.Client.Services
                                 }
                             }
                         }
-                        return list.Count >0 ? list.ToArray() : new[] { "Requisição inválida" };
+                        return list.Count > 0 ? list.ToArray() : new[] { "Requisição inválida" };
                     }
                 }
                 var title = doc.RootElement.TryGetProperty("title", out var t) ? t.GetString() : null;

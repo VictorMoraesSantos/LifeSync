@@ -1,10 +1,12 @@
 ﻿using BuildingBlocks.CQRS.Sender;
 using BuildingBlocks.Results;
 using Core.API.Controllers;
+using Financial.Application.DTOs.Category;
 using Financial.Application.Features.Categories.Commands.Create;
 using Financial.Application.Features.Categories.Commands.Delete;
 using Financial.Application.Features.Categories.Commands.Update;
 using Financial.Application.Features.Categories.Queries.GetAll;
+using Financial.Application.Features.Categories.Queries.GetByFilter;
 using Financial.Application.Features.Categories.Queries.GetById;
 using Financial.Application.Features.Categories.Queries.GetByUserId;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +40,16 @@ namespace Financial.API.Controllers
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!.Categories)
                 : HttpResult<object>.NotFound(result.Error!.Description);
+        }
+
+        [HttpGet("search")]
+        public async Task<HttpResult<object>> Search([FromQuery] CategoryFilterDTO filter, CancellationToken cancellationToken)
+        {
+            var query = new GetCategoriesByFilterQuery(filter);
+            var result = await _sender.Send(query, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value.Items, result.Value.Pagination)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpGet]

@@ -4,6 +4,7 @@ using Financial.Application.DTOs.Category;
 using Financial.Application.Mappings;
 using Financial.Domain.Entities;
 using Financial.Domain.Errors;
+using Financial.Domain.Filters;
 using Financial.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
@@ -236,6 +237,45 @@ namespace Financial.Infrastructure.Services
             {
                 _logger.LogError(ex, "Erro ao buscar categorias do usuário {UserId}", userId);
                 return Result.Failure<IEnumerable<CategoryDTO>>(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<CategoryDTO> Items, PaginationData Pagination)>> GetByFilterAsync(CategoryFilterDTO filter, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new CategoryQueryFilter(
+                    filter.Id,
+                    filter.UserId,
+                    filter.NameContains,
+                    filter.DescriptionContains,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
+
+                var (entities, totalItems) = await _categoryRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<CategoryDTO> Items, PaginationData Pagination)>((new List<CategoryDTO>(), new PaginationData(filter.Page, filter.PageSize)));
+
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(CategoryMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<CategoryDTO> Items, PaginationData Pagination)>((dtos, pagination));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar categorias com filtro {@Filter}", filter);
+                return Result.Failure<(IEnumerable<CategoryDTO>, PaginationData)>(Error.Failure(ex.Message));
             }
         }
 

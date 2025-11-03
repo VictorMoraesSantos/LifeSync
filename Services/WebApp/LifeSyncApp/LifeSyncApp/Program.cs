@@ -1,5 +1,5 @@
-using LifeSyncApp.Components;
 using LifeSyncApp.Client.Services;
+using LifeSyncApp.Components;
 using LifeSyncApp.Services;
 using Syncfusion.Blazor;
 

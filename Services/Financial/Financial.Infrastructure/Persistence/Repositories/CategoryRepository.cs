@@ -1,4 +1,7 @@
-﻿using Financial.Domain.Entities;
+﻿using Core.Infrastructure.Persistence.Specifications;
+using Financial.Domain.Entities;
+using Financial.Domain.Filters;
+using Financial.Domain.Filters.Specifications;
 using Financial.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -40,6 +43,18 @@ namespace Financial.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
 
             return entities;
+        }
+
+        public async Task<(IEnumerable<Category> Items, int TotalCount)> FindByFilter(CategoryQueryFilter filter, CancellationToken cancellationToken = default)
+        {
+            var spec = new CategorySpecification(filter);
+            IQueryable<Category> query = _context.Categories.AsNoTracking();
+            IQueryable<Category> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
+            int totalCount = await countQuery.CountAsync(cancellationToken);
+            IQueryable<Category> finalQuery = SpecificationEvaluator.GetQuery(_context.Categories.AsNoTracking(), spec);
+            IEnumerable<Category> items = await finalQuery.ToListAsync(cancellationToken);
+
+            return (items, totalCount);
         }
 
         public async Task<IEnumerable<Category?>> GetAll(CancellationToken cancellationToken = default)

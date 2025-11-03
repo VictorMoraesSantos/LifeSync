@@ -1,10 +1,12 @@
 ﻿using BuildingBlocks.CQRS.Sender;
 using BuildingBlocks.Results;
 using Core.API.Controllers;
+using Gym.Application.DTOs.TrainingSession;
 using Gym.Application.Features.TrainingSession.Commands.Create;
 using Gym.Application.Features.TrainingSession.Commands.Delete;
 using Gym.Application.Features.TrainingSession.Commands.Update;
 using Gym.Application.Features.TrainingSession.Queries.GetAll;
+using Gym.Application.Features.TrainingSession.Queries.GetByFilter;
 using Gym.Application.Features.TrainingSession.Queries.GetById;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,6 +39,17 @@ namespace Gym.API.Controllers
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!.TrainingSessions)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
+        }
+
+        [HttpGet]
+        public async Task<HttpResult<object>> Search([FromQuery] TrainingSessionFilterDTO filter, CancellationToken cancellationToken)
+        {
+            var query = new GetTrainingSessionByFilterQuery(filter);
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value?.Items!, result.Value?.Pagination!)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 

@@ -4,6 +4,7 @@ using Financial.Application.DTOs.Transaction;
 using Financial.Application.Mappings;
 using Financial.Domain.Entities;
 using Financial.Domain.Errors;
+using Financial.Domain.Filters;
 using Financial.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
@@ -241,6 +242,54 @@ namespace Financial.Infrastructure.Services
             {
                 _logger.LogError(ex, "Erro ao obter página de transações (Página: {Page}, Tamanho: {PageSize})", page, pageSize);
                 return Result.Failure<(IEnumerable<TransactionDTO>, int)>(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<(IEnumerable<TransactionDTO> Items, PaginationData Pagination)>> GetByFilterAsync(TransactionFilterDTO filter, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var domainFilter = new TransactionQueryFilter(
+                    filter.Id,
+                    filter.UserId,
+                    filter.CategoryId,
+                    filter.PaymentMethod,
+                    filter.TransactionType,
+                    filter.AmountEquals,
+                    filter.AmountGreaterThan,
+                    filter.AmountLessThan,
+                    filter.CurrencyEquals,
+                    filter.DescriptionContains,
+                    filter.TransactionDate,
+                    filter.TransactionDateFrom,
+                    filter.TransactionDateTo,
+                    filter.CreatedAt,
+                    filter.UpdatedAt,
+                    filter.IsDeleted,
+                    filter.SortBy,
+                    filter.SortDesc,
+                    filter.Page,
+                    filter.PageSize);
+
+                var (entities, totalItems) = await _transactionRepository.FindByFilter(domainFilter, cancellationToken);
+                if (!entities.Any())
+                    return Result.Success<(IEnumerable<TransactionDTO> Items, PaginationData Pagination)>((new List<TransactionDTO>(), new PaginationData(filter.Page, filter.PageSize)));
+
+                var dtos = entities
+                    .Where(e => e != null)
+                    .Select(TransactionMapper.ToDTO)
+                    .ToList();
+
+                var pageSize = filter.PageSize ?? 50;
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                var pagination = new PaginationData(filter.Page, pageSize, totalItems, totalPages);
+
+                return Result.Success<(IEnumerable<TransactionDTO> Items, PaginationData Pagination)>((dtos, pagination));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar transações com filtro {@Filter}", filter);
+                return Result.Failure<(IEnumerable<TransactionDTO>, PaginationData)>(Error.Failure(ex.Message));
             }
         }
 

@@ -1,10 +1,12 @@
 ﻿using BuildingBlocks.CQRS.Sender;
 using BuildingBlocks.Results;
 using Core.API.Controllers;
+using Financial.Application.DTOs.Transaction;
 using Financial.Application.Features.Transactions.Commands.Create;
 using Financial.Application.Features.Transactions.Commands.Delete;
 using Financial.Application.Features.Transactions.Commands.Update;
 using Financial.Application.Features.Transactions.Queries.GetAll;
+using Financial.Application.Features.Transactions.Queries.GetByFilter;
 using Financial.Application.Features.Transactions.Queries.GetById;
 using Financial.Application.Features.Transactions.Queries.GetByUserId;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +40,16 @@ namespace Financial.API.Controllers
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!.Transactions)
                 : HttpResult<object>.NotFound(result.Error!.Description);
+        }
+
+        [HttpGet("search")]
+        public async Task<HttpResult<object>> Search([FromQuery] TransactionFilterDTO filter, CancellationToken cancellationToken)
+        {
+            var query = new GetTransactionsByFilterQuery(filter);
+            var result = await _sender.Send(query, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value.Items, result.Value.Pagination)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpGet]

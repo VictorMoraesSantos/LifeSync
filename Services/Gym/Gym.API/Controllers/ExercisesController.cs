@@ -1,10 +1,12 @@
 ﻿using BuildingBlocks.CQRS.Sender;
 using BuildingBlocks.Results;
 using Core.API.Controllers;
+using Gym.Application.DTOs.Exercise;
 using Gym.Application.Features.Exercise.Commands.Create;
 using Gym.Application.Features.Exercise.Commands.Delete;
 using Gym.Application.Features.Exercise.Commands.Update;
 using Gym.Application.Features.Exercise.Queries.GetAll;
+using Gym.Application.Features.Exercise.Queries.GetByFilter;
 using Gym.Application.Features.Exercise.Queries.GetById;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +37,17 @@ namespace Gym.API.Controllers
             var result = await _sender.Send(query, cancellationToken);
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!.Exercises)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
+        }
+
+        [HttpGet]
+        public async Task<HttpResult<object>> Search([FromQuery] ExerciseFilterDTO filter, CancellationToken cancellationToken)
+        {
+            var query = new GetExerciseByFilterQuery(filter);
+            var result = await _sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value?.Items!, result.Value?.Pagination!)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
