@@ -49,7 +49,7 @@ namespace Nutrition.API.Controllers
         [HttpGet("search")]
         public async Task<HttpResult<object>> Search([FromQuery] DailyProgressQueryFilterDTO filter, CancellationToken cancellationToken)
         {
-            var query = new GetByFilterQuery(filter);
+            var query = new GetDailyProgressByFilterQuery(filter);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess

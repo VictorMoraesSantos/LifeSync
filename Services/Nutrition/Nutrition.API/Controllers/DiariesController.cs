@@ -47,7 +47,7 @@ namespace Nutrition.API.Controllers
         [HttpGet("search")]
         public async Task<HttpResult<object>> Search([FromQuery] DiaryQueryFilterDTO filter, CancellationToken cancellationToken)
         {
-            var query = new GetByFilterQuery(filter);
+            var query = new GetDiaryByFilterQuery(filter);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess

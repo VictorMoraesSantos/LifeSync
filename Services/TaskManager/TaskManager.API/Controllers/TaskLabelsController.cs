@@ -48,7 +48,7 @@ namespace TaskManager.API.Controllers
         [HttpGet("search")]
         public async Task<HttpResult<object>> Find([FromQuery] TaskLabelFilterDTO filter, CancellationToken cancellationToken)
         {
-            var query = new GetByFilterQuery(filter);
+            var query = new GetTaskLabelsByFilterQuery(filter);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess

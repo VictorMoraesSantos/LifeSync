@@ -4,22 +4,22 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskLabels.Queries.GetByFilter
 {
-    public class GetByFilterQueryHandler : IQueryHandler<GetByFilterQuery, GetByFilterResult>
+    public class GetTaskLabelsByFilterQueryHandler : IQueryHandler<GetTaskLabelsByFilterQuery, GetTaskLabelsByFilterResult>
     {
         private readonly ITaskLabelService _taskLabelService;
 
-        public GetByFilterQueryHandler(ITaskLabelService taskLabelService)
+        public GetTaskLabelsByFilterQueryHandler(ITaskLabelService taskLabelService)
         {
             _taskLabelService = taskLabelService;
         }
 
-        public async Task<Result<GetByFilterResult>> Handle(GetByFilterQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GetTaskLabelsByFilterResult>> Handle(GetTaskLabelsByFilterQuery query, CancellationToken cancellationToken)
         {
             var result = await _taskLabelService.GetByFilterAsync(query.filter, cancellationToken);
             if (!result.IsSuccess)
-                return Result.Failure<GetByFilterResult>(result.Error!);
+                return Result.Failure<GetTaskLabelsByFilterResult>(result.Error!);
 
-            return Result.Success(new GetByFilterResult(result.Value.Items, result.Value.Pagination));
+            return Result.Success(new GetTaskLabelsByFilterResult(result.Value.Items, result.Value.Pagination));
         }
     }
 }

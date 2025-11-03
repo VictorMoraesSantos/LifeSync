@@ -59,7 +59,7 @@ namespace Nutrition.API.Controllers
         [HttpGet("search")]
         public async Task<HttpResult<object>> Search([FromQuery] LiquidQueryFilterDTO filter, CancellationToken cancellationToken)
         {
-            var query = new GetByFilterQuery(filter);
+            var query = new GetLiquidByFilterQuery(filter);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess

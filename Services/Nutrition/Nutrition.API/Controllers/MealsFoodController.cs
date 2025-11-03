@@ -50,7 +50,7 @@ namespace Nutrition.API.Controllers
         [HttpGet("search")]
         public async Task<HttpResult<object>> Search([FromQuery] MealFoodQueryFilterDTO filter, CancellationToken cancellationToken)
         {
-            var query = new GetByFilterQuery(filter);
+            var query = new GetMealFoodByFilterQuery(filter);
             var result = await _sender.Send(query, cancellationToken);
 
             return result.IsSuccess
