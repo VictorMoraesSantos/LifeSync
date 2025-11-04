@@ -17,27 +17,30 @@ public class EventBus : IEventBus
     {
         opts ??= new PublishOptions();
 
-        using var channel = _conn.CreateModel();
+        using var channel = _conn.CreateChannel();
 
-        channel.ExchangeDeclare(
+        channel.ExchangeDeclareAsync(
             exchange: opts.ExchangeName,
             type: opts.TypeExchange,
             durable: opts.Durable,
             autoDelete: opts.AutoDelete,
-            arguments: opts.Arguments);
+            arguments: opts.Arguments).GetAwaiter().GetResult();
 
         var json = JsonSerializer.Serialize(@event);
         var body = Encoding.UTF8.GetBytes(json);
 
-        var props = channel.CreateBasicProperties();
-        props.Persistent = true;
-        props.ContentType = "application/json";
-        props.MessageId = @event.Id.ToString();
+        var props = new BasicProperties
+        {
+            ContentType = "application/json",
+            DeliveryMode = DeliveryModes.Persistent,
+            MessageId = @event.Id.ToString()
+        };
 
-        channel.BasicPublish(
+        channel.BasicPublishAsync(
             exchange: opts.ExchangeName,
             routingKey: opts.RoutingKey,
+            mandatory: false,
             basicProperties: props,
-            body: body);
+            body: body).GetAwaiter().GetResult();
     }
 }

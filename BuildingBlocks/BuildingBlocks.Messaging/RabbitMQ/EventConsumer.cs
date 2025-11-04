@@ -8,56 +8,65 @@ namespace BuildingBlocks.Messaging.RabbitMQ
 {
     public class EventConsumer : IEventConsumer, IDisposable
     {
-        private readonly IModel _channel;
+        private readonly PersistentConnection _persistentConnection;
+        private IChannel? _channel;
 
         public EventConsumer(PersistentConnection persistentConnection)
         {
-            _channel = persistentConnection.CreateModel();
+            _persistentConnection = persistentConnection;
+            _channel = _persistentConnection.CreateChannel();
         }
 
         public void StartConsuming(Action<string> onMessageReceived, ConsumerOptions? options = null)
         {
             options ??= new ConsumerOptions();
 
-            _channel.ExchangeDeclare(
+            if (_channel is null || _channel.IsClosed)
+            {
+                _channel?.Dispose();
+                _channel = _persistentConnection.CreateChannel();
+            }
+
+            _channel.ExchangeDeclareAsync(
                 exchange: options.ExchangeName,
                 type: options.TypeExchange,
                 durable: options.Durable,
                 autoDelete: options.AutoDelete,
-                arguments: options.Arguments);
+                arguments: options.Arguments).GetAwaiter().GetResult();
 
-            _channel.QueueDeclare(
+            _channel.QueueDeclareAsync(
                 queue: options.QueueName,
                 durable: options.Durable,
                 exclusive: false,
                 autoDelete: options.AutoDelete,
-                arguments: options.Arguments);
+                arguments: options.Arguments).GetAwaiter().GetResult();
 
-            _channel.QueueBind(
+            _channel.QueueBindAsync(
                 queue: options.QueueName,
                 exchange: options.ExchangeName,
-                routingKey: options.RoutingKey);
+                routingKey: options.RoutingKey).GetAwaiter().GetResult();
 
-            _channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+            _channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false).GetAwaiter().GetResult();
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.Received += async (model, ea) =>
+            consumer.ReceivedAsync += async (ch, ea) =>
             {
                 var json = Encoding.UTF8.GetString(ea.Body.ToArray());
                 onMessageReceived(json);
-                _channel.BasicAck(ea.DeliveryTag, multiple: false);
+                await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
             };
 
-            _channel.BasicConsume(
+            _channel.BasicConsumeAsync(
                 queue: options.QueueName,
                 autoAck: false,
-                consumer: consumer);
+                consumer: consumer).GetAwaiter().GetResult();
         }
 
         public void Dispose()
         {
-            _channel?.Close();
+            _channel?.CloseAsync().GetAwaiter().GetResult();
             _channel?.Dispose();
+            _channel = null;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace BuildingBlocks.Messaging
             services.Configure<RabbitMqSettings>(options =>
                 configuration.GetSection("RabbitMQSettings").Bind(options));
 
-            services.AddSingleton<IConnectionFactory>(sp =>
+            services.AddSingleton(sp =>
             {
                 var options = sp.GetRequiredService<IOptions<RabbitMqSettings>>().Value;
                 return new ConnectionFactory
@@ -24,7 +24,13 @@ namespace BuildingBlocks.Messaging
                     Port = options.Port,
                     UserName = options.User,
                     Password = options.Password,
-                    DispatchConsumersAsync = true
+                    VirtualHost = options.VirtualHost,
+                    AutomaticRecoveryEnabled = true,
+                    NetworkRecoveryInterval = TimeSpan.FromSeconds(10),
+                    TopologyRecoveryEnabled = true,
+                    RequestedConnectionTimeout = TimeSpan.FromSeconds(10),
+                    SocketReadTimeout = TimeSpan.FromSeconds(30),
+                    SocketWriteTimeout = TimeSpan.FromSeconds(30)
                 };
             });
 
