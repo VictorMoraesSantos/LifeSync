@@ -42,7 +42,7 @@ namespace Gym.API.Controllers
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
-        [HttpGet]
+        [HttpGet("search")]
         public async Task<HttpResult<object>> Search([FromQuery] TrainingSessionFilterDTO filter, CancellationToken cancellationToken)
         {
             var query = new GetTrainingSessionByFilterQuery(filter);

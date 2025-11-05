@@ -1,0 +1,329 @@
+@page "/tasks"
+@using LifeSyncApp.Client.Services
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@inject ITaskManagerService TaskService
+
+<PageTitle>Tarefas - LifeSync</PageTitle>
+
+<div class="content-header">
+    <div>
+        <h1 class="page-title">Tarefas</h1>
+        <p class="page-description">Gerencie suas tarefas e organize seu dia</p>
+    </div>
+    <button class="btn btn-primary" @onclick="OpenCreateDialog">
+        <span>+ Nova Tarefa</span>
+    </button>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@totalTasks</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-icon primary">
+                <span>??</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@pendingTasks</div>
+                <div class="stat-label">Pendentes</div>
+            </div>
+            <div class="stat-icon warning">
+                <span>?</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@inProgressTasks</div>
+                <div class="stat-label">Em Progresso</div>
+            </div>
+            <div class="stat-icon secondary">
+                <span>??</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@completedTasks</div>
+                <div class="stat-label">Concluídas</div>
+            </div>
+            <div class="stat-icon success">
+                <span>?</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @if (isLoading)
+        {
+            <div style="text-align: center; padding: 3rem;">
+                <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                <p style="margin-top: 1rem;">Carregando tarefas...</p>
+            </div>
+        }
+        else if (tasks.Any())
+        {
+            <SfGrid DataSource="@tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
+                <GridPageSettings PageSize="10"></GridPageSettings>
+                <GridColumns>
+                    <GridColumn Field="@nameof(Services.TaskItem.Title)" HeaderText="Título" Width="200"></GridColumn>
+                    <GridColumn Field="@nameof(Services.TaskItem.Description)" HeaderText="Descrição" Width="250"></GridColumn>
+                    <GridColumn Field="@nameof(Services.TaskItem.Priority)" HeaderText="Prioridade" Width="120">
+                        <Template>
+                            @{
+                                var task = context as Services.TaskItem;
+                                <span class="badge badge-@GetPriorityColor(task?.Priority ?? "")">
+                                    @task?.Priority
+                                </span>
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(Services.TaskItem.Status)" HeaderText="Status" Width="120">
+                        <Template>
+                            @{
+                                var task = context as Services.TaskItem;
+                                <span class="badge badge-@GetStatusColor(task?.Status ?? "")">
+                                    @task?.Status
+                                </span>
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(Services.TaskItem.DueDate)" HeaderText="Data" Width="120" Format="dd/MM/yyyy"></GridColumn>
+                    <GridColumn HeaderText="Ações" Width="150">
+                        <Template>
+                            @{
+                                var task = context as Services.TaskItem;
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => EditTask(task)">
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTask(task)">
+                                        Excluir
+                                    </button>
+                                </div>
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 3rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
+                <h3>Nenhuma tarefa encontrada</h3>
+                <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+                    Comece criando sua primeira tarefa
+                </p>
+                <button class="btn btn-primary" @onclick="OpenCreateDialog">
+                    + Nova Tarefa
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
+    <DialogTemplates>
+        <Header>@(editingTask == null ? "Nova Tarefa" : "Editar Tarefa")</Header>
+        <Content>
+            <EditForm Model="currentTask" OnValidSubmit="SaveTask" FormName="taskForm">
+                <div class="form-group">
+                    <label class="form-label">Título</label>
+                    <InputText @bind-Value="currentTask.Title" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <InputTextArea @bind-Value="currentTask.Description" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Prioridade</label>
+                    <InputSelect @bind-Value="currentTask.Priority" class="form-control">
+                        <option value="Low">Baixa</option>
+                        <option value="Medium">Média</option>
+                        <option value="High">Alta</option>
+                        <option value="Urgent">Urgente</option>
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <InputSelect @bind-Value="currentTask.Status" class="form-control">
+                        <option value="Pending">Pendente</option>
+                        <option value="InProgress">Em Progresso</option>
+                        <option value="Completed">Concluída</option>
+                        <option value="Cancelled">Cancelada</option>
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Data de Vencimento</label>
+                    <InputDate @bind-Value="currentTask.DueDate" class="form-control" />
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        @(editingTask == null ? "Criar" : "Salvar")
+                    </button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    private List<Services.TaskItem> tasks = new();
+    
+    [SupplyParameterFromForm]
+    private Services.TaskItem currentTask { get; set; } = new();
+    
+    private Services.TaskItem? editingTask = null;
+    private bool showDialog = false;
+    private bool isLoading = true;
+
+    private int totalTasks => tasks.Count;
+    private int pendingTasks => tasks.Count(t => t.Status == "Pending");
+    private int inProgressTasks => tasks.Count(t => t.Status == "InProgress");
+    private int completedTasks => tasks.Count(t => t.Status == "Completed");
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasks();
+    }
+
+    private async Task LoadTasks()
+    {
+        isLoading = true;
+        try
+        {
+            var result = await TaskService.GetTasksAsync();
+            if (result.Success && result.Data != null)
+            {
+                tasks = result.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading tasks: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OpenCreateDialog()
+    {
+        editingTask = null;
+        currentTask = new Services.TaskItem 
+        { 
+            Priority = "Medium", 
+            Status = "Pending" 
+        };
+        showDialog = true;
+    }
+
+    private void EditTask(Services.TaskItem? task)
+    {
+        if (task == null) return;
+        editingTask = task;
+        currentTask = new Services.TaskItem
+        {
+            Id = task.Id,
+            Title = task.Title,
+            Description = task.Description,
+            Priority = task.Priority,
+            Status = task.Status,
+            DueDate = task.DueDate
+        };
+        showDialog = true;
+    }
+
+    private async Task SaveTask()
+    {
+        try
+        {
+            if (editingTask == null)
+            {
+                await TaskService.CreateTaskAsync(currentTask);
+            }
+            else
+            {
+                await TaskService.UpdateTaskAsync(currentTask.Id, currentTask);
+            }
+
+            await LoadTasks();
+            CloseDialog();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving task: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteTask(Services.TaskItem? task)
+    {
+        if (task == null) return;
+
+        try
+        {
+            await TaskService.DeleteTaskAsync(task.Id);
+            await LoadTasks();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting task: {ex.Message}");
+        }
+    }
+
+    private void CloseDialog()
+    {
+        showDialog = false;
+        currentTask = new();
+        editingTask = null;
+    }
+
+    private string GetPriorityColor(string priority)
+    {
+        return priority.ToLower() switch
+        {
+            "high" => "error",
+            "urgent" => "error",
+            "medium" => "warning",
+            "low" => "secondary",
+            _ => "primary"
+        };
+    }
+
+    private string GetStatusColor(string status)
+    {
+        return status.ToLower() switch
+        {
+            "completed" => "success",
+            "inprogress" => "primary",
+            "pending" => "warning",
+            "cancelled" => "error",
+            _ => "secondary"
+        };
+    }
+}

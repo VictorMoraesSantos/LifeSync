@@ -12,11 +12,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gym.API.Controllers
 {
-    public class RoutinesControlle : ApiController
+    public class RoutinesController : ApiController
     {
         private readonly ISender _sender;
 
-        public RoutinesControlle(ISender sender)
+        public RoutinesController(ISender sender)
         {
             _sender = sender;
         }
@@ -40,7 +40,7 @@ namespace Gym.API.Controllers
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
-        [HttpGet]
+        [HttpGet("search")]
         public async Task<HttpResult<object>> Search([FromQuery] RoutineFilterDTO filter, CancellationToken cancellationToken)
         {
             var query = new GetRoutineByFilterQuery(filter);

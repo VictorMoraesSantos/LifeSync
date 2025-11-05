@@ -1,0 +1,30 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Nav
+
+<AuthorizeView>
+    <Authorized>
+        @ChildContent
+    </Authorized>
+    <NotAuthorized>
+        <p>Redirecting to login...</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    private bool _redirected;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var auth = await AuthenticationStateTask;
+        var isAuth = auth.User.Identity?.IsAuthenticated ?? false;
+        if (!isAuth && !_redirected)
+        {
+            _redirected = true;
+            var returnUrl = Uri.EscapeDataString(Nav.ToBaseRelativePath(Nav.Uri));
+            // Keep it client-side to stay in WASM auth
+            Nav.NavigateTo($"/login?RedirectUrl={returnUrl}", forceLoad: false);
+        }
+    }
+}

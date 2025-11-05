@@ -1,0 +1,313 @@
+@page "/financial"
+@using LifeSyncApp.Client.Services
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Popups
+@inject IFinancialService FinancialService
+
+<PageTitle>Financeiro - LifeSync</PageTitle>
+
+<div class="content-header">
+    <div>
+        <h1 class="page-title">Financeiro</h1>
+        <p class="page-description">Controle suas finanças pessoais</p>
+    </div>
+    <button class="btn btn-primary" @onclick="OpenCreateDialog">
+        + Nova Transação
+    </button>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">R$ @totalIncome.ToString("N2")</div>
+                <div class="stat-label">Receitas</div>
+            </div>
+            <div class="stat-icon success">
+                <span>?</span>
+            </div>
+        </div>
+        <div class="stat-change positive">
+            <span>+@incomeCount transações</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">R$ @totalExpenses.ToString("N2")</div>
+                <div class="stat-label">Despesas</div>
+            </div>
+            <div class="stat-icon error">
+                <span>?</span>
+            </div>
+        </div>
+        <div class="stat-change negative">
+            <span>-@expensesCount transações</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">R$ @balance.ToString("N2")</div>
+                <div class="stat-label">Saldo</div>
+            </div>
+            <div class="stat-icon @(balance >= 0 ? "primary" : "warning")">
+                <span>??</span>
+            </div>
+        </div>
+        <div class="stat-change @(balance >= 0 ? "positive" : "negative")">
+            <span>@(balance >= 0 ? "Positivo" : "Negativo")</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@transactions.Count</div>
+                <div class="stat-label">Total Transações</div>
+            </div>
+            <div class="stat-icon secondary">
+                <span>??</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @if (isLoading)
+        {
+            <div style="text-align: center; padding: 3rem;">
+                <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                <p style="margin-top: 1rem;">Carregando transações...</p>
+            </div>
+        }
+        else if (transactions.Any())
+        {
+            <SfGrid DataSource="@transactions" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
+                <GridPageSettings PageSize="10"></GridPageSettings>
+                <GridColumns>
+                    <GridColumn Field="@nameof(Transaction.Description)" HeaderText="Descrição" Width="200"></GridColumn>
+                    <GridColumn Field="@nameof(Transaction.Amount)" HeaderText="Valor" Width="120" Format="C2"></GridColumn>
+                    <GridColumn Field="@nameof(Transaction.Type)" HeaderText="Tipo" Width="100">
+                        <Template>
+                            @{
+                                var transaction = context as Transaction;
+                                <span class="badge badge-@(transaction?.Type == "Income" ? "success" : "error")">
+                                    @(transaction?.Type == "Income" ? "Receita" : "Despesa")
+                                </span>
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(Transaction.Category)" HeaderText="Categoria" Width="120"></GridColumn>
+                    <GridColumn Field="@nameof(Transaction.PaymentMethod)" HeaderText="Método" Width="120"></GridColumn>
+                    <GridColumn Field="@nameof(Transaction.Date)" HeaderText="Data" Width="120" Format="dd/MM/yyyy"></GridColumn>
+                    <GridColumn HeaderText="Ações" Width="150">
+                        <Template>
+                            @{
+                                var transaction = context as Transaction;
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => EditTransaction(transaction)">
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTransaction(transaction)">
+                                        Excluir
+                                    </button>
+                                </div>
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 3rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
+                <h3>Nenhuma transação encontrada</h3>
+                <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+                    Comece registrando sua primeira transação
+                </p>
+                <button class="btn btn-primary" @onclick="OpenCreateDialog">
+                    + Nova Transação
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
+    <DialogTemplates>
+        <Header>@(editingTransaction == null ? "Nova Transação" : "Editar Transação")</Header>
+        <Content>
+            <EditForm Model="currentTransaction" OnValidSubmit="SaveTransaction" FormName="financialForm">
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <InputText @bind-Value="currentTransaction.Description" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Valor</label>
+                    <InputNumber @bind-Value="currentTransaction.Amount" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo</label>
+                    <InputSelect @bind-Value="currentTransaction.Type" class="form-control">
+                        <option value="Income">Receita</option>
+                        <option value="Expense">Despesa</option>
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <InputText @bind-Value="currentTransaction.Category" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Método de Pagamento</label>
+                    <InputSelect @bind-Value="currentTransaction.PaymentMethod" class="form-control">
+                        <option value="Cash">Dinheiro</option>
+                        <option value="CreditCard">Cartão de Crédito</option>
+                        <option value="DebitCard">Cartão de Débito</option>
+                        <option value="Transfer">Transferência</option>
+                        <option value="DigitalWallet">Carteira Digital</option>
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Data</label>
+                    <InputDate @bind-Value="currentTransaction.Date" class="form-control" />
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        @(editingTransaction == null ? "Criar" : "Salvar")
+                    </button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    private List<Transaction> transactions = new();
+    
+    [SupplyParameterFromForm]
+    private Transaction currentTransaction { get; set; } = new();
+    
+    private Transaction? editingTransaction = null;
+    private bool showDialog = false;
+    private bool isLoading = true;
+
+    private decimal totalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+    private decimal totalExpenses => transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+    private decimal balance => totalIncome - totalExpenses;
+    private int incomeCount => transactions.Count(t => t.Type == "Income");
+    private int expensesCount => transactions.Count(t => t.Type == "Expense");
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTransactions();
+    }
+
+    private async Task LoadTransactions()
+    {
+        isLoading = true;
+        try
+        {
+            var result = await FinancialService.GetTransactionsAsync();
+            if (result.Success && result.Data != null)
+            {
+                transactions = result.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading transactions: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OpenCreateDialog()
+    {
+        editingTransaction = null;
+        currentTransaction = new Transaction 
+        { 
+            Date = DateTime.Today,
+            Type = "Expense",
+            PaymentMethod = "Cash"
+        };
+        showDialog = true;
+    }
+
+    private void EditTransaction(Transaction? transaction)
+    {
+        if (transaction == null) return;
+        editingTransaction = transaction;
+        currentTransaction = new Transaction
+        {
+            Id = transaction.Id,
+            Description = transaction.Description,
+            Amount = transaction.Amount,
+            Type = transaction.Type,
+            Category = transaction.Category,
+            PaymentMethod = transaction.PaymentMethod,
+            Date = transaction.Date,
+            IsRecurring = transaction.IsRecurring
+        };
+        showDialog = true;
+    }
+
+    private async Task SaveTransaction()
+    {
+        try
+        {
+            if (editingTransaction == null)
+            {
+                await FinancialService.CreateTransactionAsync(currentTransaction);
+            }
+            else
+            {
+                await FinancialService.UpdateTransactionAsync(currentTransaction.Id, currentTransaction);
+            }
+
+            await LoadTransactions();
+            CloseDialog();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving transaction: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteTransaction(Transaction? transaction)
+    {
+        if (transaction == null) return;
+
+        try
+        {
+            await FinancialService.DeleteTransactionAsync(transaction.Id);
+            await LoadTransactions();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting transaction: {ex.Message}");
+        }
+    }
+
+    private void CloseDialog()
+    {
+        showDialog = false;
+        currentTransaction = new();
+        editingTransaction = null;
+    }
+}

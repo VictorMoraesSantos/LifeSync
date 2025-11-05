@@ -1,0 +1,284 @@
+@page "/"
+@using LifeSyncApp.Client.Authentication
+@using LifeSyncApp.Client.Services
+@using LifeSyncApp.Client.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject ITaskManagerService TaskService
+@inject INutritionService NutritionService
+@inject IFinancialService FinancialService
+@inject IGymService GymService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<PageTitle>Dashboard - LifeSync</PageTitle>
+
+@if (isAuthenticated)
+{
+    <div class="content-header">
+        <h1 class="page-title">Olá, @userName! ??</h1>
+        <p class="page-description">Aqui está um resumo das suas atividades</p>
+    </div>
+
+    <div class="alert alert-secondary" role="alert">
+        <div><strong>Id:</strong> @userId</div>
+        <div><strong>Email:</strong> @email</div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value">@tasksCount</div>
+                    <div class="stat-label">Tarefas Ativas</div>
+                </div>
+                <div class="stat-icon primary">
+                    <span>??</span>
+                </div>
+            </div>
+            @if (tasksCount > 0)
+            {
+                <div class="stat-change positive">
+                    <span>? @completedTasks completadas</span>
+                </div>
+            }
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value">@mealsCount</div>
+                    <div class="stat-label">Refeições Hoje</div>
+                </div>
+                <div class="stat-icon success">
+                    <span>???</span>
+                </div>
+            </div>
+            <div class="stat-change">
+                <span>@caloriesCount kcal</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value">R$ @balance.ToString("N2")</div>
+                    <div class="stat-label">Saldo</div>
+                </div>
+                <div class="stat-icon @(balance >= 0 ? "success" : "error")">
+                    <span>??</span>
+                </div>
+            </div>
+            <div class="stat-change @(balance >= 0 ? "positive" : "negative")">
+                <span>@(balance >= 0 ? "??" : "??") @monthTransactions transações</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value">@workoutsCount</div>
+                    <div class="stat-label">Treinos esta Semana</div>
+                </div>
+                <div class="stat-icon warning">
+                    <span>??????</span>
+                </div>
+            </div>
+            <div class="stat-change">
+                <span>@routinesCount rotinas ativas</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Tarefas Recentes</h3>
+                <a href="/tasks" class="btn btn-sm btn-secondary">Ver todas</a>
+            </div>
+            <div class="card-body">
+                @if (isLoadingTasks)
+                {
+                    <p>Carregando...</p>
+                }
+                else if (recentTasks.Any())
+                {
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        @foreach (var task in recentTasks.Take(5))
+                        {
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--color-background-tertiary); border-radius: var(--border-radius);">
+                                <span>@task.Title</span>
+                                <span class="badge badge-@GetPriorityColor(task.Priority)">@task.Priority</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p style="text-align: center; color: var(--color-text-tertiary); padding: 2rem;">
+                        Nenhuma tarefa encontrada
+                    </p>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Atividades Recentes</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="stat-icon primary" style="width: 40px; height: 40px;">
+                            <span style="font-size: 1.25rem;">??</span>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Dashboard atualizado</div>
+                            <div style="font-size: 0.875rem; color: var(--color-text-tertiary);">Dados sincronizados com sucesso</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (!isLoading)
+{
+    <div style="text-align: center; padding: 3rem;">
+        <div class="loading" style="width: 48px; height: 48px; border-width: 4px; margin: 0 auto 1.5rem;"></div>
+        <p>Redirecionando para login...</p>
+    </div>
+}
+
+@code {
+    private bool isAuthenticated = false;
+    private bool isLoading = true;
+    private string userName = "Usuário";
+    private string? userId;
+    private string? email;
+    private int tasksCount = 0;
+    private int completedTasks = 0;
+    private int mealsCount = 0;
+    private decimal caloriesCount = 0;
+    private decimal balance = 0;
+    private int monthTransactions = 0;
+    private int workoutsCount = 0;
+    private int routinesCount = 0;
+    private bool isLoadingTasks = true;
+    private List<TaskItem> recentTasks = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckAuthentication();
+
+        if (isAuthenticated)
+        {
+            await LoadUserData();
+            await LoadDashboardData();
+        }
+    }
+
+    private async Task CheckAuthentication()
+    {
+        var authState = await ((CustomAuthStateProvider)AuthStateProvider).GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+        // Only redirect in the browser
+        if (!isAuthenticated && OperatingSystem.IsBrowser())
+        {
+            Navigation.NavigateTo("/login");
+        }
+
+        isLoading = false;
+    }
+
+    private async Task LoadUserData()
+    {
+        var authState = await ((CustomAuthStateProvider)AuthStateProvider).GetAuthenticationStateAsync();
+        var principal = (CustomClaimsIdentity)authState.User.Identity;
+
+        userName = principal.Name;
+        userId = principal.UserId;
+        email = principal.Email;
+    }
+
+    private async Task LoadDashboardData()
+    {
+        // Load Tasks
+        try
+        {
+            var tasksResult = await TaskService.GetTasksAsync();
+            if (tasksResult.Success && tasksResult.Data != null)
+            {
+                recentTasks = tasksResult.Data;
+                tasksCount = recentTasks.Count(t => t.Status != "Completed");
+                completedTasks = recentTasks.Count(t => t.Status == "Completed");
+            }
+        }
+        catch { }
+        finally
+        {
+            isLoadingTasks = false;
+        }
+
+        // Load Nutrition
+        try
+        {
+            var diariesResult = await NutritionService.GetDiariesAsync();
+            if (diariesResult.Success && diariesResult.Data != null)
+            {
+                var today = diariesResult.Data.FirstOrDefault(d => d.Date.Date == DateTime.Today);
+                if (today != null)
+                {
+                    mealsCount = today.Meals.Count;
+                    caloriesCount = today.TotalCalories;
+                }
+            }
+        }
+        catch { }
+
+        // Load Financial
+        try
+        {
+            var transactionsResult = await FinancialService.GetTransactionsAsync();
+            if (transactionsResult.Success && transactionsResult.Data != null)
+            {
+                var transactions = transactionsResult.Data;
+                var income = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+                var expenses = transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+                balance = income - expenses;
+                monthTransactions = transactions.Count(t => t.Date.Month == DateTime.Now.Month);
+            }
+        }
+        catch { }
+
+        // Load Gym
+        try
+        {
+            var sessionsResult = await GymService.GetTrainingSessionsAsync();
+            if (sessionsResult.Success && sessionsResult.Data != null)
+            {
+                workoutsCount = sessionsResult.Data.Count(s => s.Date >= DateTime.Now.AddDays(-7));
+            }
+
+            var routinesResult = await GymService.GetRoutinesAsync();
+            if (routinesResult.Success && routinesResult.Data != null)
+            {
+                routinesCount = routinesResult.Data.Count;
+            }
+        }
+        catch { }
+    }
+
+    private string GetPriorityColor(string priority)
+    {
+        return priority.ToLower() switch
+        {
+            "high" => "error",
+            "urgent" => "error",
+            "medium" => "warning",
+            "low" => "secondary",
+            _ => "primary"
+        };
+    }
+}

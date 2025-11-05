@@ -25,7 +25,7 @@ namespace Users.Infrastructure.Services
             _expiryMinutes = jwtSettings.Value.ExpiryMinutes;
         }
 
-        public Result<string> GenerateToken(string userId, string email, IList<string> roles, CancellationToken cancellationToken)
+        public Result<string> GenerateToken(string userId, string email, IList<string> roles, CancellationToken cancellationToken, IList<Claim>? extraClaims = null)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -37,13 +37,24 @@ namespace Users.Infrastructure.Services
                 new Claim("UserId", userId)
             };
 
+            // profile claims
+            if (extraClaims is not null)
+            {
+                foreach (var c in extraClaims)
+                {
+                    // avoid duplicates
+                    if (!claims.Any(x => x.Type == c.Type))
+                        claims.Add(c);
+                }
+            }
+
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var token = new JwtSecurityToken(
                 issuer: _issuer,
                 audience: _audience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_expiryMinutes)),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_expiryMinutes)),
                 signingCredentials: signingCredentials);
             var encodedToken = new JwtSecurityTokenHandler().WriteToken(token);
 

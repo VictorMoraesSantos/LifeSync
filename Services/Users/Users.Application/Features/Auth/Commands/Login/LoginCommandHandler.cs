@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
+using System.Security.Claims;
 using Users.Application.DTOs.Auth;
 using Users.Application.Interfaces;
 
@@ -22,11 +23,20 @@ namespace Users.Application.Features.Auth.Commands.Login
             if (!userResult.IsSuccess)
                 return Result.Failure<AuthResult>(userResult.Error!);
 
+            var extra = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, userResult.Value!.Id),
+                new(ClaimTypes.Name, userResult.Value.FullName ?? string.Empty),
+                new(ClaimTypes.GivenName, userResult.Value.FirstName ?? string.Empty),
+                new(ClaimTypes.Surname, userResult.Value.LastName ?? string.Empty)
+            };
+
             var accessTokenResult = _tokenGenerator.GenerateToken(
                 userResult.Value!.Id,
                 userResult.Value.Email,
                 userResult.Value.Roles,
-                cancellationToken);
+                cancellationToken,
+                extra);
             if (!accessTokenResult.IsSuccess)
                 return Result.Failure<AuthResult>(accessTokenResult.Error!);
 

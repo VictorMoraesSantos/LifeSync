@@ -5,8 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageId></PackageId>
-    <Title></Title>
+	  
+    <PackageId>MyLibrary.CommonLibrary</PackageId>
+	  <Version>1.0.0 </Version>
+	  <Title>Shared Library</Title>
+	  <Authors>Victor</Authors>
   </PropertyGroup>
 
   <ItemGroup>

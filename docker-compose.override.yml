@@ -57,9 +57,9 @@ services:
     depends_on:
       - lifesyncdb
       - rabbitmq
-    ports:
-      - "6000:8080"
-      - "6060:8081"
+    # ports:
+    #   - "6000:8080"
+    #   - "6060:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -74,9 +74,9 @@ services:
       - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
     depends_on:
       - lifesyncdb
-    ports:
-      - "6001:8080"
-      - "6061:8081"
+    # ports:
+    #   - "6001:8080"
+    #   - "6061:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -91,9 +91,9 @@ services:
       - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
     depends_on:
       - lifesyncdb
-    ports:
-      - "6002:8080"
-      - "6062:8081"
+    # ports:
+    #   - "6002:8080"
+    #   - "6062:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -113,9 +113,9 @@ services:
     depends_on:
       - lifesyncdb
       - rabbitmq
-    ports:
-      - "6003:8080"
-      - "6063:8081"
+    # ports:
+    #   - "6003:8080"
+    #   - "6063:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -130,9 +130,9 @@ services:
       - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
     depends_on:
       - lifesyncdb
-    ports:
-      - "6004:8080"
-      - "6064:8081"
+    # ports:
+    #   - "6004:8080"
+    #   - "6064:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -159,9 +159,9 @@ services:
       - rabbitmq
       - mailhog
       - lifesyncdb
-    ports:
-      - "6005:8080"
-      - "6065:8081"
+    # ports:
+    #   - "6005:8080"
+    #   - "6065:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -186,16 +186,12 @@ services:
 
   lifesyncapp.webapp:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Development        
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - BaseApiUrl=http://yarpapigateway:8080
     depends_on:
       - yarpapigateway
     ports:
-      - "6007:8080" 
+      - "6007:8080"
       - "6067:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

@@ -1,10 +1,19 @@
+using LifeSyncApp.Client.Authentication;
 using LifeSyncApp.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddHttpClient("Api", (sp, client) =>
+{
+    var baseApiUrl = builder.Configuration.GetValue<string>("BaseApiUrl");
+    client.BaseAddress = new Uri(baseApiUrl);
+});
 
 var app = builder.Build();
 
@@ -22,11 +31,14 @@ else
 
 app.UseHttpsRedirection();
 
-
 app.UseAntiforgery();
+
+//app.UseAuthentication();
+//app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(LifeSyncApp.Client._Imports).Assembly);
 
