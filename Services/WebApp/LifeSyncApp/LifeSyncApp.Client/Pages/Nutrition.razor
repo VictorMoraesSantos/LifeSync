@@ -1,0 +1,359 @@
+@page "/nutrition"
+@using LifeSyncApp.Client.Services
+@using LifeSyncApp.Client.Models.Nutrition
+@using Syncfusion.Blazor.Popups
+@inject INutritionService NutritionService
+@using System.Security.Claims
+
+<PageTitle>Nutrição - LifeSync</PageTitle>
+
+<RedirectToLogin>
+<div class="content-header">
+    <div>
+        <h1 class="page-title">Nutrição</h1>
+        <p class="page-description">Acompanhe suas refeições e hidratação</p>
+    </div>
+    <div style="display:flex;gap:.5rem;">
+        <button class="btn btn-secondary" @onclick="OpenGoalDialog">Definir Objetivo</button>
+        <button class="btn btn-primary" @onclick="EnsureTodayDiary">Criar Diário de Hoje</button>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@todayCalories</div>
+                <div class="stat-label">Calorias Hoje</div>
+            </div>
+            <div class="stat-icon warning">
+                <span>??</span>
+            </div>
+        </div>
+        <div class="stat-change">
+            <span>Meta: @goalCalories kcal</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@todayMeals</div>
+                <div class="stat-label">Refeições</div>
+            </div>
+            <div class="stat-icon success">
+                <span>???</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@todayLiquids L</div>
+                <div class="stat-label">Líquidos</div>
+            </div>
+            <div class="stat-icon primary">
+                <span>??</span>
+            </div>
+        </div>
+        <div class="stat-change">
+            <span>Meta: @goalLiters L</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">
+            <div>
+                <div class="stat-value">@diariesCount</div>
+                <div class="stat-label">Dias Registrados</div>
+            </div>
+            <div class="stat-icon secondary">
+                <span>??</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Refeições de Hoje</h3>
+            <button class="btn btn-sm btn-primary" @onclick="AddMeal" disabled="@(todayDiary is null)">
+                + Adicionar Refeição
+            </button>
+        </div>
+        <div class="card-body">
+            @if (isLoadingMeals)
+            {
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="loading"></div>
+                    <p style="margin-top: 1rem;">Carregando...</p>
+                </div>
+            }
+            else if (todayDiary != null && todayDiary.Meals.Any())
+            {
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    @foreach (var meal in todayDiary.Meals)
+                    {
+                        <div style="padding: 1rem; background: var(--surface-2); border-radius: var(--radius-sm);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <h4 style="margin: 0;">@meal.Name</h4>
+                                <span class="badge badge-primary">@meal.TotalCalories kcal</span>
+                            </div>
+                            @if (meal.MealFoods.Any())
+                            {
+                                <div style="margin-top: 0.75rem;">
+                                    @foreach (var food in meal.MealFoods)
+                                    {
+                                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                                            • @food.Name (@food.Quantity g) - @food.TotalCalories kcal
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">???</div>
+                    <p style="color: var(--text-tertiary);">Nenhuma refeição registrada hoje</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Progresso Diário</h3>
+            </div>
+            <div class="card-body">
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.875rem;">Calorias</span>
+                        <span style="font-size: 0.875rem; font-weight: 600;">@CaloriesPct%</span>
+                    </div>
+                    <div style="height: 8px; background: var(--surface-3); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: @CaloriesPct%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.875rem;">Hidratação</span>
+                        <span style="font-size: 0.875rem; font-weight: 600;">@LiquidsPct%</span>
+                    </div>
+                    <div style="height: 8px; background: var(--surface-3); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; background: var(--primary); width: @LiquidsPct%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+                <h3 class="card-title">Adicionar Água</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                    <button class="btn btn-secondary" @onclick="() => AddWater(250)">?? 250ml</button>
+                    <button class="btn btn-secondary" @onclick="() => AddWater(500)">?? 500ml</button>
+                    <button class="btn btn-secondary" @onclick="() => AddWater(750)">?? 750ml</button>
+                    <button class="btn btn-secondary" @onclick="() => AddWater(1000)">?? 1L</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dialogo de Objetivo / Consumo -->
+<SfDialog @bind-Visible="showGoalDialog" Width="520px" IsModal="true">
+    <DialogTemplates>
+        <Header>Objetivo Diário</Header>
+        <Content>
+            <div class="form-group">
+                <label class="form-label">Calorias (kcal)</label>
+                <InputNumber @bind-Value="goalCalories" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Líquidos (ml)</label>
+                <InputNumber @bind-Value="goalMl" class="form-control" />
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="() => showGoalDialog=false">Cancelar</button>
+                <button class="btn btn-primary" @onclick="SaveGoal" disabled="@(todayProgressId is null)">Salvar</button>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+</RedirectToLogin>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    private int? _userId;
+
+    private DiaryDTO? todayDiary = null;
+    private bool isLoadingMeals = true;
+    private int diariesCount = 0;
+
+    private int todayCalories => todayDiary?.TotalCalories ?? 0;
+    private int todayMeals => todayDiary?.Meals.Count ?? 0;
+    private decimal todayLiquids => (todayDiary?.Liquids.Sum(l => l.QuantityMl) ?? 0) / 1000m;
+
+    // Objetivos e progresso diário
+    private int goalCalories = 2000;
+    private decimal goalLiters => goalMl / 1000m;
+    private int goalMl = 2500;
+    private int? todayProgressId = null;
+
+    private string CaloriesPct => (goalCalories > 0 ? Math.Clamp((int)Math.Round(todayCalories / (decimal)goalCalories * 100), 0, 100) : 0).ToString();
+    private string LiquidsPct => (goalMl > 0 ? Math.Clamp((int)Math.Round((todayLiquids * 1000m) / goalMl * 100), 0, 100) : 0).ToString();
+
+    private bool showGoalDialog = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ResolveUserIdAsync();
+        await LoadNutritionData();
+        await EnsureDailyProgress();
+    }
+
+    private async Task ResolveUserIdAsync()
+    {
+        var auth = await AuthenticationStateTask;
+        var user = auth.User;
+        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                   ?? user.FindFirst("UserId")?.Value
+                   ?? user.FindFirst("sub")?.Value;
+        if (int.TryParse(idStr, out var id))
+            _userId = id;
+    }
+
+    private async Task LoadNutritionData()
+    {
+        isLoadingMeals = true;
+        try
+        {
+            if (_userId is null)
+            {
+                todayDiary = null;
+                diariesCount = 0;
+                return;
+            }
+
+            var diariesResult = await NutritionService.GetDiariesByUserAsync(_userId.Value);
+            if (diariesResult.Success && diariesResult.Data != null)
+            {
+                diariesCount = diariesResult.Data.Count;
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                todayDiary = diariesResult.Data.FirstOrDefault(d => d.Date == today);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading nutrition data: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingMeals = false;
+        }
+    }
+
+    private async Task EnsureTodayDiary()
+    {
+        await EnsureDiaryInternal();
+        await LoadNutritionData();
+    }
+
+    private async Task EnsureDiaryInternal()
+    {
+        if (_userId is null) return;
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (todayDiary == null)
+        {
+            var create = new CreateDiaryCommand(_userId.Value, today);
+            await NutritionService.CreateDiaryAsync(create);
+        }
+    }
+
+    private async Task EnsureDailyProgress()
+    {
+        try
+        {
+            if (_userId is null) return;
+            var res = await NutritionService.GetDailyProgressesByUserAsync(_userId.Value);
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var todayProgress = res.Success ? res.Data?.FirstOrDefault(p => p.Date == today) : null;
+            if (todayProgress == null)
+            {
+                var create = new CreateDailyProgressCommand(_userId.Value, today, 0, 0);
+                var created = await NutritionService.CreateDailyProgressAsync(create);
+                if (created.Success)
+                {
+                    res = await NutritionService.GetDailyProgressesByUserAsync(_userId.Value);
+                    todayProgress = res.Data?.FirstOrDefault(p => p.Date == today);
+                }
+            }
+
+            if (todayProgress != null)
+            {
+                todayProgressId = todayProgress.Id;
+                goalCalories = todayProgress.Goal?.Calories ?? goalCalories;
+                goalMl = todayProgress.Goal?.QuantityMl ?? goalMl;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error ensuring daily progress: {ex.Message}");
+        }
+    }
+
+    private async Task AddMeal()
+    {
+        await EnsureDiaryInternal();
+        if (todayDiary == null) return;
+        var cmd = new CreateMealCommand(todayDiary.Id, "Refeição", string.Empty);
+        await NutritionService.AddMealAsync(cmd);
+        await LoadNutritionData();
+    }
+
+    private async Task AddWater(int ml)
+    {
+        try
+        {
+            await EnsureDiaryInternal();
+            if (todayDiary == null) return;
+            var liquid = new CreateLiquidCommand(todayDiary.Id, "Água", ml, 0);
+            await NutritionService.AddLiquidAsync(liquid);
+            await LoadNutritionData();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding water: {ex.Message}");
+        }
+    }
+
+    private void OpenGoalDialog()
+    {
+        showGoalDialog = true;
+    }
+
+    private async Task SaveGoal()
+    {
+        try
+        {
+            if (todayProgressId is null) return;
+            var goal = new DailyGoalDTO(goalCalories, goalMl);
+            await NutritionService.SetGoalAsync(todayProgressId.Value, goal);
+            showGoalDialog = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving goal: {ex.Message}");
+        }
+    }
+}

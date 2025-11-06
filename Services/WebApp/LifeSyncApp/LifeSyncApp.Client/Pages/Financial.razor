@@ -4,17 +4,22 @@
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Popups
 @inject IFinancialService FinancialService
+@using System.Security.Claims
 
 <PageTitle>Financeiro - LifeSync</PageTitle>
 
+<RedirectToLogin>
 <div class="content-header">
     <div>
         <h1 class="page-title">Financeiro</h1>
-        <p class="page-description">Controle suas finan?as pessoais</p>
+        <p class="page-description">Controle suas finanças pessoais</p>
     </div>
-    <button class="btn btn-primary" @onclick="OpenCreateDialog">
-        + Nova Transa??o
-    </button>
+    <div style="display:flex;gap:.5rem;">
+        <button class="btn btn-secondary" @onclick="OpenCategoriesDialog">Gerenciar Categorias</button>
+        <button class="btn btn-primary" @onclick="OpenCreateDialog">
+            + Nova Transação
+        </button>
+    </div>
 </div>
 
 <div class="stats-grid">
@@ -25,11 +30,11 @@
                 <div class="stat-label">Receitas</div>
             </div>
             <div class="stat-icon success">
-                <span>?</span>
+                <span>??</span>
             </div>
         </div>
         <div class="stat-change positive">
-            <span>+@incomeCount transa??es</span>
+            <span>+@incomeCount transações</span>
         </div>
     </div>
 
@@ -40,11 +45,11 @@
                 <div class="stat-label">Despesas</div>
             </div>
             <div class="stat-icon error">
-                <span>?</span>
+                <span>??</span>
             </div>
         </div>
         <div class="stat-change negative">
-            <span>-@expensesCount transa??es</span>
+            <span>-@expensesCount transações</span>
         </div>
     </div>
 
@@ -67,7 +72,7 @@
         <div class="stat-header">
             <div>
                 <div class="stat-value">@transactions.Count</div>
-                <div class="stat-label">Total Transa??es</div>
+                <div class="stat-label">Total Transações</div>
             </div>
             <div class="stat-icon secondary">
                 <span>??</span>
@@ -82,7 +87,7 @@
         {
             <div style="text-align: center; padding: 3rem;">
                 <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
-                <p style="margin-top: 1rem;">Carregando transa??es...</p>
+                <p style="margin-top: 1rem;">Carregando transações...</p>
             </div>
         }
         else if (transactions.Any())
@@ -90,7 +95,7 @@
             <SfGrid DataSource="@transactions" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
                 <GridPageSettings PageSize="10"></GridPageSettings>
                 <GridColumns>
-                    <GridColumn Field="@nameof(TransactionDTO.Description)" HeaderText="Descri??o" Width="200"></GridColumn>
+                    <GridColumn Field="@nameof(TransactionDTO.Description)" HeaderText="Descrição" Width="200"></GridColumn>
                     <GridColumn Field="@nameof(TransactionDTO.Amount)" HeaderText="Valor" Width="120"></GridColumn>
                     <GridColumn Field="@nameof(TransactionDTO.TransactionType)" HeaderText="Tipo" Width="100">
                         <Template>
@@ -102,10 +107,17 @@
                             }
                         </Template>
                     </GridColumn>
-                    <GridColumn Field="@nameof(TransactionDTO.Category)" HeaderText="Categoria" Width="120"></GridColumn>
-                    <GridColumn Field="@nameof(TransactionDTO.PaymentMethod)" HeaderText="M?todo" Width="120"></GridColumn>
+                    <GridColumn HeaderText="Categoria" Width="150">
+                        <Template>
+                            @{
+                                var transaction = context as TransactionDTO;
+                                @transaction?.Category?.Name
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(TransactionDTO.PaymentMethod)" HeaderText="Método" Width="120"></GridColumn>
                     <GridColumn Field="@nameof(TransactionDTO.TransactionDate)" HeaderText="Data" Width="120" Format="dd/MM/yyyy"></GridColumn>
-                    <GridColumn HeaderText="A??es" Width="150">
+                    <GridColumn HeaderText="Ações" Width="150">
                         <Template>
                             @{
                                 var transaction = context as TransactionDTO;
@@ -127,12 +139,12 @@
         {
             <div style="text-align: center; padding: 3rem;">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
-                <h3>Nenhuma transa??o encontrada</h3>
+                <h3>Nenhuma transação encontrada</h3>
                 <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
-                    Comece registrando sua primeira transa??o
+                    Comece registrando sua primeira transação
                 </p>
                 <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                    + Nova Transa??o
+                    + Nova Transação
                 </button>
             </div>
         }
@@ -141,11 +153,11 @@
 
 <SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
     <DialogTemplates>
-        <Header>@(editingTransaction == null ? "Nova Transa??o" : "Editar Transa??o")</Header>
+        <Header>@(editingTransaction == null ? "Nova Transação" : "Editar Transação")</Header>
         <Content>
             <EditForm Model="editModel" OnValidSubmit="SaveTransaction" FormName="financialForm">
                 <div class="form-group">
-                    <label class="form-label">Descri??o</label>
+                    <label class="form-label">Descrição</label>
                     <InputText @bind-Value="editModel.Description" class="form-control" />
                 </div>
 
@@ -175,12 +187,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">CategoriaId</label>
-                    <InputNumber @bind-Value="editModel.CategoryId" class="form-control" />
+                    <label class="form-label">Categoria</label>
+                    <InputSelect @bind-Value="editModel.CategoryId" class="form-control">
+                        <option value="">Sem categoria</option>
+                        @foreach (var c in categories)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </InputSelect>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">M?todo de Pagamento</label>
+                    <label class="form-label">Método de Pagamento</label>
                     <InputSelect @bind-Value="editModel.PaymentMethod" class="form-control">
                         @foreach (var m in Enum.GetValues<PaymentMethod>())
                         {
@@ -212,7 +230,54 @@
     </DialogTemplates>
 </SfDialog>
 
+<!-- Dialogo de gerenciamento de Categorias -->
+<SfDialog @bind-Visible="showCategoriesDialog" Width="620px" IsModal="true">
+    <DialogTemplates>
+        <Header>Gerenciar Categorias</Header>
+        <Content>
+            <div class="form-group">
+                <label class="form-label">Nome</label>
+                <InputText @bind-Value="categoryModel.Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descrição</label>
+                <InputText @bind-Value="categoryModel.Description" class="form-control" />
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="() => { categoryModel = new CategoryEditModel(); showCategoriesDialog = false; }">Fechar</button>
+                <button class="btn btn-primary" @onclick="CreateCategory">Adicionar Categoria</button>
+            </div>
+
+            <div class="card" style="margin-top:1rem;">
+                <div class="card-header"><h3 class="card-title">Minhas categorias</h3></div>
+                <div class="card-body">
+                    @if (categories.Any())
+                    {
+                        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                            @foreach (var c in categories)
+                            {
+                                <div style="display:flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.35rem .5rem;border-radius:10px;">
+                                    <span class="badge badge-primary">@c.Name</span>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteCategory(c.Id)">Excluir</button>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span style="color:var(--text-tertiary);">Nenhuma categoria criada</span>
+                    }
+                </div>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+</RedirectToLogin>
+
 @code {
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    private int? _userId;
+
     private class TransactionEditModel
     {
         public int Id { get; set; }
@@ -226,7 +291,14 @@
         public bool IsRecurring { get; set; }
     }
 
+    private class CategoryEditModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+
     private List<TransactionDTO> transactions = new();
+    private List<CategoryDTO> categories = new();
 
     [SupplyParameterFromForm]
     private TransactionEditModel editModel { get; set; } = new();
@@ -234,6 +306,9 @@
     private TransactionDTO? editingTransaction = null;
     private bool showDialog = false;
     private bool isLoading = true;
+
+    private bool showCategoriesDialog = false;
+    private CategoryEditModel categoryModel { get; set; } = new();
 
     private decimal totalIncome => transactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount);
     private decimal totalExpenses => transactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount);
@@ -243,7 +318,40 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadTransactions();
+        await ResolveUserIdAsync();
+        await Task.WhenAll(LoadCategories(), LoadTransactions());
+    }
+
+    private async Task ResolveUserIdAsync()
+    {
+        var auth = await AuthenticationStateTask;
+        var user = auth.User;
+        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                   ?? user.FindFirst("UserId")?.Value
+                   ?? user.FindFirst("sub")?.Value;
+        if (int.TryParse(idStr, out var id))
+            _userId = id;
+    }
+
+    private async Task LoadCategories()
+    {
+        try
+        {
+            if (_userId is null)
+            {
+                categories = [];
+                return;
+            }
+            var res = await FinancialService.GetCategoriesByUserAsync(_userId.Value);
+            if (res.Success && res.Data != null)
+            {
+                categories = res.Data.OrderBy(c => c.Name).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading categories: {ex.Message}");
+        }
     }
 
     private async Task LoadTransactions()
@@ -251,10 +359,17 @@
         isLoading = true;
         try
         {
-            var result = await FinancialService.GetTransactionsAsync();
-            if (result.Success && result.Data != null)
+            if (_userId is null)
             {
-                transactions = result.Data;
+                transactions = [];
+            }
+            else
+            {
+                var result = await FinancialService.GetTransactionsByUserAsync(_userId.Value);
+                if (result.Success && result.Data != null)
+                {
+                    transactions = result.Data.OrderByDescending(t => t.TransactionDate).ToList();
+                }
             }
         }
         catch (Exception ex)
@@ -272,6 +387,12 @@
         editingTransaction = null;
         editModel = new TransactionEditModel();
         showDialog = true;
+    }
+
+    private void OpenCategoriesDialog()
+    {
+        categoryModel = new();
+        showCategoriesDialog = true;
     }
 
     private void EditTransaction(TransactionDTO? transaction)
@@ -297,10 +418,11 @@
     {
         try
         {
+            if (_userId is null) return;
             var money = new Money(editModel.Amount, editModel.Currency);
             if (editingTransaction == null)
             {
-                var create = new CreateTransactionCommand(0, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+                var create = new CreateTransactionCommand(_userId.Value, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
                 await FinancialService.CreateTransactionAsync(create);
             }
             else
@@ -315,6 +437,42 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error saving transaction: {ex.Message}");
+        }
+    }
+
+    private async Task CreateCategory()
+    {
+        try
+        {
+            if (_userId is null) return;
+            var cmd = new CreateCategoryCommand(_userId.Value, categoryModel.Name, categoryModel.Description);
+            var res = await FinancialService.CreateCategoryAsync(cmd);
+            if (res.Success)
+            {
+                categoryModel = new();
+                await LoadCategories();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating category: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteCategory(int id)
+    {
+        try
+        {
+            var res = await FinancialService.DeleteCategoryAsync(id);
+            if (res.Success)
+            {
+                await LoadCategories();
+                await LoadTransactions(); // caso apague categoria usada
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting category: {ex.Message}");
         }
     }
 

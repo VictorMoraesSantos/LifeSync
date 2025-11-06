@@ -2,9 +2,11 @@
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.Gym
 @inject IGymService GymService
+@using System.Security.Claims
 
 <PageTitle>Academia - LifeSync</PageTitle>
 
+<RedirectToLogin>
 <div class="content-header">
     <div>
         <h1 class="page-title">Academia</h1>
@@ -20,7 +22,7 @@
                 <div class="stat-label">Treinos Totais</div>
             </div>
             <div class="stat-icon primary">
-                <span>???</span>
+                <span>??????</span>
             </div>
         </div>
     </div>
@@ -64,7 +66,7 @@
 
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
     <button class="btn btn-primary" style="height: 60px;" @onclick="StartWorkout">
-        ??? Iniciar Treino
+        ?? Iniciar Treino
     </button>
     <button class="btn btn-secondary" style="height: 60px;" @onclick="ManageRoutines">
         ?? Gerenciar Rotinas
@@ -94,7 +96,7 @@
                     {
                         <div style="padding: 1rem; background: var(--color-background-tertiary); border-radius: var(--border-radius);">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <h4 style="margin: 0;">@workout.RoutineId</h4>
+                                <h4 style="margin: 0;">Rotina #@workout.RoutineId</h4>
                                 <span class="badge badge-primary">@((workout.EndTime.HasValue ? (int)(workout.EndTime - workout.StartTime)?.TotalMinutes : 0)) min</span>
                             </div>
                             <p style="font-size: 0.875rem; color: var(--color-text-terciary); margin: 0;">
@@ -107,7 +109,7 @@
             else
             {
                 <div style="text-align: center; padding: 2rem;">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">???</div>
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">??</div>
                     <p style="color: var(--color-text-terciary);">Nenhum treino registrado</p>
                 </div>
             }
@@ -131,7 +133,7 @@
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
                     @foreach (var routine in routines)
                     {
-                        <div style="padding: 1rem; background: var(--color-background-tertiary); border-radius: var(--border-radius); cursor: pointer;" 
+                        <div style="padding: 1rem; background: var(--color-background-terciary); border-radius: var(--border-radius); cursor: pointer;" 
                              @onclick="() => StartRoutine(routine)">
                             <h4 style="margin: 0 0 0.5rem 0;">@routine.Name</h4>
                             <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">
@@ -144,7 +146,7 @@
             else
             {
                 <div style="text-align: center; padding: 2rem;">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">??</div>
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">???</div>
                     <p style="color: var(--color-text-terciary);">Nenhuma rotina criada</p>
                     <button class="btn btn-sm btn-primary" style="margin-top: 1rem;" @onclick="ManageRoutines">
                         Criar Rotina
@@ -175,7 +177,7 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
                 @foreach (var exercise in exercises)
                 {
-                    <div style="padding: 1rem; background: var(--color-background-tertiary); border-radius: var(--border-radius);">
+                    <div style="padding: 1rem; background: var(--color-background-terciary); border-radius: var(--border-radius);">
                         <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem;">@exercise.Name</h4>
                         <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem;">
                             <span class="badge badge-primary" style="width: fit-content;">@exercise.MuscleGroup</span>
@@ -194,8 +196,12 @@
         }
     </div>
 </div>
+</RedirectToLogin>
 
 @code {
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    private int? _userId;
+
     private List<TrainingSessionDTO> recentWorkouts = new();
     private List<RoutineDTO> routines = new();
     private List<ExerciseDTO> exercises = new();
@@ -210,6 +216,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await ResolveUserIdAsync();
         await Task.WhenAll(
             LoadWorkouts(),
             LoadRoutines(),
@@ -217,15 +224,26 @@
         );
     }
 
+    private async Task ResolveUserIdAsync()
+    {
+        var auth = await AuthenticationStateTask;
+        var user = auth.User;
+        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                   ?? user.FindFirst("UserId")?.Value
+                   ?? user.FindFirst("sub")?.Value;
+        if (int.TryParse(idStr, out var id))
+            _userId = id;
+    }
+
     private async Task LoadWorkouts()
     {
         isLoadingWorkouts = true;
         try
         {
-            var result = await GymService.GetTrainingSessionsAsync();
-            if (result.Success && result.Data != null)
+            var res = await GymService.GetTrainingSessionsAsync();
+            if (res.Success && res.Data != null)
             {
-                recentWorkouts = result.Data.OrderByDescending(w => w.StartTime).ToList();
+                recentWorkouts = (_userId is null ? res.Data : res.Data.Where(x => x.UserId == _userId.Value)).OrderByDescending(w => w.StartTime).ToList();
             }
         }
         catch (Exception ex)
@@ -280,23 +298,36 @@
         }
     }
 
-    private void StartWorkout()
+    private async Task StartWorkout()
     {
-        // TODO: Implementar diálogo para iniciar treino
+        try
+        {
+            if (_userId is null || routines.Count == 0) return;
+            var routineId = routines.First().Id; // simplificação
+            var start = DateTime.Now;
+            var end = DateTime.Now.AddMinutes(45);
+            var cmd = new CreateTrainingSessionCommand(_userId.Value, routineId, start, end);
+            await GymService.CreateTrainingSessionAsync(cmd);
+            await LoadWorkouts();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error starting workout: {ex.Message}");
+        }
     }
 
     private void StartRoutine(RoutineDTO routine)
     {
-        // TODO: Implementar início de treino com rotina específica
+        // Abrir modal com detalhes/execução (a implementar)
     }
 
     private void ManageRoutines()
     {
-        // TODO: Navegar para página de gerenciamento de rotinas
+        // Navegar ou abrir modal de CRUD (a implementar)
     }
 
     private void ManageExercises()
     {
-        // TODO: Navegar para página de gerenciamento de exercícios
+        // Navegar ou abrir modal de CRUD (a implementar)
     }
 }

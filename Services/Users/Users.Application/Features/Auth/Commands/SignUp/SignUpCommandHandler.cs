@@ -27,7 +27,6 @@ namespace Users.Application.Features.Auth.Commands.SignUp
 
         public async Task<Result<AuthResult>> Handle(SignUpCommand command, CancellationToken cancellationToken)
         {
-            // Create user
             var userResult = await _authService.SignUpAsync(
                 command.FirstName,
                 command.LastName,
@@ -37,7 +36,6 @@ namespace Users.Application.Features.Auth.Commands.SignUp
             if (!userResult.IsSuccess)
                 return Result.Failure<AuthResult>(userResult.Error!);
 
-            // Generate tokens with profile claims
             var extra = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, userResult.Value!.Id),
@@ -59,12 +57,10 @@ namespace Users.Application.Features.Auth.Commands.SignUp
             if (!refreshTokenResult.IsSuccess)
                 return Result.Failure<AuthResult>(refreshTokenResult.Error!);
 
-            // Persist refresh token
             var updateRt = await _authService.UpdateRefreshTokenAsync(userResult.Value.Id, refreshTokenResult.Value!);
             if (!updateRt.IsSuccess)
                 return Result.Failure<AuthResult>(updateRt.Error!);
 
-            // Publish integration event (fire-and-forget by interface contract)
             var @event = new UserRegisteredEvent(int.Parse(userResult.Value.Id), userResult.Value.Email);
             var options = new PublishOptions
             {

@@ -5,17 +5,22 @@
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Popups
 @inject ITaskManagerService TaskService
+@using System.Security.Claims
 
 <PageTitle>Tarefas - LifeSync</PageTitle>
 
+<RedirectToLogin>
 <div class="content-header">
     <div>
         <h1 class="page-title">Tarefas</h1>
         <p class="page-description">Gerencie suas tarefas e organize seu dia</p>
     </div>
-    <button class="btn btn-primary" @onclick="OpenCreateDialog">
-        <span>+ Nova Tarefa</span>
-    </button>
+    <div style="display:flex;gap:.5rem;">
+        <button class="btn btn-secondary" @onclick="OpenLabelsDialog">Gerenciar Labels</button>
+        <button class="btn btn-primary" @onclick="OpenCreateDialog">
+            <span>+ Nova Tarefa</span>
+        </button>
+    </div>
 </div>
 
 <div class="stats-grid">
@@ -84,6 +89,26 @@
                 <GridColumns>
                     <GridColumn Field="@nameof(TaskItemDTO.Title)" HeaderText="Título" Width="200"></GridColumn>
                     <GridColumn Field="@nameof(TaskItemDTO.Description)" HeaderText="Descrição" Width="250"></GridColumn>
+                    <GridColumn HeaderText="Labels" Width="220">
+                        <Template>
+                            @{
+                                var task = context as TaskItemDTO;
+                                if (task?.Labels != null && task.Labels.Any())
+                                {
+                                    <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
+                                        @foreach (var l in task.Labels)
+                                        {
+                                            <span class="badge badge-primary">@l.Name</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span style="color:var(--text-tertiary);">Sem labels</span>
+                                }
+                            }
+                        </Template>
+                    </GridColumn>
                     <GridColumn Field="@nameof(TaskItemDTO.Priority)" HeaderText="Prioridade" Width="120">
                         <Template>
                             @{
@@ -96,17 +121,14 @@
                     </GridColumn>
                     <GridColumn Field="@nameof(TaskItemDTO.Status)" HeaderText="Status" Width="120"></GridColumn>
                     <GridColumn Field="@nameof(TaskItemDTO.DueDate)" HeaderText="Data" Width="120" Format="dd/MM/yyyy"></GridColumn>
-                    <GridColumn HeaderText="Ações" Width="150">
+                    <GridColumn HeaderText="Ações" Width="230">
                         <Template>
                             @{
                                 var task = context as TaskItemDTO;
                                 <div style="display: flex; gap: 0.5rem;">
-                                    <button class="btn btn-sm btn-secondary" @onclick="() => EditTask(task)">
-                                        Editar
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTask(task)">
-                                        Excluir
-                                    </button>
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => EditTask(task)">Editar</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTask(task)">Excluir</button>
+                                    <button class="btn btn-sm btn-primary" @onclick="() => OpenAddLabelDialog(task)">+ Label</button>
                                 </div>
                             }
                         </Template>
@@ -117,7 +139,7 @@
         else
         {
             <div style="text-align: center; padding: 3rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">???</div>
                 <h3>Nenhuma tarefa encontrada</h3>
                 <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
                     Comece criando sua primeira tarefa
@@ -183,7 +205,86 @@
     </DialogTemplates>
 </SfDialog>
 
+<!-- Dialogo de gerenciamento de Labels -->
+<SfDialog @bind-Visible="showLabelsDialog" Width="620px" IsModal="true">
+    <DialogTemplates>
+        <Header>Gerenciar Labels</Header>
+        <Content>
+            <div class="form-group">
+                <label class="form-label">Nome</label>
+                <InputText @bind-Value="labelModel.Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cor</label>
+                <InputSelect @bind-Value="labelModel.Color" class="form-control">
+                    @foreach (var c in Enum.GetValues<LabelColor>())
+                    {
+                        <option value="@c">@c</option>
+                    }
+                </InputSelect>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="() => { labelModel = new LabelEditModel(); showLabelsDialog = false; }">Fechar</button>
+                <button class="btn btn-primary" @onclick="CreateLabel">Adicionar Label</button>
+            </div>
+
+            <div class="card" style="margin-top:1rem;">
+                <div class="card-header"><h3 class="card-title">Minhas labels</h3></div>
+                <div class="card-body">
+                    @if (labels.Any())
+                    {
+                        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                            @foreach (var l in labels)
+                            {
+                                <div style="display:flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.35rem .5rem;border-radius:10px;">
+                                    <span class="badge badge-primary">@l.Name</span>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteLabel(l.Id)">Excluir</button>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span style="color:var(--text-tertiary);">Nenhuma label criada</span>
+                    }
+                </div>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+<!-- Dialogo rápido para adicionar label a uma tarefa -->
+<SfDialog @bind-Visible="showAddLabelDialog" Width="500px" IsModal="true">
+    <DialogTemplates>
+        <Header>Adicionar Label à Tarefa</Header>
+        <Content>
+            <div class="form-group">
+                <label class="form-label">Nome</label>
+                <InputText @bind-Value="labelModel.Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cor</label>
+                <InputSelect @bind-Value="labelModel.Color" class="form-control">
+                    @foreach (var c in Enum.GetValues<LabelColor>())
+                    {
+                        <option value="@c">@c</option>
+                    }
+                </InputSelect>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="() => { showAddLabelDialog = false; labelModel = new LabelEditModel(); }">Cancelar</button>
+                <button class="btn btn-primary" @onclick="CreateLabelForTask">Adicionar</button>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+</RedirectToLogin>
+
 @code {
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    private int? _userId;
+
     private class TaskEditModel
     {
         public int Id { get; set; }
@@ -194,7 +295,14 @@
         public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }
 
+    private class LabelEditModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public LabelColor Color { get; set; } = LabelColor.Purple;
+    }
+
     private List<TaskItemDTO> tasks = new();
+    private List<TaskLabelDTO> labels = new();
 
     [SupplyParameterFromForm]
     private TaskEditModel currentTask { get; set; } = new();
@@ -203,6 +311,11 @@
     private bool showDialog = false;
     private bool isLoading = true;
 
+    private bool showLabelsDialog = false;
+    private bool showAddLabelDialog = false;
+    private int? targetTaskIdForLabel = null;
+    private LabelEditModel labelModel { get; set; } = new();
+
     private int totalTasks => tasks.Count;
     private int pendingTasks => tasks.Count(t => t.Status == Status.Pending);
     private int inProgressTasks => tasks.Count(t => t.Status == Status.InProgress);
@@ -210,15 +323,34 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await ResolveUserIdAsync();
         await LoadTasks();
+        await LoadLabels();
+    }
+
+    private async Task ResolveUserIdAsync()
+    {
+        var auth = await AuthenticationStateTask;
+        var user = auth.User;
+        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                   ?? user.FindFirst("UserId")?.Value
+                   ?? user.FindFirst("sub")?.Value;
+        if (int.TryParse(idStr, out var id))
+            _userId = id;
     }
 
     private async Task LoadTasks()
     {
+        if (_userId is null)
+        {
+            isLoading = false;
+            return;
+        }
+
         isLoading = true;
         try
         {
-            var result = await TaskService.GetTasksAsync();
+            var result = await TaskService.GetTasksByUserAsync(_userId.Value);
             if (result.Success && result.Data != null)
             {
                 tasks = result.Data;
@@ -231,6 +363,23 @@
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task LoadLabels()
+    {
+        if (_userId is null) return;
+        try
+        {
+            var result = await TaskService.GetLabelsByUserAsync(_userId.Value);
+            if (result.Success && result.Data != null)
+            {
+                labels = result.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading labels: {ex.Message}");
         }
     }
 
@@ -261,9 +410,11 @@
     {
         try
         {
+            if (_userId is null) return;
+
             if (editingTask == null)
             {
-                var create = new CreateTaskItemCommand(currentTask.Title, currentTask.Description, currentTask.Priority, currentTask.DueDate, 0);
+                var create = new CreateTaskItemCommand(currentTask.Title, currentTask.Description, currentTask.Priority, currentTask.DueDate, _userId.Value);
                 await TaskService.CreateTaskAsync(create);
             }
             else
@@ -313,5 +464,75 @@
             Priority.Low => "secondary",
             _ => "primary"
         };
+    }
+
+    private void OpenLabelsDialog()
+    {
+        labelModel = new();
+        showLabelsDialog = true;
+    }
+
+    private async Task CreateLabel()
+    {
+        try
+        {
+            if (_userId is null) return;
+            var cmd = new CreateTaskLabelCommand(labelModel.Name, labelModel.Color, _userId.Value, 0);
+            var res = await TaskService.CreateLabelAsync(cmd);
+            if (res.Success)
+            {
+                labelModel = new();
+                await LoadLabels();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating label: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteLabel(int id)
+    {
+        try
+        {
+            var res = await TaskService.DeleteLabelAsync(id);
+            if (res.Success)
+            {
+                await LoadLabels();
+                await LoadTasks(); // caso remova label atrelada
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting label: {ex.Message}");
+        }
+    }
+
+    private void OpenAddLabelDialog(TaskItemDTO? task)
+    {
+        if (task == null) return;
+        targetTaskIdForLabel = task.Id;
+        labelModel = new();
+        showAddLabelDialog = true;
+    }
+
+    private async Task CreateLabelForTask()
+    {
+        try
+        {
+            if (_userId is null || targetTaskIdForLabel is null) return;
+            var cmd = new CreateTaskLabelCommand(labelModel.Name, labelModel.Color, _userId.Value, targetTaskIdForLabel.Value);
+            var res = await TaskService.CreateLabelAsync(cmd);
+            if (res.Success)
+            {
+                showAddLabelDialog = false;
+                labelModel = new();
+                await LoadTasks();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating task label: {ex.Message}");
+        }
     }
 }

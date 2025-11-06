@@ -20,13 +20,10 @@
 @if (isAuthenticated)
 {
     <div class="content-header">
-        <h1 class="page-title">Olá, @userName! ??</h1>
-        <p class="page-description">Aqui está um resumo das suas atividades</p>
-    </div>
-
-    <div class="alert alert-secondary" role="alert">
-        <div><strong>Id:</strong> @userId</div>
-        <div><strong>Email:</strong> @email</div>
+        <div>
+            <h1 class="page-title">Olá, @userName! ??</h1>
+            <p class="page-description">Aqui está um resumo das suas atividades</p>
+        </div>
     </div>
 
     <div class="stats-grid">
@@ -37,7 +34,7 @@
                     <div class="stat-label">Tarefas Ativas</div>
                 </div>
                 <div class="stat-icon primary">
-                    <span>??</span>
+                    <span>???</span>
                 </div>
             </div>
             @if (tasksCount > 0)
@@ -74,7 +71,7 @@
                 </div>
             </div>
             <div class="stat-change @(balance >= 0 ? "positive" : "negative")">
-                <span>@(balance >= 0 ? "??" : "??") @monthTransactions transações</span>
+                <span>@(balance >= 0 ? "?" : "?") @monthTransactions transações</span>
             </div>
         </div>
 
@@ -85,7 +82,7 @@
                     <div class="stat-label">Treinos esta Semana</div>
                 </div>
                 <div class="stat-icon warning">
-                    <span>??????</span>
+                    <span>???</span>
                 </div>
             </div>
             <div class="stat-change">
@@ -110,7 +107,7 @@
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                         @foreach (var task in recentTasks.Take(5))
                         {
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--color-background-tertiary); border-radius: var(--border-radius);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--surface-2); border-radius: var(--radius-sm);">
                                 <span>@task.Title</span>
                                 <span class="badge badge-@GetPriorityColor(task.Priority)">@task.Priority</span>
                             </div>
@@ -119,7 +116,7 @@
                 }
                 else
                 {
-                    <p style="text-align: center; color: var(--color-text-tertiary); padding: 2rem;">
+                    <p style="text-align: center; color: var(--text-tertiary); padding: 2rem;">
                         Nenhuma tarefa encontrada
                     </p>
                 }
@@ -134,11 +131,11 @@
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
                     <div style="display: flex; align-items: center; gap: 1rem;">
                         <div class="stat-icon primary" style="width: 40px; height: 40px;">
-                            <span style="font-size: 1.25rem;">??</span>
+                            <span style="font-size: 1.25rem;">?</span>
                         </div>
                         <div>
                             <div style="font-weight: 600;">Dashboard atualizado</div>
-                            <div style="font-size: 0.875rem; color: var(--color-text-tertiary);">Dados sincronizados com sucesso</div>
+                            <div style="font-size: 0.875rem; color: var(--text-tertiary);">Dados sincronizados com sucesso</div>
                         </div>
                     </div>
                 </div>

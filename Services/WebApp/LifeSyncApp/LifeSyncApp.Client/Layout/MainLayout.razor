@@ -1,19 +1,36 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div class="ls-app">
+    <aside class="ls-sidebar">
+        <div class="brand">
+            <span class="dot"></span>
+            <a class="nav-link" href="/" style="padding:0;gap:.5rem;color:var(--text);text-decoration:none;"><strong>LifeSync</strong></a>
+        </div>
+        <div class="nav-group">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">🏠 Dashboard</NavLink>
+            <NavLink class="nav-link" href="/tasks">🗒️ Tarefas</NavLink>
+            <NavLink class="nav-link" href="/nutrition">🥗 Nutrição</NavLink>
+            <NavLink class="nav-link" href="/financial">💰 Financeiro</NavLink>
+            <NavLink class="nav-link" href="/gym">🏋️ Academia</NavLink>
+            <div class="nav-sep"></div>
+            <NavLink class="nav-link" href="/logout">🚪 Sair</NavLink>
+        </div>
+    </aside>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    <div class="ls-main">
+        <div class="ls-topbar">
+            <div style="display:flex;align-items:center;gap:.75rem;">
+                <span style="font-weight:700;">LifeSync</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.75rem;">
+                <span style="color:var(--text-secondary);font-size:.9rem;">App</span>
+            </div>
         </div>
 
-        <article class="content px-4">
+        <main class="ls-content">
             @Body
-        </article>
-    </main>
+        </main>
+    </div>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
