@@ -2,6 +2,10 @@
 @using LifeSyncApp.Client.Authentication
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models
+@using LifeSyncApp.Client.Models.TaskManager
+@using LifeSyncApp.Client.Models.Nutrition
+@using LifeSyncApp.Client.Models.Financial
+@using LifeSyncApp.Client.Models.Gym
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @inject ITaskManagerService TaskService
@@ -159,13 +163,13 @@ else if (!isLoading)
     private int tasksCount = 0;
     private int completedTasks = 0;
     private int mealsCount = 0;
-    private decimal caloriesCount = 0;
+    private int caloriesCount = 0;
     private decimal balance = 0;
     private int monthTransactions = 0;
     private int workoutsCount = 0;
     private int routinesCount = 0;
     private bool isLoadingTasks = true;
-    private List<TaskItem> recentTasks = new();
+    private List<TaskItemDTO> recentTasks = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -211,8 +215,8 @@ else if (!isLoading)
             if (tasksResult.Success && tasksResult.Data != null)
             {
                 recentTasks = tasksResult.Data;
-                tasksCount = recentTasks.Count(t => t.Status != "Completed");
-                completedTasks = recentTasks.Count(t => t.Status == "Completed");
+                tasksCount = recentTasks.Count(t => t.Status != Status.Completed);
+                completedTasks = recentTasks.Count(t => t.Status == Status.Completed);
             }
         }
         catch { }
@@ -227,11 +231,12 @@ else if (!isLoading)
             var diariesResult = await NutritionService.GetDiariesAsync();
             if (diariesResult.Success && diariesResult.Data != null)
             {
-                var today = diariesResult.Data.FirstOrDefault(d => d.Date.Date == DateTime.Today);
-                if (today != null)
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                var todayDiary = diariesResult.Data.FirstOrDefault(d => d.Date == today);
+                if (todayDiary != null)
                 {
-                    mealsCount = today.Meals.Count;
-                    caloriesCount = today.TotalCalories;
+                    mealsCount = todayDiary.Meals.Count;
+                    caloriesCount = todayDiary.TotalCalories;
                 }
             }
         }
@@ -244,10 +249,10 @@ else if (!isLoading)
             if (transactionsResult.Success && transactionsResult.Data != null)
             {
                 var transactions = transactionsResult.Data;
-                var income = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
-                var expenses = transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+                var income = transactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount);
+                var expenses = transactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount);
                 balance = income - expenses;
-                monthTransactions = transactions.Count(t => t.Date.Month == DateTime.Now.Month);
+                monthTransactions = transactions.Count(t => t.TransactionDate.Month == DateTime.Now.Month);
             }
         }
         catch { }
@@ -258,7 +263,7 @@ else if (!isLoading)
             var sessionsResult = await GymService.GetTrainingSessionsAsync();
             if (sessionsResult.Success && sessionsResult.Data != null)
             {
-                workoutsCount = sessionsResult.Data.Count(s => s.Date >= DateTime.Now.AddDays(-7));
+                workoutsCount = sessionsResult.Data.Count(s => s.StartTime >= DateTime.Now.AddDays(-7));
             }
 
             var routinesResult = await GymService.GetRoutinesAsync();
@@ -270,14 +275,14 @@ else if (!isLoading)
         catch { }
     }
 
-    private string GetPriorityColor(string priority)
+    private string GetPriorityColor(Priority priority)
     {
-        return priority.ToLower() switch
+        return priority switch
         {
-            "high" => "error",
-            "urgent" => "error",
-            "medium" => "warning",
-            "low" => "secondary",
+            Priority.High => "error",
+            Priority.Urgent => "error",
+            Priority.Medium => "warning",
+            Priority.Low => "secondary",
             _ => "primary"
         };
     }

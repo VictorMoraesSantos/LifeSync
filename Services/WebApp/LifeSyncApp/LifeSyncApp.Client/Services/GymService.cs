@@ -1,122 +1,30 @@
 using LifeSyncApp.Client.Models;
 using LifeSyncApp.Client.Services.Http;
 using System.Net.Http.Json;
+using LifeSyncApp.Client.Models.Gym;
 
 namespace LifeSyncApp.Client.Services
 {
-    // Gym Models
-    public class Exercise
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string MuscleGroup { get; set; } = string.Empty;
-        public string Equipment { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
-    }
-
-    public class Routine
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public List<RoutineExercise> Exercises { get; set; } = new();
-    }
-
-    public class RoutineExercise
-    {
-        public Guid ExerciseId { get; set; }
-        public string ExerciseName { get; set; } = string.Empty;
-        public int Sets { get; set; }
-        public int Reps { get; set; }
-        public decimal? Weight { get; set; }
-        public int? RestTime { get; set; }
-    }
-
-    public class TrainingSession
-    {
-        public Guid Id { get; set; }
-        public DateTime Date { get; set; }
-        public Guid RoutineId { get; set; }
-        public string RoutineName { get; set; } = string.Empty;
-        public int Duration { get; set; }
-        public List<CompletedExercise> CompletedExercises { get; set; } = new();
-    }
-
-    public class CompletedExercise
-    {
-        public Guid ExerciseId { get; set; }
-        public string ExerciseName { get; set; } = string.Empty;
-        public int SetsCompleted { get; set; }
-        public int RepsCompleted { get; set; }
-        public decimal? WeightUsed { get; set; }
-    }
-
-    // Lightweight filter models matching API
-    public class ExerciseFilter
-    {
-        public int? Id { get; set; }
-        public string? NameContains { get; set; }
-        public string? DescriptionContains { get; set; }
-        public string? MuscleGroupContains { get; set; }
-        public string? ExerciseTypeContains { get; set; }
-        public string? EquipmentTypeContains { get; set; }
-        public DateOnly? CreatedAt { get; set; }
-        public DateOnly? UpdatedAt { get; set; }
-        public bool? IsDeleted { get; set; }
-        public string? SortBy { get; set; }
-        public bool? SortDesc { get; set; }
-        public int? Page { get; set; }
-        public int? PageSize { get; set; }
-    }
-
-    public class RoutineFilter
-    {
-        public int? Id { get; set; }
-        public string? NameContains { get; set; }
-        public string? DescriptionContains { get; set; }
-        public int? RoutineExerciseId { get; set; }
-        public DateOnly? CreatedAt { get; set; }
-        public DateOnly? UpdatedAt { get; set; }
-        public bool? IsDeleted { get; set; }
-        public string? SortBy { get; set; }
-        public bool? SortDesc { get; set; }
-        public int? Page { get; set; }
-        public int? PageSize { get; set; }
-    }
-
-    public class TrainingSessionFilter
-    {
-        public int? Id { get; set; }
-        public int? UserId { get; set; }
-        public int? RoutineId { get; set; }
-        public DateOnly? StartTime { get; set; }
-        public DateOnly? EndTime { get; set; }
-        public string? NotesContains { get; set; }
-        public int? CompletedExerciseId { get; set; }
-        public DateOnly? CreatedAt { get; set; }
-        public DateOnly? UpdatedAt { get; set; }
-        public bool? IsDeleted { get; set; }
-        public string? SortBy { get; set; }
-        public bool? SortDesc { get; set; }
-        public int? Page { get; set; }
-        public int? PageSize { get; set; }
-    }
-
-    // Gym Service
     public interface IGymService
     {
-        Task<ApiResponse<List<Exercise>>> GetExercisesAsync();
-        Task<ApiResponse<Exercise>> CreateExerciseAsync(Exercise exercise);
-        Task<ApiResponse<List<Routine>>> GetRoutinesAsync();
-        Task<ApiResponse<Routine>> CreateRoutineAsync(Routine routine);
-        Task<ApiResponse<List<TrainingSession>>> GetTrainingSessionsAsync();
-        Task<ApiResponse<TrainingSession>> CreateTrainingSessionAsync(TrainingSession session);
+        Task<ApiResponse<List<ExerciseDTO>>> GetExercisesAsync();
+        Task<ApiResponse<int>> CreateExerciseAsync(CreateExerciseCommand command);
+        Task<ApiResponse<bool>> UpdateExerciseAsync(UpdateExerciseCommand command);
+        Task<ApiResponse<object>> DeleteExerciseAsync(int id);
 
-        // New search endpoints
-        Task<ApiResponse<List<Exercise>>> SearchExercisesAsync(ExerciseFilter filter);
-        Task<ApiResponse<List<Routine>>> SearchRoutinesAsync(RoutineFilter filter);
-        Task<ApiResponse<List<TrainingSession>>> SearchTrainingSessionsAsync(TrainingSessionFilter filter);
+        Task<ApiResponse<List<RoutineDTO>>> GetRoutinesAsync();
+        Task<ApiResponse<int>> CreateRoutineAsync(CreateRoutineCommand command);
+        Task<ApiResponse<bool>> UpdateRoutineAsync(UpdateRoutineCommand command);
+        Task<ApiResponse<object>> DeleteRoutineAsync(int id);
+
+        Task<ApiResponse<List<TrainingSessionDTO>>> GetTrainingSessionsAsync();
+        Task<ApiResponse<int>> CreateTrainingSessionAsync(CreateTrainingSessionCommand command);
+        Task<ApiResponse<bool>> UpdateTrainingSessionAsync(UpdateTrainingSessionCommand command);
+        Task<ApiResponse<object>> DeleteTrainingSessionAsync(int id);
+
+        Task<ApiResponse<List<ExerciseDTO>>> SearchExercisesAsync(object filter);
+        Task<ApiResponse<List<RoutineDTO>>> SearchRoutinesAsync(object filter);
+        Task<ApiResponse<List<TrainingSessionDTO>>> SearchTrainingSessionsAsync(object filter);
     }
 
     public class GymService : IGymService
@@ -128,123 +36,201 @@ namespace LifeSyncApp.Client.Services
             _apiClient = apiClient;
         }
 
-        public async Task<ApiResponse<List<Exercise>>> GetExercisesAsync()
+        public async Task<ApiResponse<List<ExerciseDTO>>> GetExercisesAsync()
         {
             try
             {
-                var res = await _apiClient.GetAsync<ApiResponse<List<Exercise>>>("gym-service/api/exercises");
-                return res ?? new ApiResponse<List<Exercise>> { Success = false };
+                var res = await _apiClient.GetAsync<ApiResponse<List<ExerciseDTO>>>("gym-service/api/exercises");
+                return res ?? new ApiResponse<List<ExerciseDTO>> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<List<Exercise>> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<List<ExerciseDTO>> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<ApiResponse<Exercise>> CreateExerciseAsync(Exercise exercise)
+        public async Task<ApiResponse<int>> CreateExerciseAsync(CreateExerciseCommand command)
         {
             try
             {
-                var res = await _apiClient.PostAsync<Exercise, ApiResponse<Exercise>>("gym-service/api/exercises", exercise);
-                return res ?? new ApiResponse<Exercise> { Success = false };
+                var res = await _apiClient.PostAsync<CreateExerciseCommand, ApiResponse<int>>("gym-service/api/exercises", command);
+                return res ?? new ApiResponse<int> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<Exercise> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<int> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<ApiResponse<List<Routine>>> GetRoutinesAsync()
+        public async Task<ApiResponse<bool>> UpdateExerciseAsync(UpdateExerciseCommand command)
         {
             try
             {
-                var res = await _apiClient.GetAsync<ApiResponse<List<Routine>>>("gym-service/api/routines");
-                return res ?? new ApiResponse<List<Routine>> { Success = false };
+                var res = await _apiClient.PutAsync<UpdateExerciseCommand, ApiResponse<bool>>($"gym-service/api/exercises/{command.Id}", command);
+                return res ?? new ApiResponse<bool> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<List<Routine>> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<bool> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<ApiResponse<Routine>> CreateRoutineAsync(Routine routine)
+        public async Task<ApiResponse<object>> DeleteExerciseAsync(int id)
         {
             try
             {
-                var res = await _apiClient.PostAsync<Routine, ApiResponse<Routine>>("gym-service/api/routines", routine);
-                return res ?? new ApiResponse<Routine> { Success = false };
+                await _apiClient.DeleteAsync($"gym-service/api/exercises/{id}");
+                return new ApiResponse<object> { Success = true };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<Routine> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<object> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<ApiResponse<List<TrainingSession>>> GetTrainingSessionsAsync()
+        public async Task<ApiResponse<List<RoutineDTO>>> GetRoutinesAsync()
         {
             try
             {
-                var res = await _apiClient.GetAsync<ApiResponse<List<TrainingSession>>>("gym-service/api/training-sessions");
-                return res ?? new ApiResponse<List<TrainingSession>> { Success = false };
+                var res = await _apiClient.GetAsync<ApiResponse<List<RoutineDTO>>>("gym-service/api/routines");
+                return res ?? new ApiResponse<List<RoutineDTO>> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<List<TrainingSession>> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<List<RoutineDTO>> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<ApiResponse<TrainingSession>> CreateTrainingSessionAsync(TrainingSession session)
+        public async Task<ApiResponse<int>> CreateRoutineAsync(CreateRoutineCommand command)
         {
             try
             {
-                var res = await _apiClient.PostAsync<TrainingSession, ApiResponse<TrainingSession>>("gym-service/api/training-sessions", session);
-                return res ?? new ApiResponse<TrainingSession> { Success = false };
+                var res = await _apiClient.PostAsync<CreateRoutineCommand, ApiResponse<int>>("gym-service/api/routines", command);
+                return res ?? new ApiResponse<int> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<TrainingSession> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<int> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<ApiResponse<List<Exercise>>> SearchExercisesAsync(ExerciseFilter filter)
+        public async Task<ApiResponse<bool>> UpdateRoutineAsync(UpdateRoutineCommand command)
+        {
+            try
+            {
+                var res = await _apiClient.PutAsync<UpdateRoutineCommand, ApiResponse<bool>>($"gym-service/api/routines/{command.Id}", command);
+                return res ?? new ApiResponse<bool> { Success = false };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<object>> DeleteRoutineAsync(int id)
+        {
+            try
+            {
+                await _apiClient.DeleteAsync($"gym-service/api/routines/{id}");
+                return new ApiResponse<object> { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<object> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<List<TrainingSessionDTO>>> GetTrainingSessionsAsync()
+        {
+            try
+            {
+                var res = await _apiClient.GetAsync<ApiResponse<List<TrainingSessionDTO>>>("gym-service/api/training-sessions");
+                return res ?? new ApiResponse<List<TrainingSessionDTO>> { Success = false };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<TrainingSessionDTO>> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<int>> CreateTrainingSessionAsync(CreateTrainingSessionCommand command)
+        {
+            try
+            {
+                var res = await _apiClient.PostAsync<CreateTrainingSessionCommand, ApiResponse<int>>("gym-service/api/training-sessions", command);
+                return res ?? new ApiResponse<int> { Success = false };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<int> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> UpdateTrainingSessionAsync(UpdateTrainingSessionCommand command)
+        {
+            try
+            {
+                var res = await _apiClient.PutAsync<UpdateTrainingSessionCommand, ApiResponse<bool>>($"gym-service/api/training-sessions/{command.Id}", command);
+                return res ?? new ApiResponse<bool> { Success = false };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<object>> DeleteTrainingSessionAsync(int id)
+        {
+            try
+            {
+                await _apiClient.DeleteAsync($"gym-service/api/training-sessions/{id}");
+                return new ApiResponse<object> { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<object> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<List<ExerciseDTO>>> SearchExercisesAsync(object filter)
         {
             try
             {
                 var query = QueryStringHelper.ToQueryString(filter);
-                var res = await _apiClient.GetAsync<ApiResponse<List<Exercise>>>($"gym-service/api/exercises/search{query}");
-                return res ?? new ApiResponse<List<Exercise>> { Success = false };
+                var res = await _apiClient.GetAsync<ApiResponse<List<ExerciseDTO>>>($"gym-service/api/exercises/search{query}");
+                return res ?? new ApiResponse<List<ExerciseDTO>> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<List<Exercise>> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<List<ExerciseDTO>> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<ApiResponse<List<Routine>>> SearchRoutinesAsync(RoutineFilter filter)
+        public async Task<ApiResponse<List<RoutineDTO>>> SearchRoutinesAsync(object filter)
         {
             try
             {
                 var query = QueryStringHelper.ToQueryString(filter);
-                var res = await _apiClient.GetAsync<ApiResponse<List<Routine>>>($"gym-service/api/routines/search{query}");
-                return res ?? new ApiResponse<List<Routine>> { Success = false };
+                var res = await _apiClient.GetAsync<ApiResponse<List<RoutineDTO>>>($"gym-service/api/routines/search{query}");
+                return res ?? new ApiResponse<List<RoutineDTO>> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<List<Routine>> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<List<RoutineDTO>> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<ApiResponse<List<TrainingSession>>> SearchTrainingSessionsAsync(TrainingSessionFilter filter)
+        public async Task<ApiResponse<List<TrainingSessionDTO>>> SearchTrainingSessionsAsync(object filter)
         {
             try
             {
                 var query = QueryStringHelper.ToQueryString(filter);
-                var res = await _apiClient.GetAsync<ApiResponse<List<TrainingSession>>>($"gym-service/api/training-sessions/search{query}");
-                return res ?? new ApiResponse<List<TrainingSession>> { Success = false };
+                var res = await _apiClient.GetAsync<ApiResponse<List<TrainingSessionDTO>>>($"gym-service/api/training-sessions/search{query}");
+                return res ?? new ApiResponse<List<TrainingSessionDTO>> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<List<TrainingSession>> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<List<TrainingSessionDTO>> { Success = false, Errors = new[] { ex.Message } };
             }
         }
     }

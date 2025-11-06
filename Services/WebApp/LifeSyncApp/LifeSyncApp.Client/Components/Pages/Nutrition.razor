@@ -1,5 +1,6 @@
 @page "/nutrition"
 @using LifeSyncApp.Client.Services
+@using LifeSyncApp.Client.Models.Nutrition
 @inject INutritionService NutritionService
 
 <PageTitle>Nutrição - LifeSync</PageTitle>
@@ -91,18 +92,15 @@
                         <div style="padding: 1rem; background: var(--color-background-tertiary); border-radius: var(--border-radius);">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <h4 style="margin: 0;">@meal.Name</h4>
-                                <span class="badge badge-primary">@meal.Calories kcal</span>
+                                <span class="badge badge-primary">@meal.TotalCalories kcal</span>
                             </div>
-                            <p style="font-size: 0.875rem; color: var(--color-text-tertiary); margin: 0;">
-                                @meal.Time.ToString("HH:mm")
-                            </p>
-                            @if (meal.Foods.Any())
+                            @if (meal.MealFoods.Any())
                             {
                                 <div style="margin-top: 0.75rem;">
-                                    @foreach (var food in meal.Foods)
+                                    @foreach (var food in meal.MealFoods)
                                     {
                                         <div style="font-size: 0.875rem; color: var(--color-text-secondary);">
-                                            • @food.FoodName (@food.Quantity @food.Unit) - @food.Calories kcal
+                                            • @food.Name (@food.Quantity g) - @food.TotalCalories kcal
                                         </div>
                                     }
                                 </div>
@@ -155,16 +153,16 @@
             </div>
             <div class="card-body">
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
-                    <button class="btn btn-secondary" @onclick="() => AddWater(0.25m)">
+                    <button class="btn btn-secondary" @onclick="() => AddWater(250)">
                         ?? 250ml
                     </button>
-                    <button class="btn btn-secondary" @onclick="() => AddWater(0.5m)">
+                    <button class="btn btn-secondary" @onclick="() => AddWater(500)">
                         ?? 500ml
                     </button>
-                    <button class="btn btn-secondary" @onclick="() => AddWater(0.75m)">
+                    <button class="btn btn-secondary" @onclick="() => AddWater(750)">
                         ?? 750ml
                     </button>
-                    <button class="btn btn-secondary" @onclick="() => AddWater(1m)">
+                    <button class="btn btn-secondary" @onclick="() => AddWater(1000)">
                         ?? 1L
                     </button>
                 </div>
@@ -174,12 +172,12 @@
 </div>
 
 @code {
-    private NutritionDiary? todayDiary = null;
+    private DiaryDTO? todayDiary = null;
     private bool isLoadingMeals = true;
     private int diariesCount = 0;
-    private decimal todayCalories => todayDiary?.TotalCalories ?? 0;
+    private int todayCalories => todayDiary?.TotalCalories ?? 0;
     private int todayMeals => todayDiary?.Meals.Count ?? 0;
-    private decimal todayLiquids => todayDiary?.TotalLiquids ?? 0;
+    private decimal todayLiquids => (todayDiary?.Liquids.Sum(l => l.QuantityMl) ?? 0) / 1000m;
 
     protected override async Task OnInitializedAsync()
     {
@@ -195,17 +193,19 @@
             if (diariesResult.Success && diariesResult.Data != null)
             {
                 diariesCount = diariesResult.Data.Count;
-                todayDiary = diariesResult.Data.FirstOrDefault(d => d.Date.Date == DateTime.Today);
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                todayDiary = diariesResult.Data.FirstOrDefault(d => d.Date == today);
 
                 if (todayDiary == null)
                 {
-                    todayDiary = new NutritionDiary
+                    // create diary for today
+                    var create = new CreateDiaryCommand(0, today);
+                    var created = await NutritionService.CreateDiaryAsync(create);
+                    if (created.Success)
                     {
-                        Date = DateTime.Today,
-                        TotalCalories = 0,
-                        TotalLiquids = 0,
-                        Meals = new()
-                    };
+                        var refresh = await NutritionService.GetDiariesAsync();
+                        todayDiary = refresh.Data?.FirstOrDefault(d => d.Date == today);
+                    }
                 }
             }
         }
@@ -221,21 +221,23 @@
 
     private async Task AddMeal()
     {
-        // TODO: Implementar diálogo para adicionar refeição
-        await Task.CompletedTask;
+        if (todayDiary == null) return;
+        var cmd = new CreateMealCommand(todayDiary.Id, "Refeição", "");
+        await NutritionService.AddMealAsync(todayDiary.Id, cmd);
+        await LoadNutritionData();
     }
 
-    private async Task AddWater(decimal amount)
+    private async Task AddWater(int ml)
     {
         try
         {
-            var liquid = new Liquid
+            if (todayDiary == null)
             {
-                Time = DateTime.Now,
-                Amount = amount,
-                Type = "Water"
-            };
+                await LoadNutritionData();
+                if (todayDiary == null) return;
+            }
 
+            var liquid = new CreateLiquidCommand(todayDiary.Id, "Water", ml, 0);
             await NutritionService.AddLiquidAsync(liquid);
             await LoadNutritionData();
         }

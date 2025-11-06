@@ -1,5 +1,6 @@
 @page "/financial"
 @using LifeSyncApp.Client.Services
+@using LifeSyncApp.Client.Models.Financial
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Popups
 @inject IFinancialService FinancialService
@@ -9,10 +10,10 @@
 <div class="content-header">
     <div>
         <h1 class="page-title">Financeiro</h1>
-        <p class="page-description">Controle suas finanças pessoais</p>
+        <p class="page-description">Controle suas finan?as pessoais</p>
     </div>
     <button class="btn btn-primary" @onclick="OpenCreateDialog">
-        + Nova Transação
+        + Nova Transa??o
     </button>
 </div>
 
@@ -28,7 +29,7 @@
             </div>
         </div>
         <div class="stat-change positive">
-            <span>+@incomeCount transações</span>
+            <span>+@incomeCount transa??es</span>
         </div>
     </div>
 
@@ -43,7 +44,7 @@
             </div>
         </div>
         <div class="stat-change negative">
-            <span>-@expensesCount transações</span>
+            <span>-@expensesCount transa??es</span>
         </div>
     </div>
 
@@ -66,7 +67,7 @@
         <div class="stat-header">
             <div>
                 <div class="stat-value">@transactions.Count</div>
-                <div class="stat-label">Total Transações</div>
+                <div class="stat-label">Total Transa??es</div>
             </div>
             <div class="stat-icon secondary">
                 <span>??</span>
@@ -81,7 +82,7 @@
         {
             <div style="text-align: center; padding: 3rem;">
                 <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
-                <p style="margin-top: 1rem;">Carregando transações...</p>
+                <p style="margin-top: 1rem;">Carregando transa??es...</p>
             </div>
         }
         else if (transactions.Any())
@@ -89,25 +90,25 @@
             <SfGrid DataSource="@transactions" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
                 <GridPageSettings PageSize="10"></GridPageSettings>
                 <GridColumns>
-                    <GridColumn Field="@nameof(Transaction.Description)" HeaderText="Descrição" Width="200"></GridColumn>
-                    <GridColumn Field="@nameof(Transaction.Amount)" HeaderText="Valor" Width="120" Format="C2"></GridColumn>
-                    <GridColumn Field="@nameof(Transaction.Type)" HeaderText="Tipo" Width="100">
+                    <GridColumn Field="@nameof(TransactionDTO.Description)" HeaderText="Descri??o" Width="200"></GridColumn>
+                    <GridColumn Field="@nameof(TransactionDTO.Amount)" HeaderText="Valor" Width="120"></GridColumn>
+                    <GridColumn Field="@nameof(TransactionDTO.TransactionType)" HeaderText="Tipo" Width="100">
                         <Template>
                             @{
-                                var transaction = context as Transaction;
-                                <span class="badge badge-@(transaction?.Type == "Income" ? "success" : "error")">
-                                    @(transaction?.Type == "Income" ? "Receita" : "Despesa")
+                                var transaction = context as TransactionDTO;
+                                <span class="badge badge-@(transaction?.TransactionType == TransactionType.Income ? "success" : "error")">
+                                    @(transaction?.TransactionType == TransactionType.Income ? "Receita" : "Despesa")
                                 </span>
                             }
                         </Template>
                     </GridColumn>
-                    <GridColumn Field="@nameof(Transaction.Category)" HeaderText="Categoria" Width="120"></GridColumn>
-                    <GridColumn Field="@nameof(Transaction.PaymentMethod)" HeaderText="Método" Width="120"></GridColumn>
-                    <GridColumn Field="@nameof(Transaction.Date)" HeaderText="Data" Width="120" Format="dd/MM/yyyy"></GridColumn>
-                    <GridColumn HeaderText="Ações" Width="150">
+                    <GridColumn Field="@nameof(TransactionDTO.Category)" HeaderText="Categoria" Width="120"></GridColumn>
+                    <GridColumn Field="@nameof(TransactionDTO.PaymentMethod)" HeaderText="M?todo" Width="120"></GridColumn>
+                    <GridColumn Field="@nameof(TransactionDTO.TransactionDate)" HeaderText="Data" Width="120" Format="dd/MM/yyyy"></GridColumn>
+                    <GridColumn HeaderText="A??es" Width="150">
                         <Template>
                             @{
-                                var transaction = context as Transaction;
+                                var transaction = context as TransactionDTO;
                                 <div style="display: flex; gap: 0.5rem;">
                                     <button class="btn btn-sm btn-secondary" @onclick="() => EditTransaction(transaction)">
                                         Editar
@@ -126,12 +127,12 @@
         {
             <div style="text-align: center; padding: 3rem;">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
-                <h3>Nenhuma transação encontrada</h3>
+                <h3>Nenhuma transa??o encontrada</h3>
                 <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
-                    Comece registrando sua primeira transação
+                    Comece registrando sua primeira transa??o
                 </p>
                 <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                    + Nova Transação
+                    + Nova Transa??o
                 </button>
             </div>
         }
@@ -140,46 +141,62 @@
 
 <SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
     <DialogTemplates>
-        <Header>@(editingTransaction == null ? "Nova Transação" : "Editar Transação")</Header>
+        <Header>@(editingTransaction == null ? "Nova Transa??o" : "Editar Transa??o")</Header>
         <Content>
-            <EditForm Model="currentTransaction" OnValidSubmit="SaveTransaction" FormName="financialForm">
+            <EditForm Model="editModel" OnValidSubmit="SaveTransaction" FormName="financialForm">
                 <div class="form-group">
-                    <label class="form-label">Descrição</label>
-                    <InputText @bind-Value="currentTransaction.Description" class="form-control" />
+                    <label class="form-label">Descri??o</label>
+                    <InputText @bind-Value="editModel.Description" class="form-control" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Valor</label>
-                    <InputNumber @bind-Value="currentTransaction.Amount" class="form-control" />
+                    <InputNumber @bind-Value="editModel.Amount" class="form-control" />
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tipo</label>
-                    <InputSelect @bind-Value="currentTransaction.Type" class="form-control">
-                        <option value="Income">Receita</option>
-                        <option value="Expense">Despesa</option>
+                    <label class="form-label">Moeda</label>
+                    <InputSelect @bind-Value="editModel.Currency" class="form-control">
+                        @foreach (var c in Enum.GetValues<Currency>())
+                        {
+                            <option value="@c">@c</option>
+                        }
                     </InputSelect>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Categoria</label>
-                    <InputText @bind-Value="currentTransaction.Category" class="form-control" />
+                    <label class="form-label">Tipo</label>
+                    <InputSelect @bind-Value="editModel.TransactionType" class="form-control">
+                        @foreach (var t in Enum.GetValues<TransactionType>())
+                        {
+                            <option value="@t">@t</option>
+                        }
+                    </InputSelect>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Método de Pagamento</label>
-                    <InputSelect @bind-Value="currentTransaction.PaymentMethod" class="form-control">
-                        <option value="Cash">Dinheiro</option>
-                        <option value="CreditCard">Cartão de Crédito</option>
-                        <option value="DebitCard">Cartão de Débito</option>
-                        <option value="Transfer">Transferência</option>
-                        <option value="DigitalWallet">Carteira Digital</option>
+                    <label class="form-label">CategoriaId</label>
+                    <InputNumber @bind-Value="editModel.CategoryId" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">M?todo de Pagamento</label>
+                    <InputSelect @bind-Value="editModel.PaymentMethod" class="form-control">
+                        @foreach (var m in Enum.GetValues<PaymentMethod>())
+                        {
+                            <option value="@m">@m</option>
+                        }
                     </InputSelect>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Data</label>
-                    <InputDate @bind-Value="currentTransaction.Date" class="form-control" />
+                    <InputDate @bind-Value="editModel.TransactionDate" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <InputCheckbox @bind-Value="editModel.IsRecurring" />
+                    <label class="form-label" style="margin-left: 0.5rem;">Recorrente</label>
                 </div>
 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
@@ -196,20 +213,33 @@
 </SfDialog>
 
 @code {
-    private List<Transaction> transactions = new();
-    
+    private class TransactionEditModel
+    {
+        public int Id { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public int Amount { get; set; }
+        public Currency Currency { get; set; } = Currency.BRL;
+        public TransactionType TransactionType { get; set; } = TransactionType.Expense;
+        public int? CategoryId { get; set; }
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
+        public DateTime TransactionDate { get; set; } = DateTime.Today;
+        public bool IsRecurring { get; set; }
+    }
+
+    private List<TransactionDTO> transactions = new();
+
     [SupplyParameterFromForm]
-    private Transaction currentTransaction { get; set; } = new();
-    
-    private Transaction? editingTransaction = null;
+    private TransactionEditModel editModel { get; set; } = new();
+
+    private TransactionDTO? editingTransaction = null;
     private bool showDialog = false;
     private bool isLoading = true;
 
-    private decimal totalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
-    private decimal totalExpenses => transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+    private decimal totalIncome => transactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount);
+    private decimal totalExpenses => transactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount);
     private decimal balance => totalIncome - totalExpenses;
-    private int incomeCount => transactions.Count(t => t.Type == "Income");
-    private int expensesCount => transactions.Count(t => t.Type == "Expense");
+    private int incomeCount => transactions.Count(t => t.TransactionType == TransactionType.Income);
+    private int expensesCount => transactions.Count(t => t.TransactionType == TransactionType.Expense);
 
     protected override async Task OnInitializedAsync()
     {
@@ -240,28 +270,24 @@
     private void OpenCreateDialog()
     {
         editingTransaction = null;
-        currentTransaction = new Transaction 
-        { 
-            Date = DateTime.Today,
-            Type = "Expense",
-            PaymentMethod = "Cash"
-        };
+        editModel = new TransactionEditModel();
         showDialog = true;
     }
 
-    private void EditTransaction(Transaction? transaction)
+    private void EditTransaction(TransactionDTO? transaction)
     {
         if (transaction == null) return;
         editingTransaction = transaction;
-        currentTransaction = new Transaction
+        editModel = new TransactionEditModel
         {
             Id = transaction.Id,
             Description = transaction.Description,
-            Amount = transaction.Amount,
-            Type = transaction.Type,
-            Category = transaction.Category,
+            Amount = transaction.Amount.Amount,
+            Currency = transaction.Amount.Currency,
+            TransactionType = transaction.TransactionType,
+            CategoryId = transaction.Category?.Id,
             PaymentMethod = transaction.PaymentMethod,
-            Date = transaction.Date,
+            TransactionDate = transaction.TransactionDate,
             IsRecurring = transaction.IsRecurring
         };
         showDialog = true;
@@ -271,13 +297,16 @@
     {
         try
         {
+            var money = new Money(editModel.Amount, editModel.Currency);
             if (editingTransaction == null)
             {
-                await FinancialService.CreateTransactionAsync(currentTransaction);
+                var create = new CreateTransactionCommand(0, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+                await FinancialService.CreateTransactionAsync(create);
             }
             else
             {
-                await FinancialService.UpdateTransactionAsync(currentTransaction.Id, currentTransaction);
+                var update = new UpdateTransactionCommand(editModel.Id, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+                await FinancialService.UpdateTransactionAsync(update);
             }
 
             await LoadTransactions();
@@ -289,7 +318,7 @@
         }
     }
 
-    private async Task DeleteTransaction(Transaction? transaction)
+    private async Task DeleteTransaction(TransactionDTO? transaction)
     {
         if (transaction == null) return;
 
@@ -307,7 +336,6 @@
     private void CloseDialog()
     {
         showDialog = false;
-        currentTransaction = new();
         editingTransaction = null;
     }
 }
