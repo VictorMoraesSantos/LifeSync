@@ -7,6 +7,7 @@ namespace TaskManager.Domain.Errors
         // Erros de validação
         public static Error InvalidTitle => Error.Failure("O título da tarefa é obrigatório");
         public static Error InvalidDescription => Error.Failure("A descrição da tarefa é obrigatória");
+        public static Error InvalidPriority => Error.Failure("A prioridade da tarefa é inválida");
         public static Error DueDateInPast => Error.Failure("A data de vencimento não pode ser no passado");
 
         // Erros de labels

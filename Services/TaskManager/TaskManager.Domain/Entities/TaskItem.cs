@@ -29,7 +29,7 @@ namespace TaskManager.Domain.Entities
             SetTitle(title);
             SetDescription(description);
             Status = Status.Pending;
-            Priority = priority;
+            SetPriority(priority);
             SetDueDate(dueDate);
             UserId = userId;
         }
@@ -44,28 +44,36 @@ namespace TaskManager.Domain.Entities
             SetTitle(title);
             SetDescription(description);
             Status = status;
-            Priority = priority;
+            SetPriority(priority);
             SetDueDate(dueDate);
             MarkAsUpdated();
         }
 
-        private void SetTitle(string title)
+        public void SetTitle(string title)
         {
-            if (string.IsNullOrWhiteSpace(title))
+            if (title == null || string.IsNullOrWhiteSpace(title))
                 throw new DomainException(TaskItemErrors.InvalidTitle);
 
             Title = title.Trim();
         }
 
-        private void SetDescription(string description)
+        public void SetDescription(string description)
         {
-            if (string.IsNullOrWhiteSpace(description))
+            if (description == null ||  string.IsNullOrWhiteSpace(description))
                 throw new DomainException(TaskItemErrors.InvalidDescription);
 
             Description = description.Trim();
         }
 
-        private void SetDueDate(DateOnly dueDate)
+        public void SetPriority(Priority priority)
+        {
+            if (priority == null || !Enum.IsDefined(typeof(Priority), priority))
+                throw new DomainException(TaskItemErrors.InvalidPriority);
+
+            Priority = priority;
+        }
+
+        public void SetDueDate(DateOnly dueDate)
         {
             if (dueDate < DateOnly.FromDateTime(DateTime.UtcNow))
                 throw new DomainException(TaskItemErrors.DueDateInPast);
