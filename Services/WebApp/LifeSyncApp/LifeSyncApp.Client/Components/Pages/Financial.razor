@@ -9,76 +9,31 @@
 <PageTitle>Financeiro - LifeSync</PageTitle>
 
 <RedirectToLogin>
-<div class="content-header">
-    <div>
-        <h1 class="page-title">Financeiro</h1>
-        <p class="page-description">Controle suas finanças pessoais</p>
-    </div>
-    <div style="display:flex;gap:.5rem;">
-        <button class="btn btn-secondary" @onclick="OpenCategoriesDialog">Gerenciar Categorias</button>
-        <button class="btn btn-primary" @onclick="OpenCreateDialog">
-            + Nova Transação
-        </button>
-    </div>
-</div>
+<PageHeader Title="Financeiro" Description="Controle suas finanças pessoais">
+    <Actions>
+        <div style="display:flex;gap:.5rem;">
+            <button class="btn btn-secondary" @onclick="OpenCategoriesDialog">Gerenciar Categorias</button>
+            <button class="btn btn-primary" @onclick="OpenCreateDialog">
+                + Nova Transação
+            </button>
+        </div>
+    </Actions>
+</PageHeader>
 
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">R$ @totalIncome.ToString("N2")</div>
-                <div class="stat-label">Receitas</div>
-            </div>
-            <div class="stat-icon success">
-                <span>??</span>
-            </div>
-        </div>
-        <div class="stat-change positive">
-            <span>+@incomeCount transações</span>
-        </div>
-    </div>
+        <StatCard Label="Receitas" Value=@($"R$ {totalIncome.ToString("N2")}") IconStyle="success" IconText="??">
+        <div class="stat-change positive">+@incomeCount transações</div>
+    </StatCard>
 
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">R$ @totalExpenses.ToString("N2")</div>
-                <div class="stat-label">Despesas</div>
-            </div>
-            <div class="stat-icon error">
-                <span>??</span>
-            </div>
-        </div>
-        <div class="stat-change negative">
-            <span>-@expensesCount transações</span>
-        </div>
-    </div>
+    <StatCard Label="Despesas" Value=@($"R$ {totalExpenses.ToString("N2")}") IconStyle="error" IconText="??">
+        <div class="stat-change negative">-@expensesCount transações</div>
+    </StatCard>
 
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">R$ @balance.ToString("N2")</div>
-                <div class="stat-label">Saldo</div>
-            </div>
-            <div class="stat-icon @(balance >= 0 ? "primary" : "warning")">
-                <span>??</span>
-            </div>
-        </div>
-        <div class="stat-change @(balance >= 0 ? "positive" : "negative")">
-            <span>@(balance >= 0 ? "Positivo" : "Negativo")</span>
-        </div>
-    </div>
+    <StatCard Label="Saldo" Value=@($"R$ {balance.ToString("N2")}") IconStyle="@(balance >= 0 ? "primary" : "warning")" IconText="??">
+        <div class="stat-change @(balance >= 0 ? "positive" : "negative")">@(balance >= 0 ? "Positivo" : "Negativo")</div>
+    </StatCard>
 
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@transactions.Count</div>
-                <div class="stat-label">Total Transações</div>
-            </div>
-            <div class="stat-icon secondary">
-                <span>??</span>
-            </div>
-        </div>
-    </div>
+    <StatCard Label="Total Transações" Value="@(transactions.Count.ToString())" IconStyle="secondary" IconText="??" />
 </div>
 
 <div class="card">

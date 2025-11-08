@@ -10,67 +10,22 @@
 <PageTitle>Tarefas - LifeSync</PageTitle>
 
 <RedirectToLogin>
-<div class="content-header">
-    <div>
-        <h1 class="page-title">Tarefas</h1>
-        <p class="page-description">Gerencie suas tarefas e organize seu dia</p>
-    </div>
-    <div style="display:flex;gap:.5rem;">
-        <button class="btn btn-secondary" @onclick="OpenLabelsDialog">Gerenciar Labels</button>
-        <button class="btn btn-primary" @onclick="OpenCreateDialog">
-            <span>+ Nova Tarefa</span>
-        </button>
-    </div>
-</div>
+<PageHeader Title="Tarefas" Description="Gerencie suas tarefas e organize seu dia">
+    <Actions>
+        <div style="display:flex;gap:.5rem;">
+            <button class="btn btn-secondary" @onclick="OpenLabelsDialog">Gerenciar Labels</button>
+            <button class="btn btn-primary" @onclick="OpenCreateDialog">
+                <span>+ Nova Tarefa</span>
+            </button>
+        </div>
+    </Actions>
+</PageHeader>
 
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@totalTasks</div>
-                <div class="stat-label">Total</div>
-            </div>
-            <div class="stat-icon primary">
-                <span>??</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@pendingTasks</div>
-                <div class="stat-label">Pendentes</div>
-            </div>
-            <div class="stat-icon warning">
-                <span>?</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@inProgressTasks</div>
-                <div class="stat-label">Em Progresso</div>
-            </div>
-            <div class="stat-icon secondary">
-                <span>??</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@completedTasksCount</div>
-                <div class="stat-label">Concluídas</div>
-            </div>
-            <div class="stat-icon success">
-                <span>?</span>
-            </div>
-        </div>
-    </div>
+        <StatCard Label="Total" Value="@totalTasks.ToString()" IconStyle="primary" IconText="??" />
+        <StatCard Label="Pendentes" Value="@pendingTasks.ToString()" IconStyle="warning" IconText="?" />
+        <StatCard Label="Em Progresso" Value="@inProgressTasks.ToString()" IconStyle="secondary" IconText="??" />
+        <StatCard Label="Concluídas" Value="@completedTasksCount.ToString()" IconStyle="success" IconText="?" />
 </div>
 
 <div class="card">
@@ -84,7 +39,7 @@
         }
         else if (tasks.Any())
         {
-            <SfGrid DataSource="@tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
+                <SfGrid DataSource="@tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true" GridLines="GridLine.None" RowHeight="44">
                 <GridPageSettings PageSize="10"></GridPageSettings>
                 <GridColumns>
                     <GridColumn Field="@nameof(TaskItemDTO.Title)" HeaderText="Título" Width="200"></GridColumn>

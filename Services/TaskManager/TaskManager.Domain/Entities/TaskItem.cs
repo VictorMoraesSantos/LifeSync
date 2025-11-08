@@ -59,7 +59,7 @@ namespace TaskManager.Domain.Entities
 
         public void SetDescription(string description)
         {
-            if (description == null ||  string.IsNullOrWhiteSpace(description))
+            if (description == null || string.IsNullOrWhiteSpace(description))
                 throw new DomainException(TaskItemErrors.InvalidDescription);
 
             Description = description.Trim();

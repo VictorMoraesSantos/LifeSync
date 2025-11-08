@@ -19,76 +19,20 @@
 
 @if (isAuthenticated)
 {
-    <div class="content-header">
-        <div>
-            <h1 class="page-title">Olá, @userName! ??</h1>
-            <p class="page-description">Aqui está um resumo das suas atividades</p>
-        </div>
-    </div>
+    <PageHeader Title=@($"Olá, {userName}!") Description="Aqui está um resumo das suas atividades" />
 
     <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-header">
-                <div>
-                    <div class="stat-value">@tasksCount</div>
-                    <div class="stat-label">Tarefas Ativas</div>
-                </div>
-                <div class="stat-icon primary">
-                    <span>???</span>
-                </div>
-            </div>
-            @if (tasksCount > 0)
-            {
-                <div class="stat-change positive">
-                    <span>? @completedTasks completadas</span>
-                </div>
-            }
-        </div>
+        <StatCard Label="Tarefas Ativas" Value="@tasksCount.ToString()" IconStyle="primary" IconText="???" ChangeText="@(tasksCount > 0 ? $"{completedTasks} completadas" : null)" ChangeStyle="positive" />
 
-        <div class="stat-card">
-            <div class="stat-header">
-                <div>
-                    <div class="stat-value">@mealsCount</div>
-                    <div class="stat-label">Refeições Hoje</div>
-                </div>
-                <div class="stat-icon success">
-                    <span>???</span>
-                </div>
-            </div>
-            <div class="stat-change">
-                <span>@caloriesCount kcal</span>
-            </div>
-        </div>
+        <StatCard Label="Refeições Hoje" Value="@mealsCount.ToString()" IconStyle="success" IconText="???">
+            <div class="stat-change">@caloriesCount kcal</div>
+        </StatCard>
 
-        <div class="stat-card">
-            <div class="stat-header">
-                <div>
-                    <div class="stat-value">R$ @balance.ToString("N2")</div>
-                    <div class="stat-label">Saldo</div>
-                </div>
-                <div class="stat-icon @(balance >= 0 ? "success" : "error")">
-                    <span>??</span>
-                </div>
-            </div>
-            <div class="stat-change @(balance >= 0 ? "positive" : "negative")">
-                <span>@(balance >= 0 ? "?" : "?") @monthTransactions transações</span>
-            </div>
-        </div>
+        <StatCard Label="Saldo" Value=@($"R$ {balance.ToString("N2")}") IconStyle="@(balance >= 0 ? "success" : "error")" IconText="??" ChangeText=@($"{(balance >= 0 ? "+" : "-")}{monthTransactions} transações") ChangeStyle="@(balance >= 0 ? "positive" : "negative")" />
 
-        <div class="stat-card">
-            <div class="stat-header">
-                <div>
-                    <div class="stat-value">@workoutsCount</div>
-                    <div class="stat-label">Treinos esta Semana</div>
-                </div>
-                <div class="stat-icon warning">
-                    <span>???</span>
-                </div>
-            </div>
-            <div class="stat-change">
-                <span>@routinesCount rotinas ativas</span>
-            </div>
-        </div>
+        <StatCard Label="Treinos esta Semana" Value="@workoutsCount.ToString()" IconStyle="warning" IconText="???">
+            <div class="stat-change">@routinesCount rotinas ativas</div>
+        </StatCard>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
@@ -155,7 +99,7 @@ else if (!isLoading)
     private bool isAuthenticated = false;
     private bool isLoading = true;
     private string userName = "Usuário";
-    private string? userId;
+    private int userId;
     private string? email;
     private int tasksCount = 0;
     private int completedTasks = 0;
@@ -199,7 +143,7 @@ else if (!isLoading)
         var principal = (CustomClaimsIdentity)authState.User.Identity;
 
         userName = principal.Name;
-        userId = principal.UserId;
+        userId = int.Parse(principal.UserId);
         email = principal.Email;
     }
 
@@ -208,7 +152,7 @@ else if (!isLoading)
         // Load Tasks
         try
         {
-            var tasksResult = await TaskService.GetTasksAsync();
+            var tasksResult = await TaskService.GetTasksByUserAsync(userId);
             if (tasksResult.Success && tasksResult.Data != null)
             {
                 recentTasks = tasksResult.Data;
@@ -225,7 +169,7 @@ else if (!isLoading)
         // Load Nutrition
         try
         {
-            var diariesResult = await NutritionService.GetDiariesAsync();
+            var diariesResult = await NutritionService.GetDiariesByUserAsync(userId);
             if (diariesResult.Success && diariesResult.Data != null)
             {
                 var today = DateOnly.FromDateTime(DateTime.Today);
@@ -242,7 +186,7 @@ else if (!isLoading)
         // Load Financial
         try
         {
-            var transactionsResult = await FinancialService.GetTransactionsAsync();
+            var transactionsResult = await FinancialService.GetTransactionsByUserAsync(userId);
             if (transactionsResult.Success && transactionsResult.Data != null)
             {
                 var transactions = transactionsResult.Data;

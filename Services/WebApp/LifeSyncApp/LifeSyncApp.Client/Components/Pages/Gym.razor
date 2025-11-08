@@ -7,61 +7,13 @@
 <PageTitle>Academia - LifeSync</PageTitle>
 
 <RedirectToLogin>
-<div class="content-header">
-    <div>
-        <h1 class="page-title">Academia</h1>
-        <p class="page-description">Gerencie seus treinos e exercícios</p>
-    </div>
-</div>
+<PageHeader Title="Academia" Description="Gerencie seus treinos e exercícios" />
 
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@totalWorkouts</div>
-                <div class="stat-label">Treinos Totais</div>
-            </div>
-            <div class="stat-icon primary">
-                <span>??????</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@weekWorkouts</div>
-                <div class="stat-label">Treinos esta Semana</div>
-            </div>
-            <div class="stat-icon success">
-                <span>??</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@routinesCount</div>
-                <div class="stat-label">Rotinas Ativas</div>
-            </div>
-            <div class="stat-icon warning">
-                <span>??</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@exercisesCount</div>
-                <div class="stat-label">Exercícios</div>
-            </div>
-            <div class="stat-icon secondary">
-                <span>??</span>
-            </div>
-        </div>
-    </div>
+    <StatCard Label="Treinos Totais" Value="@totalWorkouts.ToString()" IconStyle="primary" IconText="??" />
+        <StatCard Label="Treinos esta Semana" Value="@weekWorkouts.ToString()" IconStyle="success" IconText="??" />
+        <StatCard Label="Rotinas Ativas" Value="@routinesCount.ToString()" IconStyle="warning" IconText="??" />
+        <StatCard Label="Exercícios" Value="@exercisesCount.ToString()" IconStyle="secondary" IconText="???" />
 </div>
 
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
@@ -69,7 +21,7 @@
         ?? Iniciar Treino
     </button>
     <button class="btn btn-secondary" style="height: 60px;" @onclick="ManageRoutines">
-        ?? Gerenciar Rotinas
+        ??? Gerenciar Rotinas
     </button>
     <button class="btn btn-secondary" style="height: 60px;" @onclick="ManageExercises">
         ?? Gerenciar Exercícios
@@ -94,12 +46,12 @@
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
                     @foreach (var workout in recentWorkouts.Take(5))
                     {
-                        <div style="padding: 1rem; background: var(--color-background-tertiary); border-radius: var(--border-radius);">
+                        <div style="padding: 1rem; background: var(--surface-2); border-radius: var(--radius-sm);">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <h4 style="margin: 0;">Rotina #@workout.RoutineId</h4>
                                 <span class="badge badge-primary">@((workout.EndTime.HasValue ? (int)(workout.EndTime - workout.StartTime)?.TotalMinutes : 0)) min</span>
                             </div>
-                            <p style="font-size: 0.875rem; color: var(--color-text-terciary); margin: 0;">
+                            <p style="font-size: 0.875rem; color: var(--text-terciary); margin: 0;">
                                 @workout.StartTime.ToString("dd/MM/yyyy HH:mm")
                             </p>
                         </div>
@@ -109,8 +61,8 @@
             else
             {
                 <div style="text-align: center; padding: 2rem;">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">??</div>
-                    <p style="color: var(--color-text-terciary);">Nenhum treino registrado</p>
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">???</div>
+                    <p style="color: var(--text-terciary);">Nenhum treino registrado</p>
                 </div>
             }
         </div>
@@ -133,10 +85,10 @@
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
                     @foreach (var routine in routines)
                     {
-                        <div style="padding: 1rem; background: var(--color-background-terciary); border-radius: var(--border-radius); cursor: pointer;" 
+                        <div style="padding: 1rem; background: var(--surface-2); border-radius: var(--radius-sm); cursor: pointer;" 
                              @onclick="() => StartRoutine(routine)">
                             <h4 style="margin: 0 0 0.5rem 0;">@routine.Name</h4>
-                            <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">
                                 @routine.Description
                             </p>
                         </div>
@@ -146,8 +98,8 @@
             else
             {
                 <div style="text-align: center; padding: 2rem;">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">???</div>
-                    <p style="color: var(--color-text-terciary);">Nenhuma rotina criada</p>
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">??</div>
+                    <p style="color: var(--text-terciary);">Nenhuma rotina criada</p>
                     <button class="btn btn-sm btn-primary" style="margin-top: 1rem;" @onclick="ManageRoutines">
                         Criar Rotina
                     </button>
@@ -177,11 +129,11 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
                 @foreach (var exercise in exercises)
                 {
-                    <div style="padding: 1rem; background: var(--color-background-terciary); border-radius: var(--border-radius);">
+                    <div style="padding: 1rem; background: var(--surface-2); border-radius: var(--radius-sm);">
                         <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem;">@exercise.Name</h4>
                         <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem;">
                             <span class="badge badge-primary" style="width: fit-content;">@exercise.MuscleGroup</span>
-                            <span style="color: var(--color-text-terciary);">@exercise.EquipmentType</span>
+                            <span style="color: var(--text-terciary);">@exercise.EquipmentType</span>
                         </div>
                     </div>
                 }
@@ -191,7 +143,7 @@
         {
             <div style="text-align: center; padding: 2rem;">
                 <div style="font-size: 2.5rem; margin-bottom: 1rem;">??</div>
-                <p style="color: var(--color-text-terciary);">Nenhum exercício cadastrado</p>
+                <p style="color: var(--text-terciary);">Nenhum exercício cadastrado</p>
             </div>
         }
     </div>

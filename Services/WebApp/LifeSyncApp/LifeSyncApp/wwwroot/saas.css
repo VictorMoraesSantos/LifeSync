@@ -352,6 +352,90 @@ html, body {
     color: var(--text)
 }
 
+/* site.css ou wwwroot/css/app.css */
+.app-grid {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 4px 16px -8px rgba(0,0,0,.3);
+    overflow: hidden;
+    font-size: .85rem;
+}
+
+    .app-grid .e-gridheader {
+        background: var(--surface-2);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .app-grid .e-headercell {
+        background: transparent;
+        color: var(--color-text);
+        font-weight: 600;
+        padding: 10px 14px;
+    }
+
+    .app-grid .e-rowcell {
+        background: var(--surface-1);
+        border-color: var(--surface-2);
+        padding: 10px 14px;
+    }
+
+        .app-grid .e-rowcell:not(.e-active):hover {
+            background: var(--surface-2);
+            transition: background .15s;
+        }
+
+    .app-grid .e-row.e-altrow .e-rowcell {
+        background: var(--surface-1);
+    }
+
+    .app-grid .e-selectionbackground {
+        background: var(--primary) !important;
+        color: #fff;
+    }
+
+    .app-grid .e-pager {
+        background: var(--surface-2);
+        border-top: 1px solid var(--border);
+        padding: .35rem .75rem;
+    }
+
+        .app-grid .e-pager .e-numericitem.e-currentitem,
+        .app-grid .e-pager .e-numericitem:hover {
+            background: var(--primary);
+            color: #fff;
+            border-radius: 8px;
+        }
+
+    .app-grid .e-filterbarcell,
+    .app-grid .e-filterbar {
+        background: var(--surface-1);
+        border-color: var(--border);
+    }
+
+    .app-grid .e-icons.e-icon-filter::before {
+        color: var(--text-tertiary);
+    }
+
+    .app-grid .e-gridcontent {
+        scrollbar-color: var(--primary) var(--surface-2);
+    }
+
+        .app-grid .e-gridcontent::-webkit-scrollbar {
+            height: 10px;
+            width: 10px;
+        }
+
+        .app-grid .e-gridcontent::-webkit-scrollbar-track {
+            background: var(--surface-2);
+        }
+
+        .app-grid .e-gridcontent::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+            border: 2px solid var(--surface-2);
+        }
+
 /* Responsive */
 @media (max-width: 960px) {
     .ls-sidebar {

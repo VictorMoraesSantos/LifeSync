@@ -1,0 +1,18 @@
+<div class="content-header">
+    <div>
+        <h1 class="page-title">@Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <p class="page-description">@Description</p>
+        }
+    </div>
+    <div>
+        @Actions
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public RenderFragment? Actions { get; set; }
+}

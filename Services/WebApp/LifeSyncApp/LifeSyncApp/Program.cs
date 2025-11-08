@@ -1,6 +1,4 @@
-using LifeSyncApp.Client.Authentication;
 using LifeSyncApp.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 

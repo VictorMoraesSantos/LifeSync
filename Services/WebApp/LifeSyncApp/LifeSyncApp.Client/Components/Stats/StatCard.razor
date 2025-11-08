@@ -1,0 +1,32 @@
+<div class="stat-card">
+    <div class="stat-header">
+        <div class="stat-icon @IconStyle">
+            @if (IconTemplate is not null)
+            {
+                @IconTemplate
+            }
+            else if (!string.IsNullOrWhiteSpace(IconText))
+            {
+                <span>@IconText</span>
+            }
+        </div>
+        <div class="stat-value">@Value</div>
+    </div>
+    <div class="stat-label">@Label</div>
+    @if (!string.IsNullOrWhiteSpace(ChangeText))
+    {
+        <div class="stat-change @ChangeStyle">@ChangeText</div>
+    }
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public string? ChangeText { get; set; }
+    [Parameter] public string? ChangeStyle { get; set; }
+    [Parameter] public string? IconText { get; set; }
+    [Parameter] public string IconStyle { get; set; } = "primary"; // primary, secondary, success, warning, error
+    [Parameter] public RenderFragment? IconTemplate { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

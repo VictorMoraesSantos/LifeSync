@@ -1,7 +1,7 @@
+using LifeSyncApp.Client.Authentication;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using LifeSyncApp.Client.Authentication;
 
 namespace LifeSyncApp.Client.Services.Http;
 
@@ -81,7 +81,7 @@ public class ApiClient : IApiClient
             return;
 
         var content = response.Content == null ? null : await response.Content.ReadAsStringAsync();
-        throw new ApiException(response.StatusCode, content);       
+        throw new ApiException(response.StatusCode, content);
     }
 }
 

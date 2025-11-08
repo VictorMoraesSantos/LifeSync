@@ -8,71 +8,27 @@
 <PageTitle>Nutrição - LifeSync</PageTitle>
 
 <RedirectToLogin>
-<div class="content-header">
-    <div>
-        <h1 class="page-title">Nutrição</h1>
-        <p class="page-description">Acompanhe suas refeições e hidratação</p>
-    </div>
-    <div style="display:flex;gap:.5rem;">
-        <button class="btn btn-secondary" @onclick="OpenGoalDialog">Definir Objetivo</button>
-        <button class="btn btn-primary" @onclick="EnsureTodayDiary">Criar Diário de Hoje</button>
-    </div>
-</div>
+<PageHeader Title="Nutrição" Description="Acompanhe suas refeições e hidratação">
+    <Actions>
+        <div style="display:flex;gap:.5rem;">
+            <button class="btn btn-secondary" @onclick="OpenGoalDialog">Definir Objetivo</button>
+            <button class="btn btn-primary" @onclick="EnsureTodayDiary">Criar Diário de Hoje</button>
+        </div>
+    </Actions>
+</PageHeader>
 
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@todayCalories</div>
-                <div class="stat-label">Calorias Hoje</div>
-            </div>
-            <div class="stat-icon warning">
-                <span>??</span>
-            </div>
-        </div>
-        <div class="stat-change">
-            <span>Meta: @goalCalories kcal</span>
-        </div>
-    </div>
+        <StatCard Label="Calorias Hoje" Value="@todayCalories.ToString()" IconStyle="warning" IconText="??">
+        <div class="stat-change">Meta: @goalCalories kcal</div>
+    </StatCard>
 
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@todayMeals</div>
-                <div class="stat-label">Refeições</div>
-            </div>
-            <div class="stat-icon success">
-                <span>???</span>
-            </div>
-        </div>
-    </div>
+        <StatCard Label="Refeições" Value="@todayMeals.ToString()" IconStyle="success" IconText="???" />
 
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@todayLiquids L</div>
-                <div class="stat-label">Líquidos</div>
-            </div>
-            <div class="stat-icon primary">
-                <span>??</span>
-            </div>
-        </div>
-        <div class="stat-change">
-            <span>Meta: @goalLiters L</span>
-        </div>
-    </div>
+    <StatCard Label="Líquidos" Value=@($"{todayLiquids} L") IconStyle="primary" IconText="??">
+        <div class="stat-change">Meta: @goalLiters L</div>
+    </StatCard>
 
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">@diariesCount</div>
-                <div class="stat-label">Dias Registrados</div>
-            </div>
-            <div class="stat-icon secondary">
-                <span>??</span>
-            </div>
-        </div>
-    </div>
+        <StatCard Label="Dias Registrados" Value="@diariesCount.ToString()" IconStyle="secondary" IconText="??" />
 </div>
 
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace LifeSyncApp.Client.Models.TaskManager;
 
 // Enums must match backend values

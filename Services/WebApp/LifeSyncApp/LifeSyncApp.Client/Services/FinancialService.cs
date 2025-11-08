@@ -1,7 +1,6 @@
 using LifeSyncApp.Client.Models;
-using LifeSyncApp.Client.Services.Http;
-using System.Net.Http.Json;
 using LifeSyncApp.Client.Models.Financial;
+using LifeSyncApp.Client.Services.Http;
 
 namespace LifeSyncApp.Client.Services
 {

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace LifeSyncApp.Client.Models;
 
 public class LoginRequest

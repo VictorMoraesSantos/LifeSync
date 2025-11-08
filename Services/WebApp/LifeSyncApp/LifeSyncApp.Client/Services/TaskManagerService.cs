@@ -1,7 +1,8 @@
 using LifeSyncApp.Client.Models;
-using LifeSyncApp.Client.Services.Http;
-using System.Net.Http.Json;
 using LifeSyncApp.Client.Models.TaskManager;
+using LifeSyncApp.Client.Models.TaskManager.TaskItem;
+using LifeSyncApp.Client.Models.TaskManager.TaskLabel;
+using LifeSyncApp.Client.Services.Http;
 
 namespace LifeSyncApp.Client.Services
 {
@@ -22,8 +23,8 @@ namespace LifeSyncApp.Client.Services
         Task<ApiResponse<object>> DeleteLabelAsync(int id);
 
         // Search and by-user
-        Task<ApiResponse<List<TaskItemDTO>>> SearchTasksAsync(TaskItemFilter filter);
-        Task<ApiResponse<List<TaskLabelDTO>>> SearchLabelsAsync(TaskLabelFilter filter);
+        Task<ApiResponse<List<TaskItemDTO>>> SearchTasksAsync(TaskItemFilterDTO filter);
+        Task<ApiResponse<List<TaskLabelDTO>>> SearchLabelsAsync(TaskLabelFilterDTO filter);
         Task<ApiResponse<List<TaskItemDTO>>> GetTasksByUserAsync(int userId);
         Task<ApiResponse<List<TaskLabelDTO>>> GetLabelsByUserAsync(int userId);
     }
@@ -154,7 +155,7 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<List<TaskItemDTO>>> SearchTasksAsync(TaskItemFilter filter)
+        public async Task<ApiResponse<List<TaskItemDTO>>> SearchTasksAsync(TaskItemFilterDTO filter)
         {
             try
             {
@@ -168,7 +169,7 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<List<TaskLabelDTO>>> SearchLabelsAsync(TaskLabelFilter filter)
+        public async Task<ApiResponse<List<TaskLabelDTO>>> SearchLabelsAsync(TaskLabelFilterDTO filter)
         {
             try
             {
