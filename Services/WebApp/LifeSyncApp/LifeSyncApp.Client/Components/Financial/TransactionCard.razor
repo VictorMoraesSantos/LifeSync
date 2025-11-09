@@ -1,0 +1,106 @@
+@using LifeSyncApp.Client.Models.Financial
+
+<div class="transaction-card">
+    <div class="transaction-card-header">
+        <div class="transaction-title-row">
+            <h4 class="transaction-title">?? @Transaction.Description</h4>
+            <span class="badge badge-@GetTypeColor(Transaction.TransactionType)">
+                @GetTypeIcon(Transaction.TransactionType) @GetTypeText(Transaction.TransactionType)
+            </span>
+        </div>
+        <div class="transaction-amount @GetAmountClass(Transaction.TransactionType)">
+            @GetAmountPrefix(Transaction.TransactionType)R$ @Transaction.Amount.Amount.ToString("N2")
+        </div>
+    </div>
+
+    <div class="transaction-card-body">
+        <div class="transaction-meta">
+            <div class="transaction-meta-item">
+                <span class="transaction-meta-label">?? Data:</span>
+                <span class="transaction-meta-value">@Transaction.TransactionDate.ToString("dd/MM/yyyy")</span>
+            </div>
+            
+            @if (Transaction.Category != null)
+            {
+                <div class="transaction-meta-item">
+                    <span class="transaction-meta-label">??? Categoria:</span>
+                    <span class="badge badge-primary">@Transaction.Category.Name</span>
+                </div>
+            }
+            
+            <div class="transaction-meta-item">
+                <span class="transaction-meta-label">?? Método:</span>
+                <span class="transaction-meta-value">@GetPaymentMethodIcon(Transaction.PaymentMethod) @GetPaymentMethodText(Transaction.PaymentMethod)</span>
+            </div>
+            
+            @if (Transaction.IsRecurring)
+            {
+                <div class="transaction-meta-item">
+                    <span class="badge badge-warning">?? Recorrente</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="transaction-card-actions">
+        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditClick?.Invoke())">?? Editar</button>
+        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">??? Excluir</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TransactionDTO Transaction { get; set; } = default!;
+    [Parameter] public Action? OnEditClick { get; set; }
+    [Parameter] public Action? OnDeleteClick { get; set; }
+
+    private string GetTypeColor(TransactionType type)
+    {
+        return type == TransactionType.Income ? "success" : "error";
+    }
+
+    private string GetTypeIcon(TransactionType type)
+    {
+        return type == TransactionType.Income ? "??" : "??";
+    }
+
+    private string GetTypeText(TransactionType type)
+    {
+        return type == TransactionType.Income ? "Receita" : "Despesa";
+    }
+
+    private string GetAmountClass(TransactionType type)
+    {
+        return type == TransactionType.Income ? "amount-positive" : "amount-negative";
+    }
+
+    private string GetAmountPrefix(TransactionType type)
+    {
+        return type == TransactionType.Income ? "+" : "-";
+    }
+
+    private string GetPaymentMethodIcon(PaymentMethod method)
+    {
+        return method switch
+        {
+            PaymentMethod.Cash => "??",
+            PaymentMethod.CreditCard => "??",
+            PaymentMethod.DebitCard => "??",
+            PaymentMethod.BankTransfer => "??",
+            PaymentMethod.Pix => "??",
+            _ => "??"
+        };
+    }
+
+    private string GetPaymentMethodText(PaymentMethod method)
+    {
+        return method switch
+        {
+            PaymentMethod.Cash => "Dinheiro",
+            PaymentMethod.CreditCard => "Cartão de Crédito",
+            PaymentMethod.DebitCard => "Cartão de Débito",
+            PaymentMethod.BankTransfer => "Transferência",
+            PaymentMethod.Pix => "PIX",
+            _ => method.ToString()
+        };
+    }
+}

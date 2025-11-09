@@ -1,83 +1,1012 @@
 @page "/gym"
+@using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.Gym
-@using Syncfusion.Blazor.Navigations
+@using LifeSyncApp.Client.Components.Gym
+@using Syncfusion.Blazor.Popups
 @inject IGymService GymService
+@using System.Security.Claims
 
 <PageTitle>Academia - LifeSync</PageTitle>
 
 <RedirectToLogin>
-    <PageHeader Title="Academia" Description="Gerencie seus treinos, rotinas e exercícios" />
+<PageHeader Title="Academia" Description="Gerencie seus treinos, rotinas e exercícios">
+    <Actions>
+        <div style="display:flex;gap:.5rem;">
+            <button class="btn btn-secondary" @onclick="OpenCreateExerciseDialog">? Novo Exercício</button>
+            <button class="btn btn-secondary" @onclick="OpenCreateRoutineDialog">? Nova Rotina</button>
+            <button class="btn btn-primary" @onclick="OpenCreateSessionDialog">??? Nova Sessão</button>
+        </div>
+    </Actions>
+</PageHeader>
 
-    <div class="gym-container">
-        <SfTab CssClass="gym-tabs" @ref="tabRef">
-            <TabItems>
-                <TabItem>
-                    <ChildContent>
-                        <TabHeader Text="Exercícios" />
-                    </ChildContent>
-                    <ContentTemplate>
-                        <ExercisesTab />
-                    </ContentTemplate>
-                </TabItem>
+<div class="stats-grid">
+    <StatCard Label="Exercícios" Value="@totalExercises.ToString()" IconStyle="primary" IconText="??" />
+    <StatCard Label="Rotinas" Value="@totalRoutines.ToString()" IconStyle="secondary" IconText="??" />
+    <StatCard Label="Sessões" Value="@totalSessions.ToString()" IconStyle="success" IconText="???" />
+    <StatCard Label="Este Mês" Value="@sessionsThisMonth.ToString()" IconStyle="warning" IconText="??" />
+</div>
 
-                <TabItem>
-                    <ChildContent>
-                        <TabHeader Text="Rotinas" />
-                    </ChildContent>
-                    <ContentTemplate>
-                        <RoutinesTab />
-                    </ContentTemplate>
-                </TabItem>
-
-                <TabItem>
-                    <ChildContent>
-                        <TabHeader Text="Sessões" />
-                    </ChildContent>
-                    <ContentTemplate>
-                        <SessionsTab />
-                    </ContentTemplate>
-                </TabItem>
-
-                <TabItem>
-                    <ChildContent>
-                        <TabHeader Text="Dashboard" />
-                    </ChildContent>
-                    <ContentTemplate>
-                        <GymDashboardTab />
-                    </ContentTemplate>
-                </TabItem>
-            </TabItems>
-        </SfTab>
+<!-- Tabs de Navegação -->
+<div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-body" style="padding: 0.5rem 1rem;">
+        <div class="filter-buttons">
+            <button class="filter-btn @(activeTab == GymTab.Exercises ? "active" : "")"
+                    @onclick="() => SetActiveTab(GymTab.Exercises)">
+                ?? Exercícios
+            </button>
+            <button class="filter-btn @(activeTab == GymTab.Routines ? "active" : "")"
+                    @onclick="() => SetActiveTab(GymTab.Routines)">
+                ?? Rotinas
+            </button>
+            <button class="filter-btn @(activeTab == GymTab.Sessions ? "active" : "")"
+                    @onclick="() => SetActiveTab(GymTab.Sessions)">
+                ??? Sessões de Treino
+            </button>
+        </div>
     </div>
+</div>
+
+<!-- Conteúdo das Tabs -->
+@if (activeTab == GymTab.Exercises)
+{
+    <div class="card">
+        <div class="card-body">
+            @if (isLoadingExercises)
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <p style="margin-top: 1rem;">Carregando exercícios...</p>
+                </div>
+            }
+            else if (exercises.Any())
+            {
+                <div class="filter-buttons" style="margin-bottom: 1rem;">
+                    <button class="filter-btn @(activeTypeFilter == null ? "active" : "")"
+                            @onclick="() => FilterByType(null)">
+                        ??? Todos os Tipos
+                    </button>
+                    <button class="filter-btn @(activeTypeFilter == ExerciseType.Strength ? "active" : "")"
+                            @onclick="() => FilterByType(ExerciseType.Strength)">
+                        ?? Força
+                    </button>
+                    <button class="filter-btn @(activeTypeFilter == ExerciseType.Hypertrophy ? "active" : "")"
+                            @onclick="() => FilterByType(ExerciseType.Hypertrophy)">
+                        ?? Hipertrofia
+                    </button>
+                    <button class="filter-btn @(activeTypeFilter == ExerciseType.Cardio ? "active" : "")"
+                            @onclick="() => FilterByType(ExerciseType.Cardio)">
+                        ?? Cardio
+                    </button>
+                    <button class="filter-btn @(activeTypeFilter == ExerciseType.HIIT ? "active" : "")"
+                            @onclick="() => FilterByType(ExerciseType.HIIT)">
+                        ?? HIIT
+                    </button>
+                </div>
+
+                <div class="filter-buttons">
+                    <button class="filter-btn @(activeMuscleFilter == null ? "active" : "")"
+                            @onclick="() => FilterByMuscle(null)">
+                        ?? Todos os Grupos
+                    </button>
+                    <button class="filter-btn @(activeMuscleFilter == MuscleGroup.Chest ? "active" : "")"
+                            @onclick="() => FilterByMuscle(MuscleGroup.Chest)">
+                        ?? Peito
+                    </button>
+                    <button class="filter-btn @(activeMuscleFilter == MuscleGroup.Back ? "active" : "")"
+                            @onclick="() => FilterByMuscle(MuscleGroup.Back)">
+                        ?? Costas
+                    </button>
+                    <button class="filter-btn @(activeMuscleFilter == MuscleGroup.Shoulders ? "active" : "")"
+                            @onclick="() => FilterByMuscle(MuscleGroup.Shoulders)">
+                        ?? Ombros
+                    </button>
+                    <button class="filter-btn @(activeMuscleFilter == MuscleGroup.Abs ? "active" : "")"
+                            @onclick="() => FilterByMuscle(MuscleGroup.Abs)">
+                        ?? Abdômen
+                    </button>
+                    <button class="filter-btn @(activeMuscleFilter == MuscleGroup.Quadriceps ? "active" : "")"
+                            @onclick="() => FilterByMuscle(MuscleGroup.Quadriceps)">
+                        ?? Pernas
+                    </button>
+                </div>
+
+                <div class="exercises-container">
+                    @foreach (var muscleGroup in GetGroupedExercises())
+                    {
+                        <div class="exercises-group-section">
+                            <div class="exercises-group-header">
+                                <span>?? @GetMuscleGroupName(muscleGroup.Key)</span>
+                                <span class="badge badge-primary">@muscleGroup.Value.Count exercícios</span>
+                            </div>
+                            <div class="exercises-grid">
+                                @foreach (var exercise in muscleGroup.Value)
+                                {
+                                    <ExerciseCard Exercise="@exercise"
+                                                OnEditClick="@(() => EditExercise(exercise))"
+                                                OnDeleteClick="@(() => DeleteExercise(exercise))"
+                                                OnAddToRoutineClick="@(() => AddExerciseToRoutine(exercise))" />
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
+                    <h3>Nenhum exercício encontrado</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        Comece criando seu primeiro exercício
+                    </p>
+                    <button class="btn btn-primary" @onclick="OpenCreateExerciseDialog">
+                        ? Novo Exercício
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+}
+else if (activeTab == GymTab.Routines)
+{
+    <div class="card">
+        <div class="card-body">
+            @if (isLoadingRoutines)
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <p style="margin-top: 1rem;">Carregando rotinas...</p>
+                </div>
+            }
+            else if (routines.Any())
+            {
+                <div class="routines-grid">
+                    @foreach (var routine in routines)
+                    {
+                        <RoutineCard Routine="@routine"
+                                   OnViewDetailsClick="@(() => ViewRoutineDetails(routine))"
+                                   OnStartSessionClick="@(() => StartSession(routine))"
+                                   OnEditClick="@(() => EditRoutine(routine))"
+                                   OnDeleteClick="@(() => DeleteRoutine(routine))" />
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
+                    <h3>Nenhuma rotina encontrada</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        Crie sua primeira rotina de treino
+                    </p>
+                    <button class="btn btn-primary" @onclick="OpenCreateRoutineDialog">
+                        ? Nova Rotina
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+}
+else if (activeTab == GymTab.Sessions)
+{
+    <div class="card">
+        <div class="card-body">
+            @if (isLoadingSessions)
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <p style="margin-top: 1rem;">Carregando sessões...</p>
+                </div>
+            }
+            else if (sessions.Any())
+            {
+                <div class="sessions-container">
+                    @foreach (var monthGroup in GetGroupedSessions())
+                    {
+                        <div class="sessions-month-section">
+                            <div class="sessions-month-header">
+                                <span>?? @FormatMonthHeader(monthGroup.Key)</span>
+                                <span class="badge badge-primary">@monthGroup.Value.Count sessões</span>
+                            </div>
+                            <div class="sessions-grid">
+                                @foreach (var session in monthGroup.Value.OrderByDescending(s => s.StartTime))
+                                {
+                                    <TrainingSessionCard Session="@session"
+                                                       OnViewClick="@(() => ViewSession(session))"
+                                                       OnEditClick="@(() => EditSession(session))"
+                                                       OnDeleteClick="@(() => DeleteSession(session))" />
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">???</div>
+                    <h3>Nenhuma sessão de treino encontrada</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        Inicie sua primeira sessão de treino
+                    </p>
+                    <button class="btn btn-primary" @onclick="OpenCreateSessionDialog">
+                        ??? Nova Sessão
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Dialog de Criar/Editar Exercício -->
+<SfDialog @bind-Visible="showExerciseDialog" Width="520px" IsModal="true">
+    <DialogTemplates>
+        <Header>@(editingExercise == null ? "? Novo Exercício" : "?? Editar Exercício")</Header>
+        <Content>
+            <EditForm Model="exerciseModel" OnValidSubmit="SaveExercise" FormName="exerciseForm">
+                <div class="form-group">
+                    <label class="form-label">?? Nome</label>
+                    <InputText @bind-Value="exerciseModel.Name" class="form-control" placeholder="Ex: Supino reto" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Descrição</label>
+                    <InputTextArea @bind-Value="exerciseModel.Description" class="form-control" placeholder="Descrição do exercício" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Grupo Muscular</label>
+                    <InputSelect @bind-Value="exerciseModel.MuscleGroup" class="form-control">
+                        @foreach (var m in Enum.GetValues<MuscleGroup>())
+                        {
+                            <option value="@m">@GetMuscleGroupName(m)</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">??? Tipo de Exercício</label>
+                    <InputSelect @bind-Value="exerciseModel.ExerciseType" class="form-control">
+                        @foreach (var t in Enum.GetValues<ExerciseType>())
+                        {
+                            <option value="@t">@GetExerciseTypeName(t)</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Equipamento</label>
+                    <InputSelect @bind-Value="exerciseModel.EquipmentType" class="form-control">
+                        <option value="">Nenhum</option>
+                        @foreach (var e in Enum.GetValues<EquipmentType>())
+                        {
+                            <option value="@e">@GetEquipmentName(e)</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseExerciseDialog">
+                        ? Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        @(editingExercise == null ? "? Criar" : "?? Salvar")
+                    </button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+<!-- Dialog de Criar/Editar Rotina -->
+<SfDialog @bind-Visible="showRoutineDialog" Width="520px" IsModal="true">
+    <DialogTemplates>
+        <Header>@(editingRoutine == null ? "? Nova Rotina" : "?? Editar Rotina")</Header>
+        <Content>
+            <EditForm Model="routineModel" OnValidSubmit="SaveRoutine" FormName="routineForm">
+                <div class="form-group">
+                    <label class="form-label">?? Nome</label>
+                    <InputText @bind-Value="routineModel.Name" class="form-control" placeholder="Ex: Treino A - Peito e Tríceps" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Descrição</label>
+                    <InputTextArea @bind-Value="routineModel.Description" class="form-control" placeholder="Descrição da rotina" />
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseRoutineDialog">
+                        ? Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        @(editingRoutine == null ? "? Criar" : "?? Salvar")
+                    </button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+<!-- Dialog de Criar/Editar Sessão -->
+<SfDialog @bind-Visible="showSessionDialog" Width="520px" IsModal="true">
+    <DialogTemplates>
+        <Header>@(editingSession == null ? "??? Nova Sessão de Treino" : "?? Editar Sessão")</Header>
+        <Content>
+            <EditForm Model="sessionModel" OnValidSubmit="SaveSession" FormName="sessionForm">
+                <div class="form-group">
+                    <label class="form-label">?? Rotina</label>
+                    <InputSelect @bind-Value="sessionModel.RoutineId" class="form-control">
+                        <option value="0">Selecione uma rotina</option>
+                        @foreach (var r in routines)
+                        {
+                            <option value="@r.Id">@r.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Data e Hora de Início</label>
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="sessionModel.StartTime" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Data e Hora de Término</label>
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="sessionModel.EndTime" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Notas</label>
+                    <InputTextArea @bind-Value="sessionModel.Notes" class="form-control" placeholder="Observações sobre o treino (opcional)" />
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseSessionDialog">
+                        ? Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        @(editingSession == null ? "? Criar" : "?? Salvar")
+                    </button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+<!-- Novos Modals -->
+<RoutineDetailsModal @bind-IsVisible="showRoutineDetailsModal"
+                     Routine="selectedRoutine"
+                     RoutineExercises="currentRoutineExercises"
+                     AllExercises="exercises"
+                     OnAddExerciseClick="OpenAddExerciseToRoutineModal"
+                     OnCompleteExerciseClick="OpenCompleteExerciseModal"
+                     isLoadingExercises="isLoadingRoutineExercises" />
+
+<AddExerciseToRoutineModal @bind-IsVisible="showAddExerciseToRoutineModal"
+                          RoutineId="selectedRoutine?.Id ?? 0"
+                          AvailableExercises="exercises"
+                          OnSave="HandleAddExerciseToRoutine" />
+
+<CompleteExerciseModal @bind-IsVisible="showCompleteExerciseModal"
+                      RoutineExercise="selectedRoutineExercise"
+                      ExerciseName="@GetExerciseNameById(selectedRoutineExercise?.ExerciseId ?? 0)"
+                      TrainingSessionId="currentSessionId"
+                      OnComplete="HandleCompleteExercise" />
 </RedirectToLogin>
 
-<style>
-    .gym-container {
-        padding: 20px;
+@code {
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    private int? _userId;
+
+    private enum GymTab { Exercises, Routines, Sessions }
+
+    private class ExerciseModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public MuscleGroup MuscleGroup { get; set; } = MuscleGroup.Chest;
+        public ExerciseType ExerciseType { get; set; } = ExerciseType.Strength;
+        public EquipmentType? EquipmentType { get; set; }
     }
 
-    .gym-tabs {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-radius: 8px;
-        background: #fff;
+    private class RoutineModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
     }
 
-        .gym-tabs .e-tab-header {
-            background-color: #f8f9fa;
-            border-radius: 8px 8px 0 0;
+    private class SessionModel
+    {
+        public int Id { get; set; }
+        public int RoutineId { get; set; }
+        public DateTime StartTime { get; set; } = DateTime.Now;
+        public DateTime EndTime { get; set; } = DateTime.Now.AddHours(1);
+        public string? Notes { get; set; }
+    }
+
+    private GymTab activeTab = GymTab.Routines;
+    private List<ExerciseDTO> exercises = new();
+    private List<RoutineDTO> routines = new();
+    private List<TrainingSessionDTO> sessions = new();
+
+    private bool isLoadingExercises = true;
+    private bool isLoadingRoutines = true;
+    private bool isLoadingSessions = true;
+
+    // Filtros
+    private ExerciseType? activeTypeFilter = null;
+    private MuscleGroup? activeMuscleFilter = null;
+
+    // Dialogs
+    private bool showExerciseDialog = false;
+    private bool showRoutineDialog = false;
+    private bool showSessionDialog = false;
+    private bool showRoutineDetailsModal = false;
+    private bool showAddExerciseToRoutineModal = false;
+    private bool showCompleteExerciseModal = false;
+
+    // Models
+    private ExerciseModel exerciseModel = new();
+    private RoutineModel routineModel = new();
+    private SessionModel sessionModel = new();
+
+    private ExerciseDTO? editingExercise = null;
+    private RoutineDTO? editingRoutine = null;
+    private TrainingSessionDTO? editingSession = null;
+
+    // Routine Details
+    private RoutineDTO? selectedRoutine = null;
+    private List<RoutineExerciseDTO> currentRoutineExercises = new();
+    private bool isLoadingRoutineExercises = false;
+    private RoutineExerciseDTO? selectedRoutineExercise = null;
+    private int currentSessionId = 0;
+
+    // Stats
+    private int totalExercises => exercises.Count;
+    private int totalRoutines => routines.Count;
+    private int totalSessions => sessions.Count;
+    private int sessionsThisMonth => sessions.Count(s => s.StartTime.Month == DateTime.Now.Month && s.StartTime.Year == DateTime.Now.Year);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ResolveUserIdAsync();
+        await Task.WhenAll(LoadExercises(), LoadRoutines(), LoadSessions());
+    }
+
+    private async Task ResolveUserIdAsync()
+    {
+        var auth = await AuthenticationStateTask;
+        var user = auth.User;
+        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                   ?? user.FindFirst("UserId")?.Value
+                   ?? user.FindFirst("sub")?.Value;
+        if (int.TryParse(idStr, out var id))
+            _userId = id;
+    }
+
+    private async Task LoadExercises()
+    {
+        isLoadingExercises = true;
+        try
+        {
+            var result = await GymService.GetExercisesAsync();
+            if (result.Success && result.Data != null)
+                exercises = result.Data;
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading exercises: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingExercises = false;
+        }
+    }
 
-            .gym-tabs .e-tab-header .e-toolbar-item.e-active {
-                background-color: #fff;
-                border-bottom: 3px solid #0d6efd;
+    private async Task LoadRoutines()
+    {
+        isLoadingRoutines = true;
+        try
+        {
+            var result = await GymService.GetRoutinesAsync();
+            if (result.Success && result.Data != null)
+                routines = result.Data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading routines: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingRoutines = false;
+        }
+    }
+
+    private async Task LoadSessions()
+    {
+        isLoadingSessions = true;
+        try
+        {
+            var result = await GymService.GetTrainingSessionsAsync();
+            if (result.Success && result.Data != null)
+                sessions = result.Data.OrderByDescending(s => s.StartTime).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading sessions: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingSessions = false;
+        }
+    }
+
+    private async Task LoadRoutineExercises(int routineId)
+    {
+        isLoadingRoutineExercises = true;
+        try
+        {
+            var result = await GymService.GetRoutineExercisesAsync(routineId);
+            if (result.Success && result.Data != null)
+                currentRoutineExercises = result.Data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading routine exercises: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingRoutineExercises = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SetActiveTab(GymTab tab)
+    {
+        activeTab = tab;
+    }
+
+    private void FilterByType(ExerciseType? type)
+    {
+        activeTypeFilter = type;
+    }
+
+    private void FilterByMuscle(MuscleGroup? muscle)
+    {
+        activeMuscleFilter = muscle;
+    }
+
+    private IEnumerable<ExerciseDTO> GetFilteredExercises()
+    {
+        var filtered = exercises.AsEnumerable();
+
+        if (activeTypeFilter.HasValue)
+            filtered = filtered.Where(e => e.Type == activeTypeFilter.Value);
+
+        if (activeMuscleFilter.HasValue)
+            filtered = filtered.Where(e => e.MuscleGroup == activeMuscleFilter.Value);
+
+        return filtered;
+    }
+
+    private Dictionary<MuscleGroup, List<ExerciseDTO>> GetGroupedExercises()
+    {
+        return GetFilteredExercises()
+            .GroupBy(e => e.MuscleGroup)
+            .OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    private Dictionary<string, List<TrainingSessionDTO>> GetGroupedSessions()
+    {
+        return sessions
+            .GroupBy(s => new { s.StartTime.Year, s.StartTime.Month })
+            .OrderByDescending(g => g.Key.Year)
+            .ThenByDescending(g => g.Key.Month)
+            .ToDictionary(
+                g => $"{g.Key.Year}-{g.Key.Month:D2}",
+                g => g.ToList()
+            );
+    }
+
+    private string FormatMonthHeader(string yearMonth)
+    {
+        var parts = yearMonth.Split('-');
+        if (parts.Length != 2) return yearMonth;
+        
+        var year = int.Parse(parts[0]);
+        var month = int.Parse(parts[1]);
+        var date = new DateTime(year, month, 1);
+        
+        var today = DateTime.Today;
+        if (date.Year == today.Year && date.Month == today.Month)
+            return $"Este Mês - {date:MMMM yyyy}";
+        else if (date.Year == today.Year && date.Month == today.Month - 1)
+            return $"Mês Passado - {date:MMMM yyyy}";
+        else
+            return date.ToString("MMMM yyyy");
+    }
+
+    private string GetMuscleGroupName(MuscleGroup group)
+    {
+        return group switch
+        {
+            MuscleGroup.Chest => "Peito",
+            MuscleGroup.Back => "Costas",
+            MuscleGroup.Shoulders => "Ombros",
+            MuscleGroup.Biceps => "Bíceps",
+            MuscleGroup.Triceps => "Tríceps",
+            MuscleGroup.Forearms => "Antebraços",
+            MuscleGroup.Abs => "Abdômen",
+            MuscleGroup.Quadriceps => "Quadríceps",
+            MuscleGroup.Hamstrings => "Posteriores",
+            MuscleGroup.Calves => "Panturrilhas",
+            MuscleGroup.Glutes => "Glúteos",
+            MuscleGroup.LowerBack => "Lombar",
+            MuscleGroup.Traps => "Trapézio",
+            MuscleGroup.Neck => "Pescoço",
+            MuscleGroup.FullBody => "Corpo Inteiro",
+            MuscleGroup.Core => "Core",
+            _ => group.ToString()
+        };
+    }
+
+    private string GetExerciseTypeName(ExerciseType type)
+    {
+        return type switch
+        {
+            ExerciseType.Strength => "Força",
+            ExerciseType.Hypertrophy => "Hipertrofia",
+            ExerciseType.Endurance => "Resistência",
+            ExerciseType.Power => "Potência",
+            ExerciseType.Flexibility => "Flexibilidade",
+            ExerciseType.Cardio => "Cardio",
+            ExerciseType.HIIT => "HIIT",
+            ExerciseType.Recovery => "Recuperação",
+            _ => type.ToString()
+        };
+    }
+
+    private string GetEquipmentName(EquipmentType equipment)
+    {
+        return equipment switch
+        {
+            EquipmentType.Barbell => "Barra",
+            EquipmentType.Dumbbell => "Halteres",
+            EquipmentType.Machine => "Máquina",
+            EquipmentType.Cable => "Polia",
+            EquipmentType.Bodyweight => "Peso Corporal",
+            EquipmentType.ResistanceBand => "Elástico",
+            EquipmentType.Kettlebell => "Kettlebell",
+            EquipmentType.MedicineBall => "Medicine Ball",
+            EquipmentType.PullUpBar => "Barra Fixa",
+            EquipmentType.Bench => "Banco",
+            _ => equipment.ToString()
+        };
+    }
+
+    private string GetExerciseNameById(int exerciseId)
+    {
+        var exercise = exercises.FirstOrDefault(e => e.Id == exerciseId);
+        return exercise?.Name ?? "Exercício desconhecido";
+    }
+
+    // Exercise Methods
+    private void OpenCreateExerciseDialog()
+    {
+        editingExercise = null;
+        exerciseModel = new ExerciseModel();
+        showExerciseDialog = true;
+    }
+
+    private void EditExercise(ExerciseDTO exercise)
+    {
+        editingExercise = exercise;
+        exerciseModel = new ExerciseModel
+        {
+            Id = exercise.Id,
+            Name = exercise.Name,
+            Description = exercise.Description,
+            MuscleGroup = exercise.MuscleGroup,
+            ExerciseType = exercise.Type,
+            EquipmentType = exercise.EquipmentType
+        };
+        showExerciseDialog = true;
+    }
+
+    private async Task SaveExercise()
+    {
+        try
+        {
+            if (editingExercise == null)
+            {
+                var cmd = new CreateExerciseCommand(
+                    exerciseModel.Name,
+                    exerciseModel.Description,
+                    exerciseModel.MuscleGroup,
+                    exerciseModel.ExerciseType,
+                    exerciseModel.EquipmentType
+                );
+                await GymService.CreateExerciseAsync(cmd);
+            }
+            else
+            {
+                var cmd = new UpdateExerciseCommand(
+                    exerciseModel.Id,
+                    exerciseModel.Name,
+                    exerciseModel.Description,
+                    exerciseModel.MuscleGroup,
+                    exerciseModel.ExerciseType,
+                    exerciseModel.EquipmentType
+                );
+                await GymService.UpdateExerciseAsync(cmd);
             }
 
-    .tab-icon {
-        margin-right: 8px;
-        font-size: 1.2em;
+            await LoadExercises();
+            CloseExerciseDialog();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving exercise: {ex.Message}");
+        }
     }
-</style>
 
-@code {
-    private SfTab? tabRef;
+    private async Task DeleteExercise(ExerciseDTO exercise)
+    {
+        try
+        {
+            await GymService.DeleteExerciseAsync(exercise.Id);
+            await LoadExercises();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting exercise: {ex.Message}");
+        }
+    }
+
+    private void CloseExerciseDialog()
+    {
+        showExerciseDialog = false;
+        editingExercise = null;
+    }
+
+    private void AddExerciseToRoutine(ExerciseDTO exercise)
+    {
+        // TODO: Implementar adicionar exercício à rotina
+        Console.WriteLine($"Add exercise to routine: {exercise.Name}");
+    }
+
+    // Routine Methods
+    private void OpenCreateRoutineDialog()
+    {
+        editingRoutine = null;
+        routineModel = new RoutineModel();
+        showRoutineDialog = true;
+    }
+
+    private void EditRoutine(RoutineDTO routine)
+    {
+        editingRoutine = routine;
+        routineModel = new RoutineModel
+        {
+            Id = routine.Id,
+            Name = routine.Name,
+            Description = routine.Description
+        };
+        showRoutineDialog = true;
+    }
+
+    private async Task SaveRoutine()
+    {
+        try
+        {
+            if (editingRoutine == null)
+            {
+                var cmd = new CreateRoutineCommand(routineModel.Name, routineModel.Description);
+                await GymService.CreateRoutineAsync(cmd);
+            }
+            else
+            {
+                var cmd = new UpdateRoutineCommand(editingRoutine.Id, routineModel.Name, routineModel.Description);
+                await GymService.UpdateRoutineAsync(cmd);
+            }
+
+            await LoadRoutines();
+            CloseRoutineDialog();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving routine: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteRoutine(RoutineDTO routine)
+    {
+        try
+        {
+            await GymService.DeleteRoutineAsync(routine.Id);
+            await LoadRoutines();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting routine: {ex.Message}");
+        }
+    }
+
+    private void CloseRoutineDialog()
+    {
+        showRoutineDialog = false;
+        editingRoutine = null;
+    }
+
+    private async void ViewRoutineDetails(RoutineDTO routine)
+    {
+        selectedRoutine = routine;
+        showRoutineDetailsModal = true;
+        await LoadRoutineExercises(routine.Id);
+    }
+
+    private void StartSession(RoutineDTO routine)
+    {
+        sessionModel = new SessionModel
+        {
+            RoutineId = routine.Id,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now.AddHours(1)
+        };
+        showSessionDialog = true;
+    }
+
+    // Routine Exercise Methods
+    private void OpenAddExerciseToRoutineModal()
+    {
+        showAddExerciseToRoutineModal = true;
+    }
+
+    private async Task HandleAddExerciseToRoutine(AddExerciseToRoutineModal.RoutineExerciseModel model)
+    {
+        try
+        {
+            if (selectedRoutine == null) return;
+
+            var sets = new SetCountDTO(model.Sets);
+            var reps = new RepetitionCountDTO(model.Repetitions);
+            var rest = new RestTimeDTO(model.RestBetweenSets);
+            WeightDTO? weight = model.RecommendedWeight.HasValue 
+                ? new WeightDTO(model.RecommendedWeight.Value, model.WeightUnit) 
+                : null;
+
+            var cmd = new CreateRoutineExerciseCommand(
+                selectedRoutine.Id,
+                model.ExerciseId,
+                sets,
+                reps,
+                rest,
+                weight,
+                model.Instructions
+            );
+
+            await GymService.CreateRoutineExerciseAsync(cmd);
+            await LoadRoutineExercises(selectedRoutine.Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding exercise to routine: {ex.Message}");
+        }
+    }
+
+    private void OpenCompleteExerciseModal(RoutineExerciseDTO routineExercise)
+    {
+        selectedRoutineExercise = routineExercise;
+        showCompleteExerciseModal = true;
+    }
+
+    private async Task HandleCompleteExercise(CompleteExerciseModal.CompletedExerciseModel model)
+    {
+        try
+        {
+            if (selectedRoutineExercise == null) return;
+
+            var sets = new SetCountDTO(model.SetsCompleted);
+            var reps = new RepetitionCountDTO(model.RepetitionsCompleted);
+            WeightDTO? weight = model.WeightValue > 0 
+                ? new WeightDTO(model.WeightValue, model.WeightUnit) 
+                : null;
+
+            var cmd = new CreateCompletedExerciseCommand(
+                currentSessionId,
+                selectedRoutineExercise.ExerciseId,
+                selectedRoutineExercise.Id,
+                sets,
+                reps,
+                weight,
+                model.Notes
+            );
+
+            await GymService.CreateCompletedExerciseAsync(cmd);
+            // TODO: Atualizar UI ou dar feedback
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error completing exercise: {ex.Message}");
+        }
+    }
+
+    // Session Methods
+    private void OpenCreateSessionDialog()
+    {
+        editingSession = null;
+        sessionModel = new SessionModel();
+        showSessionDialog = true;
+    }
+
+    private void ViewSession(TrainingSessionDTO session)
+    {
+        // TODO: Implementar visualização detalhada da sessão
+        Console.WriteLine($"View session: {session.Id}");
+    }
+
+    private void EditSession(TrainingSessionDTO session)
+    {
+        editingSession = session;
+        sessionModel = new SessionModel
+        {
+            Id = session.Id,
+            RoutineId = session.RoutineId,
+            StartTime = session.StartTime,
+            EndTime = session.EndTime ?? DateTime.Now,
+            Notes = session.Notes
+        };
+        showSessionDialog = true;
+    }
+
+    private async Task SaveSession()
+    {
+        try
+        {
+            if (_userId is null) return;
+
+            if (editingSession == null)
+            {
+                var cmd = new CreateTrainingSessionCommand(
+                    _userId.Value,
+                    sessionModel.RoutineId,
+                    sessionModel.StartTime,
+                    sessionModel.EndTime
+                );
+                var result = await GymService.CreateTrainingSessionAsync(cmd);
+                if (result.Success && result.Data > 0)
+                {
+                    currentSessionId = result.Data;
+                }
+            }
+            else
+            {
+                var cmd = new UpdateTrainingSessionCommand(
+                    editingSession.Id,
+                    sessionModel.RoutineId,
+                    sessionModel.StartTime,
+                    sessionModel.EndTime,
+                    sessionModel.Notes ?? ""
+                );
+                await GymService.UpdateTrainingSessionAsync(cmd);
+            }
+
+            await LoadSessions();
+            CloseSessionDialog();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving session: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteSession(TrainingSessionDTO session)
+    {
+        try
+        {
+            await GymService.DeleteTrainingSessionAsync(session.Id);
+            await LoadSessions();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting session: {ex.Message}");
+        }
+    }
+
+    private void CloseSessionDialog()
+    {
+        showSessionDialog = false;
+        editingSession = null;
+    }
 }

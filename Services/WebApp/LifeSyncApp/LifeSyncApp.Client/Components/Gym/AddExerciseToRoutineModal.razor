@@ -1,0 +1,141 @@
+@using LifeSyncApp.Client.Models.Gym
+@using Syncfusion.Blazor.Popups
+
+<SfDialog @bind-Visible="IsVisible" Width="650px" IsModal="true">
+    <DialogTemplates>
+        <Header>? Adicionar Exercício à Rotina</Header>
+        <Content>
+            <EditForm Model="model" OnValidSubmit="SaveExercise" FormName="addExerciseToRoutineForm">
+                <div class="form-group">
+                    <label class="form-label">?? Exercício</label>
+                    <InputSelect @bind-Value="model.ExerciseId" class="form-control">
+                        <option value="0">Selecione um exercício</option>
+                        @foreach (var exercise in AvailableExercises)
+                        {
+                            <option value="@exercise.Id">@exercise.Name - @GetMuscleGroupName(exercise.MuscleGroup)</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">?? Séries</label>
+                        <InputNumber @bind-Value="model.Sets" class="form-control" min="1" placeholder="Ex: 3" />
+                    </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">?? Repetições</label>
+                        <InputNumber @bind-Value="model.Repetitions" class="form-control" min="1" placeholder="Ex: 12" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">?? Descanso (segundos)</label>
+                        <InputNumber @bind-Value="model.RestBetweenSets" class="form-control" min="0" placeholder="Ex: 60" />
+                    </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">??? Peso Recomendado</label>
+                        <InputNumber @bind-Value="model.RecommendedWeight" class="form-control" min="0" placeholder="Ex: 20" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">?? Unidade de Peso</label>
+                    <InputSelect @bind-Value="model.WeightUnit" class="form-control">
+                        <option value="@WeightUnitDTO.Kg">?? Quilogramas (kg)</option>
+                        <option value="@WeightUnitDTO.Lb">?? Libras (lb)</option>
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">?? Instruções (opcional)</label>
+                    <InputTextArea @bind-Value="model.Instructions" class="form-control" 
+                                   placeholder="Ex: Manter as costas retas, descer até 90 graus..." 
+                                   rows="3" />
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">
+                        ? Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        ? Adicionar
+                    </button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public int RoutineId { get; set; }
+    [Parameter] public List<ExerciseDTO> AvailableExercises { get; set; } = new();
+    [Parameter] public EventCallback<RoutineExerciseModel> OnSave { get; set; }
+
+    private RoutineExerciseModel model = new();
+
+    public class RoutineExerciseModel
+    {
+        public int ExerciseId { get; set; }
+        public int Sets { get; set; } = 3;
+        public int Repetitions { get; set; } = 12;
+        public int RestBetweenSets { get; set; } = 60;
+        public int? RecommendedWeight { get; set; }
+        public WeightUnitDTO WeightUnit { get; set; } = WeightUnitDTO.Kg;
+        public string? Instructions { get; set; }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (IsVisible)
+        {
+            model = new RoutineExerciseModel();
+        }
+    }
+
+    private void Close()
+    {
+        IsVisible = false;
+        IsVisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task SaveExercise()
+    {
+        if (model.ExerciseId <= 0)
+        {
+            // TODO: Show validation message
+            return;
+        }
+
+        await OnSave.InvokeAsync(model);
+        Close();
+    }
+
+    private string GetMuscleGroupName(MuscleGroup group)
+    {
+        return group switch
+        {
+            MuscleGroup.Chest => "Peito",
+            MuscleGroup.Back => "Costas",
+            MuscleGroup.Shoulders => "Ombros",
+            MuscleGroup.Biceps => "Bíceps",
+            MuscleGroup.Triceps => "Tríceps",
+            MuscleGroup.Forearms => "Antebraços",
+            MuscleGroup.Abs => "Abdômen",
+            MuscleGroup.Quadriceps => "Quadríceps",
+            MuscleGroup.Hamstrings => "Posteriores",
+            MuscleGroup.Calves => "Panturrilhas",
+            MuscleGroup.Glutes => "Glúteos",
+            MuscleGroup.LowerBack => "Lombar",
+            MuscleGroup.Traps => "Trapézio",
+            MuscleGroup.Neck => "Pescoço",
+            MuscleGroup.FullBody => "Corpo Inteiro",
+            MuscleGroup.Core => "Core",
+            _ => group.ToString()
+        };
+    }
+}

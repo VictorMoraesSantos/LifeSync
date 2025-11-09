@@ -1,0 +1,133 @@
+@using LifeSyncApp.Client.Models.Gym
+@using Syncfusion.Blazor.Popups
+
+<SfDialog @bind-Visible="IsVisible" Width="800px" IsModal="true">
+    <DialogTemplates>
+        <Header>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span>?? @Routine?.Name</span>
+                @if (Routine != null)
+                {
+                    <span class="badge badge-primary">@RoutineExercises.Count exercícios</span>
+                }
+            </div>
+        </Header>
+        <Content>
+            @if (Routine != null)
+            {
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="color: var(--text-secondary); margin: 0;">@Routine.Description</p>
+                </div>
+
+                @if (isLoadingExercises)
+                {
+                    <div style="text-align: center; padding: 2rem;">
+                        <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                        <p style="margin-top: 1rem;">Carregando exercícios...</p>
+                    </div>
+                }
+                else if (RoutineExercises.Any())
+                {
+                    <div class="routine-exercises-list">
+                        @foreach (var (routineExercise, index) in RoutineExercises.Select((re, i) => (re, i)))
+                        {
+                            <div class="routine-exercise-item">
+                                <div class="exercise-number">@(index + 1)</div>
+                                <div class="exercise-info">
+                                    <div class="exercise-header">
+                                        <h4 class="exercise-name">?? @GetExerciseName(routineExercise.ExerciseId)</h4>
+                                        <button class="btn btn-sm btn-success" 
+                                                @onclick="() => CompleteExercise(routineExercise)">
+                                            ? Completar
+                                        </button>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <div class="detail-item">
+                                            <span class="detail-label">?? Séries:</span>
+                                            <span class="detail-value">@routineExercise.Sets.Value</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">?? Repetições:</span>
+                                            <span class="detail-value">@routineExercise.Repetitions.Value</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">?? Descanso:</span>
+                                            <span class="detail-value">@routineExercise.RestBetweenSets.Value segundos</span>
+                                        </div>
+                                        @if (routineExercise.RecommendedWeight != null)
+                                        {
+                                            <div class="detail-item">
+                                                <span class="detail-label">??? Peso Recomendado:</span>
+                                                <span class="detail-value">@routineExercise.RecommendedWeight.Value @GetWeightUnit(routineExercise.RecommendedWeight.Unit)</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(routineExercise.Instructions))
+                                    {
+                                        <div class="exercise-instructions">
+                                            <span class="detail-label">?? Instruções:</span>
+                                            <p>@routineExercise.Instructions</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                            <button class="btn btn-secondary" @onclick="Close">? Fechar</button>
+                            <button class="btn btn-primary" @onclick="() => OnAddExerciseClick?.Invoke()">? Adicionar Exercício</button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 2.5rem; margin-bottom: 1rem;">??</div>
+                        <h4>Nenhum exercício nesta rotina</h4>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                            Adicione exercícios para começar
+                        </p>
+                        <button class="btn btn-primary" @onclick="() => OnAddExerciseClick?.Invoke()">
+                            ? Adicionar Exercício
+                        </button>
+                    </div>
+                }
+            }
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public RoutineDTO? Routine { get; set; }
+    [Parameter] public List<RoutineExerciseDTO> RoutineExercises { get; set; } = new();
+    [Parameter] public List<ExerciseDTO> AllExercises { get; set; } = new();
+    [Parameter] public Action? OnAddExerciseClick { get; set; }
+    [Parameter] public Action<RoutineExerciseDTO>? OnCompleteExerciseClick { get; set; }
+    [Parameter] public bool isLoadingExercises { get; set; }
+
+    private void Close()
+    {
+        IsVisible = false;
+        IsVisibleChanged.InvokeAsync(false);
+    }
+
+    private string GetExerciseName(int exerciseId)
+    {
+        var exercise = AllExercises.FirstOrDefault(e => e.Id == exerciseId);
+        return exercise?.Name ?? "Exercício desconhecido";
+    }
+
+    private string GetWeightUnit(WeightUnitDTO unit)
+    {
+        return unit == WeightUnitDTO.Kg ? "kg" : "lb";
+    }
+
+    private void CompleteExercise(RoutineExerciseDTO routineExercise)
+    {
+        OnCompleteExerciseClick?.Invoke(routineExercise);
+    }
+}

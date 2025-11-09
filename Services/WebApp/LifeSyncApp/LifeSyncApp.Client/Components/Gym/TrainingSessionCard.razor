@@ -1,0 +1,70 @@
+@using LifeSyncApp.Client.Models.Gym
+
+<div class="session-card">
+    <div class="session-card-header">
+        <div class="session-title-row">
+            <h4 class="session-title">??? Sessão de Treino</h4>
+            <span class="badge badge-@(Session.EndTime.HasValue ? "success" : "warning")">
+                @(Session.EndTime.HasValue ? "? Concluída" : "?? Em Andamento")
+            </span>
+        </div>
+    </div>
+
+    <div class="session-card-body">
+        <div class="session-meta">
+            <div class="session-meta-item">
+                <span class="session-meta-label">?? Início:</span>
+                <span class="session-meta-value">@Session.StartTime.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+            
+            @if (Session.EndTime.HasValue)
+            {
+                <div class="session-meta-item">
+                    <span class="session-meta-label">?? Término:</span>
+                    <span class="session-meta-value">@Session.EndTime.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                
+                <div class="session-meta-item">
+                    <span class="session-meta-label">?? Duração:</span>
+                    <span class="badge badge-primary">@GetDuration()</span>
+                </div>
+            }
+            
+            @if (!string.IsNullOrWhiteSpace(Session.Notes))
+            {
+                <div class="session-meta-item" style="flex-direction: column; align-items: flex-start;">
+                    <span class="session-meta-label">?? Notas:</span>
+                    <p class="session-notes">@Session.Notes</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="session-card-actions">
+        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnViewClick?.Invoke())">??? Ver Detalhes</button>
+        <button class="btn btn-sm btn-primary" @onclick="@(() => OnEditClick?.Invoke())">?? Editar</button>
+        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">??? Excluir</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TrainingSessionDTO Session { get; set; } = default!;
+    [Parameter] public Action? OnViewClick { get; set; }
+    [Parameter] public Action? OnEditClick { get; set; }
+    [Parameter] public Action? OnDeleteClick { get; set; }
+
+    private string GetDuration()
+    {
+        if (!Session.EndTime.HasValue)
+            return "Em andamento";
+
+        var duration = Session.EndTime.Value - Session.StartTime;
+        
+        if (duration.TotalMinutes < 60)
+            return $"{(int)duration.TotalMinutes} min";
+        
+        var hours = (int)duration.TotalHours;
+        var minutes = duration.Minutes;
+        return $"{hours}h {minutes}min";
+    }
+}

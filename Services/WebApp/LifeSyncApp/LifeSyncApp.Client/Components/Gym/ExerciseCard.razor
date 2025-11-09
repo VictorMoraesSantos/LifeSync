@@ -1,0 +1,162 @@
+@using LifeSyncApp.Client.Models.Gym
+
+<div class="exercise-card">
+    <div class="exercise-card-header">
+        <div class="exercise-title-row">
+            <h4 class="exercise-title">?? @Exercise.Name</h4>
+            <span class="badge badge-@GetTypeColor(Exercise.Type)">
+                @GetTypeIcon(Exercise.Type) @GetExerciseTypeName(Exercise.Type)
+            </span>
+        </div>
+        <div class="exercise-description">@Exercise.Description</div>
+    </div>
+
+    <div class="exercise-card-body">
+        <div class="exercise-meta">
+            <div class="exercise-meta-item">
+                <span class="exercise-meta-label">?? Grupo Muscular:</span>
+                <span class="badge badge-primary">@GetMuscleGroupIcon(Exercise.MuscleGroup) @GetMuscleGroupName(Exercise.MuscleGroup)</span>
+            </div>
+            
+            @if (Exercise.EquipmentType != null)
+            {
+                <div class="exercise-meta-item">
+                    <span class="exercise-meta-label">??? Equipamento:</span>
+                    <span class="exercise-meta-value">@GetEquipmentIcon(Exercise.EquipmentType.Value) @GetEquipmentName(Exercise.EquipmentType.Value)</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="exercise-card-actions">
+        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditClick?.Invoke())">?? Editar</button>
+        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">??? Excluir</button>
+        <button class="btn btn-sm btn-primary" @onclick="@(() => OnAddToRoutineClick?.Invoke())">? Add Rotina</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public ExerciseDTO Exercise { get; set; } = default!;
+    [Parameter] public Action? OnEditClick { get; set; }
+    [Parameter] public Action? OnDeleteClick { get; set; }
+    [Parameter] public Action? OnAddToRoutineClick { get; set; }
+
+    private string GetTypeColor(ExerciseType type)
+    {
+        return type switch
+        {
+            ExerciseType.Strength => "error",
+            ExerciseType.Hypertrophy => "warning",
+            ExerciseType.Cardio => "primary",
+            ExerciseType.HIIT => "error",
+            _ => "secondary"
+        };
+    }
+
+    private string GetTypeIcon(ExerciseType type)
+    {
+        return type switch
+        {
+            ExerciseType.Strength => "??",
+            ExerciseType.Hypertrophy => "??",
+            ExerciseType.Endurance => "??",
+            ExerciseType.Power => "?",
+            ExerciseType.Flexibility => "??",
+            ExerciseType.Cardio => "??",
+            ExerciseType.HIIT => "??",
+            ExerciseType.Recovery => "??",
+            _ => "???"
+        };
+    }
+
+    private string GetExerciseTypeName(ExerciseType type)
+    {
+        return type switch
+        {
+            ExerciseType.Strength => "Força",
+            ExerciseType.Hypertrophy => "Hipertrofia",
+            ExerciseType.Endurance => "Resistência",
+            ExerciseType.Power => "Potência",
+            ExerciseType.Flexibility => "Flexibilidade",
+            ExerciseType.Cardio => "Cardio",
+            ExerciseType.HIIT => "HIIT",
+            ExerciseType.Recovery => "Recuperação",
+            _ => type.ToString()
+        };
+    }
+
+    private string GetMuscleGroupIcon(MuscleGroup group)
+    {
+        return group switch
+        {
+            MuscleGroup.Chest => "??",
+            MuscleGroup.Back => "??",
+            MuscleGroup.Shoulders => "??",
+            MuscleGroup.Biceps => "??",
+            MuscleGroup.Triceps => "??",
+            MuscleGroup.Abs => "??",
+            MuscleGroup.Quadriceps or MuscleGroup.Hamstrings or MuscleGroup.Calves => "??",
+            MuscleGroup.Glutes => "??",
+            MuscleGroup.Core => "?",
+            MuscleGroup.FullBody => "??",
+            _ => "??"
+        };
+    }
+
+    private string GetMuscleGroupName(MuscleGroup group)
+    {
+        return group switch
+        {
+            MuscleGroup.Chest => "Peito",
+            MuscleGroup.Back => "Costas",
+            MuscleGroup.Shoulders => "Ombros",
+            MuscleGroup.Biceps => "Bíceps",
+            MuscleGroup.Triceps => "Tríceps",
+            MuscleGroup.Forearms => "Antebraços",
+            MuscleGroup.Abs => "Abdômen",
+            MuscleGroup.Quadriceps => "Quadríceps",
+            MuscleGroup.Hamstrings => "Posteriores",
+            MuscleGroup.Calves => "Panturrilhas",
+            MuscleGroup.Glutes => "Glúteos",
+            MuscleGroup.LowerBack => "Lombar",
+            MuscleGroup.Traps => "Trapézio",
+            MuscleGroup.Neck => "Pescoço",
+            MuscleGroup.FullBody => "Corpo Inteiro",
+            MuscleGroup.Core => "Core",
+            _ => group.ToString()
+        };
+    }
+
+    private string GetEquipmentIcon(EquipmentType equipment)
+    {
+        return equipment switch
+        {
+            EquipmentType.Barbell => "???",
+            EquipmentType.Dumbbell => "???",
+            EquipmentType.Machine => "??",
+            EquipmentType.Cable => "??",
+            EquipmentType.Bodyweight => "??",
+            EquipmentType.Kettlebell => "??",
+            EquipmentType.ResistanceBand => "??",
+            _ => "??"
+        };
+    }
+
+    private string GetEquipmentName(EquipmentType equipment)
+    {
+        return equipment switch
+        {
+            EquipmentType.Barbell => "Barra",
+            EquipmentType.Dumbbell => "Halteres",
+            EquipmentType.Machine => "Máquina",
+            EquipmentType.Cable => "Polia",
+            EquipmentType.Bodyweight => "Peso Corporal",
+            EquipmentType.ResistanceBand => "Elástico",
+            EquipmentType.Kettlebell => "Kettlebell",
+            EquipmentType.MedicineBall => "Medicine Ball",
+            EquipmentType.PullUpBar => "Barra Fixa",
+            EquipmentType.Bench => "Banco",
+            _ => equipment.ToString()
+        };
+    }
+}

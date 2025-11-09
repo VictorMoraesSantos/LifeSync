@@ -1,7 +1,7 @@
 @page "/financial"
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.Financial
-@using Syncfusion.Blazor.Grids
+@using LifeSyncApp.Client.Components.Financial
 @using Syncfusion.Blazor.Popups
 @inject IFinancialService FinancialService
 @using System.Security.Claims
@@ -12,16 +12,16 @@
 <PageHeader Title="Financeiro" Description="Controle suas finanças pessoais">
     <Actions>
         <div style="display:flex;gap:.5rem;">
-            <button class="btn btn-secondary" @onclick="OpenCategoriesDialog">Gerenciar Categorias</button>
+            <button class="btn btn-secondary" @onclick="OpenCategoriesDialog">??? Gerenciar Categorias</button>
             <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                + Nova Transação
+                ? Nova Transação
             </button>
         </div>
     </Actions>
 </PageHeader>
 
 <div class="stats-grid">
-        <StatCard Label="Receitas" Value=@($"R$ {totalIncome.ToString("N2")}") IconStyle="success" IconText="??">
+    <StatCard Label="Receitas" Value=@($"R$ {totalIncome.ToString("N2")}") IconStyle="success" IconText="??">
         <div class="stat-change positive">+@incomeCount transações</div>
     </StatCard>
 
@@ -47,59 +47,86 @@
         }
         else if (transactions.Any())
         {
-            <SfGrid DataSource="@transactions" AllowPaging="true" AllowSorting="true" AllowFiltering="true">
-                <GridPageSettings PageSize="10"></GridPageSettings>
-                <GridColumns>
-                    <GridColumn Field="@nameof(TransactionDTO.Description)" HeaderText="Descrição" Width="200"></GridColumn>
-                    <GridColumn Field="@nameof(TransactionDTO.Amount)" HeaderText="Valor" Width="120"></GridColumn>
-                    <GridColumn Field="@nameof(TransactionDTO.TransactionType)" HeaderText="Tipo" Width="100">
-                        <Template>
-                            @{
-                                var transaction = context as TransactionDTO;
-                                <span class="badge badge-@(transaction?.TransactionType == TransactionType.Income ? "success" : "error")">
-                                    @(transaction?.TransactionType == TransactionType.Income ? "Receita" : "Despesa")
+            <div class="filter-buttons" style="margin-bottom: 1rem;">
+                <button class="filter-btn @(activeTypeFilter == null ? "active" : "")"
+                        @onclick="() => FilterByType(null)">
+                    ?? Todas
+                </button>
+                <button class="filter-btn @(activeTypeFilter == TransactionType.Income ? "active" : "")"
+                        @onclick="() => FilterByType(TransactionType.Income)">
+                    ?? Receitas
+                </button>
+                <button class="filter-btn @(activeTypeFilter == TransactionType.Expense ? "active" : "")"
+                        @onclick="() => FilterByType(TransactionType.Expense)">
+                    ?? Despesas
+                </button>
+            </div>
+
+            <div class="filter-buttons">
+                <button class="filter-btn @(activePaymentFilter == null ? "active" : "")"
+                        @onclick="() => FilterByPayment(null)">
+                    ?? Todos os Métodos
+                </button>
+                <button class="filter-btn @(activePaymentFilter == PaymentMethod.Cash ? "active" : "")"
+                        @onclick="() => FilterByPayment(PaymentMethod.Cash)">
+                    ?? Dinheiro
+                </button>
+                <button class="filter-btn @(activePaymentFilter == PaymentMethod.CreditCard ? "active" : "")"
+                        @onclick="() => FilterByPayment(PaymentMethod.CreditCard)">
+                    ?? Crédito
+                </button>
+                <button class="filter-btn @(activePaymentFilter == PaymentMethod.DebitCard ? "active" : "")"
+                        @onclick="() => FilterByPayment(PaymentMethod.DebitCard)">
+                    ?? Débito
+                </button>
+                <button class="filter-btn @(activePaymentFilter == PaymentMethod.Pix ? "active" : "")"
+                        @onclick="() => FilterByPayment(PaymentMethod.Pix)">
+                    ?? PIX
+                </button>
+            </div>
+
+            <div class="transactions-container">
+                @foreach (var monthGroup in GetGroupedTransactions())
+                {
+                    <div class="transactions-month-section">
+                        <div class="transactions-month-header">
+                            <div>
+                                ?? @FormatMonthHeader(monthGroup.Key)
+                            </div>
+                            <div class="month-summary">
+                                <span class="month-income">
+                                    ?? R$ @monthGroup.Value.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount).ToString("N2")
                                 </span>
+                                <span class="month-expense">
+                                    ?? R$ @monthGroup.Value.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount).ToString("N2")
+                                </span>
+                                <span class="month-balance @(GetMonthBalance(monthGroup.Value) >= 0 ? "month-income" : "month-expense")">
+                                    ?? R$ @GetMonthBalance(monthGroup.Value).ToString("N2")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="transactions-grid">
+                            @foreach (var transaction in monthGroup.Value.OrderByDescending(t => t.TransactionDate))
+                            {
+                                <TransactionCard Transaction="@transaction"
+                                               OnEditClick="@(() => EditTransaction(transaction))"
+                                               OnDeleteClick="@(() => DeleteTransaction(transaction))" />
                             }
-                        </Template>
-                    </GridColumn>
-                    <GridColumn HeaderText="Categoria" Width="150">
-                        <Template>
-                            @{
-                                var transaction = context as TransactionDTO;
-                                @transaction?.Category?.Name
-                            }
-                        </Template>
-                    </GridColumn>
-                    <GridColumn Field="@nameof(TransactionDTO.PaymentMethod)" HeaderText="Método" Width="120"></GridColumn>
-                    <GridColumn Field="@nameof(TransactionDTO.TransactionDate)" HeaderText="Data" Width="120" Format="dd/MM/yyyy"></GridColumn>
-                    <GridColumn HeaderText="Ações" Width="150">
-                        <Template>
-                            @{
-                                var transaction = context as TransactionDTO;
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <button class="btn btn-sm btn-secondary" @onclick="() => EditTransaction(transaction)">
-                                        Editar
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTransaction(transaction)">
-                                        Excluir
-                                    </button>
-                                </div>
-                            }
-                        </Template>
-                    </GridColumn>
-                </GridColumns>
-            </SfGrid>
+                        </div>
+                    </div>
+                }
+            </div>
         }
         else
         {
             <div style="text-align: center; padding: 3rem;">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
                 <h3>Nenhuma transação encontrada</h3>
-                <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
                     Comece registrando sua primeira transação
                 </p>
                 <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                    + Nova Transação
+                    ? Nova Transação
                 </button>
             </div>
         }
@@ -108,41 +135,38 @@
 
 <SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
     <DialogTemplates>
-        <Header>@(editingTransaction == null ? "Nova Transação" : "Editar Transação")</Header>
+        <Header>@(editingTransaction == null ? "? Nova Transação" : "?? Editar Transação")</Header>
         <Content>
             <EditForm Model="editModel" OnValidSubmit="SaveTransaction" FormName="financialForm">
                 <div class="form-group">
-                    <label class="form-label">Descrição</label>
-                    <InputText @bind-Value="editModel.Description" class="form-control" />
+                    <label class="form-label">?? Descrição</label>
+                    <InputText @bind-Value="editModel.Description" class="form-control" placeholder="Ex: Salário, Aluguel..." />
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Valor</label>
+                    <label class="form-label">?? Valor</label>
                     <InputNumber @bind-Value="editModel.Amount" class="form-control" />
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Moeda</label>
+                    <label class="form-label">?? Moeda</label>
                     <InputSelect @bind-Value="editModel.Currency" class="form-control">
-                        @foreach (var c in Enum.GetValues<Currency>())
-                        {
-                            <option value="@c">@c</option>
-                        }
+                        <option value="@Currency.BRL">???? Real (BRL)</option>
+                        <option value="@Currency.USD">???? Dólar (USD)</option>
+                        <option value="@Currency.EUR">???? Euro (EUR)</option>
                     </InputSelect>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tipo</label>
+                    <label class="form-label">?? Tipo</label>
                     <InputSelect @bind-Value="editModel.TransactionType" class="form-control">
-                        @foreach (var t in Enum.GetValues<TransactionType>())
-                        {
-                            <option value="@t">@t</option>
-                        }
+                        <option value="@TransactionType.Income">?? Receita</option>
+                        <option value="@TransactionType.Expense">?? Despesa</option>
                     </InputSelect>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Categoria</label>
+                    <label class="form-label">??? Categoria</label>
                     <InputSelect @bind-Value="editModel.CategoryId" class="form-control">
                         <option value="">Sem categoria</option>
                         @foreach (var c in categories)
@@ -153,31 +177,33 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Método de Pagamento</label>
+                    <label class="form-label">?? Método de Pagamento</label>
                     <InputSelect @bind-Value="editModel.PaymentMethod" class="form-control">
-                        @foreach (var m in Enum.GetValues<PaymentMethod>())
-                        {
-                            <option value="@m">@m</option>
-                        }
+                        <option value="@PaymentMethod.Cash">?? Dinheiro</option>
+                        <option value="@PaymentMethod.CreditCard">?? Cartão de Crédito</option>
+                        <option value="@PaymentMethod.DebitCard">?? Cartão de Débito</option>
+                        <option value="@PaymentMethod.BankTransfer">?? Transferência</option>
+                        <option value="@PaymentMethod.Pix">?? PIX</option>
+                        <option value="@PaymentMethod.Other">?? Outro</option>
                     </InputSelect>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Data</label>
+                    <label class="form-label">?? Data</label>
                     <InputDate @bind-Value="editModel.TransactionDate" class="form-control" />
                 </div>
 
-                <div class="form-group">
-                    <InputCheckbox @bind-Value="editModel.IsRecurring" />
-                    <label class="form-label" style="margin-left: 0.5rem;">Recorrente</label>
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <InputCheckbox @bind-Value="editModel.IsRecurring" id="recurring-check" />
+                    <label class="form-label" for="recurring-check" style="margin: 0;">?? Recorrente</label>
                 </div>
 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
-                        Cancelar
+                        ? Cancelar
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        @(editingTransaction == null ? "Criar" : "Salvar")
+                        @(editingTransaction == null ? "? Criar" : "?? Salvar")
                     </button>
                 </div>
             </EditForm>
@@ -188,23 +214,23 @@
 <!-- Dialogo de gerenciamento de Categorias -->
 <SfDialog @bind-Visible="showCategoriesDialog" Width="620px" IsModal="true">
     <DialogTemplates>
-        <Header>Gerenciar Categorias</Header>
+        <Header>??? Gerenciar Categorias</Header>
         <Content>
             <div class="form-group">
-                <label class="form-label">Nome</label>
-                <InputText @bind-Value="categoryModel.Name" class="form-control" />
+                <label class="form-label">?? Nome</label>
+                <InputText @bind-Value="categoryModel.Name" class="form-control" placeholder="Ex: Alimentação, Transporte..." />
             </div>
             <div class="form-group">
-                <label class="form-label">Descrição</label>
-                <InputText @bind-Value="categoryModel.Description" class="form-control" />
+                <label class="form-label">?? Descrição</label>
+                <InputText @bind-Value="categoryModel.Description" class="form-control" placeholder="Descrição opcional" />
             </div>
             <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                <button class="btn btn-secondary" @onclick="() => { categoryModel = new CategoryEditModel(); showCategoriesDialog = false; }">Fechar</button>
-                <button class="btn btn-primary" @onclick="CreateCategory">Adicionar Categoria</button>
+                <button class="btn btn-secondary" @onclick="() => { categoryModel = new CategoryEditModel(); showCategoriesDialog = false; }">? Fechar</button>
+                <button class="btn btn-primary" @onclick="CreateCategory">? Adicionar Categoria</button>
             </div>
 
             <div class="card" style="margin-top:1rem;">
-                <div class="card-header"><h3 class="card-title">Minhas categorias</h3></div>
+                <div class="card-header"><h3 class="card-title">??? Minhas categorias</h3></div>
                 <div class="card-body">
                     @if (categories.Any())
                     {
@@ -213,7 +239,7 @@
                             {
                                 <div style="display:flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.35rem .5rem;border-radius:10px;">
                                     <span class="badge badge-primary">@c.Name</span>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteCategory(c.Id)">Excluir</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteCategory(c.Id)">??? Excluir</button>
                                 </div>
                             }
                         </div>
@@ -264,6 +290,10 @@
 
     private bool showCategoriesDialog = false;
     private CategoryEditModel categoryModel { get; set; } = new();
+
+    // Filtros
+    private TransactionType? activeTypeFilter = null;
+    private PaymentMethod? activePaymentFilter = null;
 
     private decimal totalIncome => transactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount);
     private decimal totalExpenses => transactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount);
@@ -335,6 +365,66 @@
         {
             isLoading = false;
         }
+    }
+
+    private void FilterByType(TransactionType? type)
+    {
+        activeTypeFilter = type;
+    }
+
+    private void FilterByPayment(PaymentMethod? payment)
+    {
+        activePaymentFilter = payment;
+    }
+
+    private IEnumerable<TransactionDTO> GetFilteredTransactions()
+    {
+        var filtered = transactions.AsEnumerable();
+
+        if (activeTypeFilter.HasValue)
+            filtered = filtered.Where(t => t.TransactionType == activeTypeFilter.Value);
+
+        if (activePaymentFilter.HasValue)
+            filtered = filtered.Where(t => t.PaymentMethod == activePaymentFilter.Value);
+
+        return filtered.OrderByDescending(t => t.TransactionDate);
+    }
+
+    private Dictionary<string, List<TransactionDTO>> GetGroupedTransactions()
+    {
+        return GetFilteredTransactions()
+            .GroupBy(t => new { t.TransactionDate.Year, t.TransactionDate.Month })
+            .OrderByDescending(g => g.Key.Year)
+            .ThenByDescending(g => g.Key.Month)
+            .ToDictionary(
+                g => $"{g.Key.Year}-{g.Key.Month:D2}",
+                g => g.ToList()
+            );
+    }
+
+    private string FormatMonthHeader(string yearMonth)
+    {
+        var parts = yearMonth.Split('-');
+        if (parts.Length != 2) return yearMonth;
+        
+        var year = int.Parse(parts[0]);
+        var month = int.Parse(parts[1]);
+        var date = new DateTime(year, month, 1);
+        
+        var today = DateTime.Today;
+        if (date.Year == today.Year && date.Month == today.Month)
+            return $"Este Mês - {date:MMMM yyyy}";
+        else if (date.Year == today.Year && date.Month == today.Month - 1)
+            return $"Mês Passado - {date:MMMM yyyy}";
+        else
+            return date.ToString("MMMM yyyy");
+    }
+
+    private decimal GetMonthBalance(List<TransactionDTO> monthTransactions)
+    {
+        var income = monthTransactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount);
+        var expense = monthTransactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount);
+        return income - expense;
     }
 
     private void OpenCreateDialog()

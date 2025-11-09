@@ -946,3 +946,662 @@ html, body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Transaction Cards */
+.transaction-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.transaction-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(130, 87, 230, 0.15);
+}
+
+.transaction-card-header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.transaction-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.transaction-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.transaction-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+.amount-positive {
+    color: var(--success);
+}
+
+.amount-negative {
+    color: var(--error);
+}
+
+.transaction-card-body {
+    margin-bottom: 1rem;
+}
+
+.transaction-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.transaction-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.transaction-meta-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.transaction-meta-value {
+    font-size: 0.875rem;
+    color: var(--text);
+}
+
+.transaction-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Transactions Container */
+.transactions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.transactions-month-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.transactions-month-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.month-summary {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.month-income {
+    color: var(--success);
+}
+
+.month-expense {
+    color: var(--error);
+}
+
+.month-balance {
+    font-weight: 700;
+}
+
+.transactions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1rem;
+}
+
+/* Financial Summary Cards */
+.financial-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+}
+
+.summary-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.summary-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.summary-detail {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+/* Filter Pills */
+.filter-pills {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.filter-pill {
+    padding: 0.5rem 1rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 0.875rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-pill:hover {
+    background: var(--surface-3);
+    border-color: var(--primary);
+}
+
+.filter-pill.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .transactions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .month-summary {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .transactions-month-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+/* Exercise Cards */
+.exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.exercise-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(130, 87, 230, 0.15);
+}
+
+.exercise-card-header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.exercise-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.exercise-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.exercise-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.exercise-card-body {
+    margin-bottom: 1rem;
+}
+
+.exercise-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.exercise-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.exercise-meta-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.exercise-meta-value {
+    font-size: 0.875rem;
+    color: var(--text);
+}
+
+.exercise-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+/* Session Cards */
+.session-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.session-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(130, 87, 230, 0.15);
+}
+
+.session-card-header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.session-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.session-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.session-card-body {
+    margin-bottom: 1rem;
+}
+
+.session-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.session-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.session-meta-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.session-meta-value {
+    font-size: 0.875rem;
+    color: var(--text);
+}
+
+.session-notes {
+    margin: 0.5rem 0 0 0;
+    padding: 0.75rem;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.session-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+/* Routine Cards */
+.routine-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.routine-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(130, 87, 230, 0.15);
+}
+
+.routine-card-header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.routine-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.routine-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.routine-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.routine-card-body {
+    margin-bottom: 1rem;
+}
+
+.routine-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.routine-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.routine-meta-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.routine-meta-value {
+    font-size: 0.875rem;
+    color: var(--text);
+}
+
+.routine-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+/* Gym Containers */
+.exercises-container,
+.sessions-container,
+.routines-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.exercises-group-section,
+.sessions-month-section,
+.routines-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.exercises-group-header,
+.sessions-month-header,
+.routines-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.exercises-grid,
+.sessions-grid,
+.routines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .exercises-grid,
+    .sessions-grid,
+    .routines-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Routine Details Modal */
+.routine-exercises-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.routine-exercise-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.routine-exercise-item:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(130, 87, 230, 0.1);
+}
+
+.exercise-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.exercise-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.exercise-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.exercise-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.exercise-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detail-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.detail-value {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 600;
+}
+
+.exercise-instructions {
+    padding: 0.75rem;
+    background: var(--surface-3);
+    border-radius: var(--radius-sm);
+}
+
+.exercise-instructions p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.875rem;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+/* Complete Exercise Modal */
+.complete-exercise-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.proposed-values {
+    padding: 1.25rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.value-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--surface-3);
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.value-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.value-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* Add Exercise to Routine Modal */
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .exercise-details {
+        grid-template-columns: 1fr;
+    }
+
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .routine-exercise-item {
+        flex-direction: column;
+    }
+
+    .exercise-number {
+        align-self: flex-start;
+    }
+}

@@ -1,0 +1,42 @@
+@using LifeSyncApp.Client.Models.Gym
+
+<div class="routine-card">
+    <div class="routine-card-header">
+        <div class="routine-title-row">
+            <h4 class="routine-title">?? @Routine.Name</h4>
+        </div>
+        <div class="routine-description">@Routine.Description</div>
+    </div>
+
+    <div class="routine-card-body">
+        <div class="routine-meta">
+            <div class="routine-meta-item">
+                <span class="routine-meta-label">?? Criada em:</span>
+                <span class="routine-meta-value">@Routine.CreatedAt.ToString("dd/MM/yyyy")</span>
+            </div>
+            
+            @if (Routine.UpdatedAt.HasValue)
+            {
+                <div class="routine-meta-item">
+                    <span class="routine-meta-label">?? Atualizada em:</span>
+                    <span class="routine-meta-value">@Routine.UpdatedAt.Value.ToString("dd/MM/yyyy")</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="routine-card-actions">
+        <button class="btn btn-sm btn-primary" @onclick="@(() => OnViewDetailsClick?.Invoke())">??? Ver Detalhes</button>
+        <button class="btn btn-sm btn-success" @onclick="@(() => OnStartSessionClick?.Invoke())">?? Iniciar Treino</button>
+        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditClick?.Invoke())">?? Editar</button>
+        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">??? Excluir</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public RoutineDTO Routine { get; set; } = default!;
+    [Parameter] public Action? OnViewDetailsClick { get; set; }
+    [Parameter] public Action? OnStartSessionClick { get; set; }
+    [Parameter] public Action? OnEditClick { get; set; }
+    [Parameter] public Action? OnDeleteClick { get; set; }
+}
