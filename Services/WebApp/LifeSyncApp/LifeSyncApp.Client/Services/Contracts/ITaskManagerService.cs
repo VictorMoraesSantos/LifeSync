@@ -10,14 +10,14 @@ namespace LifeSyncApp.Client.Services.Contracts
         // TaskItems
         Task<ApiResponse<List<TaskItemDTO>>> GetTasksAsync();
         Task<ApiResponse<TaskItemDTO>> GetTaskByIdAsync(int id);
-        Task<ApiResponse<int>> CreateTaskAsync(CreateTaskItemCommand command);
-        Task<ApiResponse<bool>> UpdateTaskAsync(UpdateTaskItemCommand command);
+        Task<ApiResponse<int>> CreateTaskAsync(CreateTaskItemDTO command);
+        Task<ApiResponse<bool>> UpdateTaskAsync(UpdateTaskItemDTO command);
         Task<ApiResponse<object>> DeleteTaskAsync(int id);
 
         // Labels
         Task<ApiResponse<List<TaskLabelDTO>>> GetLabelsAsync();
-        Task<ApiResponse<int>> CreateLabelAsync(CreateTaskLabelCommand command);
-        Task<ApiResponse<bool>> UpdateLabelAsync(UpdateTaskLabelCommand command);
+        Task<ApiResponse<int>> CreateLabelAsync(CreateTaskLabelDTO command);
+        Task<ApiResponse<bool>> UpdateLabelAsync(UpdateTaskLabelDTO command);
         Task<ApiResponse<object>> DeleteLabelAsync(int id);
 
         // Search and by-user

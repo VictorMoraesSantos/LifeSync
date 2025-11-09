@@ -42,11 +42,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<int>> CreateTaskAsync(CreateTaskItemCommand command)
+        public async Task<ApiResponse<int>> CreateTaskAsync(CreateTaskItemDTO command)
         {
             try
             {
-                var res = await _apiClient.PostAsync<CreateTaskItemCommand, ApiResponse<int>>("taskmanager-service/api/task-items", command);
+                var res = await _apiClient.PostAsync<CreateTaskItemDTO, ApiResponse<int>>("taskmanager-service/api/task-items", command);
                 return res ?? new ApiResponse<int> { Success = false };
             }
             catch (Exception ex)
@@ -55,11 +55,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateTaskAsync(UpdateTaskItemCommand command)
+        public async Task<ApiResponse<bool>> UpdateTaskAsync(UpdateTaskItemDTO command)
         {
             try
             {
-                var res = await _apiClient.PutAsync<UpdateTaskItemCommand, ApiResponse<bool>>($"taskmanager-service/api/task-items/{command.Id}", command);
+                var res = await _apiClient.PutAsync<UpdateTaskItemDTO, ApiResponse<bool>>($"taskmanager-service/api/task-items/{command.Id}", command);
                 return res ?? new ApiResponse<bool> { Success = false };
             }
             catch (Exception ex)
@@ -94,11 +94,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<int>> CreateLabelAsync(CreateTaskLabelCommand command)
+        public async Task<ApiResponse<int>> CreateLabelAsync(CreateTaskLabelDTO command)
         {
             try
             {
-                var res = await _apiClient.PostAsync<CreateTaskLabelCommand, ApiResponse<int>>("taskmanager-service/api/task-labels", command);
+                var res = await _apiClient.PostAsync<CreateTaskLabelDTO, ApiResponse<int>>("taskmanager-service/api/task-labels", command);
                 return res ?? new ApiResponse<int> { Success = false };
             }
             catch (Exception ex)
@@ -107,11 +107,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateLabelAsync(UpdateTaskLabelCommand command)
+        public async Task<ApiResponse<bool>> UpdateLabelAsync(UpdateTaskLabelDTO command)
         {
             try
             {
-                var res = await _apiClient.PutAsync<UpdateTaskLabelCommand, ApiResponse<bool>>($"taskmanager-service/api/task-labels/{command.Id}", command);
+                var res = await _apiClient.PutAsync<UpdateTaskLabelDTO, ApiResponse<bool>>($"taskmanager-service/api/task-labels/{command.Id}", command);
                 return res ?? new ApiResponse<bool> { Success = false };
             }
             catch (Exception ex)

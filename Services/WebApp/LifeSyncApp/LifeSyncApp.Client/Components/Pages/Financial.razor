@@ -1,6 +1,8 @@
 @page "/financial"
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.Financial
+@using LifeSyncApp.Client.Models.Financial.Category
+@using LifeSyncApp.Client.Models.Financial.Transaction
 @using LifeSyncApp.Client.Components.Financial
 @using Syncfusion.Blazor.Popups
 @inject IFinancialService FinancialService
@@ -467,12 +469,12 @@
             var money = new Money(editModel.Amount, editModel.Currency);
             if (editingTransaction == null)
             {
-                var create = new CreateTransactionCommand(_userId.Value, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+                var create = new CreateTransactionDTO(_userId.Value, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
                 await FinancialService.CreateTransactionAsync(create);
             }
             else
             {
-                var update = new UpdateTransactionCommand(editModel.Id, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+                var update = new UpdateTransactionDTO(editModel.Id, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
                 await FinancialService.UpdateTransactionAsync(update);
             }
 
@@ -490,7 +492,7 @@
         try
         {
             if (_userId is null) return;
-            var cmd = new CreateCategoryCommand(_userId.Value, categoryModel.Name, categoryModel.Description);
+            var cmd = new CreateCategoryDTO(_userId.Value, categoryModel.Name, categoryModel.Description);
             var res = await FinancialService.CreateCategoryAsync(cmd);
             if (res.Success)
             {

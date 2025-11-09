@@ -1,5 +1,7 @@
 using LifeSyncApp.Client.Models;
 using LifeSyncApp.Client.Models.Financial;
+using LifeSyncApp.Client.Models.Financial.Category;
+using LifeSyncApp.Client.Models.Financial.Transaction;
 using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
 
@@ -27,11 +29,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<int>> CreateTransactionAsync(CreateTransactionCommand command)
+        public async Task<ApiResponse<int>> CreateTransactionAsync(CreateTransactionDTO command)
         {
             try
             {
-                var res = await _apiClient.PostAsync<CreateTransactionCommand, ApiResponse<int>>("financial-service/api/transactions", command);
+                var res = await _apiClient.PostAsync<CreateTransactionDTO, ApiResponse<int>>("financial-service/api/transactions", command);
                 return res ?? new ApiResponse<int> { Success = false };
             }
             catch (Exception ex)
@@ -40,11 +42,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateTransactionAsync(UpdateTransactionCommand command)
+        public async Task<ApiResponse<bool>> UpdateTransactionAsync(UpdateTransactionDTO command)
         {
             try
             {
-                var res = await _apiClient.PutAsync<UpdateTransactionCommand, ApiResponse<bool>>($"financial-service/api/transactions/{command.Id}", command);
+                var res = await _apiClient.PutAsync<UpdateTransactionDTO, ApiResponse<bool>>($"financial-service/api/transactions/{command.Id}", command);
                 return res ?? new ApiResponse<bool> { Success = false };
             }
             catch (Exception ex)
@@ -79,11 +81,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<int>> CreateCategoryAsync(CreateCategoryCommand command)
+        public async Task<ApiResponse<int>> CreateCategoryAsync(CreateCategoryDTO command)
         {
             try
             {
-                var res = await _apiClient.PostAsync<CreateCategoryCommand, ApiResponse<int>>("financial-service/api/categories", command);
+                var res = await _apiClient.PostAsync<CreateCategoryDTO, ApiResponse<int>>("financial-service/api/categories", command);
                 return res ?? new ApiResponse<int> { Success = false };
             }
             catch (Exception ex)
@@ -92,11 +94,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateCategoryAsync(UpdateCategoryCommand command)
+        public async Task<ApiResponse<bool>> UpdateCategoryAsync(UpdateCategoryDTO command)
         {
             try
             {
-                var res = await _apiClient.PutAsync<UpdateCategoryCommand, ApiResponse<bool>>($"financial-service/api/categories/{command.Id}", command);
+                var res = await _apiClient.PutAsync<UpdateCategoryDTO, ApiResponse<bool>>($"financial-service/api/categories/{command.Id}", command);
                 return res ?? new ApiResponse<bool> { Success = false };
             }
             catch (Exception ex)

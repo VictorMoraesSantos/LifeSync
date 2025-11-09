@@ -1,17 +1,19 @@
 ﻿using LifeSyncApp.Client.Models;
 using LifeSyncApp.Client.Models.Financial;
+using LifeSyncApp.Client.Models.Financial.Category;
+using LifeSyncApp.Client.Models.Financial.Transaction;
 
 namespace LifeSyncApp.Client.Services.Contracts
 {
     public interface IFinancialService
     {
         Task<ApiResponse<List<TransactionDTO>>> GetTransactionsAsync();
-        Task<ApiResponse<int>> CreateTransactionAsync(CreateTransactionCommand command);
-        Task<ApiResponse<bool>> UpdateTransactionAsync(UpdateTransactionCommand command);
+        Task<ApiResponse<int>> CreateTransactionAsync(CreateTransactionDTO command);
+        Task<ApiResponse<bool>> UpdateTransactionAsync(UpdateTransactionDTO command);
         Task<ApiResponse<object>> DeleteTransactionAsync(int id);
         Task<ApiResponse<List<CategoryDTO>>> GetCategoriesAsync();
-        Task<ApiResponse<int>> CreateCategoryAsync(CreateCategoryCommand command);
-        Task<ApiResponse<bool>> UpdateCategoryAsync(UpdateCategoryCommand command);
+        Task<ApiResponse<int>> CreateCategoryAsync(CreateCategoryDTO command);
+        Task<ApiResponse<bool>> UpdateCategoryAsync(UpdateCategoryDTO command);
         Task<ApiResponse<object>> DeleteCategoryAsync(int id);
 
         Task<ApiResponse<List<TransactionDTO>>> SearchTransactionsAsync(object filter);
