@@ -1,9 +1,9 @@
-@using LifeSyncApp.Client.Models.TaskManager
+﻿@using LifeSyncApp.Client.Models.TaskManager
 
 <div class="task-card">
     <div class="task-card-header">
         <div class="task-title-row">
-            <h4 class="task-title">?? @TaskItem.Title</h4>
+            <h4 class="task-title">📋 @TaskItem.Title</h4>
             <span class="badge badge-@GetPriorityColor(TaskItem.Priority)">
                 @GetPriorityIcon(TaskItem.Priority) @TaskItem.Priority
             </span>
@@ -17,7 +17,7 @@
             <div class="task-labels">
                 @foreach (var label in TaskItem.Labels)
                 {
-                    <span class="badge badge-primary">??? @label.Name</span>
+                    <span class="badge badge-primary">🏷️ @label.Name</span>
                 }
             </div>
         }
@@ -29,15 +29,15 @@
             </div>
             <div class="task-meta-item">
                 <span class="task-meta-label">Vencimento:</span>
-                <span class="task-meta-value">?? @TaskItem.DueDate.ToString("dd/MM/yyyy")</span>
+                <span class="task-meta-value">📅 @TaskItem.DueDate.ToString("dd/MM/yyyy")</span>
             </div>
         </div>
     </div>
 
     <div class="task-card-actions">
-        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditClick?.Invoke())">?? Editar</button>
-        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">??? Excluir</button>
-        <button class="btn btn-sm btn-primary" @onclick="@(() => OnAddLabelClick?.Invoke())">??? Label</button>
+        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditClick?.Invoke())">✏️ Editar</button>
+        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">🗑️ Excluir</button>
+        <button class="btn btn-sm btn-primary" @onclick="@(() => OnAddLabelClick?.Invoke())">🏷️ Label</button>
     </div>
 </div>
 
@@ -63,11 +63,11 @@
     {
         return priority switch
         {
-            Priority.Urgent => "??",
-            Priority.High => "??",
-            Priority.Medium => "??",
-            Priority.Low => "??",
-            _ => "?"
+            Priority.Urgent => "🚨",
+            Priority.High => "🔴",
+            Priority.Medium => "🟡",
+            Priority.Low => "🟢",
+            _ => "⚪"
         };
     }
 
@@ -87,11 +87,11 @@
     {
         return status switch
         {
-            Status.Completed => "?",
-            Status.InProgress => "??",
-            Status.Pending => "?",
-            Status.Cancelled => "?",
-            _ => "??"
+            Status.Completed => "✅",
+            Status.InProgress => "🔄",
+            Status.Pending => "⏳",
+            Status.Cancelled => "❌",
+            _ => "📌"
         };
     }
 }

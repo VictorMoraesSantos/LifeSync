@@ -146,16 +146,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">📊 Status</label>
-                        <InputSelect @bind-Value="currentTask.Status" class="form-control">
-                            @foreach (var s in Enum.GetValues<Status>())
-                            {
-                                <option value="@s">@s</option>
-                            }
-                        </InputSelect>
-                    </div>
-
-                    <div class="form-group">
                         <label class="form-label">📅 Data de Vencimento</label>
                         <InputDate DateFormat="dd/MM/yyyy" @bind-Value="currentTask.DueDate" class="form-control" />
                     </div>
@@ -317,7 +307,7 @@
         if (result.Success && result.Data != null)
             tasks = result.Data;
         isLoading = false;
-        StateHasChanged();
+        this.StateHasChanged();
     }
 
     private async Task LoadLabels()
@@ -325,7 +315,7 @@
         var result = await TaskService.GetLabelsByUserAsync(_userId.Value);
         if (result.Success && result.Data != null)
             labels = result.Data;
-        StateHasChanged();
+        this.StateHasChanged();
     }
 
     private void FilterByStatus(Status? status)
@@ -397,7 +387,7 @@
             DueDate = task.DueDate
         };
         showDialog = true;
-        StateHasChanged();
+        this.StateHasChanged();
     }
 
     private async Task SaveTask()
@@ -416,7 +406,7 @@
 
         await LoadTasks();
         CloseDialog();
-        StateHasChanged();
+        this.StateHasChanged();
     }
 
     private async Task DeleteTask(TaskItemDTO? task)
@@ -437,42 +427,26 @@
     {
         labelModel = new();
         showLabelsDialog = true;
+        this.StateHasChanged();
     }
 
     private async Task CreateLabel()
     {
-        try
-        {
-            if (_userId is null) return;
-            var cmd = new CreateTaskLabelCommand(labelModel.Name, labelModel.Color, _userId.Value, 0);
-            var res = await TaskService.CreateLabelAsync(cmd);
-            if (res.Success)
-            {
-                labelModel = new();
-                await LoadLabels();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error creating label: {ex.Message}");
-        }
+        var cmd = new CreateTaskLabelCommand(labelModel.Name, labelModel.Color, _userId.Value, 0);
+        var res = await TaskService.CreateLabelAsync(cmd);
+        if (res.Success)
+            await LoadLabels();
+        this.StateHasChanged();
     }
 
     private async Task DeleteLabel(int id)
     {
-        try
-        {
-            var res = await TaskService.DeleteLabelAsync(id);
-            if (res.Success)
-            {
-                await LoadLabels();
-                await LoadTasks(); // caso remova label atrelada
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error deleting label: {ex.Message}");
-        }
+        var res = await TaskService.DeleteLabelAsync(id);
+        if (!res.Success) return;
+
+        await LoadLabels();
+        await LoadTasks();
+
     }
 
     private void OpenAddLabelDialog(TaskItemDTO? task)
