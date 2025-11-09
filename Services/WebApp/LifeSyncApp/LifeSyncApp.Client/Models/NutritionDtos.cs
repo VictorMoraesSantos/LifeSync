@@ -62,6 +62,7 @@ public record CreateMealCommand(int DiaryId, string Name, string Description);
 public record UpdateMealCommand(int Id, string Name, string Description);
 
 public record CreateMealFoodDTO(string Name, int QuantityInGrams, int CaloriesPerUnit);
+public record CreateMealFoodCommand(int MealId, string Name, int QuantityInGrams, int CaloriesPerUnit);
 
 public record UpdateMealFoodDTO(int Id, string Name, int QuantityInGrams, int CaloriesPerUnit);
 

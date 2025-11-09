@@ -1,0 +1,97 @@
+@using LifeSyncApp.Client.Models.TaskManager
+
+<div class="task-card">
+    <div class="task-card-header">
+        <div class="task-title-row">
+            <h4 class="task-title">?? @TaskItem.Title</h4>
+            <span class="badge badge-@GetPriorityColor(TaskItem.Priority)">
+                @GetPriorityIcon(TaskItem.Priority) @TaskItem.Priority
+            </span>
+        </div>
+        <div class="task-description">@TaskItem.Description</div>
+    </div>
+
+    <div class="task-card-body">
+        @if (TaskItem.Labels != null && TaskItem.Labels.Any())
+        {
+            <div class="task-labels">
+                @foreach (var label in TaskItem.Labels)
+                {
+                    <span class="badge badge-primary">??? @label.Name</span>
+                }
+            </div>
+        }
+
+        <div class="task-meta">
+            <div class="task-meta-item">
+                <span class="task-meta-label">Status:</span>
+                <span class="badge badge-@GetStatusColor(TaskItem.Status)">@GetStatusIcon(TaskItem.Status) @TaskItem.Status</span>
+            </div>
+            <div class="task-meta-item">
+                <span class="task-meta-label">Vencimento:</span>
+                <span class="task-meta-value">?? @TaskItem.DueDate.ToString("dd/MM/yyyy")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="task-card-actions">
+        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditClick?.Invoke())">?? Editar</button>
+        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">??? Excluir</button>
+        <button class="btn btn-sm btn-primary" @onclick="@(() => OnAddLabelClick?.Invoke())">??? Label</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TaskItemDTO TaskItem { get; set; } = default!;
+    [Parameter] public Action? OnEditClick { get; set; }
+    [Parameter] public Action? OnDeleteClick { get; set; }
+    [Parameter] public Action? OnAddLabelClick { get; set; }
+
+    private string GetPriorityColor(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.High => "error",
+            Priority.Urgent => "error",
+            Priority.Medium => "warning",
+            Priority.Low => "secondary",
+            _ => "primary"
+        };
+    }
+
+    private string GetPriorityIcon(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.Urgent => "??",
+            Priority.High => "??",
+            Priority.Medium => "??",
+            Priority.Low => "??",
+            _ => "?"
+        };
+    }
+
+    private string GetStatusColor(Status status)
+    {
+        return status switch
+        {
+            Status.Completed => "success",
+            Status.InProgress => "warning",
+            Status.Pending => "secondary",
+            Status.Cancelled => "error",
+            _ => "secondary"
+        };
+    }
+
+    private string GetStatusIcon(Status status)
+    {
+        return status switch
+        {
+            Status.Completed => "?",
+            Status.InProgress => "??",
+            Status.Pending => "?",
+            Status.Cancelled => "?",
+            _ => "??"
+        };
+    }
+}

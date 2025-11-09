@@ -1,5 +1,6 @@
 using LifeSyncApp.Client.Authentication;
 using LifeSyncApp.Client.Models;
+using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
 using System.Net.Http.Json;
 using System.Text.Json;

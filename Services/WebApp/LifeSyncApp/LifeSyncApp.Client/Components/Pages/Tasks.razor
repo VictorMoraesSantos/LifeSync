@@ -1,8 +1,7 @@
-@page "/tasks"
+﻿@page "/tasks"
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.TaskManager
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Buttons
+@using LifeSyncApp.Client.Components.Tasks
 @using Syncfusion.Blazor.Popups
 @inject ITaskManagerService TaskService
 @using System.Security.Claims
@@ -10,229 +9,243 @@
 <PageTitle>Tarefas - LifeSync</PageTitle>
 
 <RedirectToLogin>
-<PageHeader Title="Tarefas" Description="Gerencie suas tarefas e organize seu dia">
-    <Actions>
-        <div style="display:flex;gap:.5rem;">
-            <button class="btn btn-secondary" @onclick="OpenLabelsDialog">Gerenciar Labels</button>
-            <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                <span>+ Nova Tarefa</span>
-            </button>
-        </div>
-    </Actions>
-</PageHeader>
-
-<div class="stats-grid">
-        <StatCard Label="Total" Value="@totalTasks.ToString()" IconStyle="primary" IconText="??" />
-        <StatCard Label="Pendentes" Value="@pendingTasks.ToString()" IconStyle="warning" IconText="?" />
-        <StatCard Label="Em Progresso" Value="@inProgressTasks.ToString()" IconStyle="secondary" IconText="??" />
-        <StatCard Label="Conclu�das" Value="@completedTasksCount.ToString()" IconStyle="success" IconText="?" />
-</div>
-
-<div class="card">
-    <div class="card-body">
-        @if (isLoading)
-        {
-            <div style="text-align: center; padding: 3rem;">
-                <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
-                <p style="margin-top: 1rem;">Carregando tarefas...</p>
-            </div>
-        }
-        else if (tasks.Any())
-        {
-                <SfGrid DataSource="@tasks" AllowPaging="true" AllowSorting="true" AllowFiltering="true" GridLines="GridLine.None" RowHeight="44">
-                <GridPageSettings PageSize="10"></GridPageSettings>
-                <GridColumns>
-                    <GridColumn Field="@nameof(TaskItemDTO.Title)" HeaderText="T�tulo" Width="200"></GridColumn>
-                    <GridColumn Field="@nameof(TaskItemDTO.Description)" HeaderText="Descri��o" Width="250"></GridColumn>
-                    <GridColumn HeaderText="Labels" Width="220">
-                        <Template>
-                            @{
-                                var task = context as TaskItemDTO;
-                                if (task?.Labels != null && task.Labels.Any())
-                                {
-                                    <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
-                                        @foreach (var l in task.Labels)
-                                        {
-                                            <span class="badge badge-primary">@l.Name</span>
-                                        }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span style="color:var(--text-tertiary);">Sem labels</span>
-                                }
-                            }
-                        </Template>
-                    </GridColumn>
-                    <GridColumn Field="@nameof(TaskItemDTO.Priority)" HeaderText="Prioridade" Width="120">
-                        <Template>
-                            @{
-                                var task = context as TaskItemDTO;
-                                <span class="badge badge-@GetPriorityColor(task?.Priority ?? Priority.Medium)">
-                                    @task?.Priority
-                                </span>
-                            }
-                        </Template>
-                    </GridColumn>
-                    <GridColumn Field="@nameof(TaskItemDTO.Status)" HeaderText="Status" Width="120"></GridColumn>
-                    <GridColumn Field="@nameof(TaskItemDTO.DueDate)" HeaderText="Data" Width="120" Format="dd/MM/yyyy"></GridColumn>
-                    <GridColumn HeaderText="A��es" Width="230">
-                        <Template>
-                            @{
-                                var task = context as TaskItemDTO;
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <button class="btn btn-sm btn-secondary" @onclick="() => EditTask(task)">Editar</button>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteTask(task)">Excluir</button>
-                                    <button class="btn btn-sm btn-primary" @onclick="() => OpenAddLabelDialog(task)">+ Label</button>
-                                </div>
-                            }
-                        </Template>
-                    </GridColumn>
-                </GridColumns>
-            </SfGrid>
-        }
-        else
-        {
-            <div style="text-align: center; padding: 3rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">???</div>
-                <h3>Nenhuma tarefa encontrada</h3>
-                <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
-                    Comece criando sua primeira tarefa
-                </p>
+    <PageHeader Title="Tarefas" Description="Gerencie suas tarefas e organize seu dia">
+        <Actions>
+            <div style="display:flex;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="OpenLabelsDialog">🏷️ Gerenciar Labels</button>
                 <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                    + Nova Tarefa
+                    <span>➕ Nova Tarefa</span>
                 </button>
             </div>
-        }
+        </Actions>
+    </PageHeader>
+
+    <div class="stats-grid">
+        <StatCard Label="Total" Value="@totalTasks.ToString()" IconStyle="primary" IconText="📋" />
+        <StatCard Label="Pendentes" Value="@pendingTasks.ToString()" IconStyle="warning" IconText="⏳" />
+        <StatCard Label="Em Progresso" Value="@inProgressTasks.ToString()" IconStyle="secondary" IconText="🔄" />
+        <StatCard Label="Concluídas" Value="@completedTasksCount.ToString()" IconStyle="success" IconText="✅" />
     </div>
-</div>
 
-<SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
-    <DialogTemplates>
-        <Header>@(editingTask == null ? "Nova Tarefa" : "Editar Tarefa")</Header>
-        <Content>
-            <EditForm Model="currentTask" OnValidSubmit="SaveTask" FormName="taskForm">
-                <div class="form-group">
-                    <label class="form-label">T�tulo</label>
-                    <InputText @bind-Value="currentTask.Title" class="form-control" />
+    <div class="card">
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <p style="margin-top: 1rem;">Carregando tarefas...</p>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">Descri��o</label>
-                    <InputTextArea @bind-Value="currentTask.Description" class="form-control" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Prioridade</label>
-                    <InputSelect @bind-Value="currentTask.Priority" class="form-control">
-                        @foreach (var p in Enum.GetValues<Priority>())
-                        {
-                            <option value="@p">@p</option>
-                        }
-                    </InputSelect>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <InputSelect @bind-Value="currentTask.Status" class="form-control">
-                        @foreach (var s in Enum.GetValues<Status>())
-                        {
-                            <option value="@s">@s</option>
-                        }
-                    </InputSelect>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Data de Vencimento</label>
-                    <InputDate DateFormat="dd/MM/yyyy" @bind-Value="currentTask.DueDate" class="form-control" />
-                </div>
-
-                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
-                        Cancelar
+            }
+            else if (tasks.Any())
+            {
+                <div class="filter-buttons">
+                    <button class="filter-btn @(activeStatusFilter == null ? "active" : "")"
+                            @onclick="() => FilterByStatus(null)">
+                        📋 Todas
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                        @(editingTask == null ? "Criar" : "Salvar")
+                    <button class="filter-btn @(activeStatusFilter == Status.Pending ? "active" : "")"
+                            @onclick="() => FilterByStatus(Status.Pending)">
+                        ⏳ Pendentes
+                    </button>
+                    <button class="filter-btn @(activeStatusFilter == Status.InProgress ? "active" : "")"
+                            @onclick="() => FilterByStatus(Status.InProgress)">
+                        🔄 Em Progresso
+                    </button>
+                    <button class="filter-btn @(activeStatusFilter == Status.Completed ? "active" : "")"
+                            @onclick="() => FilterByStatus(Status.Completed)">
+                        ✅ Concluídas
+                    </button>
+                    <button class="filter-btn @(activeStatusFilter == Status.Cancelled ? "active" : "")"
+                            @onclick="() => FilterByStatus(Status.Cancelled)">
+                        ❌ Canceladas
                     </button>
                 </div>
-            </EditForm>
-        </Content>
-    </DialogTemplates>
-</SfDialog>
 
-<!-- Dialogo de gerenciamento de Labels -->
-<SfDialog @bind-Visible="showLabelsDialog" Width="620px" IsModal="true">
-    <DialogTemplates>
-        <Header>Gerenciar Labels</Header>
-        <Content>
-            <div class="form-group">
-                <label class="form-label">Nome</label>
-                <InputText @bind-Value="labelModel.Name" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label class="form-label">Cor</label>
-                <InputSelect @bind-Value="labelModel.Color" class="form-control">
-                    @foreach (var c in Enum.GetValues<LabelColor>())
-                    {
-                        <option value="@c">@c</option>
-                    }
-                </InputSelect>
-            </div>
-            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                <button class="btn btn-secondary" @onclick="() => { labelModel = new LabelEditModel(); showLabelsDialog = false; }">Fechar</button>
-                <button class="btn btn-primary" @onclick="CreateLabel">Adicionar Label</button>
-            </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn @(activePriorityFilter == null ? "active" : "")"
+                            @onclick="() => FilterByPriority(null)">
+                        🎯 Todas Prioridades
+                    </button>
+                    <button class="filter-btn @(activePriorityFilter == Priority.Urgent ? "active" : "")"
+                            @onclick="() => FilterByPriority(Priority.Urgent)">
+                        🚨 Urgente
+                    </button>
+                    <button class="filter-btn @(activePriorityFilter == Priority.High ? "active" : "")"
+                            @onclick="() => FilterByPriority(Priority.High)">
+                        🔴 Alta
+                    </button>
+                    <button class="filter-btn @(activePriorityFilter == Priority.Medium ? "active" : "")"
+                            @onclick="() => FilterByPriority(Priority.Medium)">
+                        🟡 Média
+                    </button>
+                    <button class="filter-btn @(activePriorityFilter == Priority.Low ? "active" : "")"
+                            @onclick="() => FilterByPriority(Priority.Low)">
+                        🟢 Baixa
+                    </button>
+                </div>
 
-            <div class="card" style="margin-top:1rem;">
-                <div class="card-header"><h3 class="card-title">Minhas labels</h3></div>
-                <div class="card-body">
-                    @if (labels.Any())
+                <div class="tasks-container">
+                    @foreach (var dateGroup in GetGroupedTasks())
                     {
-                        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-                            @foreach (var l in labels)
-                            {
-                                <div style="display:flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.35rem .5rem;border-radius:10px;">
-                                    <span class="badge badge-primary">@l.Name</span>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteLabel(l.Id)">Excluir</button>
-                                </div>
-                            }
+                        <div class="tasks-date-section">
+                            <div class="tasks-date-header">
+                                @FormatDateHeader(dateGroup.Key)
+                            </div>
+                            <div class="tasks-grid">
+                                @foreach (var task in dateGroup.Value)
+                                {
+                                    <TaskCard TaskItem="@task"
+                                              OnEditClick="@(() => EditTask(task))"
+                                              OnDeleteClick="@(() => DeleteTask(task))"
+                                              OnAddLabelClick="@(() => OpenAddLabelDialog(task))" />
+                                }
+                            </div>
                         </div>
                     }
-                    else
-                    {
-                        <span style="color:var(--text-tertiary);">Nenhuma label criada</span>
-                    }
                 </div>
-            </div>
-        </Content>
-    </DialogTemplates>
-</SfDialog>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                    <h3>Nenhuma tarefa encontrada</h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+                        Comece criando sua primeira tarefa
+                    </p>
+                    <button class="btn btn-primary" @onclick="OpenCreateDialog">
+                        ➕ Nova Tarefa
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
 
-<!-- Dialogo r�pido para adicionar label a uma tarefa -->
-<SfDialog @bind-Visible="showAddLabelDialog" Width="500px" IsModal="true">
-    <DialogTemplates>
-        <Header>Adicionar Label � Tarefa</Header>
-        <Content>
-            <div class="form-group">
-                <label class="form-label">Nome</label>
-                <InputText @bind-Value="labelModel.Name" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label class="form-label">Cor</label>
-                <InputSelect @bind-Value="labelModel.Color" class="form-control">
-                    @foreach (var c in Enum.GetValues<LabelColor>())
-                    {
-                        <option value="@c">@c</option>
-                    }
-                </InputSelect>
-            </div>
-            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                <button class="btn btn-secondary" @onclick="() => { showAddLabelDialog = false; labelModel = new LabelEditModel(); }">Cancelar</button>
-                <button class="btn btn-primary" @onclick="CreateLabelForTask">Adicionar</button>
-            </div>
-        </Content>
-    </DialogTemplates>
-</SfDialog>
+    <SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
+        <DialogTemplates>
+            <Header>@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")</Header>
+            <Content>
+                <EditForm Model="currentTask" OnValidSubmit="SaveTask" FormName="taskForm">
+                    <div class="form-group">
+                        <label class="form-label">📝 Título</label>
+                        <InputText @bind-Value="currentTask.Title" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📄 Descrição</label>
+                        <InputTextArea @bind-Value="currentTask.Description" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🎯 Prioridade</label>
+                        <InputSelect @bind-Value="currentTask.Priority" class="form-control">
+                            @foreach (var p in Enum.GetValues<Priority>())
+                            {
+                                <option value="@p">@p</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📊 Status</label>
+                        <InputSelect @bind-Value="currentTask.Status" class="form-control">
+                            @foreach (var s in Enum.GetValues<Status>())
+                            {
+                                <option value="@s">@s</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📅 Data de Vencimento</label>
+                        <InputDate DateFormat="dd/MM/yyyy" @bind-Value="currentTask.DueDate" class="form-control" />
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
+                            ❌ Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            @(editingTask == null ? "➕ Criar" : "💾 Salvar")
+                        </button>
+                    </div>
+                </EditForm>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
+
+    <!-- Dialogo de gerenciamento de Labels -->
+    <SfDialog @bind-Visible="showLabelsDialog" Width="620px" IsModal="true">
+        <DialogTemplates>
+            <Header>🏷️ Gerenciar Labels</Header>
+            <Content>
+                <div class="form-group">
+                    <label class="form-label">📝 Nome</label>
+                    <InputText @bind-Value="labelModel.Name" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🎨 Cor</label>
+                    <InputSelect @bind-Value="labelModel.Color" class="form-control">
+                        @foreach (var c in Enum.GetValues<LabelColor>())
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                    <button class="btn btn-secondary" @onclick="() => { labelModel = new LabelEditModel(); showLabelsDialog = false; }">❌ Fechar</button>
+                    <button class="btn btn-primary" @onclick="CreateLabel">➕ Adicionar Label</button>
+                </div>
+
+                <div class="card" style="margin-top:1rem;">
+                    <div class="card-header"><h3 class="card-title">🏷️ Minhas labels</h3></div>
+                    <div class="card-body">
+                        @if (labels.Any())
+                        {
+                            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                                @foreach (var l in labels)
+                                {
+                                    <div style="display:flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.35rem .5rem;border-radius:10px;">
+                                        <span class="badge badge-primary">@l.Name</span>
+                                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteLabel(l.Id)">🗑️ Excluir</button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <span style="color:var(--text-tertiary);">Nenhuma label criada</span>
+                        }
+                    </div>
+                </div>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
+
+    <!-- Dialogo rápido para adicionar label a uma tarefa -->
+    <SfDialog @bind-Visible="showAddLabelDialog" Width="500px" IsModal="true">
+        <DialogTemplates>
+            <Header>🏷️ Adicionar Label à Tarefa</Header>
+            <Content>
+                <div class="form-group">
+                    <label class="form-label">📝 Nome</label>
+                    <InputText @bind-Value="labelModel.Name" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🎨 Cor</label>
+                    <InputSelect @bind-Value="labelModel.Color" class="form-control">
+                        @foreach (var c in Enum.GetValues<LabelColor>())
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                    <button class="btn btn-secondary" @onclick="() => { showAddLabelDialog = false; labelModel = new LabelEditModel(); }">❌ Cancelar</button>
+                    <button class="btn btn-primary" @onclick="CreateLabelForTask">➕ Adicionar</button>
+                </div>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
 </RedirectToLogin>
 
 @code {
@@ -271,6 +284,9 @@
     private int? targetTaskIdForLabel = null;
     private LabelEditModel labelModel { get; set; } = new();
 
+    private Status? activeStatusFilter = null;
+    private Priority? activePriorityFilter = null;
+
     private int totalTasks => tasks.Count;
     private int pendingTasks => tasks.Count(t => t.Status == Status.Pending);
     private int inProgressTasks => tasks.Count(t => t.Status == Status.InProgress);
@@ -296,46 +312,69 @@
 
     private async Task LoadTasks()
     {
-        if (_userId is null)
-        {
-            isLoading = false;
-            return;
-        }
-
         isLoading = true;
-        try
-        {
-            var result = await TaskService.GetTasksByUserAsync(_userId.Value);
-            if (result.Success && result.Data != null)
-            {
-                tasks = result.Data;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading tasks: {ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        var result = await TaskService.GetTasksByUserAsync(_userId.Value);
+        if (result.Success && result.Data != null)
+            tasks = result.Data;
+        isLoading = false;
+        StateHasChanged();
     }
 
     private async Task LoadLabels()
     {
-        if (_userId is null) return;
-        try
-        {
-            var result = await TaskService.GetLabelsByUserAsync(_userId.Value);
-            if (result.Success && result.Data != null)
-            {
-                labels = result.Data;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading labels: {ex.Message}");
-        }
+        var result = await TaskService.GetLabelsByUserAsync(_userId.Value);
+        if (result.Success && result.Data != null)
+            labels = result.Data;
+        StateHasChanged();
+    }
+
+    private void FilterByStatus(Status? status)
+    {
+        activeStatusFilter = status;
+    }
+
+    private void FilterByPriority(Priority? priority)
+    {
+        activePriorityFilter = priority;
+    }
+
+    private IEnumerable<TaskItemDTO> GetFilteredTasks()
+    {
+        var filtered = tasks.AsEnumerable();
+
+        if (activeStatusFilter.HasValue)
+            filtered = filtered.Where(t => t.Status == activeStatusFilter.Value);
+
+        if (activePriorityFilter.HasValue)
+            filtered = filtered.Where(t => t.Priority == activePriorityFilter.Value);
+
+        return filtered.OrderBy(t => t.DueDate);
+    }
+
+    private Dictionary<DateOnly, List<TaskItemDTO>> GetGroupedTasks()
+    {
+        return GetFilteredTasks()
+            .GroupBy(t => t.DueDate)
+            .OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    private string FormatDateHeader(DateOnly date)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var tomorrow = today.AddDays(1);
+        var yesterday = today.AddDays(-1);
+
+        if (date == today)
+            return $"Hoje - {date:dd/MM/yyyy}";
+        else if (date == tomorrow)
+            return $"Amanhã - {date:dd/MM/yyyy}";
+        else if (date == yesterday)
+            return $"Ontem - {date:dd/MM/yyyy}";
+        else if (date < today)
+            return $"Atrasado - {date:dd/MM/yyyy}";
+        else
+            return date.ToString("dd/MM/yyyy - dddd");
     }
 
     private void OpenCreateDialog()
@@ -347,7 +386,6 @@
 
     private void EditTask(TaskItemDTO? task)
     {
-        if (task == null) return;
         editingTask = task;
         currentTask = new TaskEditModel
         {
@@ -359,47 +397,33 @@
             DueDate = task.DueDate
         };
         showDialog = true;
+        StateHasChanged();
     }
 
     private async Task SaveTask()
     {
-        try
-        {
-            if (_userId is null) return;
 
-            if (editingTask == null)
-            {
-                var create = new CreateTaskItemCommand(currentTask.Title, currentTask.Description, currentTask.Priority, currentTask.DueDate, _userId.Value);
-                await TaskService.CreateTaskAsync(create);
-            }
-            else
-            {
-                var update = new UpdateTaskItemCommand(currentTask.Id, currentTask.Title, currentTask.Description, currentTask.Status, currentTask.Priority, currentTask.DueDate);
-                await TaskService.UpdateTaskAsync(update);
-            }
-
-            await LoadTasks();
-            CloseDialog();
-        }
-        catch (Exception ex)
+        if (editingTask == null)
         {
-            Console.WriteLine($"Error saving task: {ex.Message}");
+            var create = new CreateTaskItemCommand(currentTask.Title, currentTask.Description, currentTask.Priority, currentTask.DueDate, _userId.Value);
+            await TaskService.CreateTaskAsync(create);
         }
+        else
+        {
+            var update = new UpdateTaskItemCommand(currentTask.Id, currentTask.Title, currentTask.Description, currentTask.Status, currentTask.Priority, currentTask.DueDate);
+            await TaskService.UpdateTaskAsync(update);
+        }
+
+        await LoadTasks();
+        CloseDialog();
+        StateHasChanged();
     }
 
     private async Task DeleteTask(TaskItemDTO? task)
     {
-        if (task == null) return;
-
-        try
-        {
-            await TaskService.DeleteTaskAsync(task.Id);
-            await LoadTasks();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error deleting task: {ex.Message}");
-        }
+        await TaskService.DeleteTaskAsync(task.Id);
+        await LoadTasks();
+        this.StateHasChanged();
     }
 
     private void CloseDialog()
@@ -407,18 +431,6 @@
         showDialog = false;
         currentTask = new();
         editingTask = null;
-    }
-
-    private string GetPriorityColor(Priority priority)
-    {
-        return priority switch
-        {
-            Priority.High => "error",
-            Priority.Urgent => "error",
-            Priority.Medium => "warning",
-            Priority.Low => "secondary",
-            _ => "primary"
-        };
     }
 
     private void OpenLabelsDialog()
@@ -465,29 +477,22 @@
 
     private void OpenAddLabelDialog(TaskItemDTO? task)
     {
-        if (task == null) return;
         targetTaskIdForLabel = task.Id;
         labelModel = new();
         showAddLabelDialog = true;
+        this.StateHasChanged();
     }
 
     private async Task CreateLabelForTask()
     {
-        try
+        var cmd = new CreateTaskLabelCommand(labelModel.Name, labelModel.Color, _userId.Value, targetTaskIdForLabel.Value);
+        var res = await TaskService.CreateLabelAsync(cmd);
+        if (res.Success)
         {
-            if (_userId is null || targetTaskIdForLabel is null) return;
-            var cmd = new CreateTaskLabelCommand(labelModel.Name, labelModel.Color, _userId.Value, targetTaskIdForLabel.Value);
-            var res = await TaskService.CreateLabelAsync(cmd);
-            if (res.Success)
-            {
-                showAddLabelDialog = false;
-                labelModel = new();
-                await LoadTasks();
-            }
+            showAddLabelDialog = false;
+            labelModel = new();
+            await LoadTasks();
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error creating task label: {ex.Message}");
-        }
+        this.StateHasChanged();
     }
 }

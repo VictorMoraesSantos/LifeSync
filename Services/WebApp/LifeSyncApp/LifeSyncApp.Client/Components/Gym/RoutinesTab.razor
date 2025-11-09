@@ -1,0 +1,384 @@
+@using LifeSyncApp.Client.Models.Gym
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@inject IGymService GymService
+@inject IJSRuntime JSRuntime
+
+<div class="routines-tab">
+    <div class="toolbar-container mb-3">
+        <SfButton Content="Nova Rotina" IsPrimary="true" IconCss="e-icons e-plus" @onclick="OpenAddRoutineDialog" />
+    </div>
+
+    <SfGrid @ref="gridRef" 
+            DataSource="@routines" 
+            AllowPaging="true"
+            AllowSorting="true"
+            AllowFiltering="true"
+            Toolbar="@(new List<string>() { "Search" })">
+        <GridPageSettings PageSize="10" />
+        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" />
+        <GridColumns>
+            <GridColumn Field="@nameof(RoutineDTO.Id)" HeaderText="ID" TextAlign="TextAlign.Center" Width="80" IsPrimaryKey="true" />
+            <GridColumn Field="@nameof(RoutineDTO.Name)" HeaderText="Nome" Width="250" />
+            <GridColumn Field="@nameof(RoutineDTO.Description)" HeaderText="Descrição" Width="350" />
+            <GridColumn Field="@nameof(RoutineDTO.CreatedAt)" HeaderText="Criada em" Width="180" Format="dd/MM/yyyy" />
+            <GridColumn HeaderText="Ações" Width="200" TextAlign="TextAlign.Center">
+                <Template>
+                    @{
+                        var routine = context as RoutineDTO;
+                        <div class="action-buttons">
+                            <SfButton CssClass="e-small e-success" Content="Configurar" @onclick="() => OpenBuilderDialog(routine)" />
+                            <SfButton CssClass="e-small e-info" IconCss="e-icons e-edit" @onclick="() => OpenEditRoutineDialog(routine)" />
+                            <SfButton CssClass="e-small e-danger" IconCss="e-icons e-delete" @onclick="() => DeleteRoutine(routine!.Id)" />
+                        </div>
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+<!-- Add/Edit Routine Dialog -->
+<SfDialog @ref="routineDialogRef" 
+          Header="@routineDialogTitle"
+          Width="600px"
+          IsModal="true"
+          @bind-Visible="showRoutineDialog">
+    <DialogTemplates>
+        <Content>
+            <div class="form-group mb-3">
+                <label class="form-label">Nome *</label>
+                <input class="form-control" @bind="routineForm.Name" maxlength="60" />
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-control" @bind="routineForm.Description" rows="4" maxlength="240"></textarea>
+            </div>
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="Cancelar" OnClick="CloseRoutineDialog" />
+        <DialogButton Content="@routineSaveButtonText" IsPrimary="true" OnClick="SaveRoutine" />
+    </DialogButtons>
+</SfDialog>
+
+<!-- Routine Builder Dialog -->
+<SfDialog @ref="builderDialogRef" 
+          Header="@($"Configurar Rotina: {selectedRoutine?.Name}")"
+          Width="900px"
+          Height="600px"
+          IsModal="true"
+          @bind-Visible="showBuilderDialog">
+    <DialogTemplates>
+        <Content>
+            <div class="routine-builder">
+                <div class="add-exercise-section mb-4">
+                    <h6>Adicionar Exercício</h6>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label small">Exercício</label>
+                            <SfDropDownList TValue="int?" TItem="ExerciseDTO" 
+                                          DataSource="@allExercises" 
+                                          @bind-Value="newExercise.ExerciseId"
+                                          Placeholder="Selecione...">
+                                <DropDownListFieldSettings Value="Id" Text="Name" />
+                            </SfDropDownList>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Séries</label>
+                            <input type="number" class="form-control form-control-sm" @bind="newExercise.Sets" min="1" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Reps</label>
+                            <input type="number" class="form-control form-control-sm" @bind="newExercise.Reps" min="1" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Desc (s)</label>
+                            <input type="number" class="form-control form-control-sm" @bind="newExercise.Rest" min="0" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">&nbsp;</label>
+                            <SfButton CssClass="w-100 e-small" Content="Adicionar" IsPrimary="true" @onclick="AddExerciseToRoutine" />
+                        </div>
+                    </div>
+                </div>
+
+                <h6>Exercícios na Rotina (@routineExercises.Count)</h6>
+                <div class="exercises-list">
+                    @if (isLoadingRoutineExercises)
+                    {
+                        <div class="text-center p-4">
+                            <div class="spinner-border spinner-border-sm"></div>
+                            <p class="mt-2">Carregando...</p>
+                        </div>
+                    }
+                    else if (routineExercises.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var rx in routineExercises.OrderBy(r => r.Id))
+                            {
+                                var exercise = GetExercise(rx.ExerciseId);
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>@(exercise?.Name ?? $"Exercício #{rx.ExerciseId}")</strong>
+                                            <div class="text-muted small">
+                                                @rx.Sets.Value séries × @rx.Repetitions.Value reps · @rx.RestBetweenSets.Value s descanso
+                                                @if (rx.RecommendedWeight != null)
+                                                {
+                                                    <span> · @rx.RecommendedWeight.Value @rx.RecommendedWeight.Unit</span>
+                                                }
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(rx.Instructions))
+                                            {
+                                                <div class="text-muted small fst-italic">@rx.Instructions</div>
+                                            }
+                                        </div>
+                                        <SfButton CssClass="e-small e-danger" IconCss="e-icons e-delete" @onclick="() => RemoveExerciseFromRoutine(rx.Id)" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted p-4">
+                            Nenhum exercício adicionado. Use o formulário acima para adicionar.
+                        </div>
+                    }
+                </div>
+            </div>
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="Fechar" IsPrimary="true" OnClick="CloseBuilderDialog" />
+    </DialogButtons>
+</SfDialog>
+
+<style>
+    .routines-tab {
+        padding: 20px;
+    }
+
+    .toolbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .routine-builder {
+        padding: 10px;
+    }
+
+    .add-exercise-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .exercises-list {
+        max-height: 350px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 10px;
+    }
+</style>
+
+@code {
+    private SfGrid<RoutineDTO>? gridRef;
+    private SfDialog? routineDialogRef;
+    private SfDialog? builderDialogRef;
+    
+    private List<RoutineDTO> routines = new();
+    private List<ExerciseDTO> allExercises = new();
+    private List<RoutineExerciseDTO> routineExercises = new();
+    
+    private RoutineDTO? selectedRoutine;
+    private RoutineForm routineForm = new();
+    private NewExerciseForm newExercise = new();
+    
+    private bool showRoutineDialog = false;
+    private bool showBuilderDialog = false;
+    private bool isRoutineEditMode = false;
+    private bool isLoadingRoutineExercises = false;
+    
+    private string routineDialogTitle => isRoutineEditMode ? "Editar Rotina" : "Nova Rotina";
+    private string routineSaveButtonText => isRoutineEditMode ? "Atualizar" : "Criar";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(LoadRoutines(), LoadAllExercises());
+    }
+
+    private async Task LoadRoutines()
+    {
+        var result = await GymService.GetRoutinesAsync();
+        if (result.Success && result.Data != null)
+        {
+            routines = result.Data;
+        }
+    }
+
+    private async Task LoadAllExercises()
+    {
+        var result = await GymService.GetExercisesAsync();
+        if (result.Success && result.Data != null)
+        {
+            allExercises = result.Data;
+        }
+    }
+
+    private void OpenAddRoutineDialog()
+    {
+        isRoutineEditMode = false;
+        routineForm = new RoutineForm();
+        showRoutineDialog = true;
+    }
+
+    private void OpenEditRoutineDialog(RoutineDTO? routine)
+    {
+        if (routine == null) return;
+        
+        isRoutineEditMode = true;
+        routineForm = new RoutineForm
+        {
+            Id = routine.Id,
+            Name = routine.Name,
+            Description = routine.Description
+        };
+        showRoutineDialog = true;
+    }
+
+    private void CloseRoutineDialog()
+    {
+        showRoutineDialog = false;
+        routineForm = new RoutineForm();
+    }
+
+    private async Task SaveRoutine()
+    {
+        if (string.IsNullOrWhiteSpace(routineForm.Name)) return;
+
+        if (isRoutineEditMode)
+        {
+            var command = new UpdateRoutineCommand(
+                routineForm.Id,
+                routineForm.Name!,
+                routineForm.Description ?? string.Empty
+            );
+            await GymService.UpdateRoutineAsync(command);
+        }
+        else
+        {
+            var command = new CreateRoutineCommand(
+                routineForm.Name!,
+                routineForm.Description ?? string.Empty
+            );
+            await GymService.CreateRoutineAsync(command);
+        }
+
+        await LoadRoutines();
+        CloseRoutineDialog();
+        await gridRef!.Refresh();
+    }
+
+    private async Task DeleteRoutine(int id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Deseja excluir esta rotina?"))
+        {
+            await GymService.DeleteRoutineAsync(id);
+            await LoadRoutines();
+            await gridRef!.Refresh();
+        }
+    }
+
+    // Routine Builder
+    private async Task OpenBuilderDialog(RoutineDTO? routine)
+    {
+        if (routine == null) return;
+        
+        selectedRoutine = routine;
+        showBuilderDialog = true;
+        await LoadRoutineExercises(routine.Id);
+    }
+
+    private void CloseBuilderDialog()
+    {
+        showBuilderDialog = false;
+        selectedRoutine = null;
+        routineExercises.Clear();
+        newExercise = new NewExerciseForm();
+    }
+
+    private async Task LoadRoutineExercises(int routineId)
+    {
+        isLoadingRoutineExercises = true;
+        var result = await GymService.GetRoutineExercisesAsync(routineId);
+        if (result.Success && result.Data != null)
+        {
+            routineExercises = result.Data;
+        }
+        isLoadingRoutineExercises = false;
+    }
+
+    private async Task AddExerciseToRoutine()
+    {
+        if (!newExercise.ExerciseId.HasValue || selectedRoutine == null) return;
+
+        var command = new CreateRoutineExerciseCommand(
+            selectedRoutine.Id,
+            newExercise.ExerciseId.Value,
+            new SetCountDTO(newExercise.Sets),
+            new RepetitionCountDTO(newExercise.Reps),
+            new RestTimeDTO(newExercise.Rest),
+            null,
+            null
+        );
+
+        var result = await GymService.CreateRoutineExerciseAsync(command);
+        if (result.Success)
+        {
+            await LoadRoutineExercises(selectedRoutine.Id);
+            newExercise = new NewExerciseForm();
+        }
+    }
+
+    private async Task RemoveExerciseFromRoutine(int routineExerciseId)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Remover este exercício da rotina?"))
+        {
+            await GymService.DeleteRoutineExerciseAsync(routineExerciseId);
+            if (selectedRoutine != null)
+            {
+                await LoadRoutineExercises(selectedRoutine.Id);
+            }
+        }
+    }
+
+    private ExerciseDTO? GetExercise(int id) => allExercises.FirstOrDefault(e => e.Id == id);
+
+    private class RoutineForm
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+
+    private class NewExerciseForm
+    {
+        public int? ExerciseId { get; set; }
+        public int Sets { get; set; } = 3;
+        public int Reps { get; set; } = 12;
+        public int Rest { get; set; } = 60;
+    }
+}

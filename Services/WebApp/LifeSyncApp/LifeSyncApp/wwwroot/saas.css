@@ -452,3 +452,497 @@ html, body {
         display: inline-flex
     }
 }
+
+/* Task Cards */
+.task-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.task-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(130, 87, 230, 0.15);
+}
+
+.task-card-header {
+    margin-bottom: 0.75rem;
+}
+
+.task-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.task-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.task-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.task-card-body {
+    margin-bottom: 0.75rem;
+}
+
+.task-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.75rem;
+}
+
+.task-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.task-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.task-meta-label {
+    color: var(--text-tertiary);
+}
+
+.task-meta-value {
+    color: var(--text);
+}
+
+.task-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Task List */
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.tasks-date-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tasks-date-header {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+/* Filter Buttons */
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background: var(--surface-3);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .tasks-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Diary Cards */
+.diary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.diary-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(130, 87, 230, 0.15);
+}
+
+.diary-card-header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.diary-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.diary-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.diary-stats {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.diary-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.diary-section {
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.section-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.meal-item {
+    background: var(--surface-3);
+    border-radius: var(--radius-sm);
+    padding: 0.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.meal-item:last-child {
+    margin-bottom: 0;
+}
+
+.meal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.meal-name {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.meal-description {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.meal-foods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.75rem;
+}
+
+.food-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    padding: 0.25rem 0;
+}
+
+.food-name {
+    color: var(--text);
+}
+
+.food-details {
+    color: var(--text-tertiary);
+}
+
+.meal-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.liquids-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+}
+
+.liquid-item {
+    background: var(--surface-3);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.liquid-icon {
+    font-size: 1.25rem;
+}
+
+.liquid-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.liquid-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.liquid-quantity {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.empty-diary {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.empty-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.diary-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Diaries Container */
+.diaries-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.diaries-date-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.diaries-date-header {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Progress Panel */
+.progress-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.progress-item {
+    margin-bottom: 1.5rem;
+}
+
+.progress-item:last-child {
+    margin-bottom: 0;
+}
+
+.progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.progress-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.progress-values {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.progress-values strong {
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.progress-bar-container {
+    height: 32px;
+    background: var(--surface-3);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--warning), var(--secondary));
+    border-radius: 8px;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.75rem;
+    min-width: 50px;
+}
+
+.progress-bar.water {
+    background: linear-gradient(90deg, var(--primary), #4a9eff);
+}
+
+.progress-percentage {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--surface-2);
+    padding: 0.875rem;
+    border-radius: var(--radius-sm);
+}
+
+.stat-icon {
+    font-size: 1.75rem;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.water-shortcuts {
+    margin-top: 1rem;
+}
+
+.water-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.water-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.875rem;
+    font-size: 0.875rem;
+}
+
+.water-icon {
+    font-size: 1.25rem;
+}
+
+/* Nutrition Layout */
+.nutrition-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+    .nutrition-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .progress-panel {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .liquids-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .water-buttons {
+        grid-template-columns: 1fr;
+    }
+}

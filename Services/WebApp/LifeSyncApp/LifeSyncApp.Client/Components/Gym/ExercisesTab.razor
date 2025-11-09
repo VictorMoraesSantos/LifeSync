@@ -1,0 +1,227 @@
+@using LifeSyncApp.Client.Models.Gym
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@inject IGymService GymService
+@inject IJSRuntime JSRuntime
+
+<div class="exercises-tab">
+    <div class="toolbar-container mb-3">
+        <SfButton Content="Novo Exercício" IsPrimary="true" IconCss="e-icons e-plus" @onclick="OpenAddDialog" />
+    </div>
+
+    <SfGrid @ref="gridRef" 
+            DataSource="@exercises" 
+            AllowPaging="true"
+            AllowSorting="true"
+            AllowFiltering="true"
+            Toolbar="@(new List<string>() { "Search" })">
+        <GridPageSettings PageSize="10" />
+        <GridFilterSettings Type="FilterType.Menu" />
+        <GridEvents TValue="ExerciseDTO" OnActionBegin="ActionBeginHandler" />
+        <GridColumns>
+            <GridColumn Field="@nameof(ExerciseDTO.Id)" HeaderText="ID" TextAlign="TextAlign.Center" Width="80" IsPrimaryKey="true" />
+            <GridColumn Field="@nameof(ExerciseDTO.Name)" HeaderText="Nome" Width="200" />
+            <GridColumn Field="@nameof(ExerciseDTO.MuscleGroup)" HeaderText="Grupo Muscular" Width="150" />
+            <GridColumn Field="@nameof(ExerciseDTO.Type)" HeaderText="Tipo" Width="130" />
+            <GridColumn Field="@nameof(ExerciseDTO.EquipmentType)" HeaderText="Equipamento" Width="150" />
+            <GridColumn Field="@nameof(ExerciseDTO.Description)" HeaderText="Descrição" Width="250" />
+            <GridColumn HeaderText="Ações" Width="150" TextAlign="TextAlign.Center">
+                <Template>
+                    @{
+                        var exercise = context as ExerciseDTO;
+                        <div class="action-buttons">
+                            <SfButton CssClass="e-small e-info" IconCss="e-icons e-edit" @onclick="() => OpenEditDialog(exercise)" />
+                            <SfButton CssClass="e-small e-danger" IconCss="e-icons e-delete" @onclick="() => DeleteExercise(exercise!.Id)" />
+                        </div>
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+<!-- Add/Edit Dialog -->
+<SfDialog @ref="dialogRef" 
+          Header="@dialogTitle"
+          Width="600px"
+          IsModal="true"
+          @bind-Visible="showDialog">
+    <DialogTemplates>
+        <Content>
+            <div class="form-group mb-3">
+                <label class="form-label">Nome *</label>
+                <input class="form-control" @bind="exerciseForm.Name" maxlength="100" />
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-control" @bind="exerciseForm.Description" rows="3" maxlength="500"></textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Grupo Muscular *</label>
+                    <select class="form-select" @bind="exerciseForm.MuscleGroup">
+                        @foreach (var group in Enum.GetValues(typeof(MuscleGroup)))
+                        {
+                            <option value="@group">@group</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tipo de Exercício *</label>
+                    <select class="form-select" @bind="exerciseForm.ExerciseType">
+                        @foreach (var type in Enum.GetValues(typeof(ExerciseType)))
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label">Equipamento</label>
+                <select class="form-select" @bind="exerciseForm.EquipmentType">
+                    <option value="">Nenhum</option>
+                    @foreach (var equipment in Enum.GetValues(typeof(EquipmentType)))
+                    {
+                        <option value="@equipment">@equipment</option>
+                    }
+                </select>
+            </div>
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="Cancelar" OnClick="CloseDialog" />
+        <DialogButton Content="@saveButtonText" IsPrimary="true" OnClick="SaveExercise" />
+    </DialogButtons>
+</SfDialog>
+
+<style>
+    .exercises-tab {
+        padding: 20px;
+    }
+
+    .toolbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+</style>
+
+@code {
+    private SfGrid<ExerciseDTO>? gridRef;
+    private SfDialog? dialogRef;
+    private List<ExerciseDTO> exercises = new();
+    private ExerciseForm exerciseForm = new();
+    private bool showDialog = false;
+    private bool isEditMode = false;
+    private string dialogTitle => isEditMode ? "Editar Exercício" : "Novo Exercício";
+    private string saveButtonText => isEditMode ? "Atualizar" : "Criar";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadExercises();
+    }
+
+    private async Task LoadExercises()
+    {
+        var result = await GymService.GetExercisesAsync();
+        if (result.Success && result.Data != null)
+        {
+            exercises = result.Data;
+        }
+    }
+
+    private void OpenAddDialog()
+    {
+        isEditMode = false;
+        exerciseForm = new ExerciseForm();
+        showDialog = true;
+    }
+
+    private void OpenEditDialog(ExerciseDTO? exercise)
+    {
+        if (exercise == null) return;
+        
+        isEditMode = true;
+        exerciseForm = new ExerciseForm
+        {
+            Id = exercise.Id,
+            Name = exercise.Name,
+            Description = exercise.Description,
+            MuscleGroup = exercise.MuscleGroup,
+            ExerciseType = exercise.Type,
+            EquipmentType = exercise.EquipmentType
+        };
+        showDialog = true;
+    }
+
+    private void CloseDialog()
+    {
+        showDialog = false;
+        exerciseForm = new ExerciseForm();
+    }
+
+    private async Task SaveExercise()
+    {
+        if (string.IsNullOrWhiteSpace(exerciseForm.Name)) return;
+
+        if (isEditMode)
+        {
+            var command = new UpdateExerciseCommand(
+                exerciseForm.Id,
+                exerciseForm.Name!,
+                exerciseForm.Description ?? string.Empty,
+                exerciseForm.MuscleGroup,
+                exerciseForm.ExerciseType,
+                exerciseForm.EquipmentType
+            );
+            await GymService.UpdateExerciseAsync(command);
+        }
+        else
+        {
+            var command = new CreateExerciseCommand(
+                exerciseForm.Name!,
+                exerciseForm.Description ?? string.Empty,
+                exerciseForm.MuscleGroup,
+                exerciseForm.ExerciseType,
+                exerciseForm.EquipmentType
+            );
+            await GymService.CreateExerciseAsync(command);
+        }
+
+        await LoadExercises();
+        CloseDialog();
+        await gridRef!.Refresh();
+    }
+
+    private async Task DeleteExercise(int id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Deseja excluir este exercício?"))
+        {
+            await GymService.DeleteExerciseAsync(id);
+            await LoadExercises();
+            await gridRef!.Refresh();
+        }
+    }
+
+    private void ActionBeginHandler(ActionEventArgs<ExerciseDTO> args)
+    {
+        // Handle grid events if needed
+    }
+
+    private class ExerciseForm
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public MuscleGroup MuscleGroup { get; set; } = MuscleGroup.FullBody;
+        public ExerciseType ExerciseType { get; set; } = ExerciseType.Strength;
+        public EquipmentType? EquipmentType { get; set; }
+    }
+}

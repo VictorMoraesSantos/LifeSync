@@ -1,0 +1,499 @@
+@using LifeSyncApp.Client.Models.Gym
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IGymService GymService
+@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="sessions-tab">
+    @if (activeSession != null)
+    {
+        <div class="alert alert-info mb-3">
+            <h5>? Sessão Ativa: @GetRoutineName(activeSession.RoutineId)</h5>
+            <p class="mb-0">Iniciada às @activeSession.StartTime.ToString("HH:mm")</p>
+        </div>
+    }
+
+    <div class="toolbar-container mb-3">
+        @if (activeSession == null)
+        {
+            <SfButton Content="Iniciar Sessão" IsPrimary="true" IconCss="e-icons e-play" @onclick="OpenStartDialog" />
+        }
+        else
+        {
+            <SfButton Content="Finalizar Sessão" CssClass="e-success" IconCss="e-icons e-check" @onclick="FinishSession" />
+        }
+    </div>
+
+    @if (activeSession != null)
+    {
+        <div class="active-session-panel mb-4">
+            <h5 class="mb-3">Executar Treino</h5>
+            @if (isLoadingRoutineExercises)
+            {
+                <div class="text-center p-4">
+                    <div class="spinner-border"></div>
+                    <p class="mt-2">Carregando exercícios...</p>
+                </div>
+            }
+            else if (routineExercises.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var rx in routineExercises)
+                    {
+                        var exercise = GetExercise(rx.ExerciseId);
+                        var isCompleted = completedExercises.Any(ce => ce.RoutineExerciseId == rx.Id);
+                        
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card @(isCompleted ? "border-success" : "")">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0">@(exercise?.Name ?? $"Exercício #{rx.ExerciseId}")</h6>
+                                        @if (isCompleted)
+                                        {
+                                            <span class="badge bg-success">?</span>
+                                        }
+                                    </div>
+                                    <p class="card-text small text-muted mb-2">
+                                        <strong>Planejado:</strong> @rx.Sets.Value × @rx.Repetitions.Value reps · @rx.RestBetweenSets.Value s
+                                        @if (rx.RecommendedWeight != null)
+                                        {
+                                            <br /><strong>Peso:</strong> @rx.RecommendedWeight.Value @rx.RecommendedWeight.Unit
+                                        }
+                                    </p>
+                                    
+                                    @if (!isCompleted)
+                                    {
+                                        <div class="row g-2 mt-2">
+                                            <div class="col-4">
+                                                <label class="form-label small">Séries</label>
+                                                <input type="number" class="form-control form-control-sm" 
+                                                       value="@GetInputValue(rx.Id, "sets", rx.Sets.Value)" 
+                                                       @oninput="@((ChangeEventArgs e) => HandleSetsInput(rx.Id, e))" 
+                                                       min="1" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label small">Reps</label>
+                                                <input type="number" class="form-control form-control-sm" 
+                                                       value="@GetInputValue(rx.Id, "reps", rx.Repetitions.Value)" 
+                                                       @oninput="@((ChangeEventArgs e) => HandleRepsInput(rx.Id, e))" 
+                                                       min="1" />
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="form-label small">Peso</label>
+                                                <input type="number" class="form-control form-control-sm" 
+                                                       value="@GetInputValue(rx.Id, "weight", 0)" 
+                                                       @oninput="@((ChangeEventArgs e) => HandleWeightInput(rx.Id, e))" 
+                                                       min="0" step="0.5" />
+                                            </div>
+                                        </div>
+                                        <SfButton CssClass="w-100 mt-2 e-success e-small" Content="Marcar Concluído" @onclick="() => MarkCompleted(rx)" />
+                                    }
+                                    else
+                                    {
+                                        var completed = completedExercises.First(ce => ce.RoutineExerciseId == rx.Id);
+                                        <div class="alert alert-success p-2 small mt-2 mb-0">
+                                            <strong>Realizado:</strong> @completed.SetsCompleted.Value × @completed.RepetitionsCompleted.Value reps
+                                            @if (completed.WeightUsed != null)
+                                            {
+                                                <span> · @completed.WeightUsed.Value @completed.WeightUsed.Unit</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    Esta rotina não possui exercícios configurados. Configure a rotina primeiro.
+                </div>
+            }
+        </div>
+    }
+
+    <h5 class="mt-4">Histórico de Sessões</h5>
+    <SfGrid @ref="gridRef" 
+            DataSource="@sessions" 
+            AllowPaging="true"
+            AllowSorting="true"
+            AllowFiltering="true"
+            Toolbar="@(new List<string>() { "Search" })">
+        <GridPageSettings PageSize="10" />
+        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" />
+        <GridSortSettings>
+            <GridSortColumns>
+                <GridSortColumn Field="@nameof(TrainingSessionDTO.StartTime)" Direction="SortDirection.Descending" />
+            </GridSortColumns>
+        </GridSortSettings>
+        <GridColumns>
+            <GridColumn Field="@nameof(TrainingSessionDTO.Id)" HeaderText="ID" TextAlign="TextAlign.Center" Width="80" IsPrimaryKey="true" />
+            <GridColumn HeaderText="Rotina" Width="200">
+                <Template>
+                    @{
+                        var session = context as TrainingSessionDTO;
+                        <span>@GetRoutineName(session!.RoutineId)</span>
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn Field="@nameof(TrainingSessionDTO.StartTime)" HeaderText="Início" Width="180" Format="dd/MM/yyyy HH:mm" />
+            <GridColumn Field="@nameof(TrainingSessionDTO.EndTime)" HeaderText="Fim" Width="180" Format="dd/MM/yyyy HH:mm" />
+            <GridColumn HeaderText="Duração" Width="120">
+                <Template>
+                    @{
+                        var session = context as TrainingSessionDTO;
+                        <span>@GetDuration(session!)</span>
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn HeaderText="Status" Width="120" TextAlign="TextAlign.Center">
+                <Template>
+                    @{
+                        var session = context as TrainingSessionDTO;
+                        if (session!.EndTime.HasValue)
+                        {
+                            <span class="badge bg-success">Concluída</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">Em Andamento</span>
+                        }
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn HeaderText="Ações" Width="150" TextAlign="TextAlign.Center">
+                <Template>
+                    @{
+                        var session = context as TrainingSessionDTO;
+                        <div class="action-buttons">
+                            <SfButton CssClass="e-small e-info" IconCss="e-icons e-eye" @onclick="() => ViewSession(session)" />
+                            <SfButton CssClass="e-small e-danger" IconCss="e-icons e-delete" @onclick="() => DeleteSession(session!.Id)" />
+                        </div>
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+<!-- Start Session Dialog -->
+<SfDialog @ref="startDialogRef" 
+          Header="Iniciar Sessão de Treino"
+          Width="500px"
+          IsModal="true"
+          @bind-Visible="showStartDialog">
+    <DialogTemplates>
+        <Content>
+            <div class="form-group mb-3">
+                <label class="form-label">Selecione a Rotina *</label>
+                <SfDropDownList TValue="int?" TItem="RoutineDTO" 
+                              DataSource="@routines" 
+                              @bind-Value="selectedRoutineId"
+                              Placeholder="Escolha uma rotina...">
+                    <DropDownListFieldSettings Value="Id" Text="Name" />
+                    <DropDownListTemplates TItem="RoutineDTO">
+                        <ItemTemplate>
+                            <div>
+                                <strong>@context.Name</strong>
+                                <div class="small text-muted">@context.Description</div>
+                            </div>
+                        </ItemTemplate>
+                    </DropDownListTemplates>
+                </SfDropDownList>
+            </div>
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="Cancelar" OnClick="CloseStartDialog" />
+        <DialogButton Content="Iniciar Treino" IsPrimary="true" OnClick="StartSession" />
+    </DialogButtons>
+</SfDialog>
+
+<style>
+    .sessions-tab {
+        padding: 20px;
+    }
+
+    .toolbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .active-session-panel {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+</style>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+    
+    private SfGrid<TrainingSessionDTO>? gridRef;
+    private SfDialog? startDialogRef;
+    
+    private List<TrainingSessionDTO> sessions = new();
+    private List<RoutineDTO> routines = new();
+    private List<ExerciseDTO> allExercises = new();
+    private List<RoutineExerciseDTO> routineExercises = new();
+    private List<CompletedExerciseDTO> completedExercises = new();
+    
+    private TrainingSessionDTO? activeSession;
+    private int? selectedRoutineId;
+    private int? userId;
+    
+    private bool showStartDialog = false;
+    private bool isLoadingRoutineExercises = false;
+    
+    private Dictionary<int, Dictionary<string, string>> exerciseInputs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ResolveUserId();
+        await Task.WhenAll(LoadSessions(), LoadRoutines(), LoadAllExercises());
+        ResolveActiveSession();
+        
+        if (activeSession != null)
+        {
+            await LoadActiveSessionData();
+        }
+    }
+
+    private async Task ResolveUserId()
+    {
+        if (AuthenticationStateTask != null)
+        {
+            var auth = await AuthenticationStateTask;
+            var user = auth.User;
+            var idStr = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                       ?? user.FindFirst("UserId")?.Value
+                       ?? user.FindFirst("sub")?.Value;
+            if (int.TryParse(idStr, out var id)) userId = id;
+        }
+    }
+
+    private void ResolveActiveSession()
+    {
+        activeSession = sessions
+            .Where(s => !s.EndTime.HasValue)
+            .OrderByDescending(s => s.StartTime)
+            .FirstOrDefault();
+    }
+
+    private async Task LoadSessions()
+    {
+        var result = await GymService.GetTrainingSessionsAsync();
+        if (result.Success && result.Data != null)
+        {
+            sessions = userId.HasValue 
+                ? result.Data.Where(s => s.UserId == userId.Value).OrderByDescending(s => s.StartTime).ToList()
+                : result.Data.OrderByDescending(s => s.StartTime).ToList();
+        }
+    }
+
+    private async Task LoadRoutines()
+    {
+        var result = await GymService.GetRoutinesAsync();
+        if (result.Success && result.Data != null)
+        {
+            routines = result.Data;
+        }
+    }
+
+    private async Task LoadAllExercises()
+    {
+        var result = await GymService.GetExercisesAsync();
+        if (result.Success && result.Data != null)
+        {
+            allExercises = result.Data;
+        }
+    }
+
+    private async Task LoadActiveSessionData()
+    {
+        if (activeSession == null) return;
+        
+        isLoadingRoutineExercises = true;
+        
+        var rxResult = await GymService.GetRoutineExercisesAsync(activeSession.RoutineId);
+        if (rxResult.Success && rxResult.Data != null)
+        {
+            routineExercises = rxResult.Data;
+        }
+
+        var ceResult = await GymService.GetCompletedExercisesBySessionAsync(activeSession.Id);
+        if (ceResult.Success && ceResult.Data != null)
+        {
+            completedExercises = ceResult.Data;
+        }
+
+        isLoadingRoutineExercises = false;
+    }
+
+    private void OpenStartDialog()
+    {
+        selectedRoutineId = null;
+        showStartDialog = true;
+    }
+
+    private void CloseStartDialog()
+    {
+        showStartDialog = false;
+        selectedRoutineId = null;
+    }
+
+    private async Task StartSession()
+    {
+        if (!selectedRoutineId.HasValue || !userId.HasValue) return;
+
+        var command = new CreateTrainingSessionCommand(
+            userId.Value,
+            selectedRoutineId.Value,
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddHours(2) // Duração estimada
+        );
+
+        var result = await GymService.CreateTrainingSessionAsync(command);
+        if (result.Success)
+        {
+            await LoadSessions();
+            ResolveActiveSession();
+            if (activeSession != null)
+            {
+                await LoadActiveSessionData();
+            }
+            CloseStartDialog();
+        }
+    }
+
+    private async Task FinishSession()
+    {
+        if (activeSession == null) return;
+
+        var command = new UpdateTrainingSessionCommand(
+            activeSession.Id,
+            activeSession.RoutineId,
+            activeSession.StartTime,
+            DateTime.UtcNow,
+            ""
+        );
+
+        await GymService.UpdateTrainingSessionAsync(command);
+        await LoadSessions();
+        activeSession = null;
+        routineExercises.Clear();
+        completedExercises.Clear();
+        exerciseInputs.Clear();
+        await gridRef!.Refresh();
+    }
+
+    private async Task MarkCompleted(RoutineExerciseDTO rx)
+    {
+        if (activeSession == null) return;
+
+        var sets = int.Parse(GetInputValue(rx.Id, "sets", rx.Sets.Value));
+        var reps = int.Parse(GetInputValue(rx.Id, "reps", rx.Repetitions.Value));
+        var weight = decimal.Parse(GetInputValue(rx.Id, "weight", "0"));
+
+        var command = new CreateCompletedExerciseCommand(
+            activeSession.Id,
+            rx.ExerciseId,
+            rx.Id,
+            new SetCountDTO(sets),
+            new RepetitionCountDTO(reps),
+            weight > 0 ? new WeightDTO((int)weight, WeightUnitDTO.Kg) : null,
+            null
+        );
+
+        var result = await GymService.CreateCompletedExerciseAsync(command);
+        if (result.Success && activeSession != null)
+        {
+            await LoadActiveSessionData();
+            ClearInputs(rx.Id);
+        }
+    }
+
+    private async Task DeleteSession(int id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Deseja excluir esta sessão?"))
+        {
+            await GymService.DeleteTrainingSessionAsync(id);
+            await LoadSessions();
+            await gridRef!.Refresh();
+        }
+    }
+
+    private void ViewSession(TrainingSessionDTO? session)
+    {
+        // TODO: Implementar visualização detalhada da sessão
+    }
+
+    private string GetRoutineName(int routineId) => 
+        routines.FirstOrDefault(r => r.Id == routineId)?.Name ?? $"Rotina #{routineId}";
+
+    private string GetDuration(TrainingSessionDTO session)
+    {
+        var duration = (session.EndTime ?? DateTime.UtcNow) - session.StartTime;
+        return $"{(int)duration.TotalMinutes} min";
+    }
+
+    private ExerciseDTO? GetExercise(int id) => allExercises.FirstOrDefault(e => e.Id == id);
+
+    private string GetInputValue(int rxId, string field, object defaultValue)
+    {
+        if (exerciseInputs.TryGetValue(rxId, out var fields) && fields.TryGetValue(field, out var value))
+        {
+            return value;
+        }
+        return defaultValue.ToString() ?? "";
+    }
+
+    private void SetInputValue(int rxId, string field, string? value)
+    {
+        if (!exerciseInputs.ContainsKey(rxId))
+        {
+            exerciseInputs[rxId] = new Dictionary<string, string>();
+        }
+        exerciseInputs[rxId][field] = value ?? "";
+    }
+
+    private void ClearInputs(int rxId)
+    {
+        exerciseInputs.Remove(rxId);
+    }
+
+    private Task HandleSetsInput(int rxId, ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        SetInputValue(rxId, "sets", value);
+        return Task.CompletedTask;
+    }
+
+    private Task HandleRepsInput(int rxId, ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        SetInputValue(rxId, "reps", value);
+        return Task.CompletedTask;
+    }
+
+    private Task HandleWeightInput(int rxId, ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        SetInputValue(rxId, "weight", value);
+        return Task.CompletedTask;
+    }
+}

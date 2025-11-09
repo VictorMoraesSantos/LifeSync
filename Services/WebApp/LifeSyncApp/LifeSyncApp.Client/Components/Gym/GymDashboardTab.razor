@@ -1,0 +1,212 @@
+@using LifeSyncApp.Client.Models.Gym
+@inject IGymService GymService
+
+<div class="dashboard-tab">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="stat-card bg-primary text-white">
+                <div class="stat-icon">???</div>
+                <div class="stat-content">
+                    <h3>@totalWorkouts</h3>
+                    <p>Total de Treinos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-success text-white">
+                <div class="stat-icon">??</div>
+                <div class="stat-content">
+                    <h3>@weekWorkouts</h3>
+                    <p>Treinos esta Semana</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-warning text-white">
+                <div class="stat-icon">??</div>
+                <div class="stat-content">
+                    <h3>@totalRoutines</h3>
+                    <p>Rotinas Criadas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-info text-white">
+                <div class="stat-icon">??</div>
+                <div class="stat-content">
+                    <h3>@totalExercises</h3>
+                    <p>Exercícios Cadastrados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-3">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Últimas Sessões</h6>
+                </div>
+                <div class="card-body">
+                    @if (recentSessions.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var session in recentSessions.Take(5))
+                            {
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <div>
+                                        <strong>@GetRoutineName(session.RoutineId)</strong>
+                                        <div class="small text-muted">@session.StartTime.ToString("dd/MM/yyyy HH:mm")</div>
+                                    </div>
+                                    <div class="text-end">
+                                        @if (session.EndTime.HasValue)
+                                        {
+                                            <span class="badge bg-success">Concluído</span>
+                                            <div class="small text-muted">@GetDuration(session) min</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">Em Andamento</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Nenhuma sessão registrada</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Rotinas Mais Usadas</h6>
+                </div>
+                <div class="card-body">
+                    @if (routineUsage.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var usage in routineUsage.Take(5))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@usage.RoutineName</span>
+                                    <span class="badge bg-primary rounded-pill">@usage.Count vezes</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Nenhuma rotina utilizada</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-tab {
+        padding: 20px;
+    }
+
+    .stat-card {
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        font-size: 3em;
+        opacity: 0.8;
+    }
+
+    .stat-content h3 {
+        margin: 0;
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    .stat-content p {
+        margin: 0;
+        opacity: 0.9;
+    }
+</style>
+
+@code {
+    private List<TrainingSessionDTO> allSessions = new();
+    private List<TrainingSessionDTO> recentSessions = new();
+    private List<RoutineDTO> allRoutines = new();
+    private List<ExerciseDTO> allExercises = new();
+    private List<RoutineUsage> routineUsage = new();
+
+    private int totalWorkouts => allSessions.Count;
+    private int weekWorkouts => allSessions.Count(s => s.StartTime >= DateTime.Now.AddDays(-7));
+    private int totalRoutines => allRoutines.Count;
+    private int totalExercises => allExercises.Count;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        CalculateStats();
+    }
+
+    private async Task LoadData()
+    {
+        var sessionsResult = await GymService.GetTrainingSessionsAsync();
+        if (sessionsResult.Success && sessionsResult.Data != null)
+        {
+            allSessions = sessionsResult.Data;
+            recentSessions = allSessions.OrderByDescending(s => s.StartTime).ToList();
+        }
+
+        var routinesResult = await GymService.GetRoutinesAsync();
+        if (routinesResult.Success && routinesResult.Data != null)
+        {
+            allRoutines = routinesResult.Data;
+        }
+
+        var exercisesResult = await GymService.GetExercisesAsync();
+        if (exercisesResult.Success && exercisesResult.Data != null)
+        {
+            allExercises = exercisesResult.Data;
+        }
+    }
+
+    private void CalculateStats()
+    {
+        routineUsage = allSessions
+            .GroupBy(s => s.RoutineId)
+            .Select(g => new RoutineUsage
+            {
+                RoutineId = g.Key,
+                RoutineName = GetRoutineName(g.Key),
+                Count = g.Count()
+            })
+            .OrderByDescending(u => u.Count)
+            .ToList();
+    }
+
+    private string GetRoutineName(int routineId) =>
+        allRoutines.FirstOrDefault(r => r.Id == routineId)?.Name ?? $"Rotina #{routineId}";
+
+    private int GetDuration(TrainingSessionDTO session)
+    {
+        if (!session.EndTime.HasValue) return 0;
+        return (int)(session.EndTime.Value - session.StartTime).TotalMinutes;
+    }
+
+    private class RoutineUsage
+    {
+        public int RoutineId { get; set; }
+        public string RoutineName { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

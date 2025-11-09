@@ -1,30 +1,10 @@
 using LifeSyncApp.Client.Models;
 using LifeSyncApp.Client.Models.Nutrition;
+using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
 
 namespace LifeSyncApp.Client.Services
 {
-    public interface INutritionService
-    {
-        Task<ApiResponse<List<DiaryDTO>>> GetDiariesAsync();
-        Task<ApiResponse<DiaryDTO>> GetDiaryByDateAsync(DateOnly date);
-        Task<ApiResponse<int>> CreateDiaryAsync(CreateDiaryCommand command);
-        Task<ApiResponse<bool>> UpdateDiaryAsync(UpdateDiaryCommand command);
-        Task<ApiResponse<bool>> AddMealAsync(CreateMealCommand command);
-        Task<ApiResponse<int>> AddLiquidAsync(CreateLiquidCommand command);
-
-        Task<ApiResponse<List<DiaryDTO>>> SearchDiariesAsync(object filter);
-        Task<ApiResponse<List<MealDTO>>> SearchMealsAsync(object filter);
-        Task<ApiResponse<List<LiquidDTO>>> SearchLiquidsAsync(object filter);
-        Task<ApiResponse<List<DiaryDTO>>> GetDiariesByUserAsync(int userId);
-
-        // Daily progress
-        Task<ApiResponse<List<DailyProgressDTO>>> GetDailyProgressesByUserAsync(int userId);
-        Task<ApiResponse<int>> CreateDailyProgressAsync(CreateDailyProgressCommand command);
-        Task<ApiResponse<bool>> UpdateDailyProgressAsync(UpdateDailyProgressCommand command);
-        Task<ApiResponse<bool>> SetGoalAsync(int dailyProgressId, DailyGoalDTO goal);
-    }
-
     public class NutritionService : INutritionService
     {
         private readonly IApiClient _apiClient;
@@ -105,6 +85,19 @@ namespace LifeSyncApp.Client.Services
             try
             {
                 var res = await _apiClient.PostAsync<CreateLiquidCommand, ApiResponse<int>>("nutrition-service/api/liquids", command);
+                return res ?? new ApiResponse<int> { Success = false };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<int> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<int>> AddMealFoodAsync(CreateMealFoodCommand command)
+        {
+            try
+            {
+                var res = await _apiClient.PostAsync<CreateMealFoodCommand, ApiResponse<int>>("nutrition-service/api/meal-foods", command);
                 return res ?? new ApiResponse<int> { Success = false };
             }
             catch (Exception ex)

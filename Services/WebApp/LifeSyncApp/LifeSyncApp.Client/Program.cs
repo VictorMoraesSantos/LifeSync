@@ -1,5 +1,6 @@
 using LifeSyncApp.Client.Authentication;
 using LifeSyncApp.Client.Services;
+using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

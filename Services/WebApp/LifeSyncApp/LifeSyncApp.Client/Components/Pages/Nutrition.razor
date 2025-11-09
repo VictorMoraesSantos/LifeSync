@@ -1,72 +1,85 @@
-@page "/nutrition"
+﻿@page "/nutrition"
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.Nutrition
+@using LifeSyncApp.Client.Components.Nutrition
 @using Syncfusion.Blazor.Popups
 @inject INutritionService NutritionService
 @using System.Security.Claims
 
-<PageTitle>Nutri��o - LifeSync</PageTitle>
+<PageTitle>Nutrição - LifeSync</PageTitle>
 
 <RedirectToLogin>
-<PageHeader Title="Nutri��o" Description="Acompanhe suas refei��es e hidrata��o">
-    <Actions>
-        <div style="display:flex;gap:.5rem;">
-            <button class="btn btn-secondary" @onclick="OpenGoalDialog">Definir Objetivo</button>
-            <button class="btn btn-primary" @onclick="EnsureTodayDiary">Criar Di�rio de Hoje</button>
-        </div>
-    </Actions>
-</PageHeader>
+    <PageHeader Title="Nutrição" Description="Acompanhe suas refeições e hidratação">
+        <Actions>
+            <div style="display:flex;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="OpenGoalDialog">⚙️ Definir Objetivo</button>
+                <button class="btn btn-primary" @onclick="EnsureTodayDiary">➕ Criar Diário de Hoje</button>
+            </div>
+        </Actions>
+    </PageHeader>
 
-<div class="stats-grid">
-        <StatCard Label="Calorias Hoje" Value="@todayCalories.ToString()" IconStyle="warning" IconText="??">
-        <div class="stat-change">Meta: @goalCalories kcal</div>
-    </StatCard>
+    <div class="stats-grid">
+        <StatCard Label="Calorias Hoje" Value="@todayCalories.ToString()" IconStyle="warning" IconText="🔥">
+            <div class="stat-change">Meta: @goalCalories kcal</div>
+        </StatCard>
 
-        <StatCard Label="Refei��es" Value="@todayMeals.ToString()" IconStyle="success" IconText="???" />
+        <StatCard Label="Refeições" Value="@todayMeals.ToString()" IconStyle="success" IconText="🍽️" />
 
-    <StatCard Label="L�quidos" Value=@($"{todayLiquids} L") IconStyle="primary" IconText="??">
-        <div class="stat-change">Meta: @goalLiters L</div>
-    </StatCard>
+        <StatCard Label="Líquidos" Value=@($"{todayLiquids:0.0} L") IconStyle="primary" IconText="💧">
+            <div class="stat-change">Meta: @goalLiters.ToString("0.0") L</div>
+        </StatCard>
 
-        <StatCard Label="Dias Registrados" Value="@diariesCount.ToString()" IconStyle="secondary" IconText="??" />
-</div>
+        <StatCard Label="Dias Registrados" Value="@diariesCount.ToString()" IconStyle="secondary" IconText="📅" />
+    </div>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Refei��es de Hoje</h3>
-            <button class="btn btn-sm btn-primary" @onclick="AddMeal" disabled="@(todayDiary is null)">
-                + Adicionar Refei��o
-            </button>
-        </div>
-        <div class="card-body">
+    <div class="nutrition-layout">
+        <div>
             @if (isLoadingMeals)
             {
-                <div style="text-align: center; padding: 2rem;">
-                    <div class="loading"></div>
-                    <p style="margin-top: 1rem;">Carregando...</p>
+                <div class="card">
+                    <div class="card-body">
+                        <div style="text-align: center; padding: 3rem;">
+                            <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                            <p style="margin-top: 1rem;">Carregando diários...</p>
+                        </div>
+                    </div>
                 </div>
             }
-            else if (todayDiary != null && todayDiary.Meals.Any())
+            else if (allDiaries.Any())
             {
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    @foreach (var meal in todayDiary.Meals)
+                <div class="filter-buttons" style="margin-bottom: 1.5rem;">
+                    <button class="filter-btn @(selectedDateFilter == DateFilter.All ? "active" : "")"
+                            @onclick="() => FilterByDate(DateFilter.All)">
+                        📋 Todos
+                    </button>
+                    <button class="filter-btn @(selectedDateFilter == DateFilter.Today ? "active" : "")"
+                            @onclick="() => FilterByDate(DateFilter.Today)">
+                        ☀️ Hoje
+                    </button>
+                    <button class="filter-btn @(selectedDateFilter == DateFilter.ThisWeek ? "active" : "")"
+                            @onclick="() => FilterByDate(DateFilter.ThisWeek)">
+                        📆 Esta Semana
+                    </button>
+                    <button class="filter-btn @(selectedDateFilter == DateFilter.ThisMonth ? "active" : "")"
+                            @onclick="() => FilterByDate(DateFilter.ThisMonth)">
+                        🗓️ Este Mês
+                    </button>
+                </div>
+
+                <div class="diaries-container">
+                    @foreach (var dateGroup in GetGroupedDiaries())
                     {
-                        <div style="padding: 1rem; background: var(--surface-2); border-radius: var(--radius-sm);">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <h4 style="margin: 0;">@meal.Name</h4>
-                                <span class="badge badge-primary">@meal.TotalCalories kcal</span>
+                        <div class="diaries-date-section">
+                            <div class="diaries-date-header">
+                                @FormatDateHeader(dateGroup.Key)
                             </div>
-                            @if (meal.MealFoods.Any())
+                            @foreach (var diary in dateGroup.Value)
                             {
-                                <div style="margin-top: 0.75rem;">
-                                    @foreach (var food in meal.MealFoods)
-                                    {
-                                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
-                                            � @food.Name (@food.Quantity g) - @food.TotalCalories kcal
-                                        </div>
-                                    }
-                                </div>
+                                <DiaryCard Diary="@diary"
+                                           OnAddMeal="@(() => OpenAddMealDialog(diary))"
+                                           OnAddWater="@(() => OpenAddWaterDialog(diary))"
+                                           OnEditMeal="@((meal) => EditMeal(meal))"
+                                           OnAddFood="@((meal) => OpenAddFoodDialog(meal))" />
                             }
                         </div>
                     }
@@ -74,84 +87,148 @@
             }
             else
             {
-                <div style="text-align: center; padding: 2rem;">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">???</div>
-                    <p style="color: var(--text-tertiary);">Nenhuma refei��o registrada hoje</p>
+                <div class="card">
+                    <div class="card-body">
+                        <div style="text-align: center; padding: 3rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                            <h3>Nenhum diário encontrado</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                                Comece criando seu diário de hoje
+                            </p>
+                            <button class="btn btn-primary" @onclick="EnsureTodayDiary">
+                                ➕ Criar Diário de Hoje
+                            </button>
+                        </div>
+                    </div>
                 </div>
             }
         </div>
-    </div>
 
-    <div>
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Progresso Di�rio</h3>
-            </div>
-            <div class="card-body">
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span style="font-size: 0.875rem;">Calorias</span>
-                        <span style="font-size: 0.875rem; font-weight: 600;">@CaloriesPct%</span>
-                    </div>
-                    <div style="height: 8px; background: var(--surface-3); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: @CaloriesPct%; transition: width 0.3s;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span style="font-size: 0.875rem;">Hidrata��o</span>
-                        <span style="font-size: 0.875rem; font-weight: 600;">@LiquidsPct%</span>
-                    </div>
-                    <div style="height: 8px; background: var(--surface-3); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; background: var(--primary); width: @LiquidsPct%; transition: width 0.3s;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" style="margin-top: 1.5rem;">
-            <div class="card-header">
-                <h3 class="card-title">Adicionar �gua</h3>
-            </div>
-            <div class="card-body">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
-                    <button class="btn btn-secondary" @onclick="() => AddWater(250)">?? 250ml</button>
-                    <button class="btn btn-secondary" @onclick="() => AddWater(500)">?? 500ml</button>
-                    <button class="btn btn-secondary" @onclick="() => AddWater(750)">?? 750ml</button>
-                    <button class="btn btn-secondary" @onclick="() => AddWater(1000)">?? 1L</button>
-                </div>
-            </div>
+        <div>
+            <ProgressPanel CurrentCalories="@todayCalories"
+                           GoalCalories="@goalCalories"
+                           CurrentLiters="@todayLiquids"
+                           GoalLiters="@goalLiters"
+                           TotalMeals="@todayMeals"
+                           TotalDays="@diariesCount"
+                           OnEditGoals="@OpenGoalDialog"
+                           OnAddWater="@AddWater" />
         </div>
     </div>
-</div>
 
-<!-- Dialogo de Objetivo / Consumo -->
-<SfDialog @bind-Visible="showGoalDialog" Width="520px" IsModal="true">
-    <DialogTemplates>
-        <Header>Objetivo Di�rio</Header>
-        <Content>
-            <div class="form-group">
-                <label class="form-label">Calorias (kcal)</label>
-                <InputNumber @bind-Value="goalCalories" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label class="form-label">L�quidos (ml)</label>
-                <InputNumber @bind-Value="goalMl" class="form-control" />
-            </div>
-            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                <button class="btn btn-secondary" @onclick="() => showGoalDialog=false">Cancelar</button>
-                <button class="btn btn-primary" @onclick="SaveGoal" disabled="@(todayProgressId is null)">Salvar</button>
-            </div>
-        </Content>
-    </DialogTemplates>
-</SfDialog>
+    <!-- Dialog de Objetivo / Consumo -->
+    <SfDialog @bind-Visible="showGoalDialog" Width="520px" IsModal="true">
+        <DialogTemplates>
+            <Header>⚙️ Objetivo Diário</Header>
+            <Content>
+                <div class="form-group">
+                    <label class="form-label">🔥 Calorias (kcal)</label>
+                    <InputNumber @bind-Value="goalCalories" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">💧 Líquidos (ml)</label>
+                    <InputNumber @bind-Value="goalMl" class="form-control" />
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                    <button class="btn btn-secondary" @onclick="() => showGoalDialog = false">❌ Cancelar</button>
+                    <button class="btn btn-primary" @onclick="SaveGoal" disabled="@(todayProgressId is null)">💾 Salvar</button>
+                </div>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
+
+    <!-- Dialog de Adicionar Refeição -->
+    <SfDialog @bind-Visible="showAddMealDialog" Width="520px" IsModal="true">
+        <DialogTemplates>
+            <Header>🍽️ Nova Refeição</Header>
+            <Content>
+                <EditForm Model="mealModel" OnValidSubmit="SaveMeal" FormName="mealForm">
+                    <div class="form-group">
+                        <label class="form-label">📝 Nome</label>
+                        <InputText @bind-Value="mealModel.Name" class="form-control" placeholder="Ex: Café da manhã" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📄 Descrição</label>
+                        <InputTextArea @bind-Value="mealModel.Description" class="form-control" placeholder="Descrição opcional" />
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                        <button type="button" class="btn btn-secondary" @onclick="() => showAddMealDialog = false">❌ Cancelar</button>
+                        <button type="submit" class="btn btn-primary">➕ Adicionar</button>
+                    </div>
+                </EditForm>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
+
+    <!-- Dialog de Adicionar Alimento -->
+    <SfDialog @bind-Visible="showAddFoodDialog" Width="520px" IsModal="true">
+        <DialogTemplates>
+            <Header>🥗 Adicionar Alimento</Header>
+            <Content>
+                <EditForm Model="foodModel" OnValidSubmit="SaveFood" FormName="foodForm">
+                    <div class="form-group">
+                        <label class="form-label">🍴 Nome</label>
+                        <InputText @bind-Value="foodModel.Name" class="form-control" placeholder="Ex: Arroz integral" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">⚖️ Quantidade (gramas)</label>
+                        <InputNumber @bind-Value="foodModel.QuantityInGrams" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">🔥 Calorias por grama</label>
+                        <InputNumber @bind-Value="foodModel.CaloriesPerUnit" class="form-control" />
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                        <button type="button" class="btn btn-secondary" @onclick="() => showAddFoodDialog = false">❌ Cancelar</button>
+                        <button type="submit" class="btn btn-primary">➕ Adicionar</button>
+                    </div>
+                </EditForm>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
+
+    <!-- Dialog de Adicionar Água -->
+    <SfDialog @bind-Visible="showAddWaterDialog" Width="420px" IsModal="true">
+        <DialogTemplates>
+            <Header>💧 Adicionar Líquido</Header>
+            <Content>
+                <div class="form-group">
+                    <label class="form-label">🏷️ Nome</label>
+                    <InputText @bind-Value="waterName" class="form-control" placeholder="Ex: Água" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🥤 Quantidade (ml)</label>
+                    <InputNumber @bind-Value="waterQuantity" class="form-control" />
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                    <button class="btn btn-secondary" @onclick="() => showAddWaterDialog = false">❌ Cancelar</button>
+                    <button class="btn btn-primary" @onclick="SaveWater">➕ Adicionar</button>
+                </div>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
 </RedirectToLogin>
 
 @code {
     [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
     private int? _userId;
 
+    private enum DateFilter { All, Today, ThisWeek, ThisMonth }
+
+    private class MealModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+
+    private class FoodModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public int QuantityInGrams { get; set; }
+        public int CaloriesPerUnit { get; set; }
+    }
+
+    private List<DiaryDTO> allDiaries = new();
     private DiaryDTO? todayDiary = null;
     private bool isLoadingMeals = true;
     private int diariesCount = 0;
@@ -160,16 +237,28 @@
     private int todayMeals => todayDiary?.Meals.Count ?? 0;
     private decimal todayLiquids => (todayDiary?.Liquids.Sum(l => l.QuantityMl) ?? 0) / 1000m;
 
-    // Objetivos e progresso di�rio
+    // Objetivos e progresso diário
     private int goalCalories = 2000;
     private decimal goalLiters => goalMl / 1000m;
     private int goalMl = 2500;
     private int? todayProgressId = null;
 
-    private string CaloriesPct => (goalCalories > 0 ? Math.Clamp((int)Math.Round(todayCalories / (decimal)goalCalories * 100), 0, 100) : 0).ToString();
-    private string LiquidsPct => (goalMl > 0 ? Math.Clamp((int)Math.Round((todayLiquids * 1000m) / goalMl * 100), 0, 100) : 0).ToString();
+    // Filtros
+    private DateFilter selectedDateFilter = DateFilter.All;
 
+    // Dialogs
     private bool showGoalDialog = false;
+    private bool showAddMealDialog = false;
+    private bool showAddFoodDialog = false;
+    private bool showAddWaterDialog = false;
+
+    // Models
+    private MealModel mealModel = new();
+    private FoodModel foodModel = new();
+    private DiaryDTO? selectedDiary = null;
+    private MealDTO? selectedMeal = null;
+    private string waterName = "Água";
+    private int waterQuantity = 250;
 
     protected override async Task OnInitializedAsync()
     {
@@ -192,31 +281,62 @@
     private async Task LoadNutritionData()
     {
         isLoadingMeals = true;
-        try
+        if (_userId is null)
         {
-            if (_userId is null)
-            {
-                todayDiary = null;
-                diariesCount = 0;
-                return;
-            }
+            allDiaries = new();
+            todayDiary = null;
+            diariesCount = 0;
+            return;
+        }
 
-            var diariesResult = await NutritionService.GetDiariesByUserAsync(_userId.Value);
-            if (diariesResult.Success && diariesResult.Data != null)
-            {
-                diariesCount = diariesResult.Data.Count;
-                var today = DateOnly.FromDateTime(DateTime.Today);
-                todayDiary = diariesResult.Data.FirstOrDefault(d => d.Date == today);
-            }
-        }
-        catch (Exception ex)
+        var diariesResult = await NutritionService.GetDiariesByUserAsync(_userId.Value);
+        if (diariesResult.Success && diariesResult.Data != null)
         {
-            Console.WriteLine($"Error loading nutrition data: {ex.Message}");
+            allDiaries = diariesResult.Data.OrderByDescending(d => d.Date).ToList();
+            diariesCount = allDiaries.Count;
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            todayDiary = allDiaries.FirstOrDefault(d => d.Date == today);
         }
-        finally
+        isLoadingMeals = false;
+    }
+
+    private void FilterByDate(DateFilter filter)
+    {
+        selectedDateFilter = filter;
+    }
+
+    private IEnumerable<DiaryDTO> GetFilteredDiaries()
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+
+        return selectedDateFilter switch
         {
-            isLoadingMeals = false;
-        }
+            DateFilter.Today => allDiaries.Where(d => d.Date == today),
+            DateFilter.ThisWeek => allDiaries.Where(d => d.Date >= today.AddDays(-7)),
+            DateFilter.ThisMonth => allDiaries.Where(d => d.Date.Month == today.Month && d.Date.Year == today.Year),
+            _ => allDiaries
+        };
+    }
+
+    private Dictionary<DateOnly, List<DiaryDTO>> GetGroupedDiaries()
+    {
+        return GetFilteredDiaries()
+            .GroupBy(d => d.Date)
+            .OrderByDescending(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    private string FormatDateHeader(DateOnly date)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var yesterday = today.AddDays(-1);
+
+        if (date == today)
+            return $"📅 Hoje - {date:dd/MM/yyyy}";
+        else if (date == yesterday)
+            return $"🕐 Ontem - {date:dd/MM/yyyy}";
+        else
+            return $"📆 {date:dd/MM/yyyy - dddd}";
     }
 
     private async Task EnsureTodayDiary()
@@ -268,29 +388,75 @@
         }
     }
 
-    private async Task AddMeal()
+    private void OpenAddMealDialog(DiaryDTO diary)
     {
-        await EnsureDiaryInternal();
-        if (todayDiary == null) return;
-        var cmd = new CreateMealCommand(todayDiary.Id, "Refei��o", string.Empty);
+        selectedDiary = diary;
+        mealModel = new MealModel();
+        showAddMealDialog = true;
+        this.StateHasChanged();
+    }
+
+    private async Task SaveMeal()
+    {
+        if (selectedDiary == null) return;
+        var cmd = new CreateMealCommand(selectedDiary.Id, mealModel.Name, mealModel.Description);
         await NutritionService.AddMealAsync(cmd);
         await LoadNutritionData();
+        showAddMealDialog = false;
+        this.StateHasChanged();
+    }
+
+    private void EditMeal(MealDTO meal)
+    {
+        // TODO: Implementar edição de refeição
+        Console.WriteLine($"Edit meal: {meal.Name}");
+    }
+
+    private void OpenAddFoodDialog(MealDTO meal)
+    {
+        selectedMeal = meal;
+        foodModel = new FoodModel();
+        showAddFoodDialog = true;
+        this.StateHasChanged();
+    }
+
+    private async Task SaveFood()
+    {
+        if (selectedMeal == null) return;
+        var cmd = new CreateMealFoodCommand(selectedMeal.Id, foodModel.Name, foodModel.QuantityInGrams, foodModel.CaloriesPerUnit);
+        await NutritionService.AddMealFoodAsync(cmd);
+        await LoadNutritionData();
+        showAddFoodDialog = false;
+        this.StateHasChanged();
+    }
+
+    private void OpenAddWaterDialog(DiaryDTO diary)
+    {
+        selectedDiary = diary;
+        waterName = "Água";
+        waterQuantity = 250;
+        showAddWaterDialog = true;
+        this.StateHasChanged();
+    }
+
+    private async Task SaveWater()
+    {
+        if (selectedDiary == null) return;
+        var liquid = new CreateLiquidCommand(selectedDiary.Id, waterName, waterQuantity, 0);
+        await NutritionService.AddLiquidAsync(liquid);
+        await LoadNutritionData();
+        showAddWaterDialog = false;
+        this.StateHasChanged();
     }
 
     private async Task AddWater(int ml)
     {
-        try
-        {
-            await EnsureDiaryInternal();
-            if (todayDiary == null) return;
-            var liquid = new CreateLiquidCommand(todayDiary.Id, "�gua", ml, 0);
-            await NutritionService.AddLiquidAsync(liquid);
-            await LoadNutritionData();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error adding water: {ex.Message}");
-        }
+        await EnsureDiaryInternal();
+        if (todayDiary == null) return;
+        var liquid = new CreateLiquidCommand(todayDiary.Id, "Água", ml, 0);
+        await NutritionService.AddLiquidAsync(liquid);
+        await LoadNutritionData();
+        this.StateHasChanged();
     }
 
     private void OpenGoalDialog()
@@ -300,16 +466,10 @@
 
     private async Task SaveGoal()
     {
-        try
-        {
-            if (todayProgressId is null) return;
-            var goal = new DailyGoalDTO(goalCalories, goalMl);
-            await NutritionService.SetGoalAsync(todayProgressId.Value, goal);
-            showGoalDialog = false;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error saving goal: {ex.Message}");
-        }
+        if (todayProgressId is null) return;
+        var goal = new DailyGoalDTO(goalCalories, goalMl);
+        await NutritionService.SetGoalAsync(todayProgressId.Value, goal);
+        showGoalDialog = false;
+        this.StateHasChanged();
     }
 }

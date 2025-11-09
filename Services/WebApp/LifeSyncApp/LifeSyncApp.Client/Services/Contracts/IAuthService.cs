@@ -1,6 +1,6 @@
 using LifeSyncApp.Client.Models;
 
-namespace LifeSyncApp.Client.Services
+namespace LifeSyncApp.Client.Services.Contracts
 {
     public interface IAuthService
     {

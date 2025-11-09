@@ -11,7 +11,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.10" />
+    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="31.2.5" />
+    <PackageReference Include="Syncfusion.Blazor.Cards" Version="31.2.5" />
+    <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="31.2.5" />
     <PackageReference Include="Syncfusion.Blazor.Grid" Version="31.2.5" />
+    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="31.2.5" />
+    <PackageReference Include="Syncfusion.Blazor.Navigations" Version="31.2.5" />
     <PackageReference Include="Syncfusion.Blazor.Themes" Version="31.2.5" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
