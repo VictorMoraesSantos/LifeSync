@@ -1,0 +1,58 @@
+@using LifeSyncApp.Client.Models.Nutrition.MealFood
+@using Syncfusion.Blazor.Popups
+
+<SfDialog Visible="Visible" VisibleChanged="VisibleChanged" Width="520px" IsModal="true" Position="Center" AppendTo="body">
+    <DialogTemplates>
+        <Header>?? Adicionar Alimento</Header>
+        <Content>
+            <EditForm Model="model" OnValidSubmit="HandleSubmit" FormName="foodForm">
+                <div class="form-group">
+                    <label class="form-label">?? Nome</label>
+                    <InputText @bind-Value="model.Name" class="form-control" placeholder="Ex: Arroz integral" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Quantidade (gramas)</label>
+                    <InputNumber @bind-Value="model.QuantityInGrams" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">?? Calorias por grama</label>
+                    <InputNumber @bind-Value="model.CaloriesPerUnit" class="form-control" />
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">? Cancelar</button>
+                    <button type="submit" class="btn btn-primary">? Adicionar</button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public int MealId { get; set; }
+    [Parameter] public EventCallback<CreateMealFoodDTO> OnSubmit { get; set; }
+
+    private FoodInput model = new();
+
+    private class FoodInput
+    {
+        public string Name { get; set; } = string.Empty;
+        public int QuantityInGrams { get; set; }
+        public int CaloriesPerUnit { get; set; }
+    }
+
+    private async Task HandleSubmit()
+    {
+        var dto = new CreateMealFoodDTO(MealId, model.Name, model.QuantityInGrams, model.CaloriesPerUnit);
+        await OnSubmit.InvokeAsync(dto);
+        model = new FoodInput();
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task Cancel()
+    {
+        model = new FoodInput();
+        await VisibleChanged.InvokeAsync(false);
+    }
+}

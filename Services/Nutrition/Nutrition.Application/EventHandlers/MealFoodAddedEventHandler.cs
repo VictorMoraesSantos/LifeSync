@@ -27,7 +27,7 @@ namespace Nutrition.Application.EventHandlers
             var dailyProgress = await _dailyProgressRepository.GetByUserIdAndDateAsync(diary.UserId, diary.Date, cancellationToken);
             if (dailyProgress == null) return;
 
-            dailyProgress.SetConsumed(diary.TotalCalories, dailyProgress.LiquidsConsumedMl);
+            dailyProgress.SetConsumed(totalCalories, dailyProgress.LiquidsConsumedMl);
             await _dailyProgressRepository.Update(dailyProgress, cancellationToken);
         }
     }

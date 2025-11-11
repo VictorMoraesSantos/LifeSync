@@ -62,7 +62,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
 
         public async Task Update(DailyProgress entity, CancellationToken cancellationToken = default)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            _context.Update(entity);
             await _context.SaveChangesAsync(cancellationToken);
         }
 

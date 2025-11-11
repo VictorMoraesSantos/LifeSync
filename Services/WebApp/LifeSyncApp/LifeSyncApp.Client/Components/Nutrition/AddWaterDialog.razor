@@ -1,0 +1,40 @@
+@using Syncfusion.Blazor.Popups
+
+<SfDialog Visible="Visible" VisibleChanged="VisibleChanged" Width="420px" IsModal="true" Position="Center" AppendTo="body">
+    <DialogTemplates>
+        <Header>?? Adicionar Líquido</Header>
+        <Content>
+            <div class="form-group">
+                <label class="form-label">??? Nome</label>
+                <InputText @bind-Value="Name" class="form-control" placeholder="Ex: Água" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">?? Quantidade (ml)</label>
+                <InputNumber @bind-Value="QuantityMl" class="form-control" />
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="Cancel">? Cancelar</button>
+                <button class="btn btn-primary" @onclick="Submit">? Adicionar</button>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public string Name { get; set; } = "Água";
+    [Parameter] public int QuantityMl { get; set; } = 250;
+    [Parameter] public EventCallback<(string Name, int Quantity)> OnSubmitWater { get; set; }
+
+    private async Task Submit()
+    {
+        await OnSubmitWater.InvokeAsync((Name, QuantityMl));
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task Cancel()
+    {
+        await VisibleChanged.InvokeAsync(false);
+    }
+}

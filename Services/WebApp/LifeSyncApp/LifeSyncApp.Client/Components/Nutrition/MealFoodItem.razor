@@ -1,0 +1,80 @@
+﻿@using LifeSyncApp.Client.Models.Nutrition
+@using LifeSyncApp.Client.Services
+@inject INutritionService NutritionService
+
+<div class="food-item-row" style="display:flex;gap:.5rem;align-items:center;">
+    @if (!isEditing)
+    {
+        <div style="flex:1;">
+            <div><strong>@Food.Name</strong></div>
+            <div class="text-muted">@Food.Quantity g - 🔥 @Food.TotalCalories kcal</div>
+        </div>
+        <div style="display:flex;gap:.25rem;">
+            <button class="btn btn-sm btn-secondary" @onclick="StartEdit">✏️</button>
+            <button class="btn btn-sm btn-danger" @onclick="Delete">🗑️</button>
+        </div>
+    }
+    else
+    {
+        <EditForm Model="editModel" OnValidSubmit="SaveEdit">
+            <div style="display:flex;gap:.5rem;align-items:center;">
+                <InputText @bind-Value="editModel.Name" class="form-control form-control-sm" style="width:220px;" />
+                <InputNumber @bind-Value="editModel.QuantityInGrams" class="form-control form-control-sm" style="width:80px;" />
+                <InputNumber @bind-Value="editModel.CaloriesPerUnit" class="form-control form-control-sm" style="width:80px;" />
+                <button class="btn btn-sm btn-primary" type="submit">💾</button>
+                <button class="btn btn-sm btn-secondary" type="button" @onclick="CancelEdit">✖️</button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public MealFoodDTO Food { get; set; } = default!;
+    [Parameter] public EventCallback<int> OnDeleted { get; set; }
+    [Parameter] public EventCallback<MealFoodDTO> OnUpdated { get; set; }
+
+    private bool isEditing = false;
+
+    private MealFoodEditModel editModel = new();
+
+    private class MealFoodEditModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public int QuantityInGrams { get; set; }
+        public int CaloriesPerUnit { get; set; }
+    }
+
+    private void StartEdit()
+    {
+        isEditing = true;
+        editModel.Name = Food.Name;
+        editModel.QuantityInGrams = Food.Quantity;
+        editModel.CaloriesPerUnit = Food.CaloriesPerUnit;
+    }
+
+    private async Task SaveEdit()
+    {
+        var request = new LifeSyncApp.Client.Models.Nutrition.MealFood.UpdateMealFoodRequest(editModel.Name, editModel.QuantityInGrams, editModel.CaloriesPerUnit);
+        var res = await NutritionService.UpdateMealFoodAsync(Food.Id, request);
+        Console.WriteLine($"[Nutrition] UpdateMealFood response: Success={res.Success}; Errors={string.Join(';', res.Errors ?? new string[0])}");
+        isEditing = false;
+        if (res.Success)
+        {
+            var updated = Food with { Name = editModel.Name, Quantity = editModel.QuantityInGrams, CaloriesPerUnit = editModel.CaloriesPerUnit };
+            await OnUpdated.InvokeAsync(updated);
+        }
+    }
+
+    private async Task Delete()
+    {
+        var res = await NutritionService.DeleteMealFoodAsync(Food.Id);
+        Console.WriteLine($"[Nutrition] DeleteMealFood response: Success={res.Success}; Errors={string.Join(';', res.Errors ?? new string[0])}");
+        if (res.Success)
+            await OnDeleted.InvokeAsync(Food.Id);
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+    }
+}

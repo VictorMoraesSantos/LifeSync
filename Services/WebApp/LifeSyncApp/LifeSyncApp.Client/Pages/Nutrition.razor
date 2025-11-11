@@ -12,7 +12,6 @@
     <PageHeader Title="Nutrição" Description="Acompanhe suas refeições e hidratação">
         <Actions>
             <div style="display:flex;gap:.5rem;">
-                <button class="btn btn-secondary" @onclick="OpenGoalDialog">⚙️ Definir Objetivo</button>
                 <button class="btn btn-primary" @onclick="EnsureTodayDiary">➕ Criar Diário de Hoje</button>
             </div>
         </Actions>
@@ -79,7 +78,11 @@
                                            OnAddMeal="@(() => OpenAddMealDialog(diary))"
                                            OnAddWater="@(() => OpenAddWaterDialog(diary))"
                                            OnEditMeal="@((meal) => EditMeal(meal))"
-                                           OnAddFood="@((meal) => OpenAddFoodDialog(meal))" />
+                                           OnAddFood="@((meal) => OpenAddFoodDialog(meal))"
+                                           OnDeleteDiary="@((id) => DeleteDiary(id))"
+                                           OnDeleteMeal="@((id) => DeleteMeal(id))"
+                                           OnDeleteLiquid="@((id) => DeleteLiquid(id))"
+                                           OnDeleteMealFood="@((id) => DeleteMealFood(id))" />
                             }
                         </div>
                     }
@@ -116,97 +119,16 @@
         </div>
     </div>
 
-    <!-- Dialog de Objetivo / Consumo -->
-    <SfDialog @bind-Visible="showGoalDialog" Width="520px" IsModal="true">
-        <DialogTemplates>
-            <Header>⚙️ Objetivo Diário</Header>
-            <Content>
-                <div class="form-group">
-                    <label class="form-label">🔥 Calorias (kcal)</label>
-                    <InputNumber @bind-Value="goalCalories" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">💧 Líquidos (ml)</label>
-                    <InputNumber @bind-Value="goalMl" class="form-control" />
-                </div>
-                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                    <button class="btn btn-secondary" @onclick="() => showGoalDialog = false">❌ Cancelar</button>
-                    <button class="btn btn-primary" @onclick="SaveGoal" disabled="@(todayProgressId is null)">💾 Salvar</button>
-                </div>
-            </Content>
-        </DialogTemplates>
-    </SfDialog>
+    <GoalDialog Visible="showGoalDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showGoalDialog = v))" InitialGoal="@(todayProgressId.HasValue ? new DailyGoalDTO(goalCalories, goalMl) : null)" OnSaveGoal="HandleSaveGoal" />
 
     <!-- Dialog de Adicionar Refeição -->
-    <SfDialog @bind-Visible="showAddMealDialog" Width="520px" IsModal="true">
-        <DialogTemplates>
-            <Header>🍽️ Nova Refeição</Header>
-            <Content>
-                <EditForm Model="mealModel" OnValidSubmit="SaveMeal" FormName="mealForm">
-                    <div class="form-group">
-                        <label class="form-label">📝 Nome</label>
-                        <InputText @bind-Value="mealModel.Name" class="form-control" placeholder="Ex: Café da manhã" />
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">📄 Descrição</label>
-                        <InputTextArea @bind-Value="mealModel.Description" class="form-control" placeholder="Descrição opcional" />
-                    </div>
-                    <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                        <button type="button" class="btn btn-secondary" @onclick="() => showAddMealDialog = false">❌ Cancelar</button>
-                        <button type="submit" class="btn btn-primary">➕ Adicionar</button>
-                    </div>
-                </EditForm>
-            </Content>
-        </DialogTemplates>
-    </SfDialog>
+    <AddMealDialog Visible="showAddMealDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showAddMealDialog = v))" DiaryId="@(selectedDiary?.Id ?? 0)" OnSubmit="OnAddMealSubmit" />
 
     <!-- Dialog de Adicionar Alimento -->
-    <SfDialog @bind-Visible="showAddFoodDialog" Width="520px" IsModal="true">
-        <DialogTemplates>
-            <Header>🥗 Adicionar Alimento</Header>
-            <Content>
-                <EditForm Model="foodModel" OnValidSubmit="SaveFood" FormName="foodForm">
-                    <div class="form-group">
-                        <label class="form-label">🍴 Nome</label>
-                        <InputText @bind-Value="foodModel.Name" class="form-control" placeholder="Ex: Arroz integral" />
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">⚖️ Quantidade (gramas)</label>
-                        <InputNumber @bind-Value="foodModel.QuantityInGrams" class="form-control" />
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">🔥 Calorias por grama</label>
-                        <InputNumber @bind-Value="foodModel.CaloriesPerUnit" class="form-control" />
-                    </div>
-                    <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                        <button type="button" class="btn btn-secondary" @onclick="() => showAddFoodDialog = false">❌ Cancelar</button>
-                        <button type="submit" class="btn btn-primary">➕ Adicionar</button>
-                    </div>
-                </EditForm>
-            </Content>
-        </DialogTemplates>
-    </SfDialog>
+    <AddFoodDialog Visible="showAddFoodDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showAddFoodDialog = v))" MealId="@(selectedMeal?.Id ?? 0)" OnSubmit="OnAddFoodSubmit" />
 
     <!-- Dialog de Adicionar Água -->
-    <SfDialog @bind-Visible="showAddWaterDialog" Width="420px" IsModal="true">
-        <DialogTemplates>
-            <Header>💧 Adicionar Líquido</Header>
-            <Content>
-                <div class="form-group">
-                    <label class="form-label">🏷️ Nome</label>
-                    <InputText @bind-Value="waterName" class="form-control" placeholder="Ex: Água" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">🥤 Quantidade (ml)</label>
-                    <InputNumber @bind-Value="waterQuantity" class="form-control" />
-                </div>
-                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                    <button class="btn btn-secondary" @onclick="() => showAddWaterDialog = false">❌ Cancelar</button>
-                    <button class="btn btn-primary" @onclick="SaveWater">➕ Adicionar</button>
-                </div>
-            </Content>
-        </DialogTemplates>
-    </SfDialog>
+    <AddWaterDialog Visible="showAddWaterDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showAddWaterDialog = v))" Name="@waterName" QuantityMl="@waterQuantity" OnSubmitWater="HandleAddWater" />
 </RedirectToLogin>
 
 @code {
@@ -215,13 +137,13 @@
 
     private enum DateFilter { All, Today, ThisWeek, ThisMonth }
 
-    private class MealModel
+    class MealModel
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
     }
 
-    private class FoodModel
+    class FoodModel
     {
         public string Name { get; set; } = string.Empty;
         public int QuantityInGrams { get; set; }
@@ -424,7 +346,7 @@
     {
         if (selectedMeal == null) return;
         var cmd = new CreateMealFoodCommand(selectedMeal.Id, foodModel.Name, foodModel.QuantityInGrams, foodModel.CaloriesPerUnit);
-        await NutritionService.AddMealFoodAsync(cmd);
+        await NutritionService.AddMealFoodAsync(selectedMeal.Id, cmd);
         await LoadNutritionData();
         showAddFoodDialog = false;
         this.StateHasChanged();
@@ -471,5 +393,65 @@
         await NutritionService.SetGoalAsync(todayProgressId.Value, goal);
         showGoalDialog = false;
         this.StateHasChanged();
+    }
+
+    private async Task DeleteDiary(int id)
+    {
+        var res = await NutritionService.DeleteDiaryAsync(id);
+        if (res.Success)
+            await LoadNutritionData();
+    }
+
+    private async Task DeleteMeal(int id)
+    {
+        var res = await NutritionService.DeleteMealAsync(id);
+        if (res.Success)
+            await LoadNutritionData();
+    }
+
+    private async Task DeleteLiquid(int id)
+    {
+        var res = await NutritionService.DeleteLiquidAsync(id);
+        if (res.Success)
+            await LoadNutritionData();
+    }
+
+    private async Task DeleteMealFood(int id)
+    {
+        var res = await NutritionService.DeleteMealFoodAsync(id);
+        if (res.Success)
+            await LoadNutritionData();
+    }
+
+    private async Task HandleSaveGoal(DailyGoalDTO goal)
+    {
+        if (todayProgressId is null) return;
+        await NutritionService.SetGoalAsync(todayProgressId.Value, goal);
+        await EnsureDailyProgress();
+    }
+
+    private async Task OnAddMealSubmit(LifeSyncApp.Client.Models.Nutrition.Meal.CreateMealDTO dto)
+    {
+        var cmd = new CreateMealCommand(dto.DiaryId, dto.Name, dto.Description);
+        var res = await NutritionService.AddMealAsync(cmd);
+        Console.WriteLine($"[Nutrition] AddMeal response: Success={res.Success}; Errors={string.Join(';', res.Errors ?? new string[0])}");
+        await LoadNutritionData();
+    }
+
+    private async Task OnAddFoodSubmit(LifeSyncApp.Client.Models.Nutrition.MealFood.CreateMealFoodDTO dto)
+    {
+        var cmd = new CreateMealFoodCommand(dto.MealId, dto.Name, dto.QuantityInGrams, dto.CaloriesPerUnit);
+        var res = await NutritionService.AddMealFoodAsync(dto.MealId, cmd);
+        Console.WriteLine($"[Nutrition] AddMealFood response: Success={res.Success}; Errors={string.Join(';', res.Errors ?? new string[0])}");
+        await LoadNutritionData();
+    }
+
+    private async Task HandleAddWater((string Name, int Quantity) tuple)
+    {
+        if (selectedDiary == null) return;
+        var (n, q) = tuple;
+        var cmd = new CreateLiquidCommand(selectedDiary.Id, n, q, 0);
+        await NutritionService.AddLiquidAsync(cmd);
+        await LoadNutritionData();
     }
 }

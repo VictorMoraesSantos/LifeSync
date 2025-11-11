@@ -1,4 +1,5 @@
 ﻿@page "/tasks"
+@using LifeSyncApp.Client.Components.Shared
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.TaskManager
 @using LifeSyncApp.Client.Models.TaskManager.TaskItem
@@ -39,51 +40,7 @@
             }
             else if (tasks.Any())
             {
-                <div class="filter-buttons">
-                    <button class="filter-btn @(activeStatusFilter == null ? "active" : "")"
-                            @onclick="() => FilterByStatus(null)">
-                        📋 Todas
-                    </button>
-                    <button class="filter-btn @(activeStatusFilter == Status.Pending ? "active" : "")"
-                            @onclick="() => FilterByStatus(Status.Pending)">
-                        ⏳ Pendentes
-                    </button>
-                    <button class="filter-btn @(activeStatusFilter == Status.InProgress ? "active" : "")"
-                            @onclick="() => FilterByStatus(Status.InProgress)">
-                        🔄 Em Progresso
-                    </button>
-                    <button class="filter-btn @(activeStatusFilter == Status.Completed ? "active" : "")"
-                            @onclick="() => FilterByStatus(Status.Completed)">
-                        ✅ Concluídas
-                    </button>
-                    <button class="filter-btn @(activeStatusFilter == Status.Cancelled ? "active" : "")"
-                            @onclick="() => FilterByStatus(Status.Cancelled)">
-                        ❌ Canceladas
-                    </button>
-                </div>
-
-                <div class="filter-buttons">
-                    <button class="filter-btn @(activePriorityFilter == null ? "active" : "")"
-                            @onclick="() => FilterByPriority(null)">
-                        🎯 Todas Prioridades
-                    </button>
-                    <button class="filter-btn @(activePriorityFilter == Priority.Urgent ? "active" : "")"
-                            @onclick="() => FilterByPriority(Priority.Urgent)">
-                        🚨 Urgente
-                    </button>
-                    <button class="filter-btn @(activePriorityFilter == Priority.High ? "active" : "")"
-                            @onclick="() => FilterByPriority(Priority.High)">
-                        🔴 Alta
-                    </button>
-                    <button class="filter-btn @(activePriorityFilter == Priority.Medium ? "active" : "")"
-                            @onclick="() => FilterByPriority(Priority.Medium)">
-                        🟡 Média
-                    </button>
-                    <button class="filter-btn @(activePriorityFilter == Priority.Low ? "active" : "")"
-                            @onclick="() => FilterByPriority(Priority.Low)">
-                        🟢 Baixa
-                    </button>
-                </div>
+                <TaskFilters ActiveStatus="activeStatusFilter" ActivePriority="activePriorityFilter" OnStatusChanged="FilterByStatus" OnPriorityChanged="FilterByPriority" />
 
                 <div class="tasks-container">
                     @foreach (var dateGroup in GetGroupedTasks())
@@ -121,74 +78,48 @@
         </div>
     </div>
 
-    <SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
-        <DialogTemplates>
-            <Header>@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")</Header>
-            <Content>
-                <EditForm Model="currentTask" OnValidSubmit="SaveTask" FormName="taskForm">
-                    <div class="form-group">
-                        <label class="form-label">📝 Título</label>
-                        <InputText @bind-Value="currentTask.Title" class="form-control" />
-                    </div>
+    <TaskDialog Visible="showDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showDialog = v))" Header="@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")" Model="currentTask" OnSubmit="SaveTask" OnCancel="CloseDialog" SubmitButtonText="@(editingTask == null ? "➕ Criar" : "💾 Salvar")">
+        <div class="form-group">
+            <label class="form-label">📝 Título</label>
+            <InputText @bind-Value="currentTask.Title" class="form-control" />
+        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">📄 Descrição</label>
-                        <InputTextArea @bind-Value="currentTask.Description" class="form-control" />
-                    </div>
+        <div class="form-group">
+            <label class="form-label">📄 Descrição</label>
+            <InputTextArea @bind-Value="currentTask.Description" class="form-control" />
+        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">🎯 Prioridade</label>
-                        <InputSelect @bind-Value="currentTask.Priority" class="form-control">
-                            @foreach (var p in Enum.GetValues<Priority>())
-                            {
-                                <option value="@p">@p</option>
-                            }
-                        </InputSelect>
-                    </div>
+        <div class="form-group">
+            <label class="form-label">🎯 Prioridade</label>
+            <InputSelect @bind-Value="currentTask.Priority" class="form-control">
+                @foreach (var p in Enum.GetValues<Priority>())
+                {
+                    <option value="@p">@p</option>
+                }
+            </InputSelect>
+        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">📅 Data de Vencimento</label>
-                        <InputDate DateFormat="dd/MM/yyyy" @bind-Value="currentTask.DueDate" class="form-control" />
-                    </div>
+        <div class="form-group">
+            <label class="form-label">📅 Data de Vencimento</label>
+            <InputDate DateFormat="dd/MM/yyyy" @bind-Value="currentTask.DueDate" class="form-control" />
+        </div>
+    </TaskDialog>
 
-                    <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
-                        <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
-                            ❌ Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            @(editingTask == null ? "➕ Criar" : "💾 Salvar")
-                        </button>
-                    </div>
-                </EditForm>
-            </Content>
-        </DialogTemplates>
-    </SfDialog>
-
-    <!-- Dialogo rápido para adicionar label a uma tarefa -->
-    <SfDialog @bind-Visible="showAddLabelDialog" Width="500px" IsModal="true">
-        <DialogTemplates>
-            <Header>🏷️ Adicionar Label à Tarefa</Header>
-            <Content>
-                <div class="form-group">
-                    <label class="form-label">📝 Nome</label>
-                    <InputText @bind-Value="labelModel.Name" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">🎨 Cor</label>
-                    <InputSelect @bind-Value="labelModel.Color" class="form-control">
-                        @foreach (var c in Enum.GetValues<LabelColor>())
-                        {
-                            <option value="@c">@c</option>
-                        }
-                    </InputSelect>
-                </div>
-                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                    <button class="btn btn-secondary" @onclick="() => { showAddLabelDialog = false; labelModel = new LabelEditModel(); }">❌ Cancelar</button>
-                    <button class="btn btn-primary" @onclick="CreateLabelForTask">➕ Adicionar</button>
-                </div>
-            </Content>
-        </DialogTemplates>
-    </SfDialog>
+    <TaskDialog Visible="showAddLabelDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showAddLabelDialog = v))" Header="🏷️ Adicionar Label à Tarefa" Model="labelModel" OnSubmit="CreateLabelForTask" OnCancel="() => { showAddLabelDialog = false; labelModel = new LabelEditModel(); }" SubmitButtonText="➕ Adicionar">
+        <div class="form-group">
+            <label class="form-label">📝 Nome</label>
+            <InputText @bind-Value="labelModel.Name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="form-label">🎨 Cor</label>
+            <InputSelect @bind-Value="labelModel.Color" class="form-control">
+                @foreach (var c in Enum.GetValues<LabelColor>())
+                {
+                    <option value="@c">@c</option>
+                }
+            </InputSelect>
+        </div>
+    </TaskDialog>
 </RedirectToLogin>
 
 @code {

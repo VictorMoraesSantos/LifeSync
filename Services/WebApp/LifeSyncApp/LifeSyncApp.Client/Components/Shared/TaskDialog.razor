@@ -1,0 +1,44 @@
+﻿@using System.Threading.Tasks
+@using Syncfusion.Blazor.Popups
+
+<SfDialog Visible="Visible" VisibleChanged="VisibleChanged" Width="500px" IsModal="true" Position="Center" AppendTo="body">
+    <DialogTemplates>
+        <Header>@Header</Header>
+        <Content>
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit" FormName="taskForm">
+                <div style="display:flex;flex-direction:column;gap:1rem;">
+                    @ChildContent
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:.75rem;margin-top:1rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="HandleCancel">❌ Cancelar</button>
+                    <button type="submit" class="btn btn-primary">@SubmitButtonText</button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter] public string Header { get; set; } = string.Empty;
+    [Parameter] public object Model { get; set; } = new();
+    [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public string SubmitButtonText { get; set; } = "Salvar";
+    [Parameter] public RenderFragment ChildContent { get; set; } = default!;
+
+    private async Task HandleCancel()
+    {
+        await VisibleChanged.InvokeAsync(false);
+        if (OnCancel.HasDelegate)
+            await OnCancel.InvokeAsync();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+            await OnSubmit.InvokeAsync();
+    }
+}

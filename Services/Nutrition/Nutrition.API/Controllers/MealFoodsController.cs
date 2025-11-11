@@ -13,12 +13,12 @@ using Nutrition.Application.Features.MealFood.Queries.GetByMeal;
 
 namespace Nutrition.API.Controllers
 {
-    [Route("api/meals-food")]
-    public class MealsFoodController : ApiController
+    [Route("api/meal-foods")]
+    public class MealFoodsController : ApiController
     {
         private readonly ISender _sender;
 
-        public MealsFoodController(ISender sender)
+        public MealFoodsController(ISender sender)
         {
             _sender = sender;
         }

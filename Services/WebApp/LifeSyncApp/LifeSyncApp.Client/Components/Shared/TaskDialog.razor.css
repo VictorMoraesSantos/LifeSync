@@ -1,0 +1,97 @@
+.taskdialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.taskdialog-modal {
+    width: 500px;
+    max-width: calc(100% - 32px);
+    background: var(--card-bg, #1f1f24);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    padding: 0.5rem 1rem 1rem 1rem;
+    color: var(--text-color, #fff);
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+.taskdialog-header {
+    font-weight: 600;
+    padding: 0.5rem 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    margin-bottom: 0.75rem;
+}
+
+.taskdialog-content {
+    padding: 0.25rem 0.25rem;
+}
+
+/* Standardize and enlarge inputs inside both custom and Syncfusion dialogs */
+
+/* Targets when using the custom modal markup */
+.taskdialog-modal input.form-control,
+.taskdialog-modal textarea.form-control,
+.taskdialog-modal select.form-control,
+.taskdialog-modal .form-control {
+    width: 360px;
+    max-width: 100%;
+    height: 44px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    background: rgba(34,31,38,1);
+    color: var(--text-color, #fff);
+    border: 1px solid rgba(255,255,255,0.03);
+    box-sizing: border-box;
+}
+
+.taskdialog-modal textarea.form-control {
+    height: 96px;
+    padding-top: 0.6rem;
+    resize: vertical;
+}
+
+/* Targets Syncfusion dialog elements (.e-dialog is the wrapper used by SfDialog) */
+.form-group ::deep .e-dialog .form-group .form-control,
+.e-dialog input,
+.e-dialog textarea,
+.e-dialog select,
+.e-dialog .e-input,
+.e-dialog .e-dropdownlist,
+.e-dialog .e-datepicker,
+.e-dialog .form-control {
+    width: 360px !important;
+    max-width: 100% !important;
+    height: 44px !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 10px !important;
+    background: rgba(34,31,38,1) !important;
+    color: var(--text-color, #fff) !important;
+    border: 1px solid rgba(255,255,255,0.03) !important;
+    box-sizing: border-box !important;
+}
+
+    ::deep .e-dialog textarea,
+    .e-dialog .e-input.e-control {
+        height: 96px !important;
+    }
+
+/* Center labels and keep consistent spacing */
+::deep.e-dialog .form-label,
+.taskdialog-modal .form-label {
+    text-align: center;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Make dialog content vertically spaced and aligned */
+::deep .e-dialog .e-dlg-content,
+.taskdialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}

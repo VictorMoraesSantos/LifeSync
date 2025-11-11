@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Common\" />
+    <Folder Include="wwwroot\css\" />
   </ItemGroup>
 
 </Project>

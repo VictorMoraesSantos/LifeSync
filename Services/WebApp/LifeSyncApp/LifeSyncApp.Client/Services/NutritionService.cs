@@ -1,5 +1,6 @@
 using LifeSyncApp.Client.Models;
 using LifeSyncApp.Client.Models.Nutrition;
+using LifeSyncApp.Client.Models.Nutrition.MealFood;
 using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
 
@@ -93,16 +94,70 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<int>> AddMealFoodAsync(CreateMealFoodCommand command)
+        public async Task<ApiResponse<int>> AddMealFoodAsync(int mealId, CreateMealFoodCommand command)
         {
             try
             {
-                var res = await _apiClient.PostAsync<CreateMealFoodCommand, ApiResponse<int>>("nutrition-service/api/meal-foods", command);
+                // Endpoint: POST api/meals/{mealId}/foods
+                var res = await _apiClient.PostAsync<CreateMealFoodCommand, ApiResponse<int>>($"nutrition-service/api/meals/{mealId}/foods", command);
                 return res ?? new ApiResponse<int> { Success = false };
             }
             catch (Exception ex)
             {
                 return new ApiResponse<int> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<object>> DeleteDiaryAsync(int id)
+        {
+            try
+            {
+                await _apiClient.DeleteAsync($"nutrition-service/api/diaries/{id}");
+                return new ApiResponse<object> { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<object> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<object>> DeleteMealAsync(int id)
+        {
+            try
+            {
+                await _apiClient.DeleteAsync($"nutrition-service/api/meals/{id}");
+                return new ApiResponse<object> { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<object> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<object>> DeleteLiquidAsync(int id)
+        {
+            try
+            {
+                await _apiClient.DeleteAsync($"nutrition-service/api/liquids/{id}");
+                return new ApiResponse<object> { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<object> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<object>> DeleteMealFoodAsync(int id)
+        {
+            try
+            {
+                // Endpoint: DELETE api/meal-foods/{id}
+                await _apiClient.DeleteAsync($"nutrition-service/api/meal-foods/{id}");
+                return new ApiResponse<object> { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<object> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
@@ -152,8 +207,9 @@ namespace LifeSyncApp.Client.Services
         {
             try
             {
-                var res = await _apiClient.GetAsync<ApiResponse<List<DiaryDTO>>>($"nutrition-service/api/diaries/user/{userId}");
-                return res ?? new ApiResponse<List<DiaryDTO>> { Success = false };
+                var res = await _apiClient.GetAsync<ApiResponse<List<DiaryDTO>>>($"nutrition-service/api/diaries/user/{userId}")
+                    ?? new ApiResponse<List<DiaryDTO>> { Success = false };
+                return res;
             }
             catch (Exception ex)
             {
@@ -213,6 +269,26 @@ namespace LifeSyncApp.Client.Services
             {
                 return new ApiResponse<bool> { Success = false, Errors = new[] { ex.Message } };
             }
+        }
+
+        public async Task<ApiResponse<bool>> UpdateMealFoodAsync(int id, UpdateMealFoodRequest request)
+        {
+            try
+            {
+                // Endpoint: PUT api/meal-foods/{id}
+                var res = await _apiClient.PutAsync<UpdateMealFoodRequest, ApiResponse<bool>>($"nutrition-service/api/meal-foods/{id}", request);
+                return res ?? new ApiResponse<bool> { Success = false };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        // Expose raw send for command objects if needed
+        public async Task<HttpResponseMessage> SendRawAsync(HttpRequestMessage request)
+        {
+            return await _apiClient.SendAsync(request);
         }
     }
 }

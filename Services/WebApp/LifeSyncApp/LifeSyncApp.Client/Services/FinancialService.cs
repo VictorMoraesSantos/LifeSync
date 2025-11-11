@@ -1,5 +1,4 @@
 using LifeSyncApp.Client.Models;
-using LifeSyncApp.Client.Models.Financial;
 using LifeSyncApp.Client.Models.Financial.Category;
 using LifeSyncApp.Client.Models.Financial.Transaction;
 using LifeSyncApp.Client.Services.Contracts;

@@ -1,0 +1,53 @@
+﻿@using LifeSyncApp.Client.Models.Nutrition.Meal
+@using Syncfusion.Blazor.Popups
+
+<SfDialog Visible="Visible" VisibleChanged="VisibleChanged" Width="520px" IsModal="true" Position="Center" AppendTo="body">
+    <DialogTemplates>
+        <Header>🍽️ Nova Refeição</Header>
+        <Content>
+            <EditForm Model="model" OnValidSubmit="HandleSubmit" FormName="mealForm">
+                <div class="form-group">
+                    <label class="form-label">📝 Nome</label>
+                    <InputText @bind-Value="model.Name" class="form-control" placeholder="Ex: Café da manhã" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">📄 Descrição</label>
+                    <InputTextArea @bind-Value="model.Description" class="form-control" placeholder="Descrição opcional" />
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">❌ Cancelar</button>
+                    <button type="submit" class="btn btn-primary">➕ Adicionar</button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public int DiaryId { get; set; }
+    [Parameter] public EventCallback<CreateMealDTO> OnSubmit { get; set; }
+
+    private MealInput model = new();
+
+    private class MealInput
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+
+    private async Task HandleSubmit()
+    {
+        var dto = new CreateMealDTO(DiaryId, model.Name, model.Description);
+        await OnSubmit.InvokeAsync(dto);
+        model = new MealInput();
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task Cancel()
+    {
+        model = new MealInput();
+        await VisibleChanged.InvokeAsync(false);
+    }
+}

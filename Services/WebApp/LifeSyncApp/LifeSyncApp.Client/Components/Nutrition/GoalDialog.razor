@@ -1,0 +1,52 @@
+﻿@using LifeSyncApp.Client.Models.Nutrition
+@using Syncfusion.Blazor.Popups
+
+<SfDialog Visible="Visible" VisibleChanged="VisibleChanged" Width="520px" IsModal="true" Position="Center" AppendTo="body">
+    <DialogTemplates>
+        <Header>⚙️ Objetivo Diário</Header>
+        <Content>
+            <div class="form-group">
+                <label class="form-label">🔥 Calorias (kcal)</label>
+                <InputNumber @bind-Value="calories" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">💧 Líquidos (ml)</label>
+                <InputNumber @bind-Value="ml" class="form-control" />
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="Cancel">❌ Cancelar</button>
+                <button class="btn btn-primary" @onclick="Save" disabled="@(!CanSave)">💾 Salvar</button>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public DailyGoalDTO? InitialGoal { get; set; }
+    [Parameter] public EventCallback<DailyGoalDTO> OnSaveGoal { get; set; }
+
+    private int calories;
+    private int ml;
+
+    protected override void OnParametersSet()
+    {
+        calories = InitialGoal?.Calories ?? calories;
+        ml = InitialGoal?.QuantityMl ?? ml;
+    }
+
+    private bool CanSave => calories >= 0 && ml >= 0;
+
+    private async Task Save()
+    {
+        var dto = new DailyGoalDTO(calories, ml);
+        await OnSaveGoal.InvokeAsync(dto);
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task Cancel()
+    {
+        await VisibleChanged.InvokeAsync(false);
+    }
+}

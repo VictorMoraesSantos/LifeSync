@@ -1,12 +1,12 @@
-@using LifeSyncApp.Client.Models.Nutrition
+﻿@using LifeSyncApp.Client.Models.Nutrition
 
 <div class="diary-card">
     <div class="diary-card-header">
         <div class="diary-title-row">
-            <h4 class="diary-title">?? @Diary.Date.ToString("dd/MM/yyyy")</h4>
+            <h4 class="diary-title">📅 @Diary.Date.ToString("dd/MM/yyyy")</h4>
             <div class="diary-stats">
-                <span class="badge badge-warning">?? @Diary.TotalCalories kcal</span>
-                <span class="badge badge-primary">?? @((Diary.Liquids.Sum(l => l.QuantityMl) / 1000.0).ToString("0.0")) L</span>
+                <span class="badge badge-warning">🔥 @Diary.TotalCalories kcal</span>
+                <span class="badge badge-primary">💧 @((Diary.Liquids.Sum(l => l.QuantityMl) / 1000.0).ToString("0.0")) L</span>
             </div>
         </div>
     </div>
@@ -15,13 +15,17 @@
         @if (Diary.Meals != null && Diary.Meals.Any())
         {
             <div class="diary-section">
-                <h5 class="section-title">??? Refei��es</h5>
+                <h5 class="section-title">🍽️ Refeições</h5>
                 @foreach (var meal in Diary.Meals)
                 {
                     <div class="meal-item">
                         <div class="meal-header">
-                            <span class="meal-name">@meal.Name</span>
-                            <span class="badge badge-success">?? @meal.TotalCalories kcal</span>
+                            <span class="meal-name">🍛 @meal.Name</span>
+                            <div style="display:flex;gap:.5rem;align-items:center;">
+                                <span class="badge badge-success">🔥 @meal.TotalCalories kcal</span>
+                                <button class="btn btn-sm btn-secondary" @onclick="() => OnEditMeal?.Invoke(meal)">✏️ Editar</button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => OnDeleteMeal.InvokeAsync(meal.Id)">🗑️ Excluir</button>
+                            </div>
                         </div>
                         @if (!string.IsNullOrWhiteSpace(meal.Description))
                         {
@@ -32,16 +36,12 @@
                             <div class="meal-foods">
                                 @foreach (var food in meal.MealFoods)
                                 {
-                                    <div class="food-item">
-                                        <span class="food-name">?? @food.Name</span>
-                                        <span class="food-details">?? @food.Quantity g - ?? @food.TotalCalories kcal</span>
-                                    </div>
+                                    <MealFoodItem Food="food" OnDeleted="@(async (id) => { await OnDeleteMealFood.InvokeAsync(id); await InvokeAsync(() => StateHasChanged()); })" OnUpdated="@(async (f) => { /* update local model */ var idx = meal.MealFoods.IndexOf(food); if (idx >= 0) meal.MealFoods[idx] = f; await InvokeAsync(() => StateHasChanged()); })" />
                                 }
                             </div>
                         }
                         <div class="meal-actions">
-                            <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditMeal?.Invoke(meal))">?? Editar</button>
-                            <button class="btn btn-sm btn-primary" @onclick="@(() => OnAddFood?.Invoke(meal))">? Alimento</button>
+                            <button class="btn btn-sm btn-primary" @onclick="() => OnAddFood?.Invoke(meal)">➕ Alimento</button>
                         </div>
                     </div>
                 }
@@ -51,20 +51,21 @@
         @if (Diary.Liquids != null && Diary.Liquids.Any())
         {
             <div class="diary-section">
-                <h5 class="section-title">?? L�quidos</h5>
+                <h5 class="section-title">💧 Líquidos</h5>
                 <div class="liquids-grid">
                     @foreach (var liquid in Diary.Liquids)
                     {
                         <div class="liquid-item">
-                            <span class="liquid-icon">??</span>
+                            <span class="liquid-icon">🥤</span>
                             <div class="liquid-info">
                                 <span class="liquid-name">@liquid.Name</span>
-                                <span class="liquid-quantity">?? @liquid.QuantityMl ml</span>
+                                <span class="liquid-quantity">@liquid.QuantityMl ml</span>
                             </div>
                             @if (liquid.TotalCalories > 0)
                             {
-                                <span class="badge badge-warning">?? @liquid.TotalCalories kcal</span>
+                                <span class="badge badge-warning">🔥 @liquid.TotalCalories kcal</span>
                             }
+                            <button class="btn btn-sm btn-danger" style="margin-left:8px;" @onclick="() => OnDeleteLiquid.InvokeAsync(liquid.Id)">🗑️</button>
                         </div>
                     }
                 </div>
@@ -74,22 +75,28 @@
         @if ((Diary.Meals == null || !Diary.Meals.Any()) && (Diary.Liquids == null || !Diary.Liquids.Any()))
         {
             <div class="empty-diary">
-                <span class="empty-icon">??</span>
+                <span class="empty-icon">📭</span>
                 <p>Nenhum registro neste dia</p>
             </div>
         }
     </div>
 
     <div class="diary-card-actions">
-        <button class="btn btn-sm btn-primary" @onclick="OnAddMeal">??? Refei��o</button>
-        <button class="btn btn-sm btn-secondary" @onclick="OnAddWater">?? �gua</button>
+        <button class="btn btn-sm btn-primary" @onclick="OnAddMeal">➕ Refeição</button>
+        <button class="btn btn-sm btn-secondary" @onclick="OnAddWater">➕ Água</button>
+        <button class="btn btn-sm btn-danger" @onclick="() => OnDeleteDiary.InvokeAsync(Diary.Id)">🗑️ Excluir Diário</button>
     </div>
 </div>
 
 @code {
     [Parameter] public DiaryDTO Diary { get; set; } = default!;
-    [Parameter] public Action? OnAddMeal { get; set; }
-    [Parameter] public Action? OnAddWater { get; set; }
+    [Parameter] public EventCallback OnAddMeal { get; set; }
+    [Parameter] public EventCallback OnAddWater { get; set; }
     [Parameter] public Action<MealDTO>? OnEditMeal { get; set; }
     [Parameter] public Action<MealDTO>? OnAddFood { get; set; }
+
+    [Parameter] public EventCallback<int> OnDeleteDiary { get; set; }
+    [Parameter] public EventCallback<int> OnDeleteMeal { get; set; }
+    [Parameter] public EventCallback<int> OnDeleteLiquid { get; set; }
+    [Parameter] public EventCallback<int> OnDeleteMealFood { get; set; }
 }

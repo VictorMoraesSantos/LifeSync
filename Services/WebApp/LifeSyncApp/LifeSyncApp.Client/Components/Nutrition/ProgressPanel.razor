@@ -1,15 +1,15 @@
-@using LifeSyncApp.Client.Models.Nutrition
+﻿@using LifeSyncApp.Client.Models.Nutrition
 
 <div class="progress-panel">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">?? Progresso Di�rio</h3>
-            <button class="btn btn-sm btn-secondary" @onclick="OnEditGoals">?? Metas</button>
+            <h3 class="card-title">📈 Progresso Diário</h3>
+            <button class="btn btn-sm btn-secondary" @onclick="OnEditGoals">⚙️ Metas</button>
         </div>
         <div class="card-body">
             <div class="progress-item">
                 <div class="progress-header">
-                    <span class="progress-label">?? Calorias</span>
+                    <span class="progress-label">🔥 Calorias</span>
                     <span class="progress-values">
                         <strong>@CurrentCalories</strong> / @GoalCalories kcal
                     </span>
@@ -23,7 +23,7 @@
 
             <div class="progress-item">
                 <div class="progress-header">
-                    <span class="progress-label">?? Hidrata��o</span>
+                    <span class="progress-label">💧 Hidratação</span>
                     <span class="progress-values">
                         <strong>@CurrentLiters.ToString("0.0")</strong> / @GoalLiters.ToString("0.0") L
                     </span>
@@ -37,14 +37,14 @@
 
             <div class="quick-stats">
                 <div class="stat-item">
-                    <span class="stat-icon">???</span>
+                    <span class="stat-icon">🍽️</span>
                     <div class="stat-info">
                         <span class="stat-value">@TotalMeals</span>
-                        <span class="stat-label">Refei��es</span>
+                        <span class="stat-label">Refeições</span>
                     </div>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-icon">??</span>
+                    <span class="stat-icon">📅</span>
                     <div class="stat-info">
                         <span class="stat-value">@TotalDays</span>
                         <span class="stat-label">Dias</span>
@@ -56,24 +56,24 @@
 
     <div class="card water-shortcuts">
         <div class="card-header">
-            <h3 class="card-title">?? Adicionar �gua</h3>
+            <h3 class="card-title">💧 Adicionar Água</h3>
         </div>
         <div class="card-body">
             <div class="water-buttons">
                 <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(250))">
-                    <span class="water-icon">??</span>
+                    <span class="water-icon">🥤</span>
                     <span>250ml</span>
                 </button>
                 <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(500))">
-                    <span class="water-icon">????</span>
+                    <span class="water-icon">🥤</span>
                     <span>500ml</span>
                 </button>
                 <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(750))">
-                    <span class="water-icon">??????</span>
+                    <span class="water-icon">🥤</span>
                     <span>750ml</span>
                 </button>
                 <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(1000))">
-                    <span class="water-icon">??</span>
+                    <span class="water-icon">💦</span>
                     <span>1L</span>
                 </button>
             </div>
@@ -91,11 +91,11 @@
     [Parameter] public Action? OnEditGoals { get; set; }
     [Parameter] public Func<int, Task>? OnAddWater { get; set; }
 
-    private int CaloriesPercentage => GoalCalories > 0 
-        ? Math.Clamp((int)Math.Round(CurrentCalories / (decimal)GoalCalories * 100), 0, 100) 
+    private int CaloriesPercentage => GoalCalories > 0
+        ? Math.Clamp((int)Math.Round(CurrentCalories / (decimal)GoalCalories * 100), 0, 100)
         : 0;
 
-    private int LiquidsPercentage => GoalLiters > 0 
-        ? Math.Clamp((int)Math.Round(CurrentLiters / GoalLiters * 100), 0, 100) 
+    private int LiquidsPercentage => GoalLiters > 0
+        ? Math.Clamp((int)Math.Round(CurrentLiters / GoalLiters * 100), 0, 100)
         : 0;
 }

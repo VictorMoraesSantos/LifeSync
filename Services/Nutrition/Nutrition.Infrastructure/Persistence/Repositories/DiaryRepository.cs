@@ -95,7 +95,8 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
 
         public async Task Update(Diary entity, CancellationToken cancellationToken = default)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            // Use Update to ensure EF Core tracks and inserts new child entities (meals, liquids)
+            _context.Diaries.Update(entity);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
