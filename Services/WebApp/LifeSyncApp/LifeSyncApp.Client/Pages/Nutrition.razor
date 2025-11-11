@@ -2,6 +2,7 @@
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.Nutrition
 @using LifeSyncApp.Client.Components.Nutrition
+@using LifeSyncApp.Client.Shared.Enums
 @using Syncfusion.Blazor.Popups
 @inject INutritionService NutritionService
 @using System.Security.Claims
@@ -46,24 +47,7 @@
             }
             else if (allDiaries.Any())
             {
-                <div class="filter-buttons" style="margin-bottom: 1.5rem;">
-                    <button class="filter-btn @(selectedDateFilter == DateFilter.All ? "active" : "")"
-                            @onclick="() => FilterByDate(DateFilter.All)">
-                        📋 Todos
-                    </button>
-                    <button class="filter-btn @(selectedDateFilter == DateFilter.Today ? "active" : "")"
-                            @onclick="() => FilterByDate(DateFilter.Today)">
-                        ☀️ Hoje
-                    </button>
-                    <button class="filter-btn @(selectedDateFilter == DateFilter.ThisWeek ? "active" : "")"
-                            @onclick="() => FilterByDate(DateFilter.ThisWeek)">
-                        📆 Esta Semana
-                    </button>
-                    <button class="filter-btn @(selectedDateFilter == DateFilter.ThisMonth ? "active" : "")"
-                            @onclick="() => FilterByDate(DateFilter.ThisMonth)">
-                        🗓️ Este Mês
-                    </button>
-                </div>
+                <DateFilters @bind-SelectedFilter="selectedDateFilter" />
 
                 <div class="diaries-container">
                     @foreach (var dateGroup in GetGroupedDiaries())
@@ -75,14 +59,14 @@
                             @foreach (var diary in dateGroup.Value)
                             {
                                 <DiaryCard Diary="@diary"
-                                           OnAddMeal="@(() => OpenAddMealDialog(diary))"
-                                           OnAddWater="@(() => OpenAddWaterDialog(diary))"
-                                           OnEditMeal="@((meal) => EditMeal(meal))"
-                                           OnAddFood="@((meal) => OpenAddFoodDialog(meal))"
-                                           OnDeleteDiary="@((id) => DeleteDiary(id))"
-                                           OnDeleteMeal="@((id) => DeleteMeal(id))"
-                                           OnDeleteLiquid="@((id) => DeleteLiquid(id))"
-                                           OnDeleteMealFood="@((id) => DeleteMealFood(id))" />
+                                           OnAddMeal="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create(this, () => OpenAddMealDialog(diary)))"
+                                           OnAddWater="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create(this, () => OpenAddWaterDialog(diary)))"
+                                           OnEditMeal="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<LifeSyncApp.Client.Models.Nutrition.MealDTO>(this, (LifeSyncApp.Client.Models.Nutrition.MealDTO meal) => EditMeal(meal)))"
+                                           OnAddFood="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<LifeSyncApp.Client.Models.Nutrition.MealDTO>(this, (LifeSyncApp.Client.Models.Nutrition.MealDTO meal) => OpenAddFoodDialog(meal)))"
+                                           OnDeleteDiary="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<int>(this, (int id) => DeleteDiary(id)))"
+                                           OnDeleteMeal="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<int>(this, (int id) => DeleteMeal(id)))"
+                                           OnDeleteLiquid="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<int>(this, (int id) => DeleteLiquid(id)))"
+                                           OnDeleteMealFood="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<int>(this, (int id) => DeleteMealFood(id)))" />
                             }
                         </div>
                     }
@@ -121,8 +105,16 @@
 
     <GoalDialog Visible="showGoalDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showGoalDialog = v))" InitialGoal="@(todayProgressId.HasValue ? new DailyGoalDTO(goalCalories, goalMl) : null)" OnSaveGoal="HandleSaveGoal" />
 
-    <!-- Dialog de Adicionar Refeição -->
-    <AddMealDialog Visible="showAddMealDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showAddMealDialog = v))" DiaryId="@(selectedDiary?.Id ?? 0)" OnSubmit="OnAddMealSubmit" />
+    <!-- Dialog de Adicionar Refeição (create or edit) -->
+    <AddMealDialog Visible="showAddMealDialog"
+                   VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showAddMealDialog = v))"
+                   DiaryId="@(selectedDiary?.Id ?? 0)"
+                   MealId="@(selectedMeal?.Id)"
+                   InitialName="@(selectedMeal?.Name)"
+                   InitialDescription="@(selectedMeal?.Description)"
+                   OnSubmit="OnAddMealSubmit"
+                   OnUpdate="OnUpdateMealSubmit">
+    </AddMealDialog>
 
     <!-- Dialog de Adicionar Alimento -->
     <AddFoodDialog Visible="showAddFoodDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showAddFoodDialog = v))" MealId="@(selectedMeal?.Id ?? 0)" OnSubmit="OnAddFoodSubmit" />
@@ -135,7 +127,7 @@
     [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
     private int? _userId;
 
-    private enum DateFilter { All, Today, ThisWeek, ThisMonth }
+    private DateFilter selectedDateFilter = DateFilter.All;
 
     class MealModel
     {
@@ -165,9 +157,6 @@
     private int goalMl = 2500;
     private int? todayProgressId = null;
 
-    // Filtros
-    private DateFilter selectedDateFilter = DateFilter.All;
-
     // Dialogs
     private bool showGoalDialog = false;
     private bool showAddMealDialog = false;
@@ -178,7 +167,7 @@
     private MealModel mealModel = new();
     private FoodModel foodModel = new();
     private DiaryDTO? selectedDiary = null;
-    private MealDTO? selectedMeal = null;
+    private LifeSyncApp.Client.Models.Nutrition.MealDTO? selectedMeal = null;
     private string waterName = "Água";
     private int waterQuantity = 250;
 
@@ -220,11 +209,6 @@
             todayDiary = allDiaries.FirstOrDefault(d => d.Date == today);
         }
         isLoadingMeals = false;
-    }
-
-    private void FilterByDate(DateFilter filter)
-    {
-        selectedDateFilter = filter;
     }
 
     private IEnumerable<DiaryDTO> GetFilteredDiaries()
@@ -313,7 +297,18 @@
     private void OpenAddMealDialog(DiaryDTO diary)
     {
         selectedDiary = diary;
+        selectedMeal = null;
         mealModel = new MealModel();
+        showAddMealDialog = true;
+        this.StateHasChanged();
+    }
+
+    // Open dialog to edit an existing meal
+    private void EditMeal(LifeSyncApp.Client.Models.Nutrition.MealDTO meal)
+    {
+        selectedMeal = meal;
+        // select the parent diary so DiaryId param remains meaningful when adding new meals
+        selectedDiary = allDiaries.FirstOrDefault(d => d.Meals.Any(m => m.Id == meal.Id));
         showAddMealDialog = true;
         this.StateHasChanged();
     }
@@ -328,13 +323,27 @@
         this.StateHasChanged();
     }
 
-    private void EditMeal(MealDTO meal)
+    private async Task OnAddMealSubmit(LifeSyncApp.Client.Models.Nutrition.Meal.CreateMealDTO dto)
     {
-        // TODO: Implementar edição de refeição
-        Console.WriteLine($"Edit meal: {meal.Name}");
+        var cmd = new CreateMealCommand(dto.DiaryId, dto.Name, dto.Description);
+        var res = await NutritionService.AddMealAsync(cmd);
+        Console.WriteLine($"[Nutrition] AddMeal response: Success={res.Success}; Errors={string.Join(';', res.Errors ?? new string[0])}");
+        await LoadNutritionData();
     }
 
-    private void OpenAddFoodDialog(MealDTO meal)
+    private async Task OnUpdateMealSubmit(LifeSyncApp.Client.Models.Nutrition.Meal.UpdateMealDTO dto)
+    {
+        var res = await NutritionService.UpdateMealAsync(dto);
+        Console.WriteLine($"[Nutrition] UpdateMeal response: Success={res.Success}; Errors={string.Join(';', res.Errors ?? new string[0])}");
+        if (res.Success)
+        {
+            await LoadNutritionData();
+        }
+        showAddMealDialog = false;
+        selectedMeal = null;
+    }
+
+    private void OpenAddFoodDialog(LifeSyncApp.Client.Models.Nutrition.MealDTO meal)
     {
         selectedMeal = meal;
         foodModel = new FoodModel();
@@ -428,14 +437,6 @@
         if (todayProgressId is null) return;
         await NutritionService.SetGoalAsync(todayProgressId.Value, goal);
         await EnsureDailyProgress();
-    }
-
-    private async Task OnAddMealSubmit(LifeSyncApp.Client.Models.Nutrition.Meal.CreateMealDTO dto)
-    {
-        var cmd = new CreateMealCommand(dto.DiaryId, dto.Name, dto.Description);
-        var res = await NutritionService.AddMealAsync(cmd);
-        Console.WriteLine($"[Nutrition] AddMeal response: Success={res.Success}; Errors={string.Join(';', res.Errors ?? new string[0])}");
-        await LoadNutritionData();
     }
 
     private async Task OnAddFoodSubmit(LifeSyncApp.Client.Models.Nutrition.MealFood.CreateMealFoodDTO dto)

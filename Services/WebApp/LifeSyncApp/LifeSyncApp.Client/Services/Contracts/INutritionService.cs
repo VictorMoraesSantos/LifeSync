@@ -1,6 +1,7 @@
 ﻿using LifeSyncApp.Client.Models;
 using LifeSyncApp.Client.Models.Nutrition;
 using LifeSyncApp.Client.Models.Nutrition.MealFood;
+using FlatMealDTO = LifeSyncApp.Client.Models.Nutrition.MealDTO;
 
 namespace LifeSyncApp.Client.Services.Contracts
 {
@@ -19,7 +20,7 @@ namespace LifeSyncApp.Client.Services.Contracts
         Task<ApiResponse<object>> DeleteMealFoodAsync(int id);
 
         Task<ApiResponse<List<DiaryDTO>>> SearchDiariesAsync(object filter);
-        Task<ApiResponse<List<MealDTO>>> SearchMealsAsync(object filter);
+        Task<ApiResponse<List<FlatMealDTO>>> SearchMealsAsync(object filter);
         Task<ApiResponse<List<LiquidDTO>>> SearchLiquidsAsync(object filter);
         Task<ApiResponse<List<DiaryDTO>>> GetDiariesByUserAsync(int userId);
 
@@ -31,5 +32,8 @@ namespace LifeSyncApp.Client.Services.Contracts
 
         // Meal food update
         Task<ApiResponse<bool>> UpdateMealFoodAsync(int id, UpdateMealFoodRequest request);
+
+        // Meal update - fully-qualified client DTO to avoid ambiguity
+        Task<ApiResponse<bool>> UpdateMealAsync(LifeSyncApp.Client.Models.Nutrition.Meal.UpdateMealDTO command);
     }
 }

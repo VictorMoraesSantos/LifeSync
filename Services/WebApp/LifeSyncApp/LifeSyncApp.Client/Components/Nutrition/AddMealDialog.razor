@@ -3,7 +3,7 @@
 
 <SfDialog Visible="Visible" VisibleChanged="VisibleChanged" Width="520px" IsModal="true" Position="Center" AppendTo="body">
     <DialogTemplates>
-        <Header>🍽️ Nova Refeição</Header>
+        <Header>@(MealId.HasValue ? "✏️ Editar Refeição" : "🍽️ Nova Refeição")</Header>
         <Content>
             <EditForm Model="model" OnValidSubmit="HandleSubmit" FormName="mealForm">
                 <div class="form-group">
@@ -16,7 +16,7 @@
                 </div>
                 <div style="display:flex;justify-content:flex-end;gap:.5rem;">
                     <button type="button" class="btn btn-secondary" @onclick="Cancel">❌ Cancelar</button>
-                    <button type="submit" class="btn btn-primary">➕ Adicionar</button>
+                    <button type="submit" class="btn btn-primary">@(MealId.HasValue ? "💾 Salvar" : "➕ Adicionar")</button>
                 </div>
             </EditForm>
         </Content>
@@ -27,7 +27,14 @@
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public int DiaryId { get; set; }
+
+    // Optional editing parameters
+    [Parameter] public int? MealId { get; set; }
+    [Parameter] public string? InitialName { get; set; }
+    [Parameter] public string? InitialDescription { get; set; }
+
     [Parameter] public EventCallback<CreateMealDTO> OnSubmit { get; set; }
+    [Parameter] public EventCallback<LifeSyncApp.Client.Models.Nutrition.Meal.UpdateMealDTO> OnUpdate { get; set; }
 
     private MealInput model = new();
 
@@ -37,17 +44,46 @@
         public string Description { get; set; } = string.Empty;
     }
 
+    protected override void OnParametersSet()
+    {
+        // Populate model when opening for edit
+        if (MealId.HasValue)
+        {
+            model.Name = InitialName ?? string.Empty;
+            model.Description = InitialDescription ?? string.Empty;
+        }
+        else
+        {
+            // when creating, ensure DiaryId is set externally and model is fresh when opening
+        }
+    }
+
     private async Task HandleSubmit()
     {
-        var dto = new CreateMealDTO(DiaryId, model.Name, model.Description);
-        await OnSubmit.InvokeAsync(dto);
+        if (MealId.HasValue)
+        {
+            var dto = new LifeSyncApp.Client.Models.Nutrition.Meal.UpdateMealDTO(MealId.Value, model.Name, model.Description);
+            await OnUpdate.InvokeAsync(dto);
+        }
+        else
+        {
+            var dto = new CreateMealDTO(DiaryId, model.Name, model.Description);
+            await OnSubmit.InvokeAsync(dto);
+        }
+
         model = new MealInput();
+        MealId = null;
+        InitialName = null;
+        InitialDescription = null;
         await VisibleChanged.InvokeAsync(false);
     }
 
     private async Task Cancel()
     {
         model = new MealInput();
+        MealId = null;
+        InitialName = null;
+        InitialDescription = null;
         await VisibleChanged.InvokeAsync(false);
     }
 }

@@ -1629,3 +1629,73 @@ html, body {
     background: rgba(0, 0, 0, 0.7) !important;
 }
 
+/* Dialog / Modal form improvements */
+.e-dlg-content .form-group,
+.e-dialog .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    margin-bottom: .75rem;
+}
+
+.e-dlg-content .form-label,
+.e-dialog .form-label {
+    margin-bottom: .25rem;
+    color: var(--text-secondary);
+    font-size: .9rem;
+}
+
+.e-dlg-content .form-control,
+.e-dialog .form-control,
+.e-dlg-content input,
+.e-dlg-content textarea,
+.e-dlg-content select,
+.e-dialog input,
+.e-dialog textarea,
+.e-dialog select {
+    width: 100% !important;
+    box-sizing: border-box;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: .45rem .6rem;
+}
+
+/* Smaller inputs used in inline rows inside dialogs */
+.e-dlg-content .form-row,
+.e-dialog .form-row {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+}
+
+.e-dlg-content .form-row .form-control,
+.e-dialog .form-row .form-control {
+    width: auto;
+    flex: 1 1 auto;
+}
+
+/* Footer/action buttons alignment inside dialog */
+.e-dlg-content .dlg-actions,
+.e-dialog .dlg-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    padding-top: .5rem;
+}
+
+/* Ensure dialog templates content spacing looks consistent */
+.e-dlg-content {
+    padding: 1rem !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 520px) {
+    .e-dlg-content .form-row,
+    .e-dialog .form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+

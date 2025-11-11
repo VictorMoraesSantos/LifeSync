@@ -23,7 +23,7 @@
                             <span class="meal-name">🍛 @meal.Name</span>
                             <div style="display:flex;gap:.5rem;align-items:center;">
                                 <span class="badge badge-success">🔥 @meal.TotalCalories kcal</span>
-                                <button class="btn btn-sm btn-secondary" @onclick="() => OnEditMeal?.Invoke(meal)">✏️ Editar</button>
+                                <button class="btn btn-sm btn-secondary" @onclick="() => OnEditMeal.InvokeAsync(meal)">✏️ Editar</button>
                                 <button class="btn btn-sm btn-danger" @onclick="() => OnDeleteMeal.InvokeAsync(meal.Id)">🗑️ Excluir</button>
                             </div>
                         </div>
@@ -41,7 +41,7 @@
                             </div>
                         }
                         <div class="meal-actions">
-                            <button class="btn btn-sm btn-primary" @onclick="() => OnAddFood?.Invoke(meal)">➕ Alimento</button>
+                            <button class="btn btn-sm btn-primary" @onclick="() => OnAddFood.InvokeAsync(meal)">➕ Alimento</button>
                         </div>
                     </div>
                 }
@@ -82,8 +82,8 @@
     </div>
 
     <div class="diary-card-actions">
-        <button class="btn btn-sm btn-primary" @onclick="OnAddMeal">➕ Refeição</button>
-        <button class="btn btn-sm btn-secondary" @onclick="OnAddWater">➕ Água</button>
+        <button class="btn btn-sm btn-primary" @onclick="() => OnAddMeal.InvokeAsync(null)">➕ Refeição</button>
+        <button class="btn btn-sm btn-secondary" @onclick="() => OnAddWater.InvokeAsync(null)">➕ Água</button>
         <button class="btn btn-sm btn-danger" @onclick="() => OnDeleteDiary.InvokeAsync(Diary.Id)">🗑️ Excluir Diário</button>
     </div>
 </div>
@@ -92,8 +92,8 @@
     [Parameter] public DiaryDTO Diary { get; set; } = default!;
     [Parameter] public EventCallback OnAddMeal { get; set; }
     [Parameter] public EventCallback OnAddWater { get; set; }
-    [Parameter] public Action<MealDTO>? OnEditMeal { get; set; }
-    [Parameter] public Action<MealDTO>? OnAddFood { get; set; }
+    [Parameter] public EventCallback<global::LifeSyncApp.Client.Models.Nutrition.MealDTO> OnEditMeal { get; set; }
+    [Parameter] public EventCallback<global::LifeSyncApp.Client.Models.Nutrition.MealDTO> OnAddFood { get; set; }
 
     [Parameter] public EventCallback<int> OnDeleteDiary { get; set; }
     [Parameter] public EventCallback<int> OnDeleteMeal { get; set; }

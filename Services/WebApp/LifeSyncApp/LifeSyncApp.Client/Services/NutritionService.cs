@@ -3,6 +3,7 @@ using LifeSyncApp.Client.Models.Nutrition;
 using LifeSyncApp.Client.Models.Nutrition.MealFood;
 using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
+using FlatMealDTO = LifeSyncApp.Client.Models.Nutrition.MealDTO;
 
 namespace LifeSyncApp.Client.Services
 {
@@ -175,17 +176,17 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<List<MealDTO>>> SearchMealsAsync(object filter)
+        public async Task<ApiResponse<List<FlatMealDTO>>> SearchMealsAsync(object filter)
         {
             try
             {
                 var query = QueryStringHelper.ToQueryString(filter);
-                var res = await _apiClient.GetAsync<ApiResponse<List<MealDTO>>>($"nutrition-service/api/meals/search{query}");
-                return res ?? new ApiResponse<List<MealDTO>> { Success = false };
+                var res = await _apiClient.GetAsync<ApiResponse<List<FlatMealDTO>>>($"nutrition-service/api/meals/search{query}");
+                return res ?? new ApiResponse<List<FlatMealDTO>> { Success = false };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<List<MealDTO>> { Success = false, Errors = new[] { ex.Message } };
+                return new ApiResponse<List<FlatMealDTO>> { Success = false, Errors = new[] { ex.Message } };
             }
         }
 
@@ -277,6 +278,19 @@ namespace LifeSyncApp.Client.Services
             {
                 // Endpoint: PUT api/meal-foods/{id}
                 var res = await _apiClient.PutAsync<UpdateMealFoodRequest, ApiResponse<bool>>($"nutrition-service/api/meal-foods/{id}", request);
+                return res ?? new ApiResponse<bool> { Success = false };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool> { Success = false, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> UpdateMealAsync(LifeSyncApp.Client.Models.Nutrition.Meal.UpdateMealDTO command)
+        {
+            try
+            {
+                var res = await _apiClient.PutAsync<LifeSyncApp.Client.Models.Nutrition.Meal.UpdateMealDTO, ApiResponse<bool>>($"nutrition-service/api/meals/{command.Id}", command);
                 return res ?? new ApiResponse<bool> { Success = false };
             }
             catch (Exception ex)

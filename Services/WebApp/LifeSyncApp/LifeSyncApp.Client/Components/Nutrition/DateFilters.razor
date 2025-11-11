@@ -1,0 +1,33 @@
+﻿@using Microsoft.AspNetCore.Components
+@using LifeSyncApp.Client.Shared.Enums
+
+<div class="filter-buttons" style="margin-bottom: 1.5rem;">
+    <button class="filter-btn @(SelectedFilter == DateFilter.All ? "active" : "")"
+            @onclick="() => Select(DateFilter.All)">
+        📋 Todos
+    </button>
+    <button class="filter-btn @(SelectedFilter == DateFilter.Today ? "active" : "")"
+            @onclick="() => Select(DateFilter.Today)">
+        ☀️ Hoje
+    </button>
+    <button class="filter-btn @(SelectedFilter == DateFilter.ThisWeek ? "active" : "")"
+            @onclick="() => Select(DateFilter.ThisWeek)">
+        📆 Esta Semana
+    </button>
+    <button class="filter-btn @(SelectedFilter == DateFilter.ThisMonth ? "active" : "")"
+            @onclick="() => Select(DateFilter.ThisMonth)">
+        🗓️ Este Mês
+    </button>
+</div>
+
+@code {
+    [Parameter] public DateFilter SelectedFilter { get; set; }
+    [Parameter] public EventCallback<DateFilter> SelectedFilterChanged { get; set; }
+
+    private Task Select(DateFilter value)
+    {
+        if (SelectedFilter != value)
+            return SelectedFilterChanged.InvokeAsync(value);
+        return Task.CompletedTask;
+    }
+}
