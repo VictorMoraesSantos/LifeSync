@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
@@ -9,15 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.10" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.10" />
-    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="31.2.5" />
-    <PackageReference Include="Syncfusion.Blazor.Cards" Version="31.2.5" />
-    <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="31.2.5" />
-    <PackageReference Include="Syncfusion.Blazor.Grid" Version="31.2.5" />
-    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="31.2.5" />
-    <PackageReference Include="Syncfusion.Blazor.Navigations" Version="31.2.5" />
-    <PackageReference Include="Syncfusion.Blazor.Themes" Version="31.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0" />
+    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="31.2.10" />
+    <PackageReference Include="Syncfusion.Blazor.Cards" Version="31.2.10" />
+    <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="31.2.10" />
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="31.2.10" />
+    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="31.2.10" />
+    <PackageReference Include="Syncfusion.Blazor.Navigations" Version="31.2.10" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="31.2.10" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
 
