@@ -20,6 +20,33 @@
     <LifeSyncApp.Client.Routes @rendermode="new InteractiveWebAssemblyRenderMode(false)" />
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/Syncfusion.Blazor.Core/scripts/syncfusion-blazor.min.js" type="text/javascript"></script>
+
+    <script>
+        // Development helper: remove Syncfusion trial/banner element injected at runtime
+        // This is a convenience for local/dev only. For production, register a valid Syncfusion license.
+        (function () {
+            try {
+                var textMatcher = function (el) {
+                    if (!el || !el.textContent) return false;
+                    var txt = el.textContent.trim();
+                    return txt.indexOf('This application was built using a trial version of Syncfusion') !== -1 || txt.indexOf('Syncfusion') !== -1 && txt.indexOf('trial') !== -1;
+                };
+
+                // Query likely hosts and remove matching nodes after a short delay to let Syncfusion inject banner
+                setTimeout(function () {
+                    var all = document.body.querySelectorAll('*');
+                    for (var i = 0; i < all.length; i++) {
+                        var node = all[i];
+                        try {
+                            if (textMatcher(node)) {
+                                node.remove();
+                            }
+                        } catch (e) { /* ignore individual removals */ }
+                    }
+                }, 500);
+            } catch (e) { console.warn('cleanup script error', e); }
+        })();
+    </script>
 </body>
 
 </html>

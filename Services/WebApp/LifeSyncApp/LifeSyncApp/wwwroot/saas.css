@@ -22,7 +22,8 @@
 html, body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Inter', Helvetica, Arial, sans-serif;
+    /* include emoji-capable fallbacks so icons like emojis render across platforms */
+    font-family: 'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', Helvetica, Arial, sans-serif;
 }
 
 /* Layout */
@@ -1611,6 +1612,7 @@ html, body {
     border: 1px solid var(--border) !important;
     border-radius: var(--radius) !important;
     box-shadow: var(--shadow) !important;
+    z-index: 100000 !important;
 }
 
 .e-dlg-header {
@@ -1626,6 +1628,8 @@ html, body {
 
 /* Backdrop escuro */
 .e-dlg-overlay {
+    position: fixed !important;
+    z-index: 99999 !important;
     background: rgba(0, 0, 0, 0.7) !important;
 }
 

@@ -1,0 +1,49 @@
+﻿@using LifeSyncApp.Client.Models.Financial.Transaction
+@using LifeSyncApp.Client.Models.Financial
+@using Microsoft.AspNetCore.Components
+
+<div class="filter-buttons" style="margin-bottom: 1rem;">
+    <button class="filter-btn @(ActiveTypeFilter == null ? "active" : "")"
+            @onclick="() => OnTypeChanged.InvokeAsync(null)">
+        📋 Todas
+    </button>
+    <button class="filter-btn @(ActiveTypeFilter == TransactionType.Income ? "active" : "")"
+            @onclick="() => OnTypeChanged.InvokeAsync(TransactionType.Income)">
+        💵 Receitas
+    </button>
+    <button class="filter-btn @(ActiveTypeFilter == TransactionType.Expense ? "active" : "")"
+            @onclick="() => OnTypeChanged.InvokeAsync(TransactionType.Expense)">
+        💸 Despesas
+    </button>
+</div>
+
+<div class="filter-buttons">
+    <button class="filter-btn @(ActivePaymentFilter == null ? "active" : "")"
+            @onclick="() => OnPaymentChanged.InvokeAsync(null)">
+        💳 Todos os Métodos
+    </button>
+    <button class="filter-btn @(ActivePaymentFilter == PaymentMethod.Cash ? "active" : "")"
+            @onclick="() => OnPaymentChanged.InvokeAsync(PaymentMethod.Cash)">
+        💵 Dinheiro
+    </button>
+    <button class="filter-btn @(ActivePaymentFilter == PaymentMethod.CreditCard ? "active" : "")"
+            @onclick="() => OnPaymentChanged.InvokeAsync(PaymentMethod.CreditCard)">
+        💳 Crédito
+    </button>
+    <button class="filter-btn @(ActivePaymentFilter == PaymentMethod.DebitCard ? "active" : "")"
+            @onclick="() => OnPaymentChanged.InvokeAsync(PaymentMethod.DebitCard)">
+        🏧 Débito
+    </button>
+    <button class="filter-btn @(ActivePaymentFilter == PaymentMethod.Pix ? "active" : "")"
+            @onclick="() => OnPaymentChanged.InvokeAsync(PaymentMethod.Pix)">
+        ⚡ PIX
+    </button>
+</div>
+
+@code {
+    [Parameter] public TransactionType? ActiveTypeFilter { get; set; }
+    [Parameter] public PaymentMethod? ActivePaymentFilter { get; set; }
+
+    [Parameter] public EventCallback<TransactionType?> OnTypeChanged { get; set; }
+    [Parameter] public EventCallback<PaymentMethod?> OnPaymentChanged { get; set; }
+}

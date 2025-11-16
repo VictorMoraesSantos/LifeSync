@@ -1,0 +1,79 @@
+﻿@using Microsoft.AspNetCore.Components
+@using LifeSyncApp.Client.Models.Financial.Category
+@using LifeSyncApp.Client.Components.Financial
+@using System.Collections.Generic
+@using Syncfusion.Blazor.Popups
+
+<SfDialog Visible="Visible" VisibleChanged="VisibleChanged" Width="620px" IsModal="true" Position="Center" AppendTo="body">
+    <DialogTemplates>
+        <Header>🏷️ Gerenciar Categorias</Header>
+        <Content>
+            <div class="form-group">
+                <label class="form-label">🏷️ Nome</label>
+                <InputText @bind-Value="CategoryModel.Name" class="form-control" placeholder="Ex: Alimentação, Transporte..." />
+            </div>
+            <div class="form-group">
+                <label class="form-label">📝 Descrição</label>
+                <InputText @bind-Value="CategoryModel.Description" class="form-control" placeholder="Descrição opcional" />
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="() => Close()">✖️ Fechar</button>
+                <button class="btn btn-primary" @onclick="Create">➕ Adicionar Categoria</button>
+            </div>
+
+            <div class="card" style="margin-top:1rem;">
+                <div class="card-header"><h3 class="card-title">🏷️ Minhas categorias</h3></div>
+                <div class="card-body">
+                    @if (Categories.Any())
+                    {
+                        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                            @foreach (var c in Categories)
+                            {
+                                <div style="display:flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.35rem .5rem;border-radius:10px;">
+                                    <span class="badge badge-primary">@c.Name</span>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => Delete(c.Id)">🗑️ Excluir</button>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span style="color:var(--text-tertiary);">Nenhuma categoria criada</span>
+                    }
+                </div>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter] public CategoryEditModel CategoryModel { get; set; } = new CategoryEditModel();
+    [Parameter] public List<CategoryDTO> Categories { get; set; } = new();
+
+    [Parameter] public EventCallback OnCreate { get; set; }
+    [Parameter] public EventCallback<int> OnDelete { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        // when opened ensure model is initialized to avoid stale state
+        CategoryModel ??= new CategoryEditModel();
+    }
+
+    private async Task Create()
+    {
+        await OnCreate.InvokeAsync(null);
+    }
+
+    private async Task Delete(int id)
+    {
+        await OnDelete.InvokeAsync(id);
+    }
+
+    private async Task Close()
+    {
+        await VisibleChanged.InvokeAsync(false);
+    }
+}

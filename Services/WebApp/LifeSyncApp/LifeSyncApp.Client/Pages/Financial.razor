@@ -1,4 +1,4 @@
-@page "/financial"
+Ôªø@page "/financial"
 @using LifeSyncApp.Client.Services
 @using LifeSyncApp.Client.Models.Financial
 @using LifeSyncApp.Client.Models.Financial.Category
@@ -11,274 +11,106 @@
 <PageTitle>Financeiro - LifeSync</PageTitle>
 
 <RedirectToLogin>
-<PageHeader Title="Financeiro" Description="Controle suas finanÁas pessoais">
-    <Actions>
-        <div style="display:flex;gap:.5rem;">
-            <button class="btn btn-secondary" @onclick="OpenCategoriesDialog">??? Gerenciar Categorias</button>
-            <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                ? Nova TransaÁ„o
-            </button>
-        </div>
-    </Actions>
-</PageHeader>
-
-<div class="stats-grid">
-    <StatCard Label="Receitas" Value=@($"R$ {totalIncome.ToString("N2")}") IconStyle="success" IconText="??">
-        <div class="stat-change positive">+@incomeCount transaÁıes</div>
-    </StatCard>
-
-    <StatCard Label="Despesas" Value=@($"R$ {totalExpenses.ToString("N2")}") IconStyle="error" IconText="??">
-        <div class="stat-change negative">-@expensesCount transaÁıes</div>
-    </StatCard>
-
-    <StatCard Label="Saldo" Value=@($"R$ {balance.ToString("N2")}") IconStyle="@(balance >= 0 ? "primary" : "warning")" IconText="??">
-        <div class="stat-change @(balance >= 0 ? "positive" : "negative")">@(balance >= 0 ? "Positivo" : "Negativo")</div>
-    </StatCard>
-
-    <StatCard Label="Total TransaÁıes" Value="@(transactions.Count.ToString())" IconStyle="secondary" IconText="??" />
-</div>
-
-<div class="card">
-    <div class="card-body">
-        @if (isLoading)
-        {
-            <div style="text-align: center; padding: 3rem;">
-                <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
-                <p style="margin-top: 1rem;">Carregando transaÁıes...</p>
-            </div>
-        }
-        else if (transactions.Any())
-        {
-            <div class="filter-buttons" style="margin-bottom: 1rem;">
-                <button class="filter-btn @(activeTypeFilter == null ? "active" : "")"
-                        @onclick="() => FilterByType(null)">
-                    ?? Todas
-                </button>
-                <button class="filter-btn @(activeTypeFilter == TransactionType.Income ? "active" : "")"
-                        @onclick="() => FilterByType(TransactionType.Income)">
-                    ?? Receitas
-                </button>
-                <button class="filter-btn @(activeTypeFilter == TransactionType.Expense ? "active" : "")"
-                        @onclick="() => FilterByType(TransactionType.Expense)">
-                    ?? Despesas
-                </button>
-            </div>
-
-            <div class="filter-buttons">
-                <button class="filter-btn @(activePaymentFilter == null ? "active" : "")"
-                        @onclick="() => FilterByPayment(null)">
-                    ?? Todos os MÈtodos
-                </button>
-                <button class="filter-btn @(activePaymentFilter == PaymentMethod.Cash ? "active" : "")"
-                        @onclick="() => FilterByPayment(PaymentMethod.Cash)">
-                    ?? Dinheiro
-                </button>
-                <button class="filter-btn @(activePaymentFilter == PaymentMethod.CreditCard ? "active" : "")"
-                        @onclick="() => FilterByPayment(PaymentMethod.CreditCard)">
-                    ?? CrÈdito
-                </button>
-                <button class="filter-btn @(activePaymentFilter == PaymentMethod.DebitCard ? "active" : "")"
-                        @onclick="() => FilterByPayment(PaymentMethod.DebitCard)">
-                    ?? DÈbito
-                </button>
-                <button class="filter-btn @(activePaymentFilter == PaymentMethod.Pix ? "active" : "")"
-                        @onclick="() => FilterByPayment(PaymentMethod.Pix)">
-                    ?? PIX
-                </button>
-            </div>
-
-            <div class="transactions-container">
-                @foreach (var monthGroup in GetGroupedTransactions())
-                {
-                    <div class="transactions-month-section">
-                        <div class="transactions-month-header">
-                            <div>
-                                ?? @FormatMonthHeader(monthGroup.Key)
-                            </div>
-                            <div class="month-summary">
-                                <span class="month-income">
-                                    ?? R$ @monthGroup.Value.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount).ToString("N2")
-                                </span>
-                                <span class="month-expense">
-                                    ?? R$ @monthGroup.Value.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount).ToString("N2")
-                                </span>
-                                <span class="month-balance @(GetMonthBalance(monthGroup.Value) >= 0 ? "month-income" : "month-expense")">
-                                    ?? R$ @GetMonthBalance(monthGroup.Value).ToString("N2")
-                                </span>
-                            </div>
-                        </div>
-                        <div class="transactions-grid">
-                            @foreach (var transaction in monthGroup.Value.OrderByDescending(t => t.TransactionDate))
-                            {
-                                <TransactionCard Transaction="@transaction"
-                                               OnEditClick="@(() => EditTransaction(transaction))"
-                                               OnDeleteClick="@(() => DeleteTransaction(transaction))" />
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div style="text-align: center; padding: 3rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">??</div>
-                <h3>Nenhuma transaÁ„o encontrada</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                    Comece registrando sua primeira transaÁ„o
-                </p>
+    <PageHeader Title="Financeiro" Description="Controle suas finan√ßas pessoais">
+        <Actions>
+            <div style="display:flex;gap:.5rem;">
+                <button class="btn btn-secondary" @onclick="() => showCategoriesDialog = true">üìÇ Gerenciar Categorias</button>
                 <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                    ? Nova TransaÁ„o
+                    ‚ûï Nova Transa√ß√£o
                 </button>
             </div>
-        }
+        </Actions>
+    </PageHeader>
+
+    <div class="stats-grid">
+        <StatCard Label="Receitas" Value=@($"R$ {totalIncome.ToString("N2")}") IconStyle="success" IconText="üí∞">
+            <div class="stat-change positive">+@incomeCount transa√ß√µes</div>
+        </StatCard>
+
+        <StatCard Label="Despesas" Value=@($"R$ {totalExpenses.ToString("N2")}") IconStyle="error" IconText="üí∏">
+            <div class="stat-change negative">-@expensesCount transa√ß√µes</div>
+        </StatCard>
+
+        <StatCard Label="Saldo" Value=@($"R$ {balance.ToString("N2")}") IconStyle="@(balance >= 0 ? "primary" : "warning")" IconText="‚öñÔ∏è">
+            <div class="stat-change @(balance >= 0 ? "positive" : "negative")">@(balance >= 0 ? "Positivo" : "Negativo")</div>
+        </StatCard>
+
+        <StatCard Label="Total Transa√ß√µes" Value="@(transactions.Count.ToString())" IconStyle="secondary" IconText="üßæ" />
     </div>
-</div>
 
-<SfDialog @bind-Visible="showDialog" Width="500px" IsModal="true">
-    <DialogTemplates>
-        <Header>@(editingTransaction == null ? "? Nova TransaÁ„o" : "?? Editar TransaÁ„o")</Header>
-        <Content>
-            <EditForm Model="editModel" OnValidSubmit="SaveTransaction" FormName="financialForm">
-                <div class="form-group">
-                    <label class="form-label">?? DescriÁ„o</label>
-                    <InputText @bind-Value="editModel.Description" class="form-control" placeholder="Ex: Sal·rio, Aluguel..." />
+    <div class="card">
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <p style="margin-top: 1rem;">Carregando transa√ß√µes...</p>
                 </div>
+            }
+            else if (transactions.Any())
+            {
+                <FinancialFilters ActiveTypeFilter="activeTypeFilter"
+                                  ActivePaymentFilter="activePaymentFilter"
+                                  OnTypeChanged="@(t => FilterByType(t))"
+                                  OnPaymentChanged="@(p => FilterByPayment(p))" />
 
-                <div class="form-group">
-                    <label class="form-label">?? Valor</label>
-                    <InputNumber @bind-Value="editModel.Amount" class="form-control" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">?? Moeda</label>
-                    <InputSelect @bind-Value="editModel.Currency" class="form-control">
-                        <option value="@Currency.BRL">???? Real (BRL)</option>
-                        <option value="@Currency.USD">???? DÛlar (USD)</option>
-                        <option value="@Currency.EUR">???? Euro (EUR)</option>
-                    </InputSelect>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">?? Tipo</label>
-                    <InputSelect @bind-Value="editModel.TransactionType" class="form-control">
-                        <option value="@TransactionType.Income">?? Receita</option>
-                        <option value="@TransactionType.Expense">?? Despesa</option>
-                    </InputSelect>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">??? Categoria</label>
-                    <InputSelect @bind-Value="editModel.CategoryId" class="form-control">
-                        <option value="">Sem categoria</option>
-                        @foreach (var c in categories)
-                        {
-                            <option value="@c.Id">@c.Name</option>
-                        }
-                    </InputSelect>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">?? MÈtodo de Pagamento</label>
-                    <InputSelect @bind-Value="editModel.PaymentMethod" class="form-control">
-                        <option value="@PaymentMethod.Cash">?? Dinheiro</option>
-                        <option value="@PaymentMethod.CreditCard">?? Cart„o de CrÈdito</option>
-                        <option value="@PaymentMethod.DebitCard">?? Cart„o de DÈbito</option>
-                        <option value="@PaymentMethod.BankTransfer">?? TransferÍncia</option>
-                        <option value="@PaymentMethod.Pix">?? PIX</option>
-                        <option value="@PaymentMethod.Other">?? Outro</option>
-                    </InputSelect>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">?? Data</label>
-                    <InputDate @bind-Value="editModel.TransactionDate" class="form-control" />
-                </div>
-
-                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <InputCheckbox @bind-Value="editModel.IsRecurring" id="recurring-check" />
-                    <label class="form-label" for="recurring-check" style="margin: 0;">?? Recorrente</label>
-                </div>
-
-                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseDialog">
-                        ? Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        @(editingTransaction == null ? "? Criar" : "?? Salvar")
-                    </button>
-                </div>
-            </EditForm>
-        </Content>
-    </DialogTemplates>
-</SfDialog>
-
-<!-- Dialogo de gerenciamento de Categorias -->
-<SfDialog @bind-Visible="showCategoriesDialog" Width="620px" IsModal="true">
-    <DialogTemplates>
-        <Header>??? Gerenciar Categorias</Header>
-        <Content>
-            <div class="form-group">
-                <label class="form-label">?? Nome</label>
-                <InputText @bind-Value="categoryModel.Name" class="form-control" placeholder="Ex: AlimentaÁ„o, Transporte..." />
-            </div>
-            <div class="form-group">
-                <label class="form-label">?? DescriÁ„o</label>
-                <InputText @bind-Value="categoryModel.Description" class="form-control" placeholder="DescriÁ„o opcional" />
-            </div>
-            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
-                <button class="btn btn-secondary" @onclick="() => { categoryModel = new CategoryEditModel(); showCategoriesDialog = false; }">? Fechar</button>
-                <button class="btn btn-primary" @onclick="CreateCategory">? Adicionar Categoria</button>
-            </div>
-
-            <div class="card" style="margin-top:1rem;">
-                <div class="card-header"><h3 class="card-title">??? Minhas categorias</h3></div>
-                <div class="card-body">
-                    @if (categories.Any())
+                <div class="transactions-container">
+                    @foreach (var monthGroup in GetGroupedTransactions())
                     {
-                        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-                            @foreach (var c in categories)
-                            {
-                                <div style="display:flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.35rem .5rem;border-radius:10px;">
-                                    <span class="badge badge-primary">@c.Name</span>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteCategory(c.Id)">??? Excluir</button>
+                        <div class="transactions-month-section">
+                            <div class="transactions-month-header">
+                                <div>
+                                    üóìÔ∏è @FormatMonthHeader(monthGroup.Key)
                                 </div>
-                            }
+                                <div class="month-summary">
+                                    <span class="month-income">
+                                        ‚ûï R$ @monthGroup.Value.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount).ToString("N2")
+                                    </span>
+                                    <span class="month-expense">
+                                        ‚ûñ R$ @monthGroup.Value.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount).ToString("N2")
+                                    </span>
+                                    <span class="month-balance @(GetMonthBalance(monthGroup.Value) >= 0 ? "month-income" : "month-expense")">
+                                        üíº R$ @GetMonthBalance(monthGroup.Value).ToString("N2")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="transactions-grid">
+                                @foreach (var transaction in monthGroup.Value.OrderByDescending(t => t.TransactionDate))
+                                {
+                                    <TransactionCard Transaction="@transaction"
+                                                     OnEditClick="@(() => EditTransaction(transaction))"
+                                                     OnDeleteClick="@(() => DeleteTransaction(transaction))" />
+                                }
+                            </div>
                         </div>
                     }
-                    else
-                    {
-                        <span style="color:var(--text-tertiary);">Nenhuma categoria criada</span>
-                    }
                 </div>
-            </div>
-        </Content>
-    </DialogTemplates>
-</SfDialog>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">üì≠</div>
+                    <h3>Nenhuma transa√ß√£o encontrada</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        Comece registrando sua primeira transa√ß√£o
+                    </p>
+                    <button class="btn btn-primary" @onclick="OpenCreateDialog">
+                        ‚ûï Nova Transa√ß√£o
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <TransactionDialog Visible="showDialog" VisibleChanged="@(v => showDialog = v)" Model="editModel" EditingTransaction="editingTransaction" Categories="categories" OnSaved="SaveTransaction" />
+
+    <CategoriesDialog Visible="showCategoriesDialog" VisibleChanged="@(v => showCategoriesDialog = v)" CategoryModel="categoryModel" Categories="categories" OnCreate="CreateCategory" OnDelete="DeleteCategory" />
+
 </RedirectToLogin>
 
 @code {
     [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
     private int? _userId;
-
-    private class TransactionEditModel
-    {
-        public int Id { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public int Amount { get; set; }
-        public Currency Currency { get; set; } = Currency.BRL;
-        public TransactionType TransactionType { get; set; } = TransactionType.Expense;
-        public int? CategoryId { get; set; }
-        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
-        public DateTime TransactionDate { get; set; } = DateTime.Today;
-        public bool IsRecurring { get; set; }
-    }
-
-    private class CategoryEditModel
-    {
-        public string Name { get; set; } = string.Empty;
-        public string? Description { get; set; }
-    }
 
     private List<TransactionDTO> transactions = new();
     private List<CategoryDTO> categories = new();
@@ -306,67 +138,44 @@
     protected override async Task OnInitializedAsync()
     {
         await ResolveUserIdAsync();
-        await Task.WhenAll(LoadCategories(), LoadTransactions());
+        await LoadCategories();
+        await LoadTransactions();
     }
 
     private async Task ResolveUserIdAsync()
     {
         var auth = await AuthenticationStateTask;
         var user = auth.User;
-        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                   ?? user.FindFirst("UserId")?.Value
-                   ?? user.FindFirst("sub")?.Value;
+        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (int.TryParse(idStr, out var id))
             _userId = id;
     }
 
     private async Task LoadCategories()
     {
-        try
-        {
-            if (_userId is null)
-            {
-                categories = [];
-                return;
-            }
-            var res = await FinancialService.GetCategoriesByUserAsync(_userId.Value);
-            if (res.Success && res.Data != null)
-            {
-                categories = res.Data.OrderBy(c => c.Name).ToList();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading categories: {ex.Message}");
-        }
+        if (!_userId.HasValue)
+            return;
+
+        var res = await FinancialService.GetCategoriesByUserAsync(_userId.Value);
+        if (res.Success && res.Data != null)
+            categories = res.Data.OrderBy(c => c.Name).ToList();
     }
 
     private async Task LoadTransactions()
     {
         isLoading = true;
-        try
-        {
-            if (_userId is null)
-            {
-                transactions = [];
-            }
-            else
-            {
-                var result = await FinancialService.GetTransactionsByUserAsync(_userId.Value);
-                if (result.Success && result.Data != null)
-                {
-                    transactions = result.Data.OrderByDescending(t => t.TransactionDate).ToList();
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading transactions: {ex.Message}");
-        }
-        finally
+
+        if (!_userId.HasValue)
         {
             isLoading = false;
+            return;
         }
+
+        var result = await FinancialService.GetTransactionsByUserAsync(_userId.Value);
+        if (result.Success && result.Data != null)
+            transactions = result.Data.OrderByDescending(t => t.TransactionDate).ToList();
+
+        isLoading = false;
     }
 
     private void FilterByType(TransactionType? type)
@@ -408,16 +217,16 @@
     {
         var parts = yearMonth.Split('-');
         if (parts.Length != 2) return yearMonth;
-        
+
         var year = int.Parse(parts[0]);
         var month = int.Parse(parts[1]);
         var date = new DateTime(year, month, 1);
-        
+
         var today = DateTime.Today;
         if (date.Year == today.Year && date.Month == today.Month)
-            return $"Este MÍs - {date:MMMM yyyy}";
+            return $"Este M√™s - {date:MMMM yyyy}";
         else if (date.Year == today.Year && date.Month == today.Month - 1)
-            return $"MÍs Passado - {date:MMMM yyyy}";
+            return $"M√™s Passado - {date:MMMM yyyy}";
         else
             return date.ToString("MMMM yyyy");
     }
@@ -434,12 +243,6 @@
         editingTransaction = null;
         editModel = new TransactionEditModel();
         showDialog = true;
-    }
-
-    private void OpenCategoriesDialog()
-    {
-        categoryModel = new();
-        showCategoriesDialog = true;
     }
 
     private void EditTransaction(TransactionDTO? transaction)
@@ -459,51 +262,35 @@
             IsRecurring = transaction.IsRecurring
         };
         showDialog = true;
+        this.StateHasChanged();
     }
 
     private async Task SaveTransaction()
     {
-        try
+        if (_userId is null) return;
+        var money = new Money(editModel.Amount, editModel.Currency);
+        if (editingTransaction == null)
         {
-            if (_userId is null) return;
-            var money = new Money(editModel.Amount, editModel.Currency);
-            if (editingTransaction == null)
-            {
-                var create = new CreateTransactionDTO(_userId.Value, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
-                await FinancialService.CreateTransactionAsync(create);
-            }
-            else
-            {
-                var update = new UpdateTransactionDTO(editModel.Id, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
-                await FinancialService.UpdateTransactionAsync(update);
-            }
+            var create = new CreateTransactionDTO(_userId.Value, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+            await FinancialService.CreateTransactionAsync(create);
+        }
+        else
+        {
+            var update = new UpdateTransactionDTO(editModel.Id, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+            await FinancialService.UpdateTransactionAsync(update);
+        }
 
-            await LoadTransactions();
-            CloseDialog();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error saving transaction: {ex.Message}");
-        }
+        await LoadTransactions();
+        CloseDialog();
     }
 
     private async Task CreateCategory()
     {
-        try
-        {
-            if (_userId is null) return;
-            var cmd = new CreateCategoryDTO(_userId.Value, categoryModel.Name, categoryModel.Description);
-            var res = await FinancialService.CreateCategoryAsync(cmd);
-            if (res.Success)
-            {
-                categoryModel = new();
-                await LoadCategories();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error creating category: {ex.Message}");
-        }
+        if (!_userId.HasValue) return;
+        var cmd = new CreateCategoryDTO(_userId.Value, categoryModel.Name, categoryModel.Description);
+        var res = await FinancialService.CreateCategoryAsync(cmd);
+        if (res.Success)
+            await LoadCategories();
     }
 
     private async Task DeleteCategory(int id)
@@ -531,6 +318,7 @@
         {
             await FinancialService.DeleteTransactionAsync(transaction.Id);
             await LoadTransactions();
+            this.StateHasChanged();
         }
         catch (Exception ex)
         {
