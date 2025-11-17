@@ -1,17 +1,20 @@
 using LifeSyncApp.Client.Models.Financial.Category;
+using System.Globalization;
 
 namespace LifeSyncApp.Client.Models.Financial.Transaction
 {
-    public record TransactionDTO(
-        int Id,
-        int UserId,
-        CategoryDTO? Category,
-        DateTime CreatedAt,
-        DateTime? UpdatedAt,
-        PaymentMethod PaymentMethod,
-        TransactionType TransactionType,
-        Money Amount,
-        string Description,
-        DateTime TransactionDate,
-        bool IsRecurring = false);
+    public class TransactionDTO
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public CategoryDTO? Category { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
+        public TransactionType TransactionType { get; set; } = TransactionType.Expense;
+        public Money Amount { get; set; } = new Money();
+        public string Description { get; set; } = string.Empty;
+        public DateTime TransactionDate { get; set; } = DateTime.Today;
+        public bool IsRecurring { get; set; } = false;
+    }
 }

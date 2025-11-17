@@ -56,7 +56,8 @@ namespace Financial.Domain.Entities
             SetAmout(amount);
             SetDescription(description);
 
-            if (categoryId.HasValue)
+            // Only validate categoryId when a value was provided
+            if (categoryId.HasValue && categoryId.Value <= 0)
                 throw new DomainException(TransactionErrors.InvalidCategoryId);
 
             CategoryId = categoryId;

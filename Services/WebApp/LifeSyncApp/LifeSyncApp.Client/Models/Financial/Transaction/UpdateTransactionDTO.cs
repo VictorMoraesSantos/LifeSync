@@ -1,12 +1,16 @@
+using System;
+
 namespace LifeSyncApp.Client.Models.Financial.Transaction
 {
-    public record UpdateTransactionDTO(
-        int Id,
-        int? CategoryId,
-        PaymentMethod PaymentMethod,
-        TransactionType TransactionType,
-        Money Amount,
-        string Description,
-        DateTime TransactionDate,
-        bool IsRecurring = false);
+    public class UpdateTransactionDTO
+    {
+        public int Id { get; set; }
+        public int? CategoryId { get; set; }
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
+        public TransactionType TransactionType { get; set; } = TransactionType.Expense;
+        public Money Amount { get; set; } = new Money();
+        public string Description { get; set; } = string.Empty;
+        public DateTime TransactionDate { get; set; } = DateTime.Today;
+        public bool IsRecurring { get; set; } = false;
+    }
 }

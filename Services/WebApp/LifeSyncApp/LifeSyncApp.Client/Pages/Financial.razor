@@ -14,8 +14,8 @@
     <PageHeader Title="Financeiro" Description="Controle suas finanças pessoais">
         <Actions>
             <div style="display:flex;gap:.5rem;">
-                <button class="btn btn-secondary" @onclick="() => showCategoriesDialog = true">📂 Gerenciar Categorias</button>
-                <button class="btn btn-primary" @onclick="OpenCreateDialog">
+                <button class="btn btn-secondary" @onclick="OpenCategoriesDialog">📂 Gerenciar Categorias</button>
+                <button class="btn btn-primary" @onclick="OpenTransactionDialog">
                     ➕ Nova Transação
                 </button>
             </div>
@@ -43,7 +43,7 @@
             @if (isLoading)
             {
                 <div style="text-align: center; padding: 3rem;">
-                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                    <div class="loading" style="width: 40px, height: 40px, border-width: 4px;"></div>
                     <p style="margin-top: 1rem;">Carregando transações...</p>
                 </div>
             }
@@ -94,7 +94,7 @@
                     <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
                         Comece registrando sua primeira transação
                     </p>
-                    <button class="btn btn-primary" @onclick="OpenCreateDialog">
+                    <button class="btn btn-primary" @onclick="OpenTransactionDialog">
                         ➕ Nova Transação
                     </button>
                 </div>
@@ -102,9 +102,9 @@
         </div>
     </div>
 
-    <TransactionDialog Visible="showDialog" VisibleChanged="@(v => showDialog = v)" Model="editModel" EditingTransaction="editingTransaction" Categories="categories" OnSaved="SaveTransaction" />
+    <TransactionDialog Visible="showDialog" VisibleChanged="@(v => showDialog = v)" UpdateModel="UpdateTransaction" Model="TransactionModel" Categories="categories" OnSaved="SaveTransaction" />
 
-    <CategoriesDialog Visible="showCategoriesDialog" VisibleChanged="@(v => showCategoriesDialog = v)" CategoryModel="categoryModel" Categories="categories" OnCreate="CreateCategory" OnDelete="DeleteCategory" />
+    <CategoriesDialog Visible="showCategoriesDialog" VisibleChanged="@(v => showCategoriesDialog = v)" UpdateCategory="UpdateCategory" Categories="categories" OnCreate="CreateCategory" OnDelete="DeleteCategory" />
 
 </RedirectToLogin>
 
@@ -116,21 +116,20 @@
     private List<CategoryDTO> categories = new();
 
     [SupplyParameterFromForm]
-    private TransactionEditModel editModel { get; set; } = new();
+    private UpdateTransactionDTO UpdateTransaction { get; set; } = new();
 
-    private TransactionDTO? editingTransaction = null;
+    private TransactionDTO? TransactionModel = null;
     private bool showDialog = false;
     private bool isLoading = true;
 
     private bool showCategoriesDialog = false;
-    private CategoryEditModel categoryModel { get; set; } = new();
+    private UpdateCategoryDTO UpdateCategory { get; set; } = new();
 
-    // Filtros
     private TransactionType? activeTypeFilter = null;
     private PaymentMethod? activePaymentFilter = null;
 
-    private decimal totalIncome => transactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount);
-    private decimal totalExpenses => transactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount);
+    private decimal totalIncome => transactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => t.Amount.Amount);
+    private decimal totalExpenses => transactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => t.Amount.Amount);
     private decimal balance => totalIncome - totalExpenses;
     private int incomeCount => transactions.Count(t => t.TransactionType == TransactionType.Income);
     private int expensesCount => transactions.Count(t => t.TransactionType == TransactionType.Expense);
@@ -146,9 +145,9 @@
     {
         var auth = await AuthenticationStateTask;
         var user = auth.User;
-        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (int.TryParse(idStr, out var id))
-            _userId = id;
+        var id = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (int.TryParse(id, out var parsed))
+            _userId = parsed;
     }
 
     private async Task LoadCategories()
@@ -223,9 +222,10 @@
         var date = new DateTime(year, month, 1);
 
         var today = DateTime.Today;
+        var previous = today.AddMonths(-1);
         if (date.Year == today.Year && date.Month == today.Month)
             return $"Este Mês - {date:MMMM yyyy}";
-        else if (date.Year == today.Year && date.Month == today.Month - 1)
+        else if (date.Year == previous.Year && date.Month == previous.Month)
             return $"Mês Passado - {date:MMMM yyyy}";
         else
             return date.ToString("MMMM yyyy");
@@ -233,28 +233,33 @@
 
     private decimal GetMonthBalance(List<TransactionDTO> monthTransactions)
     {
-        var income = monthTransactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => (decimal)t.Amount.Amount);
-        var expense = monthTransactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => (decimal)t.Amount.Amount);
+        var income = monthTransactions.Where(t => t.TransactionType == TransactionType.Income).Sum(t => t.Amount.Amount);
+        var expense = monthTransactions.Where(t => t.TransactionType == TransactionType.Expense).Sum(t => t.Amount.Amount);
         return income - expense;
     }
 
-    private void OpenCreateDialog()
+    private void OpenTransactionDialog()
     {
-        editingTransaction = null;
-        editModel = new TransactionEditModel();
+        TransactionModel = null;
+        UpdateTransaction = new UpdateTransactionDTO();
         showDialog = true;
+    }
+
+    private void OpenCategoriesDialog()
+    {
+        UpdateCategory = new UpdateCategoryDTO();
+        showCategoriesDialog = true;
     }
 
     private void EditTransaction(TransactionDTO? transaction)
     {
         if (transaction == null) return;
-        editingTransaction = transaction;
-        editModel = new TransactionEditModel
+        TransactionModel = transaction;
+        UpdateTransaction = new UpdateTransactionDTO
         {
             Id = transaction.Id,
             Description = transaction.Description,
-            Amount = transaction.Amount.Amount,
-            Currency = transaction.Amount.Currency,
+            Amount = new Money { Amount = transaction.Amount.Amount, Currency = transaction.Amount.Currency },
             TransactionType = transaction.TransactionType,
             CategoryId = transaction.Category?.Id,
             PaymentMethod = transaction.PaymentMethod,
@@ -262,21 +267,47 @@
             IsRecurring = transaction.IsRecurring
         };
         showDialog = true;
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private async Task SaveTransaction()
     {
         if (_userId is null) return;
-        var money = new Money(editModel.Amount, editModel.Currency);
-        if (editingTransaction == null)
+
+        var amount = new Money
         {
-            var create = new CreateTransactionDTO(_userId.Value, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+            Amount = UpdateTransaction.Amount.Amount,
+            Currency = UpdateTransaction.Amount.Currency
+        };
+
+        if (TransactionModel == null)
+        {
+            var create = new CreateTransactionDTO
+            {
+                UserId = _userId.Value,
+                CategoryId = UpdateTransaction.CategoryId,
+                PaymentMethod = UpdateTransaction.PaymentMethod,
+                TransactionType = UpdateTransaction.TransactionType,
+                Amount = amount,
+                Description = UpdateTransaction.Description,
+                TransactionDate = UpdateTransaction.TransactionDate,
+                IsRecurring = UpdateTransaction.IsRecurring,
+            };
             await FinancialService.CreateTransactionAsync(create);
         }
         else
         {
-            var update = new UpdateTransactionDTO(editModel.Id, editModel.CategoryId, editModel.PaymentMethod, editModel.TransactionType, money, editModel.Description, editModel.TransactionDate, editModel.IsRecurring);
+            var update = new UpdateTransactionDTO
+            {
+                Id = UpdateTransaction.Id,
+                CategoryId = UpdateTransaction.CategoryId,
+                PaymentMethod = UpdateTransaction.PaymentMethod,
+                TransactionType = UpdateTransaction.TransactionType,
+                Amount = amount,
+                Description = UpdateTransaction.Description,
+                TransactionDate = UpdateTransaction.TransactionDate,
+                IsRecurring = UpdateTransaction.IsRecurring
+            };
             await FinancialService.UpdateTransactionAsync(update);
         }
 
@@ -287,26 +318,26 @@
     private async Task CreateCategory()
     {
         if (!_userId.HasValue) return;
-        var cmd = new CreateCategoryDTO(_userId.Value, categoryModel.Name, categoryModel.Description);
-        var res = await FinancialService.CreateCategoryAsync(cmd);
-        if (res.Success)
-            await LoadCategories();
+
+        var cmd = new CreateCategoryDTO
+        {
+            UserId = _userId.Value,
+            Name = UpdateCategory.Name,
+            Description = UpdateCategory.Description
+        };
+
+        await FinancialService.CreateCategoryAsync(cmd);
+        await LoadCategories();
+        UpdateCategory = new UpdateCategoryDTO();
     }
 
     private async Task DeleteCategory(int id)
     {
-        try
+        var res = await FinancialService.DeleteCategoryAsync(id);
+        if (res.Success)
         {
-            var res = await FinancialService.DeleteCategoryAsync(id);
-            if (res.Success)
-            {
-                await LoadCategories();
-                await LoadTransactions(); // caso apague categoria usada
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error deleting category: {ex.Message}");
+            await LoadCategories();
+            await LoadTransactions();
         }
     }
 
@@ -314,21 +345,15 @@
     {
         if (transaction == null) return;
 
-        try
-        {
-            await FinancialService.DeleteTransactionAsync(transaction.Id);
-            await LoadTransactions();
-            this.StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error deleting transaction: {ex.Message}");
-        }
+        await FinancialService.DeleteTransactionAsync(transaction.Id);
+        await LoadTransactions();
+        StateHasChanged();
     }
 
     private void CloseDialog()
     {
         showDialog = false;
-        editingTransaction = null;
+        TransactionModel = null;
     }
+
 }

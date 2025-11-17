@@ -10,11 +10,11 @@
         <Content>
             <div class="form-group">
                 <label class="form-label">🏷️ Nome</label>
-                <InputText @bind-Value="CategoryModel.Name" class="form-control" placeholder="Ex: Alimentação, Transporte..." />
+                <InputText @bind-Value="UpdateCategory.Name" class="form-control" placeholder="Ex: Alimentação, Transporte..." />
             </div>
             <div class="form-group">
                 <label class="form-label">📝 Descrição</label>
-                <InputText @bind-Value="CategoryModel.Description" class="form-control" placeholder="Descrição opcional" />
+                <InputText @bind-Value="UpdateCategory.Description" class="form-control" placeholder="Descrição opcional" />
             </div>
             <div style="display:flex;justify-content:flex-end;gap:.5rem;">
                 <button class="btn btn-secondary" @onclick="() => Close()">✖️ Fechar</button>
@@ -50,17 +50,11 @@
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
 
-    [Parameter] public CategoryEditModel CategoryModel { get; set; } = new CategoryEditModel();
+    [Parameter] public UpdateCategoryDTO UpdateCategory { get; set; } = new UpdateCategoryDTO();
     [Parameter] public List<CategoryDTO> Categories { get; set; } = new();
 
     [Parameter] public EventCallback OnCreate { get; set; }
     [Parameter] public EventCallback<int> OnDelete { get; set; }
-
-    protected override void OnParametersSet()
-    {
-        // when opened ensure model is initialized to avoid stale state
-        CategoryModel ??= new CategoryEditModel();
-    }
 
     private async Task Create()
     {

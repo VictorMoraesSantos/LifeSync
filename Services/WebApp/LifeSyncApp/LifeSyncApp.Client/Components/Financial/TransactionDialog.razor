@@ -8,22 +8,22 @@
 
 <SfDialog Visible="@Visible" VisibleChanged="@VisibleChanged" Width="500px" IsModal="true" Position="Center" AppendTo="body">
     <DialogTemplates>
-        <Header>@(EditingTransaction == null ? "➕ Nova Transação" : "✏️ Editar Transação")</Header>
+        <Header>@(Model == null ? "➕ Nova Transação" : "✏️ Editar Transação")</Header>
         <Content>
-            <EditForm Model="Model" OnValidSubmit="HandleSave" FormName="financialForm">
+            <EditForm Model="UpdateModel" OnValidSubmit="HandleSave" FormName="financialForm">
                 <div class="form-group">
                     <label class="form-label">📝 Descrição</label>
-                    <InputText @bind-Value="Model.Description" class="form-control" placeholder="Ex: Salário, Aluguel..." />
+                    <InputText @bind-Value="UpdateModel.Description" class="form-control" placeholder="Ex: Salário, Aluguel..." />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">💵 Valor</label>
-                    <InputNumber @bind-Value="Model.Amount" class="form-control" />
+                    <InputNumber TValue="decimal" @bind-Value="UpdateModel.Amount.Amount" class="form-control" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">💱 Moeda</label>
-                    <InputSelect @bind-Value="Model.Currency" class="form-control">
+                    <InputSelect TValue="Currency" @bind-Value="UpdateModel.Amount.Currency" class="form-control">
                         <option value="@Currency.BRL">🇧🇷 Real (BRL)</option>
                         <option value="@Currency.USD">🇺🇸 Dólar (USD)</option>
                         <option value="@Currency.EUR">🇪🇺 Euro (EUR)</option>
@@ -32,7 +32,7 @@
 
                 <div class="form-group">
                     <label class="form-label">🔁 Tipo</label>
-                    <InputSelect @bind-Value="Model.TransactionType" class="form-control">
+                    <InputSelect TValue="TransactionType" @bind-Value="UpdateModel.TransactionType" class="form-control">
                         <option value="@TransactionType.Income">➕ Receita</option>
                         <option value="@TransactionType.Expense">➖ Despesa</option>
                     </InputSelect>
@@ -40,7 +40,7 @@
 
                 <div class="form-group">
                     <label class="form-label">🏷️ Categoria</label>
-                    <InputSelect @bind-Value="Model.CategoryId" class="form-control">
+                    <InputSelect TValue="int?" @bind-Value="UpdateModel.CategoryId" class="form-control">
                         <option value="">Sem categoria</option>
                         @foreach (var c in Categories)
                         {
@@ -51,7 +51,7 @@
 
                 <div class="form-group">
                     <label class="form-label">💳 Método de Pagamento</label>
-                    <InputSelect @bind-Value="Model.PaymentMethod" class="form-control">
+                    <InputSelect TValue="PaymentMethod" @bind-Value="UpdateModel.PaymentMethod" class="form-control">
                         <option value="@PaymentMethod.Cash">💵 Dinheiro</option>
                         <option value="@PaymentMethod.CreditCard">💳 Cartão de Crédito</option>
                         <option value="@PaymentMethod.DebitCard">🏧 Cartão de Débito</option>
@@ -63,17 +63,17 @@
 
                 <div class="form-group">
                     <label class="form-label">📅 Data</label>
-                    <InputDate @bind-Value="Model.TransactionDate" class="form-control" />
+                    <InputDate @bind-Value="UpdateModel.TransactionDate" class="form-control" />
                 </div>
 
                 <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <InputCheckbox @bind-Value="Model.IsRecurring" id="recurring-check" />
+                    <InputCheckbox @bind-Value="UpdateModel.IsRecurring" id="recurring-check" />
                     <label class="form-label" for="recurring-check" style="margin: 0;">♻️ Recorrente</label>
                 </div>
 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-secondary" @onclick="Close">✖️ Cancelar</button>
-                    <button type="submit" class="btn btn-primary">@(EditingTransaction == null ? "➕ Criar" : "💾 Salvar")</button>
+                    <button type="submit" class="btn btn-primary">@(Model == null ? "➕ Criar" : "💾 Salvar")</button>
                 </div>
             </EditForm>
         </Content>
@@ -84,27 +84,28 @@
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
 
-    [Parameter] public TransactionEditModel Model { get; set; } = new TransactionEditModel();
-    [Parameter] public TransactionDTO? EditingTransaction { get; set; }
+    [Parameter] public UpdateTransactionDTO UpdateModel { get; set; } = new UpdateTransactionDTO();
+    [Parameter] public TransactionDTO? Model { get; set; }
     [Parameter] public List<CategoryDTO> Categories { get; set; } = new();
 
     [Parameter] public EventCallback OnSaved { get; set; }
 
     protected override void OnParametersSet()
     {
-        // If parent passed an EditingTransaction ensure the form model reflects it
-        if (EditingTransaction != null)
+        if (UpdateModel.Amount == null)
+            UpdateModel.Amount = new Money();
+
+        if (Model != null)
         {
-            Model ??= new TransactionEditModel();
-            Model.Id = EditingTransaction.Id;
-            Model.Description = EditingTransaction.Description ?? string.Empty;
-            Model.Amount = EditingTransaction.Amount.Amount;
-            Model.Currency = EditingTransaction.Amount.Currency;
-            Model.TransactionType = EditingTransaction.TransactionType;
-            Model.CategoryId = EditingTransaction.Category?.Id;
-            Model.PaymentMethod = EditingTransaction.PaymentMethod;
-            Model.TransactionDate = EditingTransaction.TransactionDate;
-            Model.IsRecurring = EditingTransaction.IsRecurring;
+            UpdateModel.Id = Model.Id;
+            UpdateModel.Description = Model.Description ?? string.Empty;
+            UpdateModel.Amount.Amount = Model.Amount.Amount;
+            UpdateModel.Amount.Currency = Model.Amount.Currency;
+            UpdateModel.TransactionType = Model.TransactionType;
+            UpdateModel.CategoryId = Model.Category?.Id;
+            UpdateModel.PaymentMethod = Model.PaymentMethod;
+            UpdateModel.TransactionDate = Model.TransactionDate;
+            UpdateModel.IsRecurring = Model.IsRecurring;
         }
     }
 
@@ -115,7 +116,6 @@
 
     private async Task Close()
     {
-        // Reset editing state and notify parent
         await VisibleChanged.InvokeAsync(false);
     }
 }
