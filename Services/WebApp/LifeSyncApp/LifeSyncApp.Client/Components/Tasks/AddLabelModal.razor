@@ -1,0 +1,44 @@
+﻿@using LifeSyncApp.Client.Components.Shared
+@using LifeSyncApp.Client.Models.TaskManager.TaskLabel
+@using LifeSyncApp.Client.Models.Components
+
+<TaskDialog @ref="_dialogRef" Header="@Header" Model="Model" OnSubmit="HandleSubmit" OnCancel="HandleCancel" SubmitButtonText="@SubmitButtonText">
+    <div class="form-group">
+        <label class="form-label">📝 Nome</label>
+        <InputText @bind-Value="Model.Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label class="form-label">🎨 Cor</label>
+        <InputSelect @bind-Value="Model.Color" class="form-control">
+            @foreach (var c in Enum.GetValues<LabelColor>())
+            {
+                <option value="@c">@c</option>
+            }
+        </InputSelect>
+    </div>
+</TaskDialog>
+
+@code {
+    private LifeSyncApp.Client.Components.Shared.TaskDialog? _dialogRef;
+
+    [Parameter] public string Header { get; set; } = "";
+    [Parameter] public string SubmitButtonText { get; set; } = "Salvar";
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public UpdateTaskLabelDTO Model { get; set; } = default!;
+
+    public void Open() => _dialogRef?.OnUpdate(true);
+    public void Close() => _dialogRef?.OnUpdate(false);
+
+    private async Task HandleSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+            await OnSubmit.InvokeAsync(null);
+    }
+
+    private async Task HandleCancel()
+    {
+        if (OnCancel.HasDelegate)
+            await OnCancel.InvokeAsync(null);
+    }
+}

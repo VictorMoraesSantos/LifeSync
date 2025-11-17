@@ -6,6 +6,7 @@
 @using LifeSyncApp.Client.Models.TaskManager.TaskLabel
 @using LifeSyncApp.Client.Components.Tasks
 @using Syncfusion.Blazor.Popups
+@using LifeSyncApp.Client.Models.Components
 @inject ITaskManagerService TaskService
 @using System.Security.Claims
 
@@ -78,48 +79,9 @@
         </div>
     </div>
 
-    <TaskDialog @ref="_taskDialog" Header="@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")" Model="currentTask" OnSubmit="SaveTask" OnCancel="CloseDialog" SubmitButtonText="@(editingTask == null ? "➕ Criar" : "💾 Salvar")">
-        <div class="form-group">
-            <label class="form-label">📝 Título</label>
-            <InputText @bind-Value="currentTask.Title" class="form-control" />
-        </div>
+    <AddTaskModal @ref="_taskModal" Header="@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")" Model="currentTask" OnSubmit="SaveTask" OnCancel="CloseDialog" SubmitButtonText="@(editingTask == null ? "➕ Criar" : "💾 Salvar")" />
 
-        <div class="form-group">
-            <label class="form-label">📄 Descrição</label>
-            <InputTextArea @bind-Value="currentTask.Description" class="form-control" />
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">🎯 Prioridade</label>
-            <InputSelect @bind-Value="currentTask.Priority" class="form-control">
-                @foreach (var p in Enum.GetValues<Priority>())
-                {
-                    <option value="@p">@p</option>
-                }
-            </InputSelect>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">📅 Data de Vencimento</label>
-            <InputDate DateFormat="dd/MM/yyyy" @bind-Value="currentTask.DueDate" class="form-control" />
-        </div>
-    </TaskDialog>
-
-    <TaskDialog @ref="_addLabelDialog" Header="🏷️ Adicionar Label à Tarefa" Model="labelModel" OnSubmit="CreateLabelForTask" OnCancel="CloseAddLabelDialog" SubmitButtonText="➕ Adicionar">
-        <div class="form-group">
-            <label class="form-label">📝 Nome</label>
-            <InputText @bind-Value="labelModel.Name" class="form-control" />
-        </div>
-        <div class="form-group">
-            <label class="form-label">🎨 Cor</label>
-            <InputSelect @bind-Value="labelModel.Color" class="form-control">
-                @foreach (var c in Enum.GetValues<LabelColor>())
-                {
-                    <option value="@c">@c</option>
-                }
-            </InputSelect>
-        </div>
-    </TaskDialog>
+    <AddLabelModal @ref="_addLabelModal" Header="🏷️ Adicionar Label à Tarefa" Model="labelModel" OnSubmit="CreateLabelForTask" OnCancel="CloseAddLabelDialog" SubmitButtonText="➕ Adicionar" />
 </RedirectToLogin>
 
 @code {
@@ -127,33 +89,17 @@
 
     private int? _userId;
 
-    private class TaskEditModel
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public Status Status { get; set; } = Status.Pending;
-        public Priority Priority { get; set; } = Priority.Medium;
-        public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
-    }
-
-    private class LabelEditModel
-    {
-        public string Name { get; set; } = string.Empty;
-        public LabelColor Color { get; set; } = LabelColor.Purple;
-    }
-
     private List<TaskItemDTO> tasks = new();
     private List<TaskLabelDTO> labels = new();
 
     [SupplyParameterFromForm]
-    private TaskEditModel currentTask { get; set; } = new();
+    private UpdateTaskItemDTO currentTask { get; set; } = new();
 
     private TaskItemDTO? editingTask = null;
     private bool isLoading = true;
 
     private int? targetTaskIdForLabel = null;
-    private LabelEditModel labelModel { get; set; } = new();
+    private UpdateTaskLabelDTO labelModel { get; set; } = new();
 
     private Status? activeStatusFilter = null;
     private Priority? activePriorityFilter = null;
@@ -163,8 +109,8 @@
     private int inProgressTasks => tasks.Count(t => t.Status == Status.InProgress);
     private int completedTasksCount => tasks.Count(t => t.Status == Status.Completed);
 
-    private TaskDialog? _taskDialog;
-    private TaskDialog? _addLabelDialog;
+    private Components.Tasks.AddTaskModal? _taskModal;
+    private Components.Tasks.AddLabelModal? _addLabelModal;
 
     protected override async Task OnInitializedAsync()
     {
@@ -254,23 +200,15 @@
     private void OpenCreateDialog()
     {
         editingTask = null;
-        currentTask = new TaskEditModel();
-        _taskDialog?.OnUpdate(true);
+        currentTask = new UpdateTaskItemDTO();
+        _taskModal?.Open();
     }
 
     private void EditTask(TaskItemDTO? task)
     {
         editingTask = task;
-        currentTask = new TaskEditModel
-        {
-            Id = task.Id,
-            Title = task.Title,
-            Description = task.Description,
-            Status = task.Status,
-            Priority = task.Priority,
-            DueDate = task.DueDate
-        };
-        _taskDialog?.OnUpdate(true);
+        currentTask = new UpdateTaskItemDTO(task.Id, task.Title, task.Description, task.Status, task.Priority, task.DueDate);
+        _taskModal?.Open();
         this.StateHasChanged();
     }
 
@@ -302,7 +240,7 @@
 
     private void CloseDialog()
     {
-        _taskDialog?.OnUpdate(false);
+        _taskModal?.Close();
         currentTask = new();
         editingTask = null;
     }
@@ -330,14 +268,14 @@
     {
         targetTaskIdForLabel = task.Id;
         labelModel = new();
-        _addLabelDialog?.OnUpdate(true);
+        _addLabelModal?.Open();
         this.StateHasChanged();
     }
 
     private void CloseAddLabelDialog()
     {
-        _addLabelDialog?.OnUpdate(false);
-        labelModel = new LabelEditModel();
+        _addLabelModal?.Close();
+        labelModel = new UpdateTaskLabelDTO();
         targetTaskIdForLabel = null;
     }
 
@@ -347,7 +285,7 @@
         var res = await TaskService.CreateLabelAsync(cmd);
         if (!res.Success) return;
 
-        _addLabelDialog?.OnUpdate(false);
+        _addLabelModal?.Close();
         labelModel = new();
         await LoadTasks();
         this.StateHasChanged();

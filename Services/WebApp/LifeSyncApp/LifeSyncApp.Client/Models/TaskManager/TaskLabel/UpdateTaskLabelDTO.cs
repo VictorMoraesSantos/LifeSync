@@ -1,7 +1,9 @@
 ﻿namespace LifeSyncApp.Client.Models.TaskManager.TaskLabel
 {
-    public record UpdateTaskLabelDTO(
-        int Id,
-        string Name,
-        LabelColor LabelColor);
+    public class UpdateTaskLabelDTO
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public LabelColor Color { get; set; }
+    }
 }

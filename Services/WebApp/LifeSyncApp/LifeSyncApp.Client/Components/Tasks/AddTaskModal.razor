@@ -1,0 +1,55 @@
+﻿@using LifeSyncApp.Client.Components.Shared
+@using LifeSyncApp.Client.Models.TaskManager.TaskItem
+@using LifeSyncApp.Client.Models.Components
+
+<TaskDialog @ref="_dialogRef" Header="@Header" Model="Model" OnSubmit="HandleSubmit" OnCancel="HandleCancel" SubmitButtonText="@SubmitButtonText">
+    <div class="form-group">
+        <label class="form-label">📝 Título</label>
+        <InputText @bind-Value="Model.Title" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">📄 Descrição</label>
+        <InputTextArea @bind-Value="Model.Description" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">🎯 Prioridade</label>
+        <InputSelect @bind-Value="Model.Priority" class="form-control">
+            @foreach (var p in Enum.GetValues<Priority>())
+            {
+                <option value="@p">@p</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">📅 Data de Vencimento</label>
+        <InputDate DateFormat="dd/MM/yyyy" @bind-Value="Model.DueDate" class="form-control" />
+    </div>
+</TaskDialog>
+
+@code {
+    private TaskDialog? _dialogRef;
+
+    [Parameter] public string Header { get; set; } = "";
+    [Parameter] public string SubmitButtonText { get; set; } = "Salvar";
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public UpdateTaskItemDTO Model { get; set; } = default!;
+
+    public void Open() => _dialogRef?.OnUpdate(true);
+    public void Close() => _dialogRef?.OnUpdate(false);
+
+    private async Task HandleSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+            await OnSubmit.InvokeAsync(null);
+    }
+
+    private async Task HandleCancel()
+    {
+        if (OnCancel.HasDelegate)
+            await OnCancel.InvokeAsync(null);
+    }
+}

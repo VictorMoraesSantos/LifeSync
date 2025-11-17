@@ -19,7 +19,7 @@
             <div class="task-labels">
                 @foreach (var label in TaskItem.Labels)
                 {
-                    <span class="badge badge-primary">🏷️ @label.Name</span>
+                    <span class="badge" style="background-color:@GetLabelHex(label.Color); color:@GetLabelTextColor(label.Color);">🏷️ @label.Name</span>
                 }
             </div>
         }
@@ -94,6 +94,34 @@
             Status.Pending => "⏳",
             Status.Cancelled => "❌",
             _ => "📌"
+        };
+    }
+
+    private string GetLabelHex(LabelColor color)
+    {
+        return color switch
+        {
+            LabelColor.Red => "#FF0000",
+            LabelColor.Green => "#00FF00",
+            LabelColor.Blue => "#0000FF",
+            LabelColor.Yellow => "#FFFF00",
+            LabelColor.Purple => "#800080",
+            LabelColor.Orange => "#FFA500",
+            LabelColor.Pink => "#FFC0CB",
+            LabelColor.Brown => "#A52A2A",
+            LabelColor.Gray => "#808080",
+            _ => "#777777",
+        };
+    }
+
+    private string GetLabelTextColor(LabelColor color)
+    {
+        // Use dark text for light backgrounds (yellow) and white for others
+        return color switch
+        {
+            LabelColor.Yellow => "#000000",
+            LabelColor.Pink => "#000000",
+            _ => "#FFFFFF",
         };
     }
 }
