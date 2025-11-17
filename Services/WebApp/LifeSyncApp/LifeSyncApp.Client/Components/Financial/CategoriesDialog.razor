@@ -4,7 +4,7 @@
 @using System.Collections.Generic
 @using Syncfusion.Blazor.Popups
 
-<SfDialog Visible="Visible" VisibleChanged="VisibleChanged" Width="620px" IsModal="true" Position="Center" AppendTo="body">
+<SfDialog Visible="_visible" VisibleChanged="@(v => OnDialogVisibleChanged(v))" Width="620px" IsModal="true" Position="Center" AppendTo="body">
     <DialogTemplates>
         <Header>🏷️ Gerenciar Categorias</Header>
         <Content>
@@ -47,12 +47,9 @@
 </SfDialog>
 
 @code {
-    [Parameter] public bool Visible { get; set; }
-    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
-
+    private bool _visible = false;
     [Parameter] public UpdateCategoryDTO UpdateCategory { get; set; } = new UpdateCategoryDTO();
     [Parameter] public List<CategoryDTO> Categories { get; set; } = new();
-
     [Parameter] public EventCallback OnCreate { get; set; }
     [Parameter] public EventCallback<int> OnDelete { get; set; }
 
@@ -66,8 +63,21 @@
         await OnDelete.InvokeAsync(id);
     }
 
+    public async Task OnUpdate(bool visible)
+    {
+        _visible = visible;
+        InvokeAsync(this.StateHasChanged);
+    }
+
     private async Task Close()
     {
-        await VisibleChanged.InvokeAsync(false);
+        _visible = false;
+        InvokeAsync(this.StateHasChanged);
+    }
+
+    private async Task OnDialogVisibleChanged(bool visible)
+    {
+        _visible = visible;
+        InvokeAsync(this.StateHasChanged);
     }
 }

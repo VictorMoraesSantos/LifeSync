@@ -78,7 +78,7 @@
         </div>
     </div>
 
-    <TaskDialog Visible="showDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showDialog = v))" Header="@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")" Model="currentTask" OnSubmit="SaveTask" OnCancel="CloseDialog" SubmitButtonText="@(editingTask == null ? "➕ Criar" : "💾 Salvar")">
+    <TaskDialog @ref="_taskDialog" Header="@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")" Model="currentTask" OnSubmit="SaveTask" OnCancel="CloseDialog" SubmitButtonText="@(editingTask == null ? "➕ Criar" : "💾 Salvar")">
         <div class="form-group">
             <label class="form-label">📝 Título</label>
             <InputText @bind-Value="currentTask.Title" class="form-control" />
@@ -105,7 +105,7 @@
         </div>
     </TaskDialog>
 
-    <TaskDialog Visible="showAddLabelDialog" VisibleChanged="@(Microsoft.AspNetCore.Components.EventCallback.Factory.Create<bool>(this, (bool v) => showAddLabelDialog = v))" Header="🏷️ Adicionar Label à Tarefa" Model="labelModel" OnSubmit="CreateLabelForTask" OnCancel="() => { showAddLabelDialog = false; labelModel = new LabelEditModel(); }" SubmitButtonText="➕ Adicionar">
+    <TaskDialog @ref="_addLabelDialog" Header="🏷️ Adicionar Label à Tarefa" Model="labelModel" OnSubmit="CreateLabelForTask" OnCancel="CloseAddLabelDialog" SubmitButtonText="➕ Adicionar">
         <div class="form-group">
             <label class="form-label">📝 Nome</label>
             <InputText @bind-Value="labelModel.Name" class="form-control" />
@@ -150,11 +150,8 @@
     private TaskEditModel currentTask { get; set; } = new();
 
     private TaskItemDTO? editingTask = null;
-    private bool showDialog = false;
     private bool isLoading = true;
 
-    private bool showLabelsDialog = false;
-    private bool showAddLabelDialog = false;
     private int? targetTaskIdForLabel = null;
     private LabelEditModel labelModel { get; set; } = new();
 
@@ -165,6 +162,9 @@
     private int pendingTasks => tasks.Count(t => t.Status == Status.Pending);
     private int inProgressTasks => tasks.Count(t => t.Status == Status.InProgress);
     private int completedTasksCount => tasks.Count(t => t.Status == Status.Completed);
+
+    private TaskDialog? _taskDialog;
+    private TaskDialog? _addLabelDialog;
 
     protected override async Task OnInitializedAsync()
     {
@@ -255,7 +255,7 @@
     {
         editingTask = null;
         currentTask = new TaskEditModel();
-        showDialog = true;
+        _taskDialog?.OnUpdate(true);
     }
 
     private void EditTask(TaskItemDTO? task)
@@ -270,7 +270,7 @@
             Priority = task.Priority,
             DueDate = task.DueDate
         };
-        showDialog = true;
+        _taskDialog?.OnUpdate(true);
         this.StateHasChanged();
     }
 
@@ -302,7 +302,7 @@
 
     private void CloseDialog()
     {
-        showDialog = false;
+        _taskDialog?.OnUpdate(false);
         currentTask = new();
         editingTask = null;
     }
@@ -330,8 +330,15 @@
     {
         targetTaskIdForLabel = task.Id;
         labelModel = new();
-        showAddLabelDialog = true;
+        _addLabelDialog?.OnUpdate(true);
         this.StateHasChanged();
+    }
+
+    private void CloseAddLabelDialog()
+    {
+        _addLabelDialog?.OnUpdate(false);
+        labelModel = new LabelEditModel();
+        targetTaskIdForLabel = null;
     }
 
     private async Task CreateLabelForTask()
@@ -340,7 +347,7 @@
         var res = await TaskService.CreateLabelAsync(cmd);
         if (!res.Success) return;
 
-        showAddLabelDialog = false;
+        _addLabelDialog?.OnUpdate(false);
         labelModel = new();
         await LoadTasks();
         this.StateHasChanged();

@@ -6,7 +6,7 @@
 @using LifeSyncApp.Client.Models.Financial.Category
 @using LifeSyncApp.Client.Models.Financial.Transaction
 
-<SfDialog Visible="@Visible" VisibleChanged="@VisibleChanged" Width="500px" IsModal="true" Position="Center" AppendTo="body">
+<SfDialog Visible="@_visible" VisibleChanged="@(v => OnDialogVisibleChanged(v))" Width="500px" IsModal="true" Position="Center" AppendTo="body">
     <DialogTemplates>
         <Header>@(Model == null ? "➕ Nova Transação" : "✏️ Editar Transação")</Header>
         <Content>
@@ -81,13 +81,10 @@
 </SfDialog>
 
 @code {
-    [Parameter] public bool Visible { get; set; }
-    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
-
+    private bool _visible = false;
     [Parameter] public UpdateTransactionDTO UpdateModel { get; set; } = new UpdateTransactionDTO();
     [Parameter] public TransactionDTO? Model { get; set; }
     [Parameter] public List<CategoryDTO> Categories { get; set; } = new();
-
     [Parameter] public EventCallback OnSaved { get; set; }
 
     protected override void OnParametersSet()
@@ -114,8 +111,21 @@
         await OnSaved.InvokeAsync(null);
     }
 
+    public async Task OnUpdate(bool visible)
+    {
+        _visible = visible;
+        InvokeAsync(this.StateHasChanged);
+    }
+
     private async Task Close()
     {
-        await VisibleChanged.InvokeAsync(false);
+        _visible = false;
+        InvokeAsync(this.StateHasChanged);
+    }
+
+    private async Task OnDialogVisibleChanged(bool visible)
+    {
+        _visible = visible;
+        InvokeAsync(this.StateHasChanged);
     }
 }

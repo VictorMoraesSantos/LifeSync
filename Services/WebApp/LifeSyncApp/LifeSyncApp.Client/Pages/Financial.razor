@@ -102,9 +102,9 @@
         </div>
     </div>
 
-    <TransactionDialog Visible="showDialog" VisibleChanged="@(v => showDialog = v)" UpdateModel="UpdateTransaction" Model="TransactionModel" Categories="categories" OnSaved="SaveTransaction" />
+    <TransactionDialog @ref="_transactionDialog" UpdateModel="UpdateTransaction" Model="TransactionModel" Categories="categories" OnSaved="SaveTransaction" />
 
-    <CategoriesDialog Visible="showCategoriesDialog" VisibleChanged="@(v => showCategoriesDialog = v)" UpdateCategory="UpdateCategory" Categories="categories" OnCreate="CreateCategory" OnDelete="DeleteCategory" />
+    <CategoriesDialog @ref="_categoriesDialog" UpdateCategory="UpdateCategory" Categories="categories" OnCreate="CreateCategory" OnDelete="DeleteCategory" />
 
 </RedirectToLogin>
 
@@ -119,10 +119,8 @@
     private UpdateTransactionDTO UpdateTransaction { get; set; } = new();
 
     private TransactionDTO? TransactionModel = null;
-    private bool showDialog = false;
     private bool isLoading = true;
 
-    private bool showCategoriesDialog = false;
     private UpdateCategoryDTO UpdateCategory { get; set; } = new();
 
     private TransactionType? activeTypeFilter = null;
@@ -133,6 +131,9 @@
     private decimal balance => totalIncome - totalExpenses;
     private int incomeCount => transactions.Count(t => t.TransactionType == TransactionType.Income);
     private int expensesCount => transactions.Count(t => t.TransactionType == TransactionType.Expense);
+
+    private CategoriesDialog? _categoriesDialog;
+    private TransactionDialog? _transactionDialog;
 
     protected override async Task OnInitializedAsync()
     {
@@ -242,13 +243,13 @@
     {
         TransactionModel = null;
         UpdateTransaction = new UpdateTransactionDTO();
-        showDialog = true;
+        _transactionDialog?.OnUpdate(true);
     }
 
     private void OpenCategoriesDialog()
     {
         UpdateCategory = new UpdateCategoryDTO();
-        showCategoriesDialog = true;
+        _categoriesDialog?.OnUpdate(true);
     }
 
     private void EditTransaction(TransactionDTO? transaction)
@@ -266,7 +267,7 @@
             TransactionDate = transaction.TransactionDate,
             IsRecurring = transaction.IsRecurring
         };
-        showDialog = true;
+        _transactionDialog?.OnUpdate(true);
         StateHasChanged();
     }
 
@@ -312,7 +313,8 @@
         }
 
         await LoadTransactions();
-        CloseDialog();
+        _transactionDialog?.OnUpdate(false);
+        TransactionModel = null;
     }
 
     private async Task CreateCategory()
@@ -352,7 +354,7 @@
 
     private void CloseDialog()
     {
-        showDialog = false;
+        _transactionDialog?.OnUpdate(false);
         TransactionModel = null;
     }
 

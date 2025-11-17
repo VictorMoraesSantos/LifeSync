@@ -21,7 +21,6 @@
 @code {
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
-
     [Parameter] public string Header { get; set; } = string.Empty;
     [Parameter] public object Model { get; set; } = new();
     [Parameter] public EventCallback OnSubmit { get; set; }
@@ -40,5 +39,11 @@
     {
         if (OnSubmit.HasDelegate)
             await OnSubmit.InvokeAsync();
+    }
+
+    public async Task OnUpdate(bool visible)
+    {
+        Visible = visible;
+        await VisibleChanged.InvokeAsync(visible);
     }
 }
