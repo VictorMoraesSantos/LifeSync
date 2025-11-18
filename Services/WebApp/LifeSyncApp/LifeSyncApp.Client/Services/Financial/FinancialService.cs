@@ -4,7 +4,7 @@ using LifeSyncApp.Client.Models.Financial.Transaction;
 using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
 
-namespace LifeSyncApp.Client.Services
+namespace LifeSyncApp.Client.Services.Financial
 {
     public class FinancialService : IFinancialService
     {

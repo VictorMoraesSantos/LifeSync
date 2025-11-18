@@ -1,18 +1,10 @@
 using LifeSyncApp.Client.Authentication;
+using LifeSyncApp.Client.Services.Contracts;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace LifeSyncApp.Client.Services.Http;
-
-public interface IApiClient
-{
-    Task<T?> GetAsync<T>(string url, CancellationToken cancellationToken = default);
-    Task<TResult?> PostAsync<TRequest, TResult>(string url, TRequest body, CancellationToken cancellationToken = default);
-    Task<TResult?> PutAsync<TRequest, TResult>(string url, TRequest body, CancellationToken cancellationToken = default);
-    Task DeleteAsync(string url, CancellationToken cancellationToken = default);
-    Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default);
-}
 
 public class ApiClient : IApiClient
 {

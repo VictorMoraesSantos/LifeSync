@@ -1,7 +1,11 @@
 using LifeSyncApp.Client.Authentication;
-using LifeSyncApp.Client.Services;
+using LifeSyncApp.Client.Services.Auth;
 using LifeSyncApp.Client.Services.Contracts;
+using LifeSyncApp.Client.Services.Financial;
+using LifeSyncApp.Client.Services.Gym;
 using LifeSyncApp.Client.Services.Http;
+using LifeSyncApp.Client.Services.Nutrition;
+using LifeSyncApp.Client.Services.TaskManager;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Syncfusion.Blazor;

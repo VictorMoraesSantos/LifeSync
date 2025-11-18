@@ -5,7 +5,7 @@ using LifeSyncApp.Client.Services.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace LifeSyncApp.Client.Services
+namespace LifeSyncApp.Client.Services.Auth
 {
     public class AuthService : IAuthService
     {

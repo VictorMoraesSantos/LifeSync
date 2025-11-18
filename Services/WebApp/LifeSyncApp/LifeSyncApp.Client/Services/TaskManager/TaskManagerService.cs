@@ -4,7 +4,7 @@ using LifeSyncApp.Client.Models.TaskManager.TaskLabel;
 using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
 
-namespace LifeSyncApp.Client.Services
+namespace LifeSyncApp.Client.Services.TaskManager
 {
     public class TaskManagerService : ITaskManagerService
     {

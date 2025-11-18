@@ -109,8 +109,8 @@
     private int inProgressTasks => tasks.Count(t => t.Status == Status.InProgress);
     private int completedTasksCount => tasks.Count(t => t.Status == Status.Completed);
 
-    private Components.Tasks.AddTaskModal? _taskModal;
-    private Components.Tasks.AddLabelModal? _addLabelModal;
+    private AddTaskModal? _taskModal;
+    private AddLabelModal? _addLabelModal;
 
     protected override async Task OnInitializedAsync()
     {

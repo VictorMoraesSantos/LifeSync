@@ -5,7 +5,7 @@ using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
 using FlatMealDTO = LifeSyncApp.Client.Models.Nutrition.MealDTO;
 
-namespace LifeSyncApp.Client.Services
+namespace LifeSyncApp.Client.Services.Nutrition
 {
     public class NutritionService : INutritionService
     {
@@ -286,11 +286,11 @@ namespace LifeSyncApp.Client.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateMealAsync(LifeSyncApp.Client.Models.Nutrition.Meal.UpdateMealDTO command)
+        public async Task<ApiResponse<bool>> UpdateMealAsync(Models.Nutrition.Meal.UpdateMealDTO command)
         {
             try
             {
-                var res = await _apiClient.PutAsync<LifeSyncApp.Client.Models.Nutrition.Meal.UpdateMealDTO, ApiResponse<bool>>($"nutrition-service/api/meals/{command.Id}", command);
+                var res = await _apiClient.PutAsync<Models.Nutrition.Meal.UpdateMealDTO, ApiResponse<bool>>($"nutrition-service/api/meals/{command.Id}", command);
                 return res ?? new ApiResponse<bool> { Success = false };
             }
             catch (Exception ex)
