@@ -1,0 +1,33 @@
+@using LifeSyncApp.Client.Models.TaskManager.TaskItem
+@using Microsoft.AspNetCore.Components
+
+<div class="tasks-container">
+    @if (GroupedTasks != null && GroupedTasks.Any())
+    {
+        @foreach (var dateGroup in GroupedTasks)
+        {
+            <div class="tasks-date-section">
+                <div class="tasks-date-header">
+                    @FormatHeader?.Invoke(dateGroup.Key)
+                </div>
+                <div class="tasks-grid">
+                    @foreach (var task in dateGroup.Value)
+                    {
+                        <TaskCard TaskItem="@task"
+                                  OnEditClick="@(() => OnEdit.InvokeAsync(task))"
+                                  OnDeleteClick="@(() => OnDelete.InvokeAsync(task))"
+                                  OnAddLabelClick="@(() => OnAddLabel.InvokeAsync(task))" />
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public Dictionary<DateOnly, List<TaskItemDTO>> GroupedTasks { get; set; } = new();
+    [Parameter] public Func<DateOnly, string>? FormatHeader { get; set; }
+    [Parameter] public EventCallback<TaskItemDTO> OnEdit { get; set; }
+    [Parameter] public EventCallback<TaskItemDTO> OnDelete { get; set; }
+    [Parameter] public EventCallback<TaskItemDTO> OnAddLabel { get; set; }
+}

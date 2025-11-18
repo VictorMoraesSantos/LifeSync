@@ -1,0 +1,23 @@
+﻿@using Microsoft.AspNetCore.Components
+
+<div class="stats-grid">
+    <StatCard Label="Total" Value="@Total" IconStyle="@TotalIconStyle" IconText="@TotalIconText" />
+    <StatCard Label="Pendentes" Value="@Pending" IconStyle="@PendingIconStyle" IconText="@PendingIconText" />
+    <StatCard Label="Em Progresso" Value="@InProgress" IconStyle="@InProgressIconStyle" IconText="@InProgressIconText" />
+    <StatCard Label="Concluídas" Value="@Completed" IconStyle="@CompletedIconStyle" IconText="@CompletedIconText" />
+</div>
+
+@code {
+    [Parameter] public string Total { get; set; } = "0";
+    [Parameter] public string Pending { get; set; } = "0";
+    [Parameter] public string InProgress { get; set; } = "0";
+    [Parameter] public string Completed { get; set; } = "0";
+    [Parameter] public string TotalIconStyle { get; set; } = "primary";
+    [Parameter] public string PendingIconStyle { get; set; } = "warning";
+    [Parameter] public string InProgressIconStyle { get; set; } = "secondary";
+    [Parameter] public string CompletedIconStyle { get; set; } = "success";
+    [Parameter] public string TotalIconText { get; set; } = "📋";
+    [Parameter] public string PendingIconText { get; set; } = "⏳";
+    [Parameter] public string InProgressIconText { get; set; } = "🔄";
+    [Parameter] public string CompletedIconText { get; set; } = "✅";
+}

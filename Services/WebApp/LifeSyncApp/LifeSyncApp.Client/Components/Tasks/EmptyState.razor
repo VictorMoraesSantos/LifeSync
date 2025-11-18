@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Components
+
+<div style="text-align: center; padding: 3rem;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">@Icon</div>
+    <h3>@Title</h3>
+    <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+        @Description
+    </p>
+    <button class="btn btn-primary" @onclick="OnCreateClicked">
+        @ButtonText
+    </button>
+</div>
+
+@code {
+    [Parameter] public string Icon { get; set; } = "📝";
+    [Parameter] public string Title { get; set; } = "Nenhuma tarefa encontrada";
+    [Parameter] public string Description { get; set; } = "Comece criando sua primeira tarefa";
+    [Parameter] public string ButtonText { get; set; } = "➕ Nova Tarefa";
+    [Parameter] public EventCallback OnCreate { get; set; }
+
+    private async Task OnCreateClicked()
+    {
+        if (OnCreate.HasDelegate)
+            await OnCreate.InvokeAsync(null);
+    }
+}

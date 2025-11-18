@@ -6,7 +6,6 @@
 @using LifeSyncApp.Client.Models.TaskManager.TaskLabel
 @using LifeSyncApp.Client.Components.Tasks
 @using Syncfusion.Blazor.Popups
-@using LifeSyncApp.Client.Models.Components
 @inject ITaskManagerService TaskService
 @using System.Security.Claims
 
@@ -23,12 +22,18 @@
         </Actions>
     </PageHeader>
 
-    <div class="stats-grid">
-        <StatCard Label="Total" Value="@totalTasks.ToString()" IconStyle="primary" IconText="📋" />
-        <StatCard Label="Pendentes" Value="@pendingTasks.ToString()" IconStyle="warning" IconText="⏳" />
-        <StatCard Label="Em Progresso" Value="@inProgressTasks.ToString()" IconStyle="secondary" IconText="🔄" />
-        <StatCard Label="Concluídas" Value="@completedTasksCount.ToString()" IconStyle="success" IconText="✅" />
-    </div>
+    <StatsGrid Total="@totalTasks.ToString()"
+               Pending="@pendingTasks.ToString()"
+               InProgress="@inProgressTasks.ToString()"
+               Completed="@completedTasksCount.ToString()"
+               TotalIconStyle="primary"
+               PendingIconStyle="warning"
+               InProgressIconStyle="secondary"
+               CompletedIconStyle="success"
+               TotalIconText="📋"
+               PendingIconText="⏳"
+               InProgressIconText="🔄"
+               CompletedIconText="✅" />
 
     <div class="card">
         <div class="card-body">
@@ -42,45 +47,24 @@
             else if (tasks.Any())
             {
                 <TaskFilters ActiveStatus="activeStatusFilter" ActivePriority="activePriorityFilter" OnStatusChanged="FilterByStatus" OnPriorityChanged="FilterByPriority" />
-
-                <div class="tasks-container">
-                    @foreach (var dateGroup in GetGroupedTasks())
-                    {
-                        <div class="tasks-date-section">
-                            <div class="tasks-date-header">
-                                @FormatDateHeader(dateGroup.Key)
-                            </div>
-                            <div class="tasks-grid">
-                                @foreach (var task in dateGroup.Value)
-                                {
-                                    <TaskCard TaskItem="@task"
-                                              OnEditClick="@(() => EditTask(task))"
-                                              OnDeleteClick="@(() => DeleteTask(task))"
-                                              OnAddLabelClick="@(() => OpenAddLabelDialog(task))" />
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
+                <TasksContainer GroupedTasks="GetGroupedTasks().ToDictionary(k => k.Key, k => k.Value)"
+                                FormatHeader="@(d => FormatDateHeader(d))"
+                                OnEdit="@(task => EditTask(task))"
+                                OnDelete="@(task => DeleteTask(task))"
+                                OnAddLabel="@(task => OpenAddLabelDialog(task))" />
             }
             else
             {
-                <div style="text-align: center; padding: 3rem;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
-                    <h3>Nenhuma tarefa encontrada</h3>
-                    <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
-                        Comece criando sua primeira tarefa
-                    </p>
-                    <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                        ➕ Nova Tarefa
-                    </button>
-                </div>
+                <EmptyState Icon="📝"
+                            Title="Nenhuma tarefa encontrada"
+                            Description="Comece criando sua primeira tarefa"
+                            ButtonText="➕ Nova Tarefa"
+                            OnCreate="OpenCreateDialog" />
             }
         </div>
     </div>
 
     <AddTaskModal @ref="_taskModal" Header="@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")" Model="currentTask" OnSubmit="SaveTask" OnCancel="CloseDialog" SubmitButtonText="@(editingTask == null ? "➕ Criar" : "💾 Salvar")" />
-
     <AddLabelModal @ref="_addLabelModal" Header="🏷️ Adicionar Label à Tarefa" Model="labelModel" OnSubmit="CreateLabelForTask" OnCancel="CloseAddLabelDialog" SubmitButtonText="➕ Adicionar" />
 </RedirectToLogin>
 
@@ -238,6 +222,8 @@
         this.StateHasChanged();
     }
 
+    
+
     private void CloseDialog()
     {
         _taskModal?.Close();
@@ -290,4 +276,6 @@
         await LoadTasks();
         this.StateHasChanged();
     }
+
+    
 }

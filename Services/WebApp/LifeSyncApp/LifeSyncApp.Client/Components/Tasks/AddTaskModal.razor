@@ -1,6 +1,5 @@
 ﻿@using LifeSyncApp.Client.Components.Shared
 @using LifeSyncApp.Client.Models.TaskManager.TaskItem
-@using LifeSyncApp.Client.Models.Components
 
 <TaskDialog @ref="_dialogRef" Header="@Header" Model="Model" OnSubmit="HandleSubmit" OnCancel="HandleCancel" SubmitButtonText="@SubmitButtonText">
     <div class="form-group">
@@ -22,6 +21,19 @@
             }
         </InputSelect>
     </div>
+
+    @if (Model != null && Model.Id != 0)
+    {
+        <div class="form-group">
+            <label class="form-label">🔁 Status</label>
+            <InputSelect @bind-Value="Model.Status" class="form-control">
+                @foreach (var s in Enum.GetValues<Status>())
+                {
+                    <option value="@s">@s</option>
+                }
+            </InputSelect>
+        </div>
+    }
 
     <div class="form-group">
         <label class="form-label">📅 Data de Vencimento</label>
