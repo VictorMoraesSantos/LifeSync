@@ -6,9 +6,7 @@
     <div class="task-card-header">
         <div class="task-title-row">
             <h4 class="task-title">📋 @TaskItem.Title</h4>
-            <span class="badge badge-@GetPriorityColor(TaskItem.Priority)">
-                @GetPriorityIcon(TaskItem.Priority) @TaskItem.Priority
-            </span>
+            <span class="badge badge-@GetPriorityColor(TaskItem.Priority)">@GetPriorityIcon(TaskItem.Priority) @TaskItem.Priority</span>
         </div>
         <div class="task-description">@TaskItem.Description</div>
     </div>

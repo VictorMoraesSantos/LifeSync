@@ -7,9 +7,7 @@
         @foreach (var dateGroup in GroupedTasks)
         {
             <div class="tasks-date-section">
-                <div class="tasks-date-header">
-                    @FormatHeader?.Invoke(dateGroup.Key)
-                </div>
+                <div class="tasks-date-header">@FormatHeader?.Invoke(dateGroup.Key)</div>
                 <div class="tasks-grid">
                     @foreach (var task in dateGroup.Value)
                     {

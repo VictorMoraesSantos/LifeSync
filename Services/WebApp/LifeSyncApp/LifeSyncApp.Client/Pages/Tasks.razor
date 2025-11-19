@@ -44,9 +44,13 @@
                     <p style="margin-top: 1rem;">Carregando tarefas...</p>
                 </div>
             }
-            else if (tasks.Any())
+            else if (TaskItems.Any())
             {
-                <TaskFilters ActiveStatus="activeStatusFilter" ActivePriority="activePriorityFilter" OnStatusChanged="FilterByStatus" OnPriorityChanged="FilterByPriority" />
+                <TaskFilters ActiveStatus="activeStatusFilter"
+                             ActivePriority="activePriorityFilter"
+                             OnStatusChanged="FilterByStatus"
+                             OnPriorityChanged="FilterByPriority" />
+
                 <TasksContainer GroupedTasks="GetGroupedTasks().ToDictionary(k => k.Key, k => k.Value)"
                                 FormatHeader="@(d => FormatDateHeader(d))"
                                 OnEdit="@(task => EditTask(task))"
@@ -64,23 +68,31 @@
         </div>
     </div>
 
-    <AddTaskModal @ref="_taskModal" Header="@(editingTask == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")" Model="currentTask" OnSubmit="SaveTask" OnCancel="CloseDialog" SubmitButtonText="@(editingTask == null ? "➕ Criar" : "💾 Salvar")" />
-    <AddLabelModal @ref="_addLabelModal" Header="🏷️ Adicionar Label à Tarefa" Model="labelModel" OnSubmit="CreateLabelForTask" OnCancel="CloseAddLabelDialog" SubmitButtonText="➕ Adicionar" />
+    <AddTaskModal @ref="_taskModal"
+                  Header="@(EditingTaskItem == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")"
+                  Model="currentTask"
+                  OnSubmit="SaveTask"
+                  OnCancel="CloseDialog"
+                  SubmitButtonText="@(EditingTaskItem == null ? "➕ Criar" : "💾 Salvar")" />
+
+    <AddLabelModal @ref="_addLabelModal"
+                   Header="🏷️ Adicionar Label à Tarefa"
+                   Model="labelModel"
+                   OnSubmit="CreateLabelForTask"
+                   OnCancel="CloseAddLabelDialog"
+                   SubmitButtonText="➕ Adicionar" />
 </RedirectToLogin>
 
 @code {
     [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    [SupplyParameterFromForm] private UpdateTaskItemDTO currentTask { get; set; } = new();
 
+    private bool isLoading = true;
     private int? _userId;
 
-    private List<TaskItemDTO> tasks = new();
-    private List<TaskLabelDTO> labels = new();
-
-    [SupplyParameterFromForm]
-    private UpdateTaskItemDTO currentTask { get; set; } = new();
-
-    private TaskItemDTO? editingTask = null;
-    private bool isLoading = true;
+    private List<TaskItemDTO> TaskItems = new();
+    private List<TaskLabelDTO> Labels = new();
+    private TaskItemDTO? EditingTaskItem = null;
 
     private int? targetTaskIdForLabel = null;
     private UpdateTaskLabelDTO labelModel { get; set; } = new();
@@ -88,38 +100,41 @@
     private Status? activeStatusFilter = null;
     private Priority? activePriorityFilter = null;
 
-    private int totalTasks => tasks.Count;
-    private int pendingTasks => tasks.Count(t => t.Status == Status.Pending);
-    private int inProgressTasks => tasks.Count(t => t.Status == Status.InProgress);
-    private int completedTasksCount => tasks.Count(t => t.Status == Status.Completed);
+    private int totalTasks => TaskItems.Count;
+    private int pendingTasks => TaskItems.Count(t => t.Status == Status.Pending);
+    private int inProgressTasks => TaskItems.Count(t => t.Status == Status.InProgress);
+    private int completedTasksCount => TaskItems.Count(t => t.Status == Status.Completed);
 
     private AddTaskModal? _taskModal;
     private AddLabelModal? _addLabelModal;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await ResolveUserIdAsync();
-        await LoadTasks();
-        await LoadLabels();
+        if (firstRender)
+        {
+            await ResolveUserIdAsync();
+            await LoadLabels();
+            await LoadTasks();
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task ResolveUserIdAsync()
     {
         var auth = await AuthenticationStateTask;
         var user = auth.User;
-        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                   ?? user.FindFirst("UserId")?.Value
-                   ?? user.FindFirst("sub")?.Value;
-        if (int.TryParse(idStr, out var id))
-            _userId = id;
+        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        _userId = int.Parse(idStr);
     }
 
     private async Task LoadTasks()
     {
         isLoading = true;
+
         var result = await TaskService.GetTasksByUserAsync(_userId.Value);
         if (result.Success && result.Data != null)
-            tasks = result.Data;
+            TaskItems = result.Data;
+
         isLoading = false;
         this.StateHasChanged();
     }
@@ -128,7 +143,8 @@
     {
         var result = await TaskService.GetLabelsByUserAsync(_userId.Value);
         if (result.Success && result.Data != null)
-            labels = result.Data;
+            Labels = result.Data;
+
         this.StateHasChanged();
     }
 
@@ -144,7 +160,7 @@
 
     private IEnumerable<TaskItemDTO> GetFilteredTasks()
     {
-        var filtered = tasks.AsEnumerable();
+        var filtered = TaskItems.AsEnumerable();
 
         if (activeStatusFilter.HasValue)
             filtered = filtered.Where(t => t.Status == activeStatusFilter.Value);
@@ -183,14 +199,14 @@
 
     private void OpenCreateDialog()
     {
-        editingTask = null;
+        EditingTaskItem = null;
         currentTask = new UpdateTaskItemDTO();
         _taskModal?.Open();
     }
 
     private void EditTask(TaskItemDTO? task)
     {
-        editingTask = task;
+        EditingTaskItem = task;
         currentTask = new UpdateTaskItemDTO(task.Id, task.Title, task.Description, task.Status, task.Priority, task.DueDate);
         _taskModal?.Open();
         this.StateHasChanged();
@@ -199,7 +215,7 @@
     private async Task SaveTask()
     {
 
-        if (editingTask == null)
+        if (EditingTaskItem == null)
         {
             var create = new CreateTaskItemDTO(currentTask.Title, currentTask.Description, currentTask.Priority, currentTask.DueDate, _userId.Value);
             await TaskService.CreateTaskAsync(create);
@@ -222,13 +238,11 @@
         this.StateHasChanged();
     }
 
-    
-
     private void CloseDialog()
     {
         _taskModal?.Close();
         currentTask = new();
-        editingTask = null;
+        EditingTaskItem = null;
     }
 
     private async Task CreateLabel()
@@ -276,6 +290,4 @@
         await LoadTasks();
         this.StateHasChanged();
     }
-
-    
 }

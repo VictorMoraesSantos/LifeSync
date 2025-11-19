@@ -1,45 +1,24 @@
 ﻿@using LifeSyncApp.Client.Models.TaskManager.TaskItem
 
 <div class="filter-buttons">
-    <button class="filter-btn @(ActiveStatus == null ? "active" : "")" @onclick="() => ChangeStatus(null)">
-        📋 Todas
-    </button>
-    <button class="filter-btn @(ActiveStatus == Status.Pending ? "active" : "")" @onclick="() => ChangeStatus(Status.Pending)">
-        ⏳ Pendentes
-    </button>
-    <button class="filter-btn @(ActiveStatus == Status.InProgress ? "active" : "")" @onclick="() => ChangeStatus(Status.InProgress)">
-        🔄 Em Progresso
-    </button>
-    <button class="filter-btn @(ActiveStatus == Status.Completed ? "active" : "")" @onclick="() => ChangeStatus(Status.Completed)">
-        ✅ Concluídas
-    </button>
-    <button class="filter-btn @(ActiveStatus == Status.Cancelled ? "active" : "")" @onclick="() => ChangeStatus(Status.Cancelled)">
-        ❌ Canceladas
-    </button>
+    <button class="filter-btn @(ActiveStatus == null ? "active" : "")" @onclick="() => ChangeStatus(null)">📋 Todas</button>
+    <button class="filter-btn @(ActiveStatus == Status.Pending ? "active" : "")" @onclick="() => ChangeStatus(Status.Pending)">⏳ Pendentes    </button>
+    <button class="filter-btn @(ActiveStatus == Status.InProgress ? "active" : "")" @onclick="() => ChangeStatus(Status.InProgress)">🔄 Em Progresso</button>
+    <button class="filter-btn @(ActiveStatus == Status.Completed ? "active" : "")" @onclick="() => ChangeStatus(Status.Completed)">✅ Concluídas</button>
+    <button class="filter-btn @(ActiveStatus == Status.Cancelled ? "active" : "")" @onclick="() => ChangeStatus(Status.Cancelled)">❌ Canceladas</button>
 </div>
 
 <div class="filter-buttons">
-    <button class="filter-btn @(ActivePriority == null ? "active" : "")" @onclick="() => ChangePriority(null)">
-        🎯 Todas Prioridades
-    </button>
-    <button class="filter-btn @(ActivePriority == Priority.Urgent ? "active" : "")" @onclick="() => ChangePriority(Priority.Urgent)">
-        🚨 Urgente
-    </button>
-    <button class="filter-btn @(ActivePriority == Priority.High ? "active" : "")" @onclick="() => ChangePriority(Priority.High)">
-        🔴 Alta
-    </button>
-    <button class="filter-btn @(ActivePriority == Priority.Medium ? "active" : "")" @onclick="() => ChangePriority(Priority.Medium)">
-        🟡 Média
-    </button>
-    <button class="filter-btn @(ActivePriority == Priority.Low ? "active" : "")" @onclick="() => ChangePriority(Priority.Low)">
-        🟢 Baixa
-    </button>
+    <button class="filter-btn @(ActivePriority == null ? "active" : "")" @onclick="() => ChangePriority(null)">🎯 Todas Prioridades</button>
+    <button class="filter-btn @(ActivePriority == Priority.Urgent ? "active" : "")" @onclick="() => ChangePriority(Priority.Urgent)">🚨 Urgente</button>
+    <button class="filter-btn @(ActivePriority == Priority.High ? "active" : "")" @onclick="() => ChangePriority(Priority.High)">🔴 Alta</button>
+    <button class="filter-btn @(ActivePriority == Priority.Medium ? "active" : "")" @onclick="() => ChangePriority(Priority.Medium)">🟡 Média</button>
+    <button class="filter-btn @(ActivePriority == Priority.Low ? "active" : "")" @onclick="() => ChangePriority(Priority.Low)">🟢 Baixa</button>
 </div>
 
 @code {
     [Parameter] public Status? ActiveStatus { get; set; }
     [Parameter] public Priority? ActivePriority { get; set; }
-
     [Parameter] public EventCallback<Status?> OnStatusChanged { get; set; }
     [Parameter] public EventCallback<Priority?> OnPriorityChanged { get; set; }
 
