@@ -8,6 +8,7 @@
 @using Syncfusion.Blazor.Popups
 @inject ITaskManagerService TaskService
 @using System.Security.Claims
+@using LifeSyncApp.Client.Extensions
 
 <PageTitle>Tarefas - LifeSync</PageTitle>
 
@@ -44,15 +45,15 @@
                     <p style="margin-top: 1rem;">Carregando tarefas...</p>
                 </div>
             }
-            else if (TaskItems.Any())
+            else if (_taskItems.Any())
             {
                 <TaskFilters ActiveStatus="activeStatusFilter"
                              ActivePriority="activePriorityFilter"
                              OnStatusChanged="FilterByStatus"
                              OnPriorityChanged="FilterByPriority" />
 
-                <TasksContainer GroupedTasks="GetGroupedTasks().ToDictionary(k => k.Key, k => k.Value)"
-                                FormatHeader="@(d => FormatDateHeader(d))"
+                <TasksContainer GroupedTasks="_groupedTasks"
+                                FormatHeader="@(d => d.ToFriendlyDateString())"
                                 OnEdit="@(task => EditTask(task))"
                                 OnDelete="@(task => DeleteTask(task))"
                                 OnAddLabel="@(task => OpenAddLabelDialog(task))" />
@@ -69,15 +70,15 @@
     </div>
 
     <AddTaskModal @ref="_taskModal"
-                  Header="@(EditingTaskItem == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")"
+                  Header="@(_editingTaskItem == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")"
                   Model="currentTask"
                   OnSubmit="SaveTask"
                   OnCancel="CloseDialog"
-                  SubmitButtonText="@(EditingTaskItem == null ? "➕ Criar" : "💾 Salvar")" />
+                  SubmitButtonText="@(_editingTaskItem == null ? "➕ Criar" : "💾 Salvar")" />
 
     <AddLabelModal @ref="_addLabelModal"
                    Header="🏷️ Adicionar Label à Tarefa"
-                   Model="labelModel"
+                   Model="_labelModel"
                    OnSubmit="CreateLabelForTask"
                    OnCancel="CloseAddLabelDialog"
                    SubmitButtonText="➕ Adicionar" />
@@ -90,40 +91,37 @@
     private bool isLoading = true;
     private int? _userId;
 
-    private List<TaskItemDTO> TaskItems = new();
-    private List<TaskLabelDTO> Labels = new();
-    private TaskItemDTO? EditingTaskItem = null;
+    private List<TaskItemDTO> _taskItems = new();
+    private List<TaskLabelDTO> _labels = new();
+    private TaskItemDTO? _editingTaskItem = null;
 
     private int? targetTaskIdForLabel = null;
-    private UpdateTaskLabelDTO labelModel { get; set; } = new();
+    private UpdateTaskLabelDTO _labelModel { get; set; } = new();
 
     private Status? activeStatusFilter = null;
     private Priority? activePriorityFilter = null;
 
-    private int totalTasks => TaskItems.Count;
-    private int pendingTasks => TaskItems.Count(t => t.Status == Status.Pending);
-    private int inProgressTasks => TaskItems.Count(t => t.Status == Status.InProgress);
-    private int completedTasksCount => TaskItems.Count(t => t.Status == Status.Completed);
+    private Dictionary<DateOnly, List<TaskItemDTO>> _groupedTasks = new();
+
+    private int totalTasks => _taskItems.Count;
+    private int pendingTasks => _taskItems.Count(t => t.Status == Status.Pending);
+    private int inProgressTasks => _taskItems.Count(t => t.Status == Status.InProgress);
+    private int completedTasksCount => _taskItems.Count(t => t.Status == Status.Completed);
 
     private AddTaskModal? _taskModal;
     private AddLabelModal? _addLabelModal;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            await ResolveUserIdAsync();
-            await LoadLabels();
-            await LoadTasks();
-        }
-        await base.OnAfterRenderAsync(firstRender);
+        await ResolveUserIdAsync();
+        await Task.WhenAll(LoadLabels(), LoadTasks());
+        await base.OnInitializedAsync();
     }
 
     private async Task ResolveUserIdAsync()
     {
         var auth = await AuthenticationStateTask;
-        var user = auth.User;
-        var idStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var idStr = auth.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         _userId = int.Parse(idStr);
     }
 
@@ -133,7 +131,10 @@
 
         var result = await TaskService.GetTasksByUserAsync(_userId.Value);
         if (result.Success && result.Data != null)
-            TaskItems = result.Data;
+        {
+            _taskItems = result.Data;
+            UpdateGroupedTasks();
+        }
 
         isLoading = false;
         this.StateHasChanged();
@@ -143,7 +144,7 @@
     {
         var result = await TaskService.GetLabelsByUserAsync(_userId.Value);
         if (result.Success && result.Data != null)
-            Labels = result.Data;
+            _labels = result.Data;
 
         this.StateHasChanged();
     }
@@ -151,16 +152,18 @@
     private void FilterByStatus(Status? status)
     {
         activeStatusFilter = status;
+        UpdateGroupedTasks();
     }
 
     private void FilterByPriority(Priority? priority)
     {
         activePriorityFilter = priority;
+        UpdateGroupedTasks();
     }
 
     private IEnumerable<TaskItemDTO> GetFilteredTasks()
     {
-        var filtered = TaskItems.AsEnumerable();
+        var filtered = _taskItems.AsEnumerable();
 
         if (activeStatusFilter.HasValue)
             filtered = filtered.Where(t => t.Status == activeStatusFilter.Value);
@@ -171,42 +174,24 @@
         return filtered.OrderBy(t => t.DueDate);
     }
 
-    private Dictionary<DateOnly, List<TaskItemDTO>> GetGroupedTasks()
+    private void UpdateGroupedTasks()
     {
-        return GetFilteredTasks()
+        _groupedTasks = GetFilteredTasks()
             .GroupBy(t => t.DueDate)
             .OrderBy(g => g.Key)
             .ToDictionary(g => g.Key, g => g.ToList());
     }
 
-    private string FormatDateHeader(DateOnly date)
-    {
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var tomorrow = today.AddDays(1);
-        var yesterday = today.AddDays(-1);
-
-        if (date == today)
-            return $"Hoje - {date:dd/MM/yyyy}";
-        else if (date == tomorrow)
-            return $"Amanhã - {date:dd/MM/yyyy}";
-        else if (date == yesterday)
-            return $"Ontem - {date:dd/MM/yyyy}";
-        else if (date < today)
-            return $"Atrasado - {date:dd/MM/yyyy}";
-        else
-            return date.ToString("dd/MM/yyyy - dddd");
-    }
-
     private void OpenCreateDialog()
     {
-        EditingTaskItem = null;
+        _editingTaskItem = null;
         currentTask = new UpdateTaskItemDTO();
         _taskModal?.Open();
     }
 
     private void EditTask(TaskItemDTO? task)
     {
-        EditingTaskItem = task;
+        _editingTaskItem = task;
         currentTask = new UpdateTaskItemDTO(task.Id, task.Title, task.Description, task.Status, task.Priority, task.DueDate);
         _taskModal?.Open();
         this.StateHasChanged();
@@ -215,7 +200,7 @@
     private async Task SaveTask()
     {
 
-        if (EditingTaskItem == null)
+        if (_editingTaskItem == null)
         {
             var create = new CreateTaskItemDTO(currentTask.Title, currentTask.Description, currentTask.Priority, currentTask.DueDate, _userId.Value);
             await TaskService.CreateTaskAsync(create);
@@ -242,12 +227,12 @@
     {
         _taskModal?.Close();
         currentTask = new();
-        EditingTaskItem = null;
+        _editingTaskItem = null;
     }
 
     private async Task CreateLabel()
     {
-        var cmd = new CreateTaskLabelDTO(labelModel.Name, labelModel.Color, _userId.Value, 0);
+        var cmd = new CreateTaskLabelDTO(_labelModel.Name, _labelModel.Color, _userId.Value, 0);
         var res = await TaskService.CreateLabelAsync(cmd);
         if (res.Success)
             await LoadLabels();
@@ -267,7 +252,7 @@
     private void OpenAddLabelDialog(TaskItemDTO? task)
     {
         targetTaskIdForLabel = task.Id;
-        labelModel = new();
+        _labelModel = new();
         _addLabelModal?.Open();
         this.StateHasChanged();
     }
@@ -275,18 +260,18 @@
     private void CloseAddLabelDialog()
     {
         _addLabelModal?.Close();
-        labelModel = new UpdateTaskLabelDTO();
+        _labelModel = new UpdateTaskLabelDTO();
         targetTaskIdForLabel = null;
     }
 
     private async Task CreateLabelForTask()
     {
-        var cmd = new CreateTaskLabelDTO(labelModel.Name, labelModel.Color, _userId.Value, targetTaskIdForLabel.Value);
+        var cmd = new CreateTaskLabelDTO(_labelModel.Name, _labelModel.Color, _userId.Value, targetTaskIdForLabel.Value);
         var res = await TaskService.CreateLabelAsync(cmd);
         if (!res.Success) return;
 
         _addLabelModal?.Close();
-        labelModel = new();
+        _labelModel = new();
         await LoadTasks();
         this.StateHasChanged();
     }
