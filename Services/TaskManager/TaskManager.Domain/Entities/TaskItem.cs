@@ -54,7 +54,7 @@ namespace TaskManager.Domain.Entities
             if (title == null || string.IsNullOrWhiteSpace(title))
                 throw new DomainException(TaskItemErrors.InvalidTitle);
 
-            Title = title.Trim();
+            Title = title;
         }
 
         public void SetDescription(string description)
@@ -62,12 +62,12 @@ namespace TaskManager.Domain.Entities
             if (description == null || string.IsNullOrWhiteSpace(description))
                 throw new DomainException(TaskItemErrors.InvalidDescription);
 
-            Description = description.Trim();
+            Description = description;
         }
 
         public void SetPriority(Priority priority)
         {
-            if (priority == null || !Enum.IsDefined(typeof(Priority), priority))
+            if (!Enum.IsDefined(typeof(Priority), priority))
                 throw new DomainException(TaskItemErrors.InvalidPriority);
 
             Priority = priority;
@@ -112,16 +112,6 @@ namespace TaskManager.Domain.Entities
 
             _labels.Remove(labelToRemove);
 
-            MarkAsUpdated();
-        }
-
-        public void RemoveLabelById(int labelId)
-        {
-            var label = _labels.FirstOrDefault(l => l.Id == labelId);
-            if (label == null)
-                throw new DomainException(TaskItemErrors.LabelNotFound);
-
-            _labels.Remove(label);
             MarkAsUpdated();
         }
 
