@@ -191,7 +191,7 @@ namespace TaskManager.UnitTests.Domain
             var validPriority = Priority.Medium;
             var validUserId = 1;
             var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
-            
+
             var newTitle = "new title";
             var newDescription = "new description";
             var newStatus = Status.InProgress;
@@ -249,6 +249,66 @@ namespace TaskManager.UnitTests.Domain
         }
 
         [Fact]
+        public void AddLabel_WhitNullLabel_ShouldThrowDomainException()
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+
+            //Act
+            var result = Record.Exception(() => taskItem.AddLabel(null));
+
+            //Assert
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.NullLabel.Description, result?.Message);
+        }
+
+        [Fact]
+        public void AddLabel_WhitExistingLabel_ShouldThrowDomainException()
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+
+            var validLabelTitle = "valid title";
+            var validLabelColor = LabelColor.Red;
+
+            var taskLabel = new TaskLabel(
+                validLabelTitle,
+                validLabelColor,
+                validUserId,
+                taskItem.Id);
+
+            //Act
+            taskItem.AddLabel(taskLabel);
+            var result = Record.Exception(() => taskItem.AddLabel(taskLabel));
+
+            //Assert
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.DuplicateLabel.Description, result?.Message);
+        }
+
+        [Fact]
         public void RemoveLabel_ShouldRemoveLabel()
         {
             // Arrange
@@ -280,6 +340,65 @@ namespace TaskManager.UnitTests.Domain
 
             //Assert
             Assert.DoesNotContain(taskLabel, taskItem.Labels);
+        }
+
+        [Fact]
+        public void RemoveLabel_WhitNullLabel_ShouldThrowDomainException()
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+
+            //Act
+            var result = Record.Exception(() => taskItem.RemoveLabel(null));
+
+            //Assert
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.NullLabel.Description, result?.Message);
+        }
+
+        [Fact]
+        public void RemoveLabel_WhitNonExistingLabel_ShouldThrowDomainException()
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+         
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+            
+            var validLabelTitle = "valid title";
+            var validLabelColor = LabelColor.Red;
+            
+            var taskLabel = new TaskLabel(
+                validLabelTitle,
+                validLabelColor,
+                validUserId,
+                taskItem.Id);
+            
+            //Act
+            var result = Record.Exception(() => taskItem.RemoveLabel(taskLabel));
+            
+            //Assert
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.LabelNotFound.Description, result?.Message);
         }
     }
 }
