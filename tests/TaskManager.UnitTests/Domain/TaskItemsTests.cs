@@ -182,6 +182,193 @@ namespace TaskManager.UnitTests.Domain
             Assert.Equal(newStatus, taskItem.Status);
         }
 
+        public void Update_WithValidParameters_ShouldUpdateProperties()
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
+            var newTitle = "new title";
+            var newDescription = "new description";
+            var newStatus = Status.InProgress;
+            var newPriority = Priority.Urgent;
+            var newDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3));
+
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+
+            // Act
+            taskItem.Update(newTitle, newDescription, newStatus, newPriority, newDueDate);
+            // Assert
+
+            Assert.Equal(newTitle, taskItem.Title);
+            Assert.Equal(newDescription, taskItem.Description);
+            Assert.Equal(newStatus, taskItem.Status);
+            Assert.Equal(newPriority, taskItem.Priority);
+            Assert.Equal(newDueDate, taskItem.DueDate);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Update_WithInvalidTitle_ShouldThrowDomainException(string? invalidTitle)
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+
+            var newDescription = "new description";
+            var newStatus = Status.InProgress;
+            var newPriority = Priority.Urgent;
+            var newDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3));
+
+            // Act
+            var result = Record.Exception(() =>
+                taskItem.Update(
+                    invalidTitle,
+                    newDescription,
+                    newStatus,
+                    newPriority,
+                    newDueDate));
+
+            // Assert
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.InvalidTitle.Description, result?.Message);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Update_WithInvalidDescription_ShouldThrowDomainException(string? invalidDescription)
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+
+            var newTitle = "new title";
+            var newStatus = Status.InProgress;
+            var newPriority = Priority.Urgent;
+            var newDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3));
+
+            // Act
+            var result = Record.Exception(() =>
+                taskItem.Update(
+                    newTitle,
+                    invalidDescription,
+                    newStatus,
+                    newPriority,
+                    newDueDate));
+            // Assert
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.InvalidDescription.Description, result?.Message);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(0)]
+        [InlineData(5)]
+        public void Update_WithInvalidPriority_ShouldThrowDomainException(int invalidPriority)
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+
+            var newTitle = "new title";
+            var newDescription = "new description";
+            var newStatus = Status.InProgress;
+            var newDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3));
+
+            // Act
+            var result = Record.Exception(() =>
+                taskItem.Update(
+                    newTitle,
+                    newDescription,
+                    newStatus,
+                    (Priority)(invalidPriority),
+                    newDueDate));
+
+            // Assert
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.InvalidPriority.Description, result?.Message);
+        }
+
+
+        [Fact]
+        public void Update_WithDueDateInPast_ShouldThrowDomainException()
+        {
+            // Arrange
+            var validTitle = "valid title";
+            var validDescription = "valid description";
+            var validPriority = Priority.Medium;
+            var validUserId = 1;
+            var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
+            var taskItem = new TaskItem(
+                validTitle,
+                validDescription,
+                validPriority,
+                validDueDate,
+                validUserId);
+
+            var newTitle = "new title";
+            var newDescription = "new description";
+            var newStatus = Status.InProgress;
+            var newPriority = Priority.Urgent;
+            var pastDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
+
+            // Act
+            var result = Record.Exception(() =>
+                taskItem.Update(
+                    newTitle,
+                    newDescription,
+                    newStatus,
+                    newPriority,
+                    pastDueDate));
+
+            // Assert
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.DueDateInPast.Description, result?.Message);
+        }
+
         [Fact]
         public void Update_WhenUpdateEntity_ShouldMaskAsUpdated()
         {
@@ -376,26 +563,26 @@ namespace TaskManager.UnitTests.Domain
             var validPriority = Priority.Medium;
             var validUserId = 1;
             var validDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
-         
+
             var taskItem = new TaskItem(
                 validTitle,
                 validDescription,
                 validPriority,
                 validDueDate,
                 validUserId);
-            
+
             var validLabelTitle = "valid title";
             var validLabelColor = LabelColor.Red;
-            
+
             var taskLabel = new TaskLabel(
                 validLabelTitle,
                 validLabelColor,
                 validUserId,
                 taskItem.Id);
-            
+
             //Act
             var result = Record.Exception(() => taskItem.RemoveLabel(taskLabel));
-            
+
             //Assert
             Assert.IsType<DomainException>(result);
             Assert.Equal(TaskItemErrors.LabelNotFound.Description, result?.Message);
