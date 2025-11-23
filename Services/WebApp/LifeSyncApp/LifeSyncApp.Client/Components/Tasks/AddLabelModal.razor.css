@@ -1,0 +1,11 @@
+.form-group ::deep textarea {
+    font-family: "Inter" !important;
+}
+
+.form-group ::deep input {
+    font-family: "Inter" !important;
+}
+
+.form-group ::deep select {
+    font-family: "Inter" !important;
+}

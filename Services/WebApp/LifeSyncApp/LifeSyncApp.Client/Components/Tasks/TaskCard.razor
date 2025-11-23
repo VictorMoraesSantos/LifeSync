@@ -1,4 +1,5 @@
-﻿@using LifeSyncApp.Client.Models.TaskManager
+﻿@using LifeSyncApp.Client.Components.Tasks.Extensions
+@using LifeSyncApp.Client.Models.TaskManager
 @using LifeSyncApp.Client.Models.TaskManager.TaskItem
 @using LifeSyncApp.Client.Models.TaskManager.TaskLabel
 
@@ -6,7 +7,7 @@
     <div class="task-card-header">
         <div class="task-title-row">
             <h4 class="task-title">📋 @TaskItem.Title</h4>
-            <span class="badge badge-@GetPriorityColor(TaskItem.Priority)">@GetPriorityIcon(TaskItem.Priority) @TaskItem.Priority</span>
+            <span class="badge badge-@TasksExtensions.GetPriorityColor(TaskItem.Priority)">@TasksExtensions.GetPriorityIcon(TaskItem.Priority) @TaskItem.Priority</span>
         </div>
         <div class="task-description">@TaskItem.Description</div>
     </div>
@@ -17,7 +18,7 @@
             <div class="task-labels">
                 @foreach (var label in TaskItem.Labels)
                 {
-                    <span class="badge" style="background-color:@GetLabelHex(label.Color); color:@GetLabelTextColor(label.Color);">🏷️ @label.Name</span>
+                    <span class="badge" style="background-color:@TasksExtensions.GetLabelHex(label.Color); color:@TasksExtensions.GetLabelTextColor(label.Color);">🏷️ @label.Name</span>
                 }
             </div>
         }
@@ -25,7 +26,7 @@
         <div class="task-meta">
             <div class="task-meta-item">
                 <span class="task-meta-label">Status:</span>
-                <span class="badge badge-@GetStatusColor(TaskItem.Status)">@GetStatusIcon(TaskItem.Status) @TaskItem.Status</span>
+                <span class="badge badge-@TasksExtensions.GetStatusColor(TaskItem.Status)">@TasksExtensions.GetStatusIcon(TaskItem.Status) @TaskItem.Status</span>
             </div>
             <div class="task-meta-item">
                 <span class="task-meta-label">Vencimento:</span>
@@ -46,80 +47,4 @@
     [Parameter] public Action? OnEditClick { get; set; }
     [Parameter] public Action? OnDeleteClick { get; set; }
     [Parameter] public Action? OnAddLabelClick { get; set; }
-
-    private string GetPriorityColor(Priority priority)
-    {
-        return priority switch
-        {
-            Priority.High => "error",
-            Priority.Urgent => "error",
-            Priority.Medium => "warning",
-            Priority.Low => "secondary",
-            _ => "primary"
-        };
-    }
-
-    private string GetPriorityIcon(Priority priority)
-    {
-        return priority switch
-        {
-            Priority.Urgent => "🚨",
-            Priority.High => "🔴",
-            Priority.Medium => "🟡",
-            Priority.Low => "🟢",
-            _ => "⚪"
-        };
-    }
-
-    private string GetStatusColor(Status status)
-    {
-        return status switch
-        {
-            Status.Completed => "success",
-            Status.InProgress => "warning",
-            Status.Pending => "secondary",
-            Status.Cancelled => "error",
-            _ => "secondary"
-        };
-    }
-
-    private string GetStatusIcon(Status status)
-    {
-        return status switch
-        {
-            Status.Completed => "✅",
-            Status.InProgress => "🔄",
-            Status.Pending => "⏳",
-            Status.Cancelled => "❌",
-            _ => "📌"
-        };
-    }
-
-    private string GetLabelHex(LabelColor color)
-    {
-        return color switch
-        {
-            LabelColor.Red => "#FF0000",
-            LabelColor.Green => "#00FF00",
-            LabelColor.Blue => "#0000FF",
-            LabelColor.Yellow => "#FFFF00",
-            LabelColor.Purple => "#800080",
-            LabelColor.Orange => "#FFA500",
-            LabelColor.Pink => "#FFC0CB",
-            LabelColor.Brown => "#A52A2A",
-            LabelColor.Gray => "#808080",
-            _ => "#777777",
-        };
-    }
-
-    private string GetLabelTextColor(LabelColor color)
-    {
-        // Use dark text for light backgrounds (yellow) and white for others
-        return color switch
-        {
-            LabelColor.Yellow => "#000000",
-            LabelColor.Pink => "#000000",
-            _ => "#FFFFFF",
-        };
-    }
 }

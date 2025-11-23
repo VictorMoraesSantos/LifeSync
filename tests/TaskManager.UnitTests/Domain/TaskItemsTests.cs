@@ -350,7 +350,7 @@ namespace TaskManager.UnitTests.Domain
                 validUserId);
 
             var newTitle = "new title";
-            var newDescription = "new description";
+            var newDescription = "new description";     
             var newStatus = Status.InProgress;
             var newPriority = Priority.Urgent;
             var pastDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
