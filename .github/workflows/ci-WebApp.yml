@@ -1,0 +1,32 @@
+name: CI - WebApp
+
+on:
+  push:
+    paths:
+      - 'Services/WebApp/**'
+  pull_request:
+    paths:
+      - 'Services/WebApp/**'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore solution
+        run: dotnet restore LifeSync.sln
+      - name: Build solution
+        run: dotnet build LifeSync.sln --configuration Release --no-restore
+      - name: Run webapp tests (if any)
+        run: |
+          tests=$(find tests -type f \( -iname "*webapp*.csproj" -o -iname "*web*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \) | tr '\n' ' ')
+          if [ -n "$tests" ]; then
+            dotnet test $tests --no-build --verbosity normal
+          else
+            echo "No tests found for WebApp"
+          fi
