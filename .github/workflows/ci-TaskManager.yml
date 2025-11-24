@@ -23,4 +23,4 @@ jobs:
       - name: Build solution
         run: dotnet build LifeSync.sln --configuration Release --no-restore
       - name: Run unit tests
-        run: dotnet test tests/TaskManager.UnitTests/TaskManager.UnitTests.csproj --no-build --verbosity normal
+        run: dotnet test tests/TaskManager.UnitTests/TaskManager.UnitTests.csproj --no-build --configuration Release --verbosity normal
