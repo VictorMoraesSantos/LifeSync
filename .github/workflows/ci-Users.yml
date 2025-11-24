@@ -3,10 +3,10 @@ name: CI - Users
 on:
   push:
     paths:
-      - 'Services/Users/**'
+      - "Services/Users/**"
   pull_request:
     paths:
-      - 'Services/Users/**'
+      - "Services/Users/**"
   workflow_dispatch: {}
 
 jobs:
@@ -17,16 +17,18 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: "10.0.x"
       - name: Restore solution
         run: dotnet restore LifeSync.sln
       - name: Build solution
         run: dotnet build LifeSync.sln --configuration Release --no-restore
       - name: Run service tests (if any)
         run: |
-          tests=$(find tests -type f \( -iname "*users*.csproj" -o -iname "*user*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \) | tr '\n' ' ')
+          tests=$(find tests -type f \( -iname "*users*.csproj" -o -iname "*user*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \))
           if [ -n "$tests" ]; then
-            dotnet test $tests --no-build --verbosity normal
+            for t in $tests; do
+              dotnet test "$t" --no-build --verbosity normal || exit $?
+            done
           else
             echo "No tests found for Users"
           fi

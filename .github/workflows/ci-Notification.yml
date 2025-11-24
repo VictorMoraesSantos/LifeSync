@@ -24,9 +24,11 @@ jobs:
         run: dotnet build LifeSync.sln --configuration Release --no-restore
       - name: Run service tests (if any)
         run: |
-          tests=$(find tests -type f \( -iname "*notification*.csproj" -o -iname "*notify*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \) | tr '\n' ' ')
+          tests=$(find tests -type f \( -iname "*notification*.csproj" -o -iname "*notify*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \))
           if [ -n "$tests" ]; then
-            dotnet test $tests --no-build --verbosity normal
+            for t in $tests; do
+              dotnet test "$t" --no-build --verbosity normal || exit $?
+            done
           else
             echo "No tests found for Notification"
           fi

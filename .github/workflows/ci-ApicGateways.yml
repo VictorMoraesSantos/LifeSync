@@ -3,10 +3,10 @@ name: CI - ApiGateways
 on:
   push:
     paths:
-      - 'Services/ApiGateways/**'
+      - "Services/ApiGateways/**"
   pull_request:
     paths:
-      - 'Services/ApiGateways/**'
+      - "Services/ApiGateways/**"
   workflow_dispatch: {}
 
 jobs:
@@ -17,16 +17,18 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: "10.0.x"
       - name: Restore solution
         run: dotnet restore LifeSync.sln
       - name: Build solution
         run: dotnet build LifeSync.sln --configuration Release --no-restore
       - name: Run service tests (if any)
         run: |
-          tests=$(find tests -type f \( -iname "*apigateways*.csproj" -o -iname "*apigateway*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \) | tr '\n' ' ')
+          tests=$(find tests -type f \( -iname "*apigateways*.csproj" -o -iname "*apigateway*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \))
           if [ -n "$tests" ]; then
-            dotnet test $tests --no-build --verbosity normal
+            for t in $tests; do
+              dotnet test "$t" --no-build --verbosity normal || exit $?
+            done
           else
             echo "No tests found for ApiGateways"
           fi

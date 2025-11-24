@@ -3,10 +3,10 @@ name: CI - TaskManager
 on:
   push:
     paths:
-      - 'Services/TaskManager/**'
+      - "Services/TaskManager/**"
   pull_request:
     paths:
-      - 'Services/TaskManager/**'
+      - "Services/TaskManager/**"
   workflow_dispatch: {}
 
 jobs:
@@ -17,16 +17,10 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: "10.0.x"
       - name: Restore solution
         run: dotnet restore LifeSync.sln
       - name: Build solution
         run: dotnet build LifeSync.sln --configuration Release --no-restore
-      - name: Run service tests (if any)
-        run: |
-          tests=$(find tests -type f \( -iname "*taskmanager*.csproj" -o -iname "*task*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \) | tr '\n' ' ')
-          if [ -n "$tests" ]; then
-            dotnet test $tests --no-build --verbosity normal
-          else
-            echo "No tests found for TaskManager"
-          fi
+      - name: Run unit tests
+        run: dotnet test tests/TaskManager.UnitTests/TaskManager.UnitTests.csproj --no-build --verbosity normal
