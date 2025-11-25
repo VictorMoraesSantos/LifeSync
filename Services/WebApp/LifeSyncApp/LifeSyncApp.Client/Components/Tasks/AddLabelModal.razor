@@ -3,11 +3,11 @@
 
 <TaskDialog @ref="_dialogRef" Header="@Header" Model="Model" OnSubmit="HandleSubmit" OnCancel="HandleCancel" SubmitButtonText="@SubmitButtonText">
     <div class="form-group">
-        <label class="form-label">📝 Nome</label>
+        <label class="form-label">Nome</label>
         <InputText @bind-Value="Model.Name" class="form-control" />
     </div>
     <div class="form-group">
-        <label class="form-label">🎨 Cor</label>
+        <label class="form-label">Cor</label>
         <InputSelect @bind-Value="Model.Color" class="form-control">
             @foreach (var c in Enum.GetValues<LabelColor>())
             {

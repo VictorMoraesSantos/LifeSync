@@ -1,0 +1,9 @@
+.task-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.task-labels {
+    display: flex;
+    gap: 0.5rem;
+}

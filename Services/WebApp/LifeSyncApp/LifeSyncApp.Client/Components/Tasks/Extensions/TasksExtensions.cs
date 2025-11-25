@@ -35,18 +35,6 @@ namespace LifeSyncApp.Client.Components.Tasks.Extensions
             };
         }
 
-        public static string GetPriorityIcon(Priority priority)
-        {
-            return priority switch
-            {
-                Priority.Urgent => "🚨",
-                Priority.High => "🔴",
-                Priority.Medium => "🟡",
-                Priority.Low => "🟢",
-                _ => "⚪"
-            };
-        }
-
         public static string GetStatusColor(Status status)
         {
             return status switch
@@ -56,18 +44,6 @@ namespace LifeSyncApp.Client.Components.Tasks.Extensions
                 Status.Pending => "secondary",
                 Status.Cancelled => "error",
                 _ => "secondary"
-            };
-        }
-
-        public static string GetStatusIcon(Status status)
-        {
-            return status switch
-            {
-                Status.Completed => "✅",
-                Status.InProgress => "🔄",
-                Status.Pending => "⏳",
-                Status.Cancelled => "❌",
-                _ => "📌"
             };
         }
 

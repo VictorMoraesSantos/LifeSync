@@ -6,8 +6,8 @@
 <div class="task-card">
     <div class="task-card-header">
         <div class="task-title-row">
-            <h4 class="task-title">📋 @TaskItem.Title</h4>
-            <span class="badge badge-@TasksExtensions.GetPriorityColor(TaskItem.Priority)">@TasksExtensions.GetPriorityIcon(TaskItem.Priority) @TaskItem.Priority</span>
+            <h4 class="task-title">@TaskItem.Title</h4>
+            <span class="badge badge-@TasksExtensions.GetPriorityColor(TaskItem.Priority)">@TaskItem.Priority</span>
         </div>
         <div class="task-description">@TaskItem.Description</div>
     </div>
@@ -18,7 +18,7 @@
             <div class="task-labels">
                 @foreach (var label in TaskItem.Labels)
                 {
-                    <span class="badge" style="background-color:@TasksExtensions.GetLabelHex(label.Color); color:@TasksExtensions.GetLabelTextColor(label.Color);">🏷️ @label.Name</span>
+                    <span class="badge" style="background-color:@TasksExtensions.GetLabelHex(label.Color); color:@TasksExtensions.GetLabelTextColor(label.Color);">@label.Name</span>
                 }
             </div>
         }
@@ -26,19 +26,19 @@
         <div class="task-meta">
             <div class="task-meta-item">
                 <span class="task-meta-label">Status:</span>
-                <span class="badge badge-@TasksExtensions.GetStatusColor(TaskItem.Status)">@TasksExtensions.GetStatusIcon(TaskItem.Status) @TaskItem.Status</span>
+                <span class="badge badge-@TasksExtensions.GetStatusColor(TaskItem.Status)">@TaskItem.Status</span>
             </div>
             <div class="task-meta-item">
                 <span class="task-meta-label">Vencimento:</span>
-                <span class="task-meta-value">📅 @TaskItem.DueDate.ToString("dd/MM/yyyy")</span>
+                <span class="task-meta-value">@TaskItem.DueDate.ToString("dd/MM/yyyy")</span>
             </div>
         </div>
     </div>
 
     <div class="task-card-actions">
-        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditClick?.Invoke())">✏️ Editar</button>
-        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">🗑️ Excluir</button>
-        <button class="btn btn-sm btn-primary" @onclick="@(() => OnAddLabelClick?.Invoke())">🏷️ Label</button>
+        <button class="btn btn-sm btn-secondary" @onclick="@(() => OnEditClick?.Invoke())">Editar</button>
+        <button class="btn btn-sm btn-danger" @onclick="@(() => OnDeleteClick?.Invoke())">Excluir</button>
+        <button class="btn btn-sm btn-primary" @onclick="@(() => OnAddLabelClick?.Invoke())">Label</button>
     </div>
 </div>
 

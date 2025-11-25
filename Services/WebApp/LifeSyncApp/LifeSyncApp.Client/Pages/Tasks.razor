@@ -17,7 +17,7 @@
         <Actions>
             <div style="display:flex;gap:.5rem;">
                 <button class="btn btn-primary" @onclick="OpenCreateDialog">
-                    <span>➕ Nova Tarefa</span>
+                    <span>Nova Tarefa</span>
                 </button>
             </div>
         </Actions>
@@ -30,11 +30,7 @@
                TotalIconStyle="primary"
                PendingIconStyle="warning"
                InProgressIconStyle="secondary"
-               CompletedIconStyle="success"
-               TotalIconText="📋"
-               PendingIconText="⏳"
-               InProgressIconText="🔄"
-               CompletedIconText="✅" />
+               CompletedIconStyle="success" />
 
     <div class="card">
         <div class="card-body">
@@ -60,28 +56,26 @@
             }
             else
             {
-                <EmptyState Icon="📝"
-                            Title="Nenhuma tarefa encontrada"
+                <EmptyState Title="Nenhuma tarefa encontrada"
                             Description="Comece criando sua primeira tarefa"
-                            ButtonText="➕ Nova Tarefa"
+                            ButtonText="Nova Tarefa"
                             OnCreate="OpenCreateDialog" />
             }
         </div>
     </div>
 
     <AddTaskModal @ref="_taskModal"
-                  Header="@(_editingTaskItem == null ? "➕ Nova Tarefa" : "✏️ Editar Tarefa")"
+                  Header="@(_editingTaskItem == null ? "Nova Tarefa" : "Editar Tarefa")"
                   Model="currentTask"
                   OnSubmit="SaveTask"
                   OnCancel="CloseDialog"
-                  SubmitButtonText="@(_editingTaskItem == null ? "➕ Criar" : "💾 Salvar")" />
+                  SubmitButtonText="@(_editingTaskItem == null ? "Criar" : "Salvar")" />
 
     <AddLabelModal @ref="_addLabelModal"
-                   Header="🏷️ Adicionar Label à Tarefa"
+                   Header="Adicionar Label à Tarefa"
                    Model="_labelModel"
                    OnSubmit="CreateLabelForTask"
-                   OnCancel="CloseAddLabelDialog"
-                   SubmitButtonText="➕ Adicionar" />
+                   OnCancel="CloseAddLabelDialog"/>
 </RedirectToLogin>
 
 @code {
