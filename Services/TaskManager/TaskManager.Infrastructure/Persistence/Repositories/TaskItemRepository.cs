@@ -34,7 +34,7 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
             IQueryable<TaskItem> query = _context.TaskItems.AsNoTracking();
             IQueryable<TaskItem> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
             int totalCount = await countQuery.CountAsync(cancellationToken);
-            IQueryable<TaskItem> finalQuery = SpecificationEvaluator.GetQuery(_context.TaskItems.AsNoTracking(), spec);
+            IQueryable<TaskItem> finalQuery = SpecificationEvaluator.GetQuery(query, spec);
             IEnumerable<TaskItem> items = await finalQuery.ToListAsync(cancellationToken);
 
             return (items, totalCount);
