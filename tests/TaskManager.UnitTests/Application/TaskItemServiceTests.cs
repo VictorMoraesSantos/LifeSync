@@ -7,6 +7,7 @@ using System.Text;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
+using TaskManager.Domain.Filters;
 using TaskManager.Domain.Repositories;
 using TaskManager.Infrastructure.Services;
 
@@ -118,12 +119,98 @@ namespace TaskManager.UnitTests.Application
         {
             // Act
             var result = await _service.GetPagedAsync(page, pageSize);
-            
+
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Null(result.Value.Items);
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public async Task GetByFilterAsync_WhenFilterByUserId_ShouldReturnMatchingItems(int userId)
+        {
+            // Arrange
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: userId,
+                TitleContains: null,
+                Status: null,
+                Priority: null,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: null,
+                SortDesc: null,
+                Page: 1,
+                PageSize: 10);
 
+            var totalItems = 4;
+            var fakeItems = Enumerable.Range(1, totalItems)
+                .Select(i => new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), userId))
+                .ToList();
+
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.UserId == userId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems, totalItems));
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.All(result.Value.Items, item => Assert.Equal(userId, item.UserId));
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
+
+        [Theory]
+        [InlineData(Status.Pending)]
+        [InlineData(Status.InProgress)]
+        [InlineData(Status.Completed)]
+        [InlineData(Status.Cancelled)]
+        public async Task GetByFilterAsync_WhenFilterByStatus_ShouldReturnMatchingItems(Status status)
+        {
+            // Arrange
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: null,
+                Status: status,
+                Priority: null,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: null,
+                SortDesc: null,
+                Page: 1,
+                PageSize: 10);
+
+            var totalItems = 4;
+            var fakeItems = Enumerable.Range(1, totalItems)
+                .Select(i => {
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    item.Update("valid title", "valid description", status, Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)));
+                    return item;
+                })
+                .ToList();
+
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.Status.HasValue && f.Status.Value == status), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems, totalItems));
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.All(result.Value.Items, item => Assert.Equal(status, item.Status));
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
     }
 }
