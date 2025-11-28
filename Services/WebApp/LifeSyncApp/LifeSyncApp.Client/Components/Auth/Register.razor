@@ -1,0 +1,121 @@
+@page "/register"
+@layout EmptyLayout
+@using LifeSyncApp.Client.Layout
+@using LifeSyncApp.Client.Models
+@using LifeSyncApp.Client.Services
+@using LifeSyncApp.Client.Services.Contracts
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+
+<div class="auth-container">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Crie sua conta</h3>
+        </div>
+
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="error" role="alert">@errorMessage</div>
+            }
+
+            <EditForm Model="Model" OnValidSubmit="HandleRegister" FormName="registerForm">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <label for="firstName">Nome</label>
+                    <input @bind-value="Model.FirstName" id="firstName" placeholder="João" />
+                    <ValidationMessage For="@(() => Model.FirstName)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Sobrenome</label>
+                    <input @bind-value="Model.LastName" id="lastName" placeholder="Silva" />
+                    <ValidationMessage For="@(() => Model.LastName)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input @bind-value="Model.Email" id="email" placeholder="seu@email.com" />
+                    <ValidationMessage For="@(() => Model.Email)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" @bind-value="Model.Password" id="password" placeholder="••••••••" />
+                    <ValidationMessage For="@(() => Model.Password)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Senha</label>
+                    <input type="password" @bind-value="Model.ConfirmPassword" id="confirmPassword" placeholder="••••••••" />
+                    <ValidationMessage For="@(() => Model.ConfirmPassword)" />
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="submit-button" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span class="loading" role="status" aria-hidden="true"></span>
+                            <span style="margin-left:.5rem;">Criando conta...</span>
+                        }
+                        else
+                        {
+                            <span>Criar conta</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+
+            <div class="have-account">
+                Já tem uma conta? <a href="/login">Faça login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private RegisterRequest Model { get; set; } = new();
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            isLoading = true;
+
+            if (Model.Password != Model.ConfirmPassword)
+            {
+                errorMessage = "As senhas não coincidem.";
+                return;
+            }
+
+            var result = await AuthService.RegisterAsync(Model);
+
+            if (result.Success)
+            {
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = result.Errors?.Length > 0
+                    ? string.Join(", ", result.Errors)
+                    : "Erro ao criar conta. Tente novamente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

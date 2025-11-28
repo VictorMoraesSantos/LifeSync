@@ -1,0 +1,87 @@
+@page "/login"
+@layout EmptyLayout
+@using LifeSyncApp.Client.Layout
+@using LifeSyncApp.Client.Models
+@using LifeSyncApp.Client.Services
+@using LifeSyncApp.Client.Services.Contracts
+
+@inject IAuthService Auth
+@inject NavigationManager Nav
+
+<div class="auth-container">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Entrar no LifeSync</h3>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <div class="error" role="alert">@_error</div>
+            }
+
+            <EditForm Model="Model" OnValidSubmit="OnSubmit">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" type="text" @bind-value="Model.Email" />
+                    <ValidationMessage For="@(() => Model.Email)" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Senha</label>
+                    <input class="form-control" type="password" @bind-value="Model.Password" />
+                    <ValidationMessage For="@(() => Model.Password)" />
+                </div>
+                <button class="submit-button" type="submit" disabled="@_loading">
+                    @if (_loading)
+                    {
+                        <span class="loading" role="status" aria-hidden="true"></span>
+                        <span style="margin-left:.5rem;">Entrando...</span>
+                    }
+                    else
+                    {
+                        <span>Entrar</span>
+                    }
+                </button>
+            </EditForm>
+
+            <div class="have-account">
+                Não tem conta? <a href="/register">Crie uma agora</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery] public string? RedirectUrl { get; set; }
+    private LoginRequest Model = new();
+    private bool _loading;
+    private string? _error;
+
+    private async Task OnSubmit()
+    {
+        _error = null;
+        _loading = true;
+        try
+        {
+            var result = await Auth.LoginAsync(Model);
+            if (result.Success)
+            {
+                var target = string.IsNullOrWhiteSpace(RedirectUrl) ? "/" : RedirectUrl!;
+                Nav.NavigateTo(target, replace: true);
+            }
+            else
+            {
+                _error = result.Errors?.Length > 0
+                    ? string.Join(", ", result.Errors)
+                    : "Erro ao criar conta. Tente novamente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}
