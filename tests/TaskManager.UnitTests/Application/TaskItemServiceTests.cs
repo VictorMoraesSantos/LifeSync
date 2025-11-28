@@ -189,7 +189,8 @@ namespace TaskManager.UnitTests.Application
 
             var totalItems = 4;
             var fakeItems = Enumerable.Range(1, totalItems)
-                .Select(i => {
+                .Select(i =>
+                {
                     var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
                     item.Update("valid title", "valid description", status, Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)));
                     return item;
@@ -235,7 +236,8 @@ namespace TaskManager.UnitTests.Application
 
             var totalItems = 4;
             var fakeItems = Enumerable.Range(1, totalItems)
-                .Select(i => {
+                .Select(i =>
+                {
                     var item = new TaskItem("valid title", "valid description", priority, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
                     return item;
                 })
@@ -276,11 +278,18 @@ namespace TaskManager.UnitTests.Application
 
             var totalItems = 10;
             var fakeItems = Enumerable.Range(1, totalItems)
-                .Select(i => {
+                .Select(i =>
+                {
                     var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
                     return item;
                 })
                 .ToList();
+
+            _mockRepository
+                .Setup(r => r.FindByFilter(
+                    It.Is<TaskItemQueryFilter>(q => q.TitleContains == filter.TitleContains),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((new List<TaskItem>(), 0));
 
             // Act
             var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
@@ -289,6 +298,54 @@ namespace TaskManager.UnitTests.Application
             Assert.True(result.IsSuccess);
             Assert.Empty(result.Value.Items);
             Assert.Equal(0, result.Value.Pagination.TotalItems);
+        }
+
+        [Theory]
+        [InlineData(1, 10)]
+        [InlineData(2, 10)]
+        [InlineData(3, 10)]
+        [InlineData(4, 20)]
+        [InlineData(5, 20)]
+        public async Task GetByFilterAsync_WhenFilterWithPagination_ShouldReturnCorrectPageInfo(int page, int pageSize)
+        {
+            // Arrange
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: "valid title",
+                Status: null,
+                Priority: null,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: null,
+                SortDesc: null,
+                Page: page,
+                PageSize: pageSize);
+
+            var totalItems = 100;
+            var fakeItems = Enumerable.Range(1, totalItems)
+                .Select(i =>
+                {
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    return item;
+                })
+                .ToList();
+
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.IsAny<TaskItemQueryFilter>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems, totalItems));
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(page, result.Value.Pagination.CurrentPage);
+            Assert.Equal(pageSize, result.Value.Pagination.PageSize);
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
         }
     }
 }
