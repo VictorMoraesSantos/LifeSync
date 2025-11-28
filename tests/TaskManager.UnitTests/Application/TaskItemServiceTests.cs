@@ -1,9 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
-using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
@@ -211,6 +207,88 @@ namespace TaskManager.UnitTests.Application
             Assert.True(result.IsSuccess);
             Assert.All(result.Value.Items, item => Assert.Equal(status, item.Status));
             Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
+
+        [Theory]
+        [InlineData(Priority.Urgent)]
+        [InlineData(Priority.High)]
+        [InlineData(Priority.Medium)]
+        [InlineData(Priority.Low)]
+        public async Task GetByFilterAsync_WhenFilterByPriority_ShouldReturnMatchingItems(Priority priority)
+        {
+            // Arrange
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: null,
+                Status: null,
+                Priority: priority,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: null,
+                SortDesc: null,
+                Page: 1,
+                PageSize: 10);
+
+            var totalItems = 4;
+            var fakeItems = Enumerable.Range(1, totalItems)
+                .Select(i => {
+                    var item = new TaskItem("valid title", "valid description", priority, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    return item;
+                })
+                .ToList();
+
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.Priority.Value == priority), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems, totalItems));
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.All(result.Value.Items, item => Assert.Equal(priority, item.Priority));
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
+
+        [Fact]
+        public async Task GetByFilterAsync_WhenNoMatchingResults_ShouldReturnEmptyListWithPagination()
+        {
+            // Arrange
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: "nomatchingtitle",
+                Status: null,
+                Priority: null,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: null,
+                SortDesc: null,
+                Page: 1,
+                PageSize: 10);
+
+            var totalItems = 10;
+            var fakeItems = Enumerable.Range(1, totalItems)
+                .Select(i => {
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    return item;
+                })
+                .ToList();
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Empty(result.Value.Items);
+            Assert.Equal(0, result.Value.Pagination.TotalItems);
         }
     }
 }
