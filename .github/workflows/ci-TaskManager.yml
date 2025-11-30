@@ -34,7 +34,7 @@ jobs:
           docker build \
             -f Services/TaskManager/TaskManager.API/Dockerfile \
             -t ghcr.io/victormoraessantos/lifesync-taskmanager:latest \
-            Services/TaskManager/TaskManager.API
+            .
 
       - name: Push da imagem para GHCR
         run: docker push ghcr.io/victormoraessantos/lifesync-taskmanager:latest

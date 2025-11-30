@@ -13,7 +13,7 @@ namespace TaskManager.Domain.Entities
         public Status Status { get; private set; }
         public Priority Priority { get; private set; }
         public DateOnly DueDate { get; private set; }
-         
+          
         private readonly List<TaskLabel> _labels = new();
         public IReadOnlyCollection<TaskLabel> Labels => _labels.AsReadOnly();
 
