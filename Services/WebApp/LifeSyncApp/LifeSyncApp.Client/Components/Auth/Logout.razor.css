@@ -1,0 +1,14 @@
+.auth-container {
+    text-align: center;
+}
+
+.auth-card {
+    color: var(--color-text-secondary);
+}
+
+.loading {
+    width: 48px;
+    height: 48px;
+    border-width: 4px;
+    margin: 0 auto 1.5rem;
+}

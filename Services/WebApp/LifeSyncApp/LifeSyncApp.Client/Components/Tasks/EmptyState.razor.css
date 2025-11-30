@@ -1,0 +1,9 @@
+.description-container {
+    text-align: center;
+    padding: 3rem;
+}
+
+    .description-container p {
+        color: var(--color-text-secondary);
+        margin-bottom: 1.5rem;
+    }

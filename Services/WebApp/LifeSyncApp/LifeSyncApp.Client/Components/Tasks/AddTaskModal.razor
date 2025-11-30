@@ -1,43 +1,48 @@
 ﻿@using LifeSyncApp.Client.Components.Shared
 @using LifeSyncApp.Client.Models.TaskManager.TaskItem
 
-<TaskDialog @ref="_dialogRef" Header="@Header" Model="Model" OnSubmit="HandleSubmit" OnCancel="HandleCancel" SubmitButtonText="@SubmitButtonText">
+<TaskDialog @ref="_dialogRef"
+            Header="@Header"
+            Model="Model"
+            OnSubmit="HandleSubmit"
+            OnCancel="HandleCancel"
+            SubmitButtonText="@SubmitButtonText">
     <div class="form-group">
         <label class="form-label">Título</label>
-        <InputText @bind-Value="Model.Title" class="form-control" />
+        <input type="text" @bind-value="Model.Title" class="form-control" />
     </div>
 
     <div class="form-group">
         <label class="form-label">Descrição</label>
-        <InputTextArea @bind-Value="Model.Description" class="form-control" />
+        <input type="text" @bind-value="Model.Description" class="form-control" />
     </div>
 
     <div class="form-group">
         <label class="form-label">Prioridade</label>
-        <InputSelect @bind-Value="Model.Priority" class="form-control">
+        <select @bind="Model.Priority" class="form-control">
             @foreach (var p in Enum.GetValues<Priority>())
             {
                 <option value="@p">@p</option>
             }
-        </InputSelect>
+        </select>
     </div>
 
     @if (Model != null && Model.Id != 0)
     {
         <div class="form-group">
             <label class="form-label">Status</label>
-            <InputSelect @bind-Value="Model.Status" class="form-control">
+            <select @bind="Model.Status" class="form-control">
                 @foreach (var s in Enum.GetValues<Status>())
                 {
                     <option value="@s">@s</option>
                 }
-            </InputSelect>
+            </select>
         </div>
     }
 
     <div class="form-group">
         <label class="form-label">Data de Vencimento</label>
-        <InputDate DateFormat="dd/MM/yyyy" @bind-Value="Model.DueDate" class="form-control" />
+        <input type="date" DateFormat="dd/MM/yyyy" @bind-value="Model.DueDate" class="form-control" />
     </div>
 </TaskDialog>
  

@@ -13,3 +13,19 @@
 .form-control {
     width: 80%;
 }
+
+.loading-container {
+    text-align: center;
+    padding: 3rem;
+}
+
+.loading span {
+    margin-top: 1rem;
+}
+
+.loading {
+    width: 40px;
+    height: 40px;
+    border-width: 4px;
+
+}

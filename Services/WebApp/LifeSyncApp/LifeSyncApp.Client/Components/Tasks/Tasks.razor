@@ -1,4 +1,5 @@
 ﻿@page "/tasks"
+@using LifeSyncApp.Client.Components.Nutrition
 @using LifeSyncApp.Client.Components.Shared
 @using LifeSyncApp.Client.Components.Tasks
 @using LifeSyncApp.Client.Components.Tasks.Extensions
@@ -23,22 +24,18 @@
         </Actions>
     </PageHeader>
 
-    <StatsGrid Total="@totalTasks.ToString()"
-               Pending="@pendingTasks.ToString()"
-               InProgress="@inProgressTasks.ToString()"
-               Completed="@completedTasksCount.ToString()"
-               TotalIconStyle="primary"
-               PendingIconStyle="warning"
-               InProgressIconStyle="secondary"
-               CompletedIconStyle="success" />
+    <StatsGrid Total="@totalTasks"
+               Pending="@pendingTasks"
+               InProgress="@inProgressTasks"
+               Completed="@completedTasksCount" />
 
     <div class="card">
         <div class="card-body">
             @if (isLoading)
             {
-                <div style="text-align: center; padding: 3rem;">
-                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px;"></div>
-                    <p style="margin-top: 1rem;">Carregando tarefas...</p>
+                <div class="loading-container">
+                    <div class="loading"></div>
+                    <span>Carregando tarefas...</span>
                 </div>
             }
             else if (_taskItems.Any())
@@ -75,7 +72,7 @@
                    Header="Adicionar Label à Tarefa"
                    Model="_labelModel"
                    OnSubmit="CreateLabelForTask"
-                   OnCancel="CloseAddLabelDialog"/>
+                   OnCancel="CloseAddLabelDialog" />
 </RedirectToLogin>
 
 @code {
@@ -97,10 +94,10 @@
 
     private Dictionary<DateOnly, List<TaskItemDTO>> _groupedTasks = new();
 
-    private int totalTasks => _taskItems.Count;
-    private int pendingTasks => _taskItems.Count(t => t.Status == Status.Pending);
-    private int inProgressTasks => _taskItems.Count(t => t.Status == Status.InProgress);
-    private int completedTasksCount => _taskItems.Count(t => t.Status == Status.Completed);
+    private string totalTasks => _taskItems.Count.ToString();
+    private string pendingTasks => _taskItems.Count(t => t.Status == Status.Pending).ToString();
+    private string inProgressTasks => _taskItems.Count(t => t.Status == Status.InProgress).ToString();
+    private string completedTasksCount => _taskItems.Count(t => t.Status == Status.Completed).ToString();
 
     private AddTaskModal? _taskModal;
     private AddLabelModal? _addLabelModal;
