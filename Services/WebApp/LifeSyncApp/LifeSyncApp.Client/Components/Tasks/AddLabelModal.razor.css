@@ -9,3 +9,8 @@
 .form-group ::deep select {
     font-family: "Inter" !important;
 }
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
