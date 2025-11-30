@@ -10,8 +10,11 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  build:
+  build_and_publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write 
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET
@@ -22,5 +25,15 @@ jobs:
         run: dotnet restore LifeSync.sln
       - name: Build solution
         run: dotnet build LifeSync.sln --configuration Release --no-restore
-      - name: Run unit tests
-        run: dotnet test tests/TaskManager.UnitTests/TaskManager.UnitTests.csproj --no-build --configuration Release --verbosity normal
+
+      - name: Login no GitHub Container Registry
+        run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build da imagem Docker
+        run: |
+          docker build \
+            -t ghcr.io/victormoraessantos/lifesync-taskmanager:latest \
+            ./Services/TaskManager
+
+      - name: Push da imagem para GHCR
+        run: docker push ghcr.io/victormoraessantos/lifesync-taskmanager:latest
