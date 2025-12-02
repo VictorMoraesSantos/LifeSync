@@ -1,15 +1,19 @@
-﻿@page "/tasks"
-@using LifeSyncApp.Client.Components.Nutrition
+﻿@using LifeSyncApp.Client.Components.Nutrition
 @using LifeSyncApp.Client.Components.Shared
 @using LifeSyncApp.Client.Components.Tasks
 @using LifeSyncApp.Client.Components.Tasks.Extensions
 @using LifeSyncApp.Client.Models.TaskManager
 @using LifeSyncApp.Client.Models.TaskManager.TaskItem
 @using LifeSyncApp.Client.Models.TaskManager.TaskLabel
-@using LifeSyncApp.Client.Services
+@using LifeSyncApp.Client.Services.Contracts
+@using LifeSyncApp.Client.Services.TaskManager.Contrats
 @using Syncfusion.Blazor.Popups
-@inject ITaskManagerService TaskService
 @using System.Security.Claims
+
+@page "/tasks"
+
+@inject ITaskItemService TaskItemService
+@inject ITaskLabelService TaskLabelService
 
 <PageTitle>Tarefas - LifeSync</PageTitle>
 
@@ -120,7 +124,7 @@
     {
         isLoading = true;
 
-        var result = await TaskService.GetTasksByUserAsync(_userId.Value);
+        var result = await TaskItemService.GetTasksByUserAsync(_userId.Value);
         if (result.Success && result.Data != null)
         {
             _taskItems = result.Data;
@@ -128,16 +132,16 @@
         }
 
         isLoading = false;
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private async Task LoadLabels()
     {
-        var result = await TaskService.GetLabelsByUserAsync(_userId.Value);
+        var result = await TaskLabelService.GetLabelsByUserAsync(_userId.Value);
         if (result.Success && result.Data != null)
             _labels = result.Data;
 
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private void FilterByStatus(Status? status)
@@ -185,7 +189,7 @@
         _editingTaskItem = task;
         currentTask = new UpdateTaskItemDTO(task.Id, task.Title, task.Description, task.Status, task.Priority, task.DueDate);
         _taskModal?.Open();
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private async Task SaveTask()
@@ -193,24 +197,24 @@
         if (_editingTaskItem == null)
         {
             var create = new CreateTaskItemDTO(currentTask.Title, currentTask.Description, currentTask.Priority, currentTask.DueDate, _userId.Value);
-            await TaskService.CreateTaskAsync(create);
+            await TaskItemService.CreateTaskAsync(create);
         }
         else
         {
             var update = new UpdateTaskItemDTO(currentTask.Id, currentTask.Title, currentTask.Description, currentTask.Status, currentTask.Priority, currentTask.DueDate);
-            await TaskService.UpdateTaskAsync(update);
+            await TaskItemService.UpdateTaskAsync(update);
         }
 
         await LoadTasks();
         CloseDialog();
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private async Task DeleteTask(TaskItemDTO? task)
     {
-        await TaskService.DeleteTaskAsync(task.Id);
+        await TaskItemService.DeleteTaskAsync(task.Id);
         await LoadTasks();
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private void CloseDialog()
@@ -223,20 +227,19 @@
     private async Task CreateLabel()
     {
         var cmd = new CreateTaskLabelDTO(_labelModel.Name, _labelModel.Color, _userId.Value, 0);
-        var res = await TaskService.CreateLabelAsync(cmd);
+        var res = await TaskLabelService.CreateLabelAsync(cmd);
         if (res.Success)
             await LoadLabels();
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private async Task DeleteLabel(int id)
     {
-        var res = await TaskService.DeleteLabelAsync(id);
+        var res = await TaskLabelService.DeleteLabelAsync(id);
         if (!res.Success) return;
 
         await LoadLabels();
         await LoadTasks();
-
     }
 
     private void OpenAddLabelDialog(TaskItemDTO? task)
@@ -244,7 +247,7 @@
         targetTaskIdForLabel = task.Id;
         _labelModel = new();
         _addLabelModal?.Open();
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
     private void CloseAddLabelDialog()
@@ -257,12 +260,12 @@
     private async Task CreateLabelForTask()
     {
         var cmd = new CreateTaskLabelDTO(_labelModel.Name, _labelModel.Color, _userId.Value, targetTaskIdForLabel.Value);
-        var res = await TaskService.CreateLabelAsync(cmd);
+        var res = await TaskLabelService.CreateLabelAsync(cmd);
         if (!res.Success) return;
 
         _addLabelModal?.Close();
         _labelModel = new();
         await LoadTasks();
-        this.StateHasChanged();
+        StateHasChanged();
     }
 }

@@ -1,6 +1,6 @@
-@page "/"
+ï»¿@page "/"
 @using LifeSyncApp.Client.Authentication
-@using LifeSyncApp.Client.Services
+@using LifeSyncApp.Client.Services.Contracts
 @using LifeSyncApp.Client.Models
 @using LifeSyncApp.Client.Models.TaskManager
 @using LifeSyncApp.Client.Models.TaskManager.TaskItem
@@ -8,9 +8,10 @@
 @using LifeSyncApp.Client.Models.Financial
 @using LifeSyncApp.Client.Models.Financial.Transaction
 @using LifeSyncApp.Client.Models.Gym
+@using LifeSyncApp.Client.Services.TaskManager.Contrats
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
-@inject ITaskManagerService TaskService
+@inject ITaskItemService TaskItemService
 @inject INutritionService NutritionService
 @inject IFinancialService FinancialService
 @inject IGymService GymService
@@ -21,18 +22,18 @@
 
 @if (isAuthenticated)
 {
-    <PageHeader Title=@($"Olá, {userName}!") Description="Aqui está um resumo das suas atividades" />
+    <PageHeader Title=@($"OlÃ¡, {userName}!") Description="Aqui estÃ¡ um resumo das suas atividades" />
 
     <div class="stats-grid">
-        <StatCard Label="Tarefas Ativas" Value="@tasksCount.ToString()" IconStyle="primary" IconText="???" ChangeText="@(tasksCount > 0 ? $"{completedTasks} completadas" : null)" ChangeStyle="positive" />
+        <StatCard Label="Tarefas Ativas" Value="@tasksCount.ToString()" IconStyle="primary" IconText="âœ“" ChangeText="@(tasksCount > 0 ? $"{completedTasks} completadas" : null)" ChangeStyle="positive" />
 
-        <StatCard Label="Refeições Hoje" Value="@mealsCount.ToString()" IconStyle="success" IconText="???">
+        <StatCard Label="RefeiÃ§Ãµes Hoje" Value="@mealsCount.ToString()" IconStyle="success" IconText="ðŸ½">
             <div class="stat-change">@caloriesCount kcal</div>
         </StatCard>
 
-        <StatCard Label="Saldo" Value=@($"R$ {balance.ToString("N2")}") IconStyle="@(balance >= 0 ? "success" : "error")" IconText="??" ChangeText=@($"{(balance >= 0 ? "+" : "-")}{monthTransactions} transações") ChangeStyle="@(balance >= 0 ? "positive" : "negative")" />
+        <StatCard Label="Saldo" Value=@($"R$ {balance.ToString("N2")}") IconStyle="@(balance >= 0 ? "success" : "error")" IconText="ðŸ’°" ChangeText=@($"{(balance >= 0 ? "+" : "-")}{monthTransactions} transaÃ§Ãµes") ChangeStyle="@(balance >= 0 ? "positive" : "negative")" />
 
-        <StatCard Label="Treinos esta Semana" Value="@workoutsCount.ToString()" IconStyle="warning" IconText="???">
+        <StatCard Label="Treinos esta Semana" Value="@workoutsCount.ToString()" IconStyle="warning" IconText="ðŸ’ª">
             <div class="stat-change">@routinesCount rotinas ativas</div>
         </StatCard>
     </div>
@@ -77,7 +78,7 @@
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
                     <div style="display: flex; align-items: center; gap: 1rem;">
                         <div class="stat-icon primary" style="width: 40px; height: 40px;">
-                            <span style="font-size: 1.25rem;">?</span>
+                            <span style="font-size: 1.25rem;">ðŸ“Š</span>
                         </div>
                         <div>
                             <div style="font-weight: 600;">Dashboard atualizado</div>
@@ -100,7 +101,7 @@ else if (!isLoading)
 @code {
     private bool isAuthenticated = false;
     private bool isLoading = true;
-    private string userName = "Usuário";
+    private string userName = "UsuÃ¡rio";
     private int userId;
     private string? email;
     private int tasksCount = 0;
@@ -154,7 +155,7 @@ else if (!isLoading)
         // Load Tasks
         try
         {
-            var tasksResult = await TaskService.GetTasksByUserAsync(userId);
+            var tasksResult = await TaskItemService.GetTasksByUserAsync(userId);
             if (tasksResult.Success && tasksResult.Data != null)
             {
                 recentTasks = tasksResult.Data;

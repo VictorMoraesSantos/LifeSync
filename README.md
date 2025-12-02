@@ -11,7 +11,7 @@ Uma aplicação completa de gerenciamento de vida pessoal construída com arquit
 - [Microserviços](#microserviços)
 - [Frontend](#frontend)
 - [API Gateway](#api-gateway)
-- [Como Executar](#como-executar)
+- [Como Executar com Docker](#como-executar-com-docker)
 - [Configuração](#configuração)
 - [Endpoints da API](#endpoints-da-api)
 - [Dashboards](#dashboards)
@@ -323,7 +323,7 @@ Aplicação web interativa construída com Blazor WebAssembly que oferece:
 
 O **YARP (Yet Another Reverse Proxy)** atua como API Gateway único para todos os microserviços:
 
-- **Porta**: `5006` (HTTP) / `5056` (HTTPS)
+- **Porta Docker**: `6006` (HTTP)
 - **Roteamento**: Baseado em prefixos de caminho
 - **Autenticação**: JWT Bearer Token
 - **Transformação**: Reescrita de rotas para serviços internos
@@ -336,174 +336,64 @@ O **YARP (Yet Another Reverse Proxy)** atua como API Gateway único para todos o
 - `/users-service/*` → Users API
 - `/gym-service/*` → Gym API
 
-## 🚀 Como Executar
+## 🚀 Como Executar com Docker
+
+Esta é a maneira recomendada de executar o projeto, pois configura automaticamente todos os serviços, bancos de dados e infraestrutura necessária.
 
 ### Pré-requisitos
 
-- **.NET 9.0 SDK**
-- **Docker Desktop** (para executar PostgreSQL, RabbitMQ, MailHog)
-- **Visual Studio 2022** ou **VS Code** (recomendado)
+- **Docker Desktop** instalado e rodando
+- **Git** (opcional, para clonar o repositório)
 
-### Passo 1: Iniciar Infraestrutura
+### Passo a Passo
 
-Execute os containers Docker para infraestrutura básica:
+1. **Clone o repositório** (se ainda não o fez):
+   ```bash
+   git clone https://github.com/VictorMoraesSantos/LifeSync.git
+   cd LifeSync
+   ```
 
-```bash
-docker-compose up -d lifesyncdb rabbitmq mailhog
-```
+2. **Execute o Docker Compose**:
+   Este comando irá compilar as imagens e iniciar todos os containers.
+   ```bash
+   docker-compose up --build
+   ```
+   *Nota: A primeira execução pode levar alguns minutos enquanto as imagens são baixadas e compiladas.*
 
-Isso iniciará:
+3. **Aguarde a inicialização**:
+   Os serviços irão aguardar o banco de dados estar pronto e aplicarão as **migrations automaticamente** na inicialização.
 
-- **PostgreSQL** na porta `5432`
-- **RabbitMQ** com Management UI na porta `15672`
-- **MailHog** na porta `1025` (SMTP) e `8025` (Web UI)
+### Acessando a Aplicação
 
-### Passo 2: Configurar Banco de Dados
+Uma vez que os containers estejam rodando, você pode acessar os serviços através das seguintes portas mapeadas no Docker:
 
-Execute as migrations de cada serviço:
+| Aplicação / Serviço | URL de Acesso | Descrição |
+| ------------------- | ------------- | --------- |
+| **Blazor WebApp** | `http://localhost:6007` | Interface principal do usuário |
+| **API Gateway** | `http://localhost:6006` | Ponto de entrada para todas as APIs |
+| **MailHog** | `http://localhost:8025` | Interface para visualizar emails enviados (dev) |
+| **RabbitMQ** | `http://localhost:15672` | Painel de gerenciamento de filas (User/Pass: guest/guest) |
+| **pgAdmin** | `http://localhost:5050` | Gerenciamento do PostgreSQL (Email: admin@admin.com / Pass: admin) |
 
-```bash
-# Users Service
-cd Services/Users/Users.Infrastructure
-dotnet ef database update
+### Notas sobre Portas
 
-# TaskManager Service
-cd Services/TaskManager/TaskManager.Infrastructure
-dotnet ef database update
-
-# Nutrition Service
-cd Services/Nutrition/Nutrition.Infrastructure
-dotnet ef database update
-
-# Financial Service
-cd Services/Financial/Financial.Infrastructure
-dotnet ef database update
-
-# Gym Service
-cd Services/Gym/Gym.Infrastructure
-dotnet ef database update
-
-# Notification Service
-cd Services/Notification/Notification.Infrastructure
-dotnet ef database update
-```
-
-### Passo 3: Executar os Microserviços
-
-Execute cada serviço em terminais separados:
-
-```bash
-# API Gateway (deve ser executado primeiro)
-cd Services/ApiGateways/YarpApiGateway
-dotnet run
-
-# Users Service
-cd Services/Users/Users.API
-dotnet run
-
-# TaskManager Service
-cd Services/TaskManager/TaskManager.API
-dotnet run
-
-# Nutrition Service
-cd Services/Nutrition/Nutrition.API
-dotnet run
-
-# Financial Service
-cd Services/Financial/Financial.API
-dotnet run
-
-# Gym Service
-cd Services/Gym/Gym.API
-dotnet run
-
-# Notification Service
-cd Services/Notification/Notification.API
-dotnet run
-```
-
-### Passo 4: Executar Frontend
-
-```bash
-cd Services/WebApp/LifeSyncApp/LifeSyncApp
-dotnet run
-```
-
-### Portas dos Serviços
-
-| Serviço          | Porta HTTP | Porta HTTPS |
-| ---------------- | ---------- | ----------- |
-| API Gateway      | 5006       | 5056        |
-| Users API        | 5001       | 7001        |
-| TaskManager API  | 5002       | 7002        |
-| Nutrition API    | 5003       | 7003        |
-| Financial API    | 5004       | 7004        |
-| Gym API          | 5005       | 7005        |
-| Notification API | 5126       | 7012        |
-| Blazor WebApp    | 5068       | 7124        |
-
-### Executar com Docker Compose
-
-Para executar todos os serviços via Docker Compose:
-
-```bash
-docker-compose up --build
-```
+- Os microserviços individuais (Users, TaskManager, etc.) rodam dentro da rede do Docker e **não são expostos diretamente** para a máquina host por padrão.
+- Todo o acesso às APIs deve ser feito através do **API Gateway** na porta `6006`.
+- Exemplo de chamada via Gateway: `http://localhost:6006/users-service/api/users/1`
 
 ## ⚙️ Configuração
 
 ### Connection Strings
 
-Cada serviço possui seu próprio `appsettings.json` com connection strings. Configure conforme necessário:
-
-```json
-{
-  "ConnectionStrings": {
-    "Database": "Server=localhost;Port=5432;User Id=postgres;Password=postgres;Database=LifeSync;Include Error Detail=true;"
-  }
-}
-```
+As strings de conexão são gerenciadas automaticamente via variáveis de ambiente no `docker-compose.override.yml`.
 
 ### JWT Settings
 
-Configure no API Gateway (`Services/ApiGateways/YarpApiGateway/appsettings.json`):
-
-```json
-{
-  "JwtSettings": {
-    "Key": "your_very_long_secret_key_here_which_should_be_at_least_32_chars",
-    "Issuer": "YourIssuer",
-    "Audience": "YourAudience",
-    "ExpiryMinutes": 120,
-    "RefreshTokenExpiryDays": 7
-  }
-}
-```
+Configure no API Gateway (`Services/ApiGateways/YarpApiGateway/appsettings.json`) se necessário alterar chaves ou validade.
 
 ### RabbitMQ Settings
 
-Configure em cada serviço que utiliza RabbitMQ:
-
-```json
-{
-  "RabbitMQSettings": {
-    "Host": "localhost",
-    "User": "guest",
-    "Password": "guest",
-    "Port": 5672
-  }
-}
-```
-
-### Frontend API Configuration
-
-Configure no `Services/WebApp/LifeSyncApp/LifeSyncApp.Client/wwwroot/appsettings.json`:
-
-```json
-{
-  "ApiBaseUrl": "http://localhost:5006"
-}
-```
+Configurado automaticamente para se conectar ao container `rabbitmq` dentro da rede Docker.
 
 ## 📊 Dashboards
 
@@ -538,7 +428,7 @@ O sistema inclui dashboards interativos para cada microserviço:
 
 ## 🧪 Testes
 
-Execute os testes unitários:
+Para executar os testes unitários (requer .NET SDK instalado):
 
 ```bash
 cd tests/TaskManager.UnitTests
@@ -557,39 +447,11 @@ Cada serviço utiliza CQRS para separação de comandos e consultas:
 
 ### Result Pattern
 
-Todas as operações retornam um `Result<T>` ou `HttpResult<T>`:
-
-```csharp
-public class HttpResult<T>
-{
-    public bool Success { get; set; }
-    public HttpStatusCode StatusCode { get; set; }
-    public string[] Errors { get; set; }
-    public T? Data { get; set; }
-    public PaginationData? Pagination { get; set; }
-}
-```
+Todas as operações retornam um `Result<T>` ou `HttpResult<T>` para padronização de respostas.
 
 ### Validation
 
 Validação automática usando FluentValidation integrado ao pipeline CQRS.
-
-## 🔒 Segurança
-
-- **JWT Authentication**: Tokens Bearer para autenticação
-- **HTTPS**: Suportado em todos os serviços
-- **CORS**: Configurado para desenvolvimento
-- **Authorization Policies**: Aplicadas via API Gateway
-
-## 📚 Documentação da API
-
-Cada serviço expõe documentação Swagger/OpenAPI:
-
-- TaskManager: `http://localhost:5002/swagger`
-- Nutrition: `http://localhost:5003/swagger`
-- Financial: `http://localhost:5004/swagger`
-- Users: `http://localhost:5001/swagger`
-- Gym: `http://localhost:5005/swagger`
 
 ## 🤝 Contribuindo
 
@@ -598,16 +460,6 @@ Cada serviço expõe documentação Swagger/OpenAPI:
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
-
-### Padrões de Commits
-
-- `feat`: Nova funcionalidade
-- `fix`: Correção de bug
-- `docs`: Documentação
-- `style`: Formatação
-- `refactor`: Refatoração
-- `test`: Testes
-- `chore`: Manutenção
 
 ## 📄 Licença
 

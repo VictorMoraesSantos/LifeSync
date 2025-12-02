@@ -6,6 +6,7 @@ using LifeSyncApp.Client.Services.Gym;
 using LifeSyncApp.Client.Services.Http;
 using LifeSyncApp.Client.Services.Nutrition;
 using LifeSyncApp.Client.Services.TaskManager;
+using LifeSyncApp.Client.Services.TaskManager.Contrats;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Syncfusion.Blazor;
@@ -36,7 +37,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFinancialService, FinancialService>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped<INutritionService, NutritionService>();
-builder.Services.AddScoped<ITaskManagerService, TaskManagerService>();
+builder.Services.AddScoped<ITaskItemService, TaskItemService>();
+builder.Services.AddScoped<ITaskLabelService, TaskLabelService>();
 
 // Syncfusion
 builder.Services.AddSyncfusionBlazor();

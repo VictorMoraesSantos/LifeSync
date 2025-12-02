@@ -45,7 +45,7 @@ namespace TaskManager.Domain.Entities
             SetDescription(description);
             Status = status;
             SetPriority(priority);
-            SetDueDate(dueDate);
+            dueDate = DueDate;
             MarkAsUpdated();
         }
 

@@ -20,8 +20,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
                 .IsInEnum().WithMessage("A prioridade informada é inválida.");
 
             RuleFor(command => command.DueDate)
-                .NotEmpty().WithMessage("A data de vencimento é obrigatória.")
-                .GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow)).WithMessage("A data de vencimento não pode ser anterior à data atual.");
+                .NotEmpty().WithMessage("A data de vencimento é obrigatória.");
         }
     }
 }
