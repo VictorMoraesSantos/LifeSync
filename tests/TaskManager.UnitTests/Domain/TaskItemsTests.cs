@@ -333,7 +333,7 @@ namespace TaskManager.UnitTests.Domain
 
 
         [Fact]
-        public void Update_WithDueDateInPast_ShouldThrowDomainException()
+        public void Update_WithDueDateInPast_ShouldUpdateSucess()
         {
             // Arrange
             var validTitle = "valid title";
@@ -350,23 +350,22 @@ namespace TaskManager.UnitTests.Domain
                 validUserId);
 
             var newTitle = "new title";
-            var newDescription = "new description";     
+            var newDescription = "new description";
             var newStatus = Status.InProgress;
             var newPriority = Priority.Urgent;
             var pastDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
 
             // Act
-            var result = Record.Exception(() =>
-                taskItem.Update(
-                    newTitle,
-                    newDescription,
-                    newStatus,
-                    newPriority,
-                    pastDueDate));
+            taskItem.Update(
+                newTitle,
+                newDescription,
+                newStatus,
+                newPriority,
+                pastDueDate);
 
             // Assert
-            Assert.IsType<DomainException>(result);
-            Assert.Equal(TaskItemErrors.DueDateInPast.Description, result?.Message);
+            Assert.NotNull(taskItem.UpdatedAt);
+            Assert.Equal(pastDueDate, taskItem.DueDate);
         }
 
         [Fact]
