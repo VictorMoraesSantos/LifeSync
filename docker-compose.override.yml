@@ -49,7 +49,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
+      - ConnectionStrings__DefaultConnection=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
       - RabbitMQSettings__Host=rabbitmq
       - RabbitMQSettings__Port=5672
       - RabbitMQSettings__User=guest

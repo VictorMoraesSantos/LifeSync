@@ -27,7 +27,7 @@ namespace TaskManager.Infrastructure
 
         private static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)
         {
-            string connectionString = configuration.GetConnectionString("Database")!;
+            string connectionString = configuration.GetConnectionString("DefaultConnection")!;
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
