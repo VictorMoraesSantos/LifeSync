@@ -1,0 +1,62 @@
+<Solution>
+  <Folder Name="/ApiGateways/">
+    <Project Path="Services/ApiGateways/YarpApiGateway/YarpApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/BuildingBlocks/">
+    <Project Path="BuildingBlocks/BuildingBlocks.Messaging/BuildingBlocks.Messaging.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
+  </Folder>
+  <Folder Name="/Core/">
+    <Project Path="Core/Core.API/Core.API.csproj" />
+    <Project Path="Core/Core.Application/Core.Application.csproj" />
+    <Project Path="Core/Core.Domain/Core.Domain.csproj" />
+    <Project Path="Core/Core.Infrastructure/Core.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Services/" />
+  <Folder Name="/Services/Financial/">
+    <Project Path="Services/Financial/Financial.API/Financial.API.csproj" />
+    <Project Path="Services/Financial/Financial.Application/Financial.Application.csproj" />
+    <Project Path="Services/Financial/Financial.Domain/Financial.Domain.csproj" />
+    <Project Path="Services/Financial/Financial.Infrastructure/Financial.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Services/Gym/">
+    <Project Path="Services/Gym/Gym.API/Gym.API.csproj" />
+    <Project Path="Services/Gym/Gym.Application/Gym.Application.csproj" />
+    <Project Path="Services/Gym/Gym.Domain/Gym.Domain.csproj" />
+    <Project Path="Services/Gym/Gym.Infrastructure/Gym.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Services/Notification/">
+    <Project Path="Services/Notification/Notification.API/Notification.API.csproj" />
+    <Project Path="Services/Notification/Notification.Application/Notification.Application.csproj" />
+    <Project Path="Services/Notification/Notification.Domain/Notification.Domain.csproj" />
+    <Project Path="Services/Notification/Notification.Infrastructure/Notification.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Services/Nutrition/">
+    <Project Path="Services/Nutrition/Nutrition.API/Nutrition.API.csproj" />
+    <Project Path="Services/Nutrition/Nutrition.Application/Nutrition.Application.csproj" />
+    <Project Path="Services/Nutrition/Nutrition.Domain/Nutrition.Domain.csproj" />
+    <Project Path="Services/Nutrition/Nutrition.Infrastructure/Nutrition.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Services/TaskManager/">
+    <Project Path="Services/TaskManager/TaskManager.API/TaskManager.API.csproj" />
+    <Project Path="Services/TaskManager/TaskManager.Application/TaskManager.Application.csproj" />
+    <Project Path="Services/TaskManager/TaskManager.Domain/TaskManager.Domain.csproj" />
+    <Project Path="Services/TaskManager/TaskManager.Infrastructure/TaskManager.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Services/Users/">
+    <Project Path="Services/Users/Users.API/Users.API.csproj" />
+    <Project Path="Services/Users/Users.Application/Users.Application.csproj" />
+    <Project Path="Services/Users/Users.Domain/Users.Domain.csproj" />
+    <Project Path="Services/Users/Users.Infrastructure/Users.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TaskManager.UnitTests/TaskManager.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/WebApp/">
+    <Project Path="Services/WebApp/LifeSyncApp/LifeSyncApp.Client/LifeSyncApp.Client.csproj" />
+    <Project Path="Services/WebApp/LifeSyncApp/LifeSyncApp/LifeSyncApp.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>
