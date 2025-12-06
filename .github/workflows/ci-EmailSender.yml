@@ -22,16 +22,16 @@ jobs:
         run: dotnet restore LifeSync.slnx
       - name: Build solution
         run: dotnet build LifeSync.slnx --configuration Release --no-restore
-      - name: Run service tests (if any)
-        # run: |
-        #   tests=$(find tests -type f \( -iname "*emailsender*.csproj" -o -iname "*email*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \))
-        #   if [ -n "$tests" ]; then
-        #     for t in $tests; do
-        #       dotnet test "$t" --no-build --verbosity normal || exit $?
-        #     done
-        #   else
-        #     echo "No tests found for EmailSender"
-        #   fi
+      # - name: Run service tests (if any)
+      #   run: |
+      #     tests=$(find tests -type f \( -iname "*emailsender*.csproj" -o -iname "*email*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \))
+      #     if [ -n "$tests" ]; then
+      #       for t in $tests; do
+      #         dotnet test "$t" --no-build --verbosity normal || exit $?
+      #       done
+      #     else
+      #       echo "No tests found for EmailSender"
+      #     fi
 
   docker_build_and_publish:
     runs-on: ubuntu-latest
