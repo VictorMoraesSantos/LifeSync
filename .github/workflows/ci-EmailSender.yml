@@ -32,25 +32,25 @@ jobs:
         #   else
         #     echo "No tests found for EmailSender"
         #   fi
-    
-      docker_build_and_publish:
-        runs-on: ubuntu-latest
-        needs: build
-        permissions:
-          contents: read
-          packages: write
-        steps:
-          - uses: actions/checkout@v4
 
-          - name: Login no GitHub Container Registry
-            run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+  docker_build_and_publish:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
 
-          - name: Build da imagem Docker
-            run: |
-              docker build \
-                -f Services/Notification/Notification.API/Dockerfile \
-                -t ghcr.io/victormoraessantos/lifesync-emailsenderapi:latest \
-                .
+      - name: Login no GitHub Container Registry
+        run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-          - name: Push da imagem para GHCR
-            run: docker push ghcr.io/victormoraessantos/lifesync-emailsenderapi:latest
+      - name: Build da imagem Docker
+        run: |
+          docker build \
+            -f Services/EmailSender/EmailSender.API/Dockerfile \
+            -t ghcr.io/victormoraessantos/lifesync-emailsenderapi:latest \
+            .
+
+      - name: Push da imagem para GHCR
+        run: docker push ghcr.io/victormoraessantos/lifesync-emailsenderapi:latest

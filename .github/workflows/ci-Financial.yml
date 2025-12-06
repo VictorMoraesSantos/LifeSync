@@ -33,24 +33,24 @@ jobs:
         #     echo "No tests found for Financial"
         #   fi
 
-        docker_build_and_publish:
-          runs-on: ubuntu-latest
-          needs: build
-          permissions:
-            contents: read
-            packages: write
-          steps:
-            - uses: actions/checkout@v4
+  docker_build_and_publish:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Login no GitHub Container Registry
-              run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Login no GitHub Container Registry
+        run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            - name: Build da imagem Docker
-              run: |
-                docker build \
-                  -f Services/Financial/Financial.API/Dockerfile \
-                  -t ghcr.io/victormoraessantos/lifesync-financialapi:latest \
-                  .
+      - name: Build da imagem Docker
+        run: |
+          docker build \
+            -f Services/Financial/Financial.API/Dockerfile \
+            -t ghcr.io/victormoraessantos/lifesync-financialapi:latest \
+            .
 
-            - name: Push da imagem para GHCR
-              run: docker push ghcr.io/victormoraessantos/lifesync-financialapi:latest
+      - name: Push da imagem para GHCR
+        run: docker push ghcr.io/victormoraessantos/lifesync-financialapi:latest
