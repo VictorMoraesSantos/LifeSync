@@ -16,6 +16,14 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "healthy",
+    service = "Notification",
+    timestamp = DateTime.UtcNow,
+    environment = app.Environment.EnvironmentName
+}));
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

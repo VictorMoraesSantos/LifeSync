@@ -15,6 +15,14 @@ builder.Services
 
 var app = builder.Build();
 
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "healthy",
+    service = "Users",
+    timestamp = DateTime.UtcNow,
+    environment = app.Environment.EnvironmentName
+}));
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
