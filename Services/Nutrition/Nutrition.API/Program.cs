@@ -1,3 +1,4 @@
+using BuildingBlocks.Authentication;
 using Nutrition.Application;
 using Nutrition.Infrastructure;
 
@@ -7,8 +8,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services
     .AddApplicationServices()

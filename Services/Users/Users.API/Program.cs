@@ -7,8 +7,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services
     .AddApplicationServices()

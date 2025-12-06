@@ -1,3 +1,4 @@
+using BuildingBlocks.Authentication;
 using BuildingBlocks.Validation.Extensions;
 using TaskManager.Application;
 using TaskManager.Infrastructure;
@@ -8,8 +9,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services
     .AddApplicationServices()

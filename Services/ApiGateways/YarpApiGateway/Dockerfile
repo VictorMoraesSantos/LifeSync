@@ -2,6 +2,8 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+USER root
+RUN mkdir -p /keys && chown -R $APP_UID:$APP_UID /keys
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -25,6 +27,9 @@ RUN dotnet publish "./YarpApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
+USER root
+RUN mkdir -p /keys && chown -R $APP_UID:$APP_UID /keys
+USER $APP_UID
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "YarpApiGateway.dll"]
