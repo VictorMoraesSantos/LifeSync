@@ -26,7 +26,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Create
 
         public async Task<Result<CreateTaskItemResult>> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            var ownershipValidation = ValidateOwnership(command.UserId);
+            Result? ownershipValidation = ValidateOwnership(command.UserId);
             if (!ownershipValidation.IsSuccess)
                 return Result.Failure<CreateTaskItemResult>(ownershipValidation.Error!);
 

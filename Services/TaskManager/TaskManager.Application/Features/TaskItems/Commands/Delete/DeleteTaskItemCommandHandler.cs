@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
 using Microsoft.AspNetCore.Http;
+using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Delete
@@ -20,11 +21,11 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Delete
 
         public async Task<Result<DeleteTaskItemResult>> Handle(DeleteTaskItemCommand command, CancellationToken cancellationToken)
         {
-            var existingTask = await _taskItemService.GetByIdAsync(command.Id, cancellationToken);
+            Result<TaskItemDTO?> existingTask = await _taskItemService.GetByIdAsync(command.Id, cancellationToken);
             if (!existingTask.IsSuccess)
                 return Result.Failure<DeleteTaskItemResult>(existingTask.Error!);
 
-            var accessValidation = ValidateAccess<DeleteTaskItemResult>(existingTask.Value!.UserId);
+            Result<DeleteTaskItemResult> accessValidation = ValidateAccess<DeleteTaskItemResult>(existingTask.Value!.UserId);
             if (!accessValidation.IsSuccess)
                 return accessValidation;
 

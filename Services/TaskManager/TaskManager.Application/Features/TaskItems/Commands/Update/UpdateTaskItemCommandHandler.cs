@@ -26,11 +26,11 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
 
         public async Task<Result<UpdateTaskItemResult>> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            var existingTask = await _taskItemService.GetByIdAsync(command.Id, cancellationToken);
+            Result<TaskItemDTO?> existingTask = await _taskItemService.GetByIdAsync(command.Id, cancellationToken);
             if (!existingTask.IsSuccess)
                 return Result.Failure<UpdateTaskItemResult>(existingTask.Error!);
 
-            var accessValidation = ValidateAccess<UpdateTaskItemResult>(existingTask.Value!.UserId);
+            Result<UpdateTaskItemResult> accessValidation = ValidateAccess<UpdateTaskItemResult>(existingTask.Value!.UserId);
             if (!accessValidation.IsSuccess)
                 return accessValidation;
 
@@ -41,7 +41,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
                 return Result.Failure<UpdateTaskItemResult>(new Error(string.Join("; ", errors), ErrorType.Validation));
             }
 
-            var dto = new UpdateTaskItemDTO(
+            UpdateTaskItemDTO dto = new(
                 command.Id,
                 command.Title,
                 command.Description,
@@ -49,7 +49,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
                 command.Priority,
                 command.DueDate);
 
-            var result = await _taskItemService.UpdateAsync(dto, cancellationToken);
+            Result<bool> result = await _taskItemService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
                 return Result.Failure<UpdateTaskItemResult>(result.Error!);
 
