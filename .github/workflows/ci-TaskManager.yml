@@ -45,11 +45,11 @@ jobs:
         run: |
           docker build \
             -f Services/TaskManager/TaskManager.API/Dockerfile \
-            -t ghcr.io/victormoraessantos/lifesync-taskmanager:latest \
+            -t ghcr.io/victormoraessantos/lifesync-taskmanagerapi:latest \
             .
 
       - name: Push da imagem para GHCR
-        run: docker push ghcr.io/victormoraessantos/lifesync-taskmanager:latest
+        run: docker push ghcr.io/victormoraessantos/lifesync-taskmanagerapi:latest
 
   docker_build_and_publish_aws_ecr:
     runs-on: ubuntu-latest
