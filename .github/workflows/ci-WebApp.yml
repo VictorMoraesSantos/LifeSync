@@ -33,7 +33,7 @@ jobs:
       #       echo "No tests found for WebApp"
       #     fi
 
-  docker_build_and_publish:
+  docker_build_and_push:
     runs-on: ubuntu-latest
     needs: build
     permissions:
