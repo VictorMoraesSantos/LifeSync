@@ -49,7 +49,7 @@ jobs:
         run: |
           docker build \
             -f Services/WebApp/LifeSyncApp/LifeSyncApp/Dockerfile \
-            -t ghcr.io/victormoraessantos/lifesync-webappapi:latest \
+            -t ghcr.io/victormoraessantos/lifesync-webapp:latest \
             .
 
       - name: Push da imagem para GHCR
