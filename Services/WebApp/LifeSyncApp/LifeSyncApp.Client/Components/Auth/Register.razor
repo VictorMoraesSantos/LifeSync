@@ -1,4 +1,4 @@
-@page "/register"
+Ôªø@page "/register"
 @layout EmptyLayout
 @using LifeSyncApp.Client.Layout
 @using LifeSyncApp.Client.Models
@@ -29,7 +29,7 @@
 
                 <div class="form-group">
                     <label for="firstName">Nome</label>
-                    <input @bind-value="Model.FirstName" id="firstName" placeholder="Jo„o" />
+                    <input @bind-value="Model.FirstName" id="firstName" placeholder="Jo√£o" />
                     <ValidationMessage For="@(() => Model.FirstName)" />
                 </div>
 
@@ -47,13 +47,13 @@
 
                 <div class="form-group">
                     <label for="password">Senha</label>
-                    <input type="password" @bind-value="Model.Password" id="password" placeholder="ïïïïïïïï" />
+                    <input type="password" @bind-value="Model.Password" id="password" placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢" />
                     <ValidationMessage For="@(() => Model.Password)" />
                 </div>
 
                 <div class="form-group">
                     <label for="confirmPassword">Confirmar Senha</label>
-                    <input type="password" @bind-value="Model.ConfirmPassword" id="confirmPassword" placeholder="ïïïïïïïï" />
+                    <input type="password" @bind-value="Model.ConfirmPassword" id="confirmPassword" placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢" />
                     <ValidationMessage For="@(() => Model.ConfirmPassword)" />
                 </div>
 
@@ -73,7 +73,7 @@
             </EditForm>
 
             <div class="have-account">
-                J· tem uma conta? <a href="/login">FaÁa login</a>
+                J√° tem uma conta? <a href="/login">Fa√ßa login</a>
             </div>
         </div>
     </div>
@@ -93,7 +93,7 @@
 
             if (Model.Password != Model.ConfirmPassword)
             {
-                errorMessage = "As senhas n„o coincidem.";
+                errorMessage = "As senhas n√£o coincidem.";
                 return;
             }
 

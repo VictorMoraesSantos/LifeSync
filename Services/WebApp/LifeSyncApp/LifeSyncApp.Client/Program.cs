@@ -16,9 +16,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 // Bind configuration for API base
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
-                  ?? builder.Configuration["Api:BaseUrl"]
-                  ?? builder.Configuration["ApiGateway:BaseUrl"]
-                  ?? builder.HostEnvironment.BaseAddress; // fallback to app origin
+                  ?? builder.HostEnvironment.BaseAddress;
 
 // Auth for WASM render mode
 builder.Services.AddAuthorizationCore();

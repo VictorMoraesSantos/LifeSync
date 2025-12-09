@@ -10,6 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="appsettings.Production.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="appsettings.Production.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LifeSyncApp.Client\LifeSyncApp.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
