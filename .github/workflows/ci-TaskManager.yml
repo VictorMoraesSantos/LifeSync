@@ -83,8 +83,8 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Verify cluster connection
-        run: kubectl get nodes
+      - name: Verify namespace access
+        run: kubectl get deployments -n lifesync
 
       - name: Update image in deployment
         run: |
@@ -93,7 +93,7 @@ jobs:
             -n lifesync
 
       - name: Rollout status
-        run: kubectl rollout status deployment/taskmanager-api -n lifesync
+        run: kubectl rollout status deployment/taskmanager-api -n lifesync --timeout=5m
 
       - name: Get deployment info
-        run: kubectl get pods -n lifesync -l app=taskmanager-api
+        run: kubectl get pods -n lifesync -l app=taskmanager-api -o wide
