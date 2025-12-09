@@ -48,7 +48,7 @@ jobs:
       - name: Build da imagem Docker
         run: |
           docker build \
-            -f Services/WebApp/LifeSync.API/Dockerfile \
+            -f Services/WebApp/LifeSyncApp/LifeSyncApp/Dockerfile \
             -t ghcr.io/victormoraessantos/lifesync-webappapi:latest \
             .
 
