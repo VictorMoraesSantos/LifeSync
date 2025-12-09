@@ -14,12 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+
       - name: Restore solution
         run: dotnet restore LifeSync.slnx
+
       - name: Build solution
         run: dotnet build LifeSync.slnx --configuration Release --no-restore
       # - name: Run webapp tests (if any)
@@ -43,7 +46,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Login no GitHub Container Registry
-        run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build da imagem Docker
         run: |
@@ -75,14 +82,14 @@ jobs:
       - name: Verify namespace access
         run: kubectl get deployments -n lifesync
 
-      - name: Update image in deployment
+      - name: Update image in deployment (WebApp)
         run: |
-          kubectl set image deployment/taskmanager-api \
-            taskmanager-api=ghcr.io/victormoraessantos/lifesync-taskmanagerapi:${{ github.sha }} \
+          kubectl set image deployment/lifesync-webapp \
+            webapp=ghcr.io/victormoraessantos/lifesync-webapp:latest \
             -n lifesync
 
       - name: Rollout status
-        run: kubectl rollout status deployment/taskmanager-api -n lifesync --timeout=5m
+        run: kubectl rollout status deployment/lifesync-webapp -n lifesync --timeout=5m
 
       - name: Get deployment info
-        run: kubectl get pods -n lifesync -l app=taskmanager-api -o wide
+        run: kubectl get pods -n lifesync -l app=lifesync-webapp -o wide
