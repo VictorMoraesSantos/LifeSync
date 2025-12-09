@@ -1,7 +1,8 @@
-name: CI - TaskManager
+name: CI/CD - TaskManager
 
 on:
   push:
+    branches: [main]
     paths:
       - "Services/TaskManager/**"
   pull_request:
@@ -29,74 +30,70 @@ jobs:
       - name: Run unit tests (TaskManager)
         run: dotnet test tests/TaskManager.UnitTests/TaskManager.UnitTests.csproj --no-build --configuration Release --verbosity normal
 
-  docker_build_and_publish:
+  docker_build_and_push:
     runs-on: ubuntu-latest
     needs: build_and_test
     permissions:
       contents: read
       packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Login no GitHub Container Registry
-        run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/victormoraessantos/lifesync-taskmanagerapi
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build da imagem Docker
-        run: |
-          docker build \
-            -f Services/TaskManager/TaskManager.API/Dockerfile \
-            -t ghcr.io/victormoraessantos/lifesync-taskmanagerapi:latest \
-            .
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push da imagem para GHCR
-        run: docker push ghcr.io/victormoraessantos/lifesync-taskmanagerapi:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Services/TaskManager/TaskManager.API/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-  docker_build_and_publish_aws_ecr:
+  deploy_to_kubernetes:
     runs-on: ubuntu-latest
-    needs: build_and_test
-    env:
-      AWS_REGION: us-east-1
-      ECR_REPOSITORY: taskmanager
+    needs: docker_build_and_push
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          version: "latest"
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Configure kubectl
         run: |
-          docker build \
-            -f Services/TaskManager/TaskManager.API/Dockerfile \
-            -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest \
-            .
-          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
 
-  deploy_to_ecs:
-    runs-on: ubuntu-latest
-    needs: docker_build_and_publish_aws_ecr
-    env:
-      AWS_REGION: us-east-1
-      ECS_CLUSTER: lifesync-cluster
-      ECS_SERVICE: taskmanager-service
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+      - name: Verify cluster connection
+        run: kubectl get nodes
 
-      - name: Force new deployment
+      - name: Update image in deployment
         run: |
-          aws ecs update-service \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --service ${{ env.ECS_SERVICE }} \
-            --force-new-deployment
+          kubectl set image deployment/taskmanager-api \
+            taskmanager-api=ghcr.io/victormoraessantos/lifesync-taskmanagerapi:${{ github.sha }} \
+            -n lifesync
+
+      - name: Rollout status
+        run: kubectl rollout status deployment/taskmanager-api -n lifesync
+
+      - name: Get deployment info
+        run: kubectl get pods -n lifesync -l app=taskmanager-api
