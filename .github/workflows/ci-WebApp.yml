@@ -42,25 +42,35 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Login no GitHub Container Registry
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/victormoraessantos/lifesync-webapp
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build da imagem Docker
-        run: |
-          docker build \
-            -f Services/WebApp/LifeSyncApp/LifeSyncApp/Dockerfile \
-            -t ghcr.io/victormoraessantos/lifesync-webapp:latest \
-            .
-
-      - name: Push da imagem para GHCR
-        run: docker push ghcr.io/victormoraessantos/lifesync-webapp:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Services/WebApp/LifeSyncApp/LifeSyncApp/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   deploy_to_kubernetes:
     runs-on: ubuntu-latest
