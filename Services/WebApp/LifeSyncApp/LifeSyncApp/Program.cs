@@ -40,6 +40,6 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(LifeSyncApp.Client._Imports).Assembly);
 
-app.MapGet("/", () => Results.Redirect("/"));
+app.MapFallbackToPage("/_Host");
 
 app.Run();
