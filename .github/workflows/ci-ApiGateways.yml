@@ -92,7 +92,7 @@ jobs:
       - name: Update image in deployment
         run: |
           kubectl set image deployment/yarp-gateway \
-            yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:${{ github.sha }} \
+            yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:latest \
             -n lifesync
 
       - name: Rollout status

@@ -89,7 +89,7 @@ jobs:
       - name: Update image in deployment
         run: |
           kubectl set image deployment/taskmanager-api \
-            taskmanager-api=ghcr.io/victormoraessantos/lifesync-taskmanagerapi:${{ github.sha }} \
+            taskmanager-api=ghcr.io/victormoraessantos/lifesync-taskmanagerapi:latest \
             -n lifesync
 
       - name: Rollout status
