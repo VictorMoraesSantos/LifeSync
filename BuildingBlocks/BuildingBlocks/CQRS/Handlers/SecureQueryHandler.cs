@@ -14,7 +14,7 @@ namespace BuildingBlocks.CQRS.Handlers
             HttpContext = httpContext;
         }
 
-        protected ClaimsPrincipal User => HttpContext.HttpContext?.User 
+        protected ClaimsPrincipal User => HttpContext.HttpContext?.User
             ?? throw new UnauthorizedAccessException("User not authenticated");
 
         protected Result<T> ValidateAccess<T>(int resourceUserId)

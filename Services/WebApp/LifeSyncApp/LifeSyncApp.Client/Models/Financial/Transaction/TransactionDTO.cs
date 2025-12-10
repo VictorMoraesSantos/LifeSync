@@ -1,5 +1,4 @@
 using LifeSyncApp.Client.Models.Financial.Category;
-using System.Globalization;
 
 namespace LifeSyncApp.Client.Models.Financial.Transaction
 {

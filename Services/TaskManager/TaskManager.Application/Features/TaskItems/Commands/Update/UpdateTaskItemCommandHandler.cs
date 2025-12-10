@@ -4,7 +4,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using TaskManager.Application.DTOs.TaskItem;
-using TaskManager.Application.Features.TaskItems.Commands.Create;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Update

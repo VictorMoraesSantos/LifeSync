@@ -1,5 +1,3 @@
-using System;
-
 namespace LifeSyncApp.Client.Models.Financial.Transaction
 {
     public class CreateTransactionDTO

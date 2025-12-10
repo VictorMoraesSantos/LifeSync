@@ -8,7 +8,7 @@
         public Status Status { get; set; } = Status.Pending;
         public Priority Priority { get; set; } = Priority.Medium;
         public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
-        
+
         public UpdateTaskItemDTO() { }
 
         public UpdateTaskItemDTO(int id, string title, string description, Status status, Priority priority, DateOnly dueDate)

@@ -18,7 +18,7 @@ namespace BuildingBlocks.Authorization
         public static bool CanAccess(this ClaimsPrincipal user, int resourceUserId)
         {
             if (user.IsAdmin()) return true;
-            
+
             var userId = user.GetUserId();
             return userId.HasValue && userId.Value == resourceUserId;
         }

@@ -6,7 +6,7 @@
         public LabelColor LabelColor { get; set; }
         public int UserId { get; set; }
         public int TaskItemId { get; set; }
-        
+
         public CreateTaskLabelDTO(string name, LabelColor labelColor, int userId, int taskItemId)
         {
             Name = name;

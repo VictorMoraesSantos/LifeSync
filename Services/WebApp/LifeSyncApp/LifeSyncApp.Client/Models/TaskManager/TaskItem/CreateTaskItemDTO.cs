@@ -7,7 +7,7 @@
         public Priority Priority { get; set; } = Priority.Medium;
         public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
         public int UserId { get; set; }
-        
+
         public CreateTaskItemDTO(string title, string description, Priority priority, DateOnly dueDate, int userId)
         {
             Title = title;

@@ -333,7 +333,7 @@ namespace TaskManager.UnitTests.Application
                     return item;
                 })
                 .ToList();
-              
+
             _mockRepository
                 .Setup(r => r.FindByFilter(It.IsAny<TaskItemQueryFilter>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((fakeItems, totalItems));

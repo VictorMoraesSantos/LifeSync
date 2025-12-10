@@ -1,5 +1,4 @@
 using LifeSyncApp.Client.Models;
-using LifeSyncApp.Client.Models.TaskManager.TaskItem;
 using LifeSyncApp.Client.Models.TaskManager.TaskLabel;
 using LifeSyncApp.Client.Services.Contracts;
 using LifeSyncApp.Client.Services.Http;
