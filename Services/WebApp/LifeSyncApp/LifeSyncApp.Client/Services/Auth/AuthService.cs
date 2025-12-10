@@ -57,7 +57,7 @@ namespace LifeSyncApp.Client.Services.Auth
         {
             try
             {
-                var url = Route("users-service/api/auth/login");
+                var url = Route("users-service/auth/login");
                 var http = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = JsonContent.Create(request)
@@ -89,7 +89,7 @@ namespace LifeSyncApp.Client.Services.Auth
         {
             try
             {
-                var url = Route("users-service/api/auth/register");
+                var url = Route("users-service/auth/register");
                 var http = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = JsonContent.Create(request)
@@ -121,7 +121,7 @@ namespace LifeSyncApp.Client.Services.Auth
         {
             try
             {
-                var url = Route("users-service/api/auth/logout");
+                var url = Route("users-service/auth/logout");
                 await _apiClient.PostAsync<object, object>(url, new { });
             }
             catch { }
