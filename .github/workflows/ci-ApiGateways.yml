@@ -81,11 +81,8 @@ jobs:
 
       - name: Update image in deployment
         run: |
-          NEW_IMAGE="ghcr.io/victormoraessantos/lifesync-yarpgateway:main-${GITHUB_SHA}"
-          kubectl set image deployment/yarp-gateway yarp-gateway=$NEW_IMAGE -n lifesync
-          kubectl annotate deployment yarp-gateway \
-            kubernetes.io/change-cause="Deploy image $NEW_IMAGE" \
-            -n lifesync --overwrite
+          kubectl set image deployment/yarp-gateway \
+            yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:latest \
 
       - name: Verify deployment update
         run: |
