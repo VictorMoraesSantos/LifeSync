@@ -32,6 +32,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -79,17 +81,14 @@ jobs:
       - name: Verify namespace access
         run: kubectl get deployments -n lifesync
 
-      - name: Force imagePullPolicy to Always
-        run: |
-          kubectl patch deployment yarp-gateway -n lifesync \
-            -p '{"spec":{"template":{"spec":{"containers":[{"name":"yarp-gateway","imagePullPolicy":"Always"}]}}}}'
-
-      - name: Update image and add timestamp annotation
+      - name: Update image in deployment
         run: |
           NEW_IMAGE="ghcr.io/victormoraessantos/lifesync-yarpgateway:main-${GITHUB_SHA}"
-          kubectl set image deployment/yarp-gateway yarp-gateway=$NEW_IMAGE -n lifesync
-          kubectl patch deployment yarp-gateway -n lifesync \
-            -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}}}}}"
+          kubectl set image deployment/yarp-gateway \
+            yarp-gateway=$NEW_IMAGE \
+            -n lifesync
 
-      - name: Get deployment info
-        run: kubectl get pods -n lifesync -l app=yarp-gateway -o wide
+      - name: Rollout status
+        run: |
+          kubectl rollout status deployment/yarp-gateway -n lifesync --timeout=5m
+          kubectl get pods -n lifesync -l app=yarp-gateway -o wide
