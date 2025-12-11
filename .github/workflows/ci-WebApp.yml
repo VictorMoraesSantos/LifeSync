@@ -95,7 +95,7 @@ jobs:
       - name: Update image in deployment (WebApp)
         run: |
           kubectl set image deployment/lifesync-webapp \
-            webapp=ghcr.io/victormoraessantos/lifesync-webapp:latest \
+            webapp=ghcr.io/victormoraessantos/lifesync-webapp:${{ github.sha }} \
             -n lifesync
 
       - name: Rollout status
