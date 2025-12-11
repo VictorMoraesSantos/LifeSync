@@ -81,7 +81,3 @@ jobs:
           kubectl set image deployment/yarp-gateway \
             yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:latest \
             -n lifesync
-
-      - name: Rollout status
-        run: |
-          kubectl rollout status deployment/yarp-gateway -n lifesync --timeout=5m
