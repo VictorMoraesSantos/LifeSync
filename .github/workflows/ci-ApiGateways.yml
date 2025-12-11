@@ -32,8 +32,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    outputs:
-      image_tag: ${{ steps.meta.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -85,7 +83,9 @@ jobs:
         run: |
           NEW_IMAGE="ghcr.io/victormoraessantos/lifesync-yarpgateway:main-${GITHUB_SHA}"
           kubectl set image deployment/yarp-gateway yarp-gateway=$NEW_IMAGE -n lifesync
-          kubectl annotate deployment yarp-gateway kubernetes.io/change-cause="Deploy image $NEW_IMAGE" -n lifesync --overwrite
+          kubectl annotate deployment yarp-gateway \
+            kubernetes.io/change-cause="Deploy image $NEW_IMAGE" \
+            -n lifesync --overwrite
 
       - name: Verify deployment update
         run: |
