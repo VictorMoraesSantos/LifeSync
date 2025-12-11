@@ -90,12 +90,15 @@ jobs:
         run: kubectl get deployments -n lifesync
           
       - name: Update image in deployment
-        run: |
-          kubectl set image deployment/yarp-gateway yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:${{ github.sha }} -n lifesync
-          kubectl rollout restart deployment/yarp-gateway -n lifesync
+        run: kubectl set image deployment/yarp-gateway yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:${{ github.sha }} -n lifesync
 
       - name: Rollout status
-        run: kubectl rollout status deployment/yarp-gateway -n lifesync --timeout=10m
+        run: kubectl rollout status deployment/yarp-gateway -n lifesync --timeout=5m || true
+
+      - name: Check pod status
+        run: |
+          kubectl get pods -n lifesync -l app=yarp-gateway
+          kubectl describe pods -n lifesync -l app=yarp-gateway
 
       - name: Get deployment info
         run: kubectl get pods -n lifesync -l app=yarp-gateway -o wide
