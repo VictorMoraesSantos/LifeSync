@@ -42,8 +42,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    outputs:
-      image_tag: ${{ steps.meta.outputs.tags }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,8 +51,7 @@ jobs:
         with:
           images: ghcr.io/victormoraessantos/lifesync-webapp
           tags: |
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=main-${{ github.sha }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -89,17 +86,5 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Verify namespace access
-        run: kubectl get deployments -n lifesync
-
-      - name: Update image in deployment (WebApp)
-        run: |
-          kubectl set image deployment/lifesync-webapp \
-            webapp=ghcr.io/victormoraessantos/lifesync-webapp:${{ github.sha }} \
-            -n lifesync
-
-      - name: Rollout status
-        run: kubectl rollout status deployment/lifesync-webapp -n lifesync --timeout=5m
-
-      - name: Get deployment info
-        run: kubectl get pods -n lifesync -l app=lifesync-webapp -o wide
+      - name: Update image in deployment
+        run: kubectl set image deployment/lifesync-webapp webapp=ghcr.io/victormoraessantos/lifesync-webapp:main-${{ github.sha }} -n lifesync
