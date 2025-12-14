@@ -32,8 +32,8 @@ services:
       context: .
       dockerfile: Services/Users/Users.API/Dockerfile
 
-  emailsender.api:
-    image: ${DOCKER_REGISTRY-}emailsenderapi
+  notification.api:
+    image: ${DOCKER_REGISTRY-}notificationapi
     build:
       context: .
       dockerfile: Services/Notification/Notification.API/Dockerfile
