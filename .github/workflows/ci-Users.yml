@@ -1,12 +1,12 @@
-name: CI - Users
+name: CI - ApiGateways
 
 on:
   push:
     paths:
-      - "Services/Users/**"
+      - "Services/ApiGateways/**"
   pull_request:
     paths:
-      - "Services/Users/**"
+      - "Services/ApiGateways/**"
   workflow_dispatch: {}
 
 jobs:
@@ -39,9 +39,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/victormoraessantos/lifesync-usersapi
+          images: ghcr.io/victormoraessantos/lifesync-yarpgateway
           tags: |
-            type=raw,value=latest
+            type=raw,value=main-${{ github.sha }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -54,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Services/Users/Users.API/Dockerfile
+          file: Services/ApiGateways/YarpApiGateway/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -78,12 +78,6 @@ jobs:
 
       - name: Update image in deployment
         run: |
-          kubectl set image deployment/users-api \
-            users-api=ghcr.io/victormoraessantos/lifesync-usersapi:latest \
+          kubectl set image deployment/yarp-gateway \
+            yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:latest \
             -n lifesync
-
-      - name: Rollout status
-        run: kubectl rollout status deployment/users-api -n lifesync --timeout=5m
-
-      - name: Get deployment info
-        run: kubectl get pods -n lifesync -l app=users-api -o wide
