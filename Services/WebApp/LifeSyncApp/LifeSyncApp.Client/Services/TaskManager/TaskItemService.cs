@@ -9,7 +9,7 @@ namespace LifeSyncApp.Client.Services.TaskManager
     public class TaskItemService : ITaskItemService
     {
         private readonly IApiClient _apiClient;
-        private const string BaseRoute = "taskmanager-service/api/task-items";
+        private const string BaseRoute = "taskmanager-service/task-items";
 
         public TaskItemService(IApiClient apiClient)
         {

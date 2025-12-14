@@ -9,7 +9,7 @@ namespace LifeSyncApp.Client.Services.TaskManager
     public class TaskLabelService : ITaskLabelService
     {
         private readonly IApiClient _apiClient;
-        private const string BaseRoute = "taskmanager-service/api/task-labels";
+        private const string BaseRoute = "taskmanager-service/task-labels";
 
         public TaskLabelService(IApiClient apiClient)
         {
