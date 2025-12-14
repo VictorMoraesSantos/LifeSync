@@ -76,10 +76,5 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Apply YARP gateway deployment
-        run: |
-          cd lifesync-k8s
-          kubectl apply -f yarp-gateway.yaml -n lifesync
-          kubectl set image deployment/yarp-gateway \
-            yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:main-${{ github.sha }} \
-            -n lifesync
+      - name: Update image in deployment
+        run: kubectl set image deployment/yarp-gateway yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:main-${{ github.sha }} -n lifesync
