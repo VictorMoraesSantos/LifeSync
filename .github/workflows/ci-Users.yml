@@ -83,8 +83,5 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Verify namespace access
-        run: kubectl get deployments -n lifesync
-
       - name: Update image in deployment
         run: kubectl set image deployment/users-api users-api=ghcr.io/victormoraessantos/lifesync-usersapi:main-${{ github.sha }} -n lifesync
