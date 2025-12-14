@@ -88,6 +88,17 @@ namespace Users.Infrastructure
 
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins("https://lifesync.tech")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                });
+            });
+
             services.AddScoped<ITokenGenerator, TokenGenerator>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();

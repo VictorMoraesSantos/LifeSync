@@ -59,7 +59,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  deploy_to_kubernetes:
+  deploy_to_kubernetes:ííí
     runs-on: ubuntu-latest
     needs: docker_build_and_push
     steps:

@@ -7,9 +7,9 @@ services:
       - POSTGRES_DB=LifeSyncDB
     restart: always
     ports:
-        - "5433:5432"
+      - "5433:5432"
     volumes:
-      - postgres_lifesync:/var/lib/postgresql/data/ 
+      - postgres_lifesync:/var/lib/postgresql/data/
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -75,7 +75,7 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-  
+
   nutrition.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -154,7 +154,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
-  emailsender.api:
+  notification.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -167,7 +167,7 @@ services:
       - SmtpSettings__Host=mailhog
       - SmtpSettings__Port=1025
       - SmtpSettings__EnableSsl=false
-      - SmtpSettings__User=            
+      - SmtpSettings__User=
       - SmtpSettings__Password=
       - SmtpSettings__From=no-reply@test.local
     depends_on:
@@ -185,10 +185,10 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
- 
+
   yarpapigateway:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development        
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
     depends_on:
@@ -197,16 +197,16 @@ services:
       - financial.api
       - users.api
       - gym.api
-      - emailsender.api
+      - notification.api
     ports:
-      - "6006:8080" 
+      - "6006:8080"
       - "6066:8081"
     volumes:
       - yarpapigateway_dataprotection_keys:/keys
 
   lifesyncapp.webapp:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development        
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
       - BaseApiUrl=http://yarpapigateway:8080

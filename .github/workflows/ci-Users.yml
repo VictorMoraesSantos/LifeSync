@@ -14,24 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+
       - name: Restore solution
         run: dotnet restore LifeSync.slnx
+
       - name: Build solution
         run: dotnet build LifeSync.slnx --configuration Release --no-restore
-      # - name: Run service tests (if any)
-      #   run: |
-      #     tests=$(find tests -type f \( -iname "*users*.csproj" -o -iname "*user*.csproj" -o -iname "*test*.csproj" -o -iname "*tests*.csproj" \))
-      #     if [ -n "$tests" ]; then
-      #       for t in $tests; do
-      #         dotnet test "$t" --no-build --verbosity normal || exit $?
-      #       done
-      #     else
-      #       echo "No tests found for Users"
-      #     fi
 
   docker_build_and_push:
     runs-on: ubuntu-latest
@@ -39,8 +32,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    outputs:
-      image_tag: ${{ steps.meta.outputs.tags }}
     steps:
       - uses: actions/checkout@v4
 
@@ -50,8 +41,7 @@ jobs:
         with:
           images: ghcr.io/victormoraessantos/lifesync-usersapi
           tags: |
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -86,13 +76,10 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Verify namespace access
-        run: kubectl get deployments -n lifesync
-
       - name: Update image in deployment
         run: |
           kubectl set image deployment/users-api \
-            users-api=ghcr.io/victormoraessantos/lifesync-usersapi:${{ github.sha }} \
+            users-api=ghcr.io/victormoraessantos/lifesync-usersapi:latest \
             -n lifesync
 
       - name: Rollout status
