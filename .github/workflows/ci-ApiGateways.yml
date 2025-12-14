@@ -77,5 +77,5 @@ jobs:
           chmod 600 ~/.kube/config
 
       - name: Update image in deployment
-        run: kubectl set image deployment/yarp-gateway yarp-gateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:main-${{ github.sha }} -n lifesync
+        run: kubectl set image deployment/yarpapigateway yarpapigateway=ghcr.io/victormoraessantos/lifesync-yarpgateway:main-${{ github.sha }} -n lifesync
 
