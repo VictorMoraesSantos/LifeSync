@@ -11,6 +11,7 @@ namespace LifeSyncApp.Client.Services.Auth
         private readonly IApiClient _apiClient;
         private readonly CustomAuthStateProvider _authProvider;
         private const string TokenKey = "authToken";
+        private const string BaseRoute = "auth";
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             PropertyNameCaseInsensitive = true
@@ -57,7 +58,7 @@ namespace LifeSyncApp.Client.Services.Auth
         {
             try
             {
-                var url = Route("users-service/auth/login");
+                var url = Route($"{BaseRoute}/login");
                 var http = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = JsonContent.Create(request)
@@ -89,7 +90,7 @@ namespace LifeSyncApp.Client.Services.Auth
         {
             try
             {
-                var url = Route("users-service/auth/register");
+                var url = Route($"{BaseRoute}/register");
                 var http = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = JsonContent.Create(request)
@@ -121,7 +122,7 @@ namespace LifeSyncApp.Client.Services.Auth
         {
             try
             {
-                var url = Route("users-service/auth/logout");
+                var url = Route($"{BaseRoute}/logout");
                 await _apiClient.PostAsync<object, object>(url, new { });
             }
             catch { }
@@ -136,7 +137,6 @@ namespace LifeSyncApp.Client.Services.Auth
 
         public Task<UserDTO?> GetCurrentUserAsync()
         {
-            // Not used anymore; data comes from claims
             return Task.FromResult<UserDTO?>(null);
         }
 
