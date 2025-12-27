@@ -1,4 +1,5 @@
-﻿using EmailSender.Domain.Entities;
+﻿using BuildingBlocks.Results;
+using EmailSender.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Notification.Infrastructure.Persistence.Data
@@ -10,5 +11,12 @@ namespace Notification.Infrastructure.Persistence.Data
         { }
 
         public DbSet<EmailMessage> EmailMessages { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Ignore<Error>();
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

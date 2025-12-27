@@ -19,6 +19,8 @@ namespace Nutrition.Infrastructure.Persistence.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Ignore<BuildingBlocks.Results.Error>();
+
             modelBuilder.Entity<DailyProgress>(entity =>
             {
                 entity.OwnsOne(dp => dp.Goal, goal =>

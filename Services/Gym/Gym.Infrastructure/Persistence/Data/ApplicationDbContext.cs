@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Entities;
+﻿using BuildingBlocks.Results;
+using Gym.Domain.Entities;
 using Gym.Infrastructure.Persistence.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,7 @@ namespace Gym.Infrastructure.Persistence.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Ignore<Error>();
             modelBuilder.ApplyConfiguration(new RoutineExerciseConfiguration());
             modelBuilder.ApplyConfiguration(new CompletedExerciseConfiguration());
 

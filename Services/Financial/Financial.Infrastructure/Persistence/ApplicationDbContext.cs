@@ -1,4 +1,5 @@
-﻿using Financial.Domain.Entities;
+﻿using BuildingBlocks.Results;
+using Financial.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -15,6 +16,7 @@ namespace Financial.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Ignore<Error>();
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
         }
