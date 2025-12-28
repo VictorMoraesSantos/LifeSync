@@ -1,5 +1,4 @@
 ﻿using Core.Domain.Events;
-using Core.Domain.Notifications;
 
 namespace Core.Domain.Entities
 {
@@ -17,7 +16,7 @@ namespace Core.Domain.Entities
         void ClearDomainEvents();
     }
 
-    public abstract class BaseEntity<T> : Notifiable, IBaseEntity<T>
+    public abstract class BaseEntity<T> : IBaseEntity<T>
     {
         public T Id { get; protected set; }
         public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;

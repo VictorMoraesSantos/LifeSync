@@ -1,4 +1,5 @@
 ﻿using Core.Domain.Entities;
+using Core.Domain.Exceptions;
 using TaskManager.Domain.Enums;
 using TaskManager.Domain.Errors;
 
@@ -40,8 +41,6 @@ namespace TaskManager.Domain.Entities
             Priority priority,
             DateOnly dueDate)
         {
-            ClearErrors();
-
             SetTitle(title);
             SetDescription(description);
             Status = status;
@@ -52,16 +51,16 @@ namespace TaskManager.Domain.Entities
 
         public void SetTitle(string title)
         {
-            if (title == null || string.IsNullOrWhiteSpace(title) || title.Length < 3)
-                AddError(TaskItemErrors.InvalidTitle);
+            if (title == null || string.IsNullOrWhiteSpace(title))
+                throw new DomainException(TaskItemErrors.InvalidTitle);
 
             Title = title;
         }
 
         public void SetDescription(string description)
         {
-            if (description == null || string.IsNullOrWhiteSpace(description) || description.Length < 5)
-                AddError(TaskItemErrors.InvalidDescription);
+            if (description == null || string.IsNullOrWhiteSpace(description))
+                throw new DomainException(TaskItemErrors.InvalidDescription);
 
             Description = description;
         }
@@ -69,7 +68,7 @@ namespace TaskManager.Domain.Entities
         public void SetPriority(Priority priority)
         {
             if (!Enum.IsDefined(typeof(Priority), priority))
-                AddError(TaskItemErrors.InvalidPriority);
+                throw new DomainException(TaskItemErrors.InvalidPriority);
 
             Priority = priority;
         }
@@ -77,7 +76,7 @@ namespace TaskManager.Domain.Entities
         public void SetDueDate(DateOnly dueDate)
         {
             if (dueDate < DateOnly.FromDateTime(DateTime.UtcNow))
-                AddError(TaskItemErrors.DueDateInPast);
+                throw new DomainException(TaskItemErrors.DueDateInPast);
 
             DueDate = dueDate;
         }
@@ -92,10 +91,10 @@ namespace TaskManager.Domain.Entities
         public void AddLabel(TaskLabel label)
         {
             if (label == null)
-                AddError(TaskItemErrors.NullLabel);
+                throw new DomainException(TaskItemErrors.NullLabel);
 
             if (_labels.Any(l => l.Id == label.Id))
-                AddError(TaskItemErrors.DuplicateLabel);
+                throw new DomainException(TaskItemErrors.DuplicateLabel);
 
             _labels.Add(label);
 
@@ -105,11 +104,11 @@ namespace TaskManager.Domain.Entities
         public void RemoveLabel(TaskLabel label)
         {
             if (label == null)
-                AddError(TaskItemErrors.NullLabel);
+                throw new DomainException(TaskItemErrors.NullLabel);
 
             var labelToRemove = _labels.FirstOrDefault(l => l.Id == label.Id);
             if (labelToRemove == null)
-                AddError(TaskItemErrors.LabelNotFound);
+                throw new DomainException(TaskItemErrors.LabelNotFound);
 
             _labels.Remove(labelToRemove);
 

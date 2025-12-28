@@ -13,20 +13,13 @@ namespace Core.Domain.Filters
             Action<BaseFilterSpecification<T, TId>>? configureIncludes = null)
             : base(buildCriteria(filter))
         {
-            // Configurar includes específicos da entidade
             configureIncludes?.Invoke(this);
 
-            // Ordenação
             if (!string.IsNullOrEmpty(filter.SortBy))
-            {
                 ApplyDynamicOrderBy(filter.SortBy, filter.SortDesc ?? false);
-            }
 
-            // Paginação
             if (filter.Page.HasValue && filter.PageSize.HasValue)
-            {
                 ApplyPaging((filter.Page.Value - 1) * filter.PageSize.Value, filter.PageSize.Value);
-            }
         }
 
         private void ApplyDynamicOrderBy(string sortBy, bool descending)

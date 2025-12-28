@@ -1,6 +1,5 @@
 ﻿using BuildingBlocks.Results;
 using Core.Domain.Exceptions;
-using Core.Domain.Notifications;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using TaskManager.Application.DTOs.TaskItem;
@@ -187,16 +186,6 @@ namespace TaskManager.Infrastructure.Services
                     return Result.Failure<int>(Error.NullValue);
 
                 var entity = dto.ToEntity();
-
-                if (entity.IsInvalid)
-                {
-                    var errorMessages = entity.GetErrorMessagesAsString();
-                    var errorString = string.Join("; ", errorMessages);
-
-                    _logger.LogWarning("Falha na validação de domínio ao criar tarefa: {Errors}", errorString);
-
-                    return Result.Failure<int>(new Error(errorString, ErrorType.Validation));
-                }
 
                 await _taskItemRepository.Create(entity, cancellationToken);
 
