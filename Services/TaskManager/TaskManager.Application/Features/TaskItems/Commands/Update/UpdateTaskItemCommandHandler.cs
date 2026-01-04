@@ -21,6 +21,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
             IHttpContextAccessor httpContext) : base(httpContext)
         {
             _taskItemService = taskItemService;
+            _validator = validator;
         }
 
         public async Task<Result<UpdateTaskItemResult>> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)

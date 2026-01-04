@@ -25,6 +25,22 @@ namespace BuildingBlocks.Results
 
     public class HttpResult<T>
     {
+        [JsonPropertyOrder(0)]
+        public bool Success => ((int)StatusCode >= 200 && (int)StatusCode < 300) && Errors.Length == 0;
+
+        [JsonPropertyOrder(1)]
+        public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
+
+        [JsonPropertyOrder(2)]
+        public string[] Errors { get; set; } = Array.Empty<string>();
+
+        [JsonPropertyOrder(3)]
+        public T Data { get; set; }
+
+        [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public PaginationData? Pagination { get; set; }
+
         public HttpResult()
         {
             Errors = Array.Empty<string>();
@@ -53,22 +69,6 @@ namespace BuildingBlocks.Results
             StatusCode = statusCode;
             Errors = errors?.Where(e => !string.IsNullOrWhiteSpace(e)).ToArray() ?? Array.Empty<string>();
         }
-
-        [JsonPropertyOrder(0)]
-        public bool Success => ((int)StatusCode >= 200 && (int)StatusCode < 300) && Errors.Length == 0;
-
-        [JsonPropertyOrder(1)]
-        public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
-
-        [JsonPropertyOrder(2)]
-        public string[] Errors { get; set; } = Array.Empty<string>();
-
-        [JsonPropertyOrder(3)]
-        public T Data { get; set; }
-
-        [JsonPropertyOrder(4)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public PaginationData? Pagination { get; set; }
 
         public void AddError(params string[] errors)
         {

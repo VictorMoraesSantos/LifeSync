@@ -66,18 +66,18 @@
     public async Task OnUpdate(bool visible)
     {
         _visible = visible;
-        InvokeAsync(this.StateHasChanged);
+        await InvokeAsync(this.StateHasChanged);
     }
 
     private async Task Close()
     {
         _visible = false;
-        InvokeAsync(this.StateHasChanged);
+        await InvokeAsync(this.StateHasChanged);
     }
 
     private async Task OnDialogVisibleChanged(bool visible)
     {
         _visible = visible;
-        InvokeAsync(this.StateHasChanged);
+        await InvokeAsync(this.StateHasChanged);
     }
 }

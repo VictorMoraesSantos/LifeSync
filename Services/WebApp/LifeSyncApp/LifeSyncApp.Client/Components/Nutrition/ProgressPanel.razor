@@ -60,19 +60,19 @@
         </div>
         <div class="card-body">
             <div class="water-buttons">
-                <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(250))">
+                <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(250)!)">
                     <span class="water-icon">🥤</span>
                     <span>250ml</span>
                 </button>
-                <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(500))">
+                <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(500)!)">
                     <span class="water-icon">🥤</span>
                     <span>500ml</span>
                 </button>
-                <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(750))">
+                <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(750)!)">
                     <span class="water-icon">🥤</span>
                     <span>750ml</span>
                 </button>
-                <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(1000))">
+                <button class="btn btn-secondary water-btn" @onclick="@(async () => await OnAddWater?.Invoke(1000)!)">
                     <span class="water-icon">💦</span>
                     <span>1L</span>
                 </button>

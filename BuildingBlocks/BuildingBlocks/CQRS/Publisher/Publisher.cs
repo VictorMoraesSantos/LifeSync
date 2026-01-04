@@ -22,10 +22,10 @@ namespace BuildingBlocks.CQRS.Publisher
                 .Select(handler =>
                 {
                     var method = handlerType.GetMethod("Handle");
-                    return (Task)method.Invoke(handler, new object[] { notification, cancellationToken });
+                    return (Task?)method?.Invoke(handler, new object[] { notification, cancellationToken });
                 });
 
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks!);
         }
     }
 }
