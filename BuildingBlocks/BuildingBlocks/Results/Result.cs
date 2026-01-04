@@ -27,7 +27,7 @@
             Value = value;
         }
 
-        public static new Result<T> Success(T value) => new Result<T>(true, value, null);
+        public static Result<T> Success(T value) => new Result<T>(true, value, null);
         public static new Result<T> Failure(Error error) => new Result<T>(false, default, error);
     }
 }

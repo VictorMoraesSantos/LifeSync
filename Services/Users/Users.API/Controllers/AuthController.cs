@@ -22,8 +22,8 @@ namespace Users.API.Controllers
             _sender = sender;
         }
 
-        [HttpPost("login")]
         [AllowAnonymous]
+        [HttpPost("login")]
         public async Task<HttpResult<object>> Login([FromBody] LoginCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
@@ -33,8 +33,8 @@ namespace Users.API.Controllers
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
-        [HttpPost("register")]
         [AllowAnonymous]
+        [HttpPost("register")]
         public async Task<HttpResult<object>> Register([FromBody] SignUpCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
@@ -44,7 +44,6 @@ namespace Users.API.Controllers
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
-        [Authorize]
         [HttpPost("logout")]
         public async Task<HttpResult<object>> Logout(CancellationToken cancellationToken)
         {
