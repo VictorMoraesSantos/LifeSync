@@ -504,15 +504,57 @@ namespace TaskManager.UnitTests.Application
             _mockRepository
                 .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.SortBy == filter.SortBy && f.SortDesc == filter.SortDesc), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((fakeItems.OrderBy(t => t.Title).ToList(), totalItems));
-            
+
             // Act
             var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
-            
+
             // Assert
             Assert.NotNull(result);
             Assert.True(result.IsSuccess);
             var titles = result.Value.Items.Select(i => i.Title).ToList();
             var sortedTitles = titles.OrderBy(t => t).ToList();
+            Assert.Equal(sortedTitles, titles);
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
+
+        public async Task GetByFilter_WhenSortDescending_ThenReturnsItemsInDescendingOrder()
+        {
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: null,
+                Status: null,
+                Priority: null,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: "Title",
+                SortDesc: true,
+                Page: 1,
+                PageSize: 10);
+            var totalItems = 5;
+            var fakeItems = new List<TaskItem>
+            {
+                new TaskItem("Bravo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
+                new TaskItem("Alpha", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
+                new TaskItem("Delta", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
+                new TaskItem("Charlie", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
+                new TaskItem("Echo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1)
+            };
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.SortBy == filter.SortBy && f.SortDesc == filter.SortDesc), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems.OrderByDescending(t => t.Title).ToList(), totalItems));
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            var titles = result.Value.Items.Select(i => i.Title).ToList();
+            var sortedTitles = titles.OrderByDescending(t => t).ToList();
             Assert.Equal(sortedTitles, titles);
             Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
         }
