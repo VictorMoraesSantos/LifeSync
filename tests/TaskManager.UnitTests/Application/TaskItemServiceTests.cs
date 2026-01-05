@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Moq;
+using System.Runtime.CompilerServices;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
@@ -345,6 +347,173 @@ namespace TaskManager.UnitTests.Application
             Assert.True(result.IsSuccess);
             Assert.Equal(page, result.Value.Pagination.CurrentPage);
             Assert.Equal(pageSize, result.Value.Pagination.PageSize);
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
+
+        [Fact]
+        public async Task GetByFilter_WithValidDueDate_ShouldReturnMatchingItem()
+        {
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: null,
+                Status: null,
+                Priority: null,
+                DueDate: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)),
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: null,
+                SortDesc: null,
+                Page: 1,
+                PageSize: 10);
+            var totalItems = 2;
+            var pageSize = 10;
+            var fakeItems = Enumerable.Range(1, totalItems)
+                .Select(i =>
+                {
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)), 1);
+                    return item;
+                })
+                .ToList();
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.DueDate.HasValue && f.DueDate.Value == filter.DueDate), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems, totalItems));
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.All(result.Value.Items, item => Assert.Equal(filter.DueDate, item.DueDate));
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
+
+        [Fact]
+        public async Task GetByFilter_WithValidCreatedAtDate_ShouldReturnMatchingItem()
+        {
+            var targetDate = DateOnly.FromDateTime(DateTime.UtcNow);
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: null,
+                Status: null,
+                Priority: null,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: targetDate,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: null,
+                SortDesc: null,
+                Page: 1,
+                PageSize: 10);
+            var totalItems = 3;
+            var fakeItems = Enumerable.Range(1, totalItems)
+                .Select(i =>
+                {
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, targetDate, 1);
+                    return item;
+                })
+                .ToList();
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.CreatedAt.HasValue && f.CreatedAt.Value == filter.CreatedAt), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems, totalItems));
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.All(result.Value.Items, item => Assert.Equal(targetDate, DateOnly.FromDateTime(item.CreatedAt)));
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
+
+        [Fact]
+        public async Task GetByFilter_WithValidUpdatedAtDate_ShouldReturnMatchingItem()
+        {
+            var targetDate = DateOnly.FromDateTime(DateTime.UtcNow);
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: null,
+                Status: null,
+                Priority: null,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: targetDate,
+                IsDeleted: null,
+                SortBy: null,
+                SortDesc: null,
+                Page: 1,
+                PageSize: 10);
+            var totalItems = 2;
+            var fakeItems = Enumerable.Range(1, totalItems)
+                .Select(i =>
+                {
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    item.Update("valid title", "valid description", Status.Pending, Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)));
+                    return item;
+                })
+                .ToList();
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.UpdatedAt.HasValue && f.UpdatedAt.Value == filter.UpdatedAt), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems, totalItems));
+
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            Assert.All(result.Value.Items, item => Assert.Equal(targetDate, DateOnly.FromDateTime(item.UpdatedAt!.Value)));
+            Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
+        }
+
+        [Fact]
+        public async Task GetByFilter_WithValidSort_ByTitleAsc_ShouldReturnSortedItems()
+        {
+            var filter = new TaskItemFilterDTO(
+                Id: null,
+                UserId: null,
+                TitleContains: null,
+                Status: null,
+                Priority: null,
+                DueDate: null,
+                LabelId: null,
+                CreatedAt: null,
+                UpdatedAt: null,
+                IsDeleted: null,
+                SortBy: "Title",
+                SortDesc: false,
+                Page: 1,
+                PageSize: 10);
+            var totalItems = 5;
+            var fakeItems = new List<TaskItem>
+            {
+                new TaskItem("Bravo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
+                new TaskItem("Alpha", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
+                new TaskItem("Delta", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
+                new TaskItem("Charlie", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
+                new TaskItem("Echo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1)
+            };
+            _mockRepository
+                .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.SortBy == filter.SortBy && f.SortDesc == filter.SortDesc), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((fakeItems.OrderBy(t => t.Title).ToList(), totalItems));
+            
+            // Act
+            var result = await _service.GetByFilterAsync(filter, CancellationToken.None);
+            
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.IsSuccess);
+            var titles = result.Value.Items.Select(i => i.Title).ToList();
+            var sortedTitles = titles.OrderBy(t => t).ToList();
+            Assert.Equal(sortedTitles, titles);
             Assert.Equal(totalItems, result.Value.Pagination.TotalItems);
         }
     }
