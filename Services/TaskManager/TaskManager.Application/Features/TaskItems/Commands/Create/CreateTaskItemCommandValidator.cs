@@ -13,8 +13,8 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Create
 
             RuleFor(command => command.Description)
                 .NotEmpty().WithMessage("A descrição é obrigatória.")
-                .MinimumLength(5).WithMessage("a descrição deve ter no mínimo 5 caracteres.")
-                .MaximumLength(500).WithMessage("a descrição deve ter no máximo 500 caracteres.");
+                .MinimumLength(5).WithMessage("A descrição deve ter no mínimo 5 caracteres.")
+                .MaximumLength(500).WithMessage("A descrição deve ter no máximo 500 caracteres.");
 
             RuleFor(command => command.Priority)
                 .IsInEnum().WithMessage("A prioridade informada é inválida.");
