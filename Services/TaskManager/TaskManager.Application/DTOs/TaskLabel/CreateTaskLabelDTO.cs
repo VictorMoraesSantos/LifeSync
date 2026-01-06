@@ -5,6 +5,5 @@ namespace TaskManager.Application.DTOs.TaskLabel.TaskLabel
     public record CreateTaskLabelDTO(
         string Name,
         LabelColor LabelColor,
-        int UserId,
-        int TaskItemId);
+        int UserId);
 }

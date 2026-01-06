@@ -15,7 +15,7 @@ namespace TaskManager.Application.Mapping
                 entity.Name,
                 entity.LabelColor,
                 entity.UserId,
-                entity.TaskItemId);
+                entity.Items.Select(i => i.ToDTO()).ToList());
             return dto;
         }
 
@@ -24,8 +24,7 @@ namespace TaskManager.Application.Mapping
             TaskLabel entity = new(
                 dto.Name,
                 dto.LabelColor,
-                dto.UserId,
-                dto.TaskItemId);
+                dto.UserId);
             return entity;
         }
     }

@@ -43,10 +43,8 @@ namespace TaskManager.Infrastructure.Persistence.Configuration
                 .HasDefaultValue(false);
 
             // Configuração do relacionamento com TaskLabel
-            builder.HasMany(t => t.Labels)
-               .WithOne(l => l.TaskItem)
-               .HasForeignKey(l => l.TaskItemId)
-               .OnDelete(DeleteBehavior.SetNull); // CHANGE THIS LINE
+            builder.HasMany(l => l.Labels)
+                .WithMany(i => i.Items);
 
             // Índices para otimização de consultas
             builder.HasIndex(t => t.UserId);

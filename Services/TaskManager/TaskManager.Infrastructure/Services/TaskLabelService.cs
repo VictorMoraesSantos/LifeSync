@@ -52,7 +52,7 @@ namespace TaskManager.Infrastructure.Services
                 var domainFilter = new TaskLabelQueryFilter(
                     filter.Id,
                     filter.UserId,
-                    filter.TaskItemId,
+                    filter.ItemId,
                     filter.NameContains,
                     filter.LabelColor,
                     filter.CreatedAt,

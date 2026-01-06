@@ -6,8 +6,7 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.Create
     public record CreateTaskLabelCommand(
         string Name,
         LabelColor LabelColor,
-        int UserId,
-        int TaskItemId)
+        int UserId)
         : ICommand<CreateTaskLabelResult>;
     public record CreateTaskLabelResult(int Id);
 }

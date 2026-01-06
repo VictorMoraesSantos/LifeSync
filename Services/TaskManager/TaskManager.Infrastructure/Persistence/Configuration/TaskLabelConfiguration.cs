@@ -20,6 +20,9 @@ namespace TaskManager.Infrastructure.Persistence.Configuration
             builder.Property(t => t.UserId)
                 .IsRequired();
 
+            builder.HasMany(i => i.Items)
+                .WithMany(l => l.Labels);
+
             builder.HasIndex(t => t.UserId);
         }
     }

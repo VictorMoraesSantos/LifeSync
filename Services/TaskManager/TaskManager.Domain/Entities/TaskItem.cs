@@ -45,7 +45,7 @@ namespace TaskManager.Domain.Entities
             SetDescription(description);
             Status = status;
             SetPriority(priority);
-            DueDate = dueDate;
+            SetDueDate(dueDate);
             MarkAsUpdated();
         }
 
@@ -84,7 +84,6 @@ namespace TaskManager.Domain.Entities
         public void ChangeStatus(Status status)
         {
             Status = status;
-
             MarkAsUpdated();
         }
 
@@ -97,7 +96,6 @@ namespace TaskManager.Domain.Entities
                 throw new DomainException(TaskItemErrors.DuplicateLabel);
 
             _labels.Add(label);
-
             MarkAsUpdated();
         }
 
@@ -106,12 +104,11 @@ namespace TaskManager.Domain.Entities
             if (label == null)
                 throw new DomainException(TaskItemErrors.NullLabel);
 
-            var labelToRemove = _labels.FirstOrDefault(l => l.Id == label.Id);
-            if (labelToRemove == null)
+            var existingLabel = _labels.FirstOrDefault(l => l.Id == label.Id);
+            if (existingLabel == null)
                 throw new DomainException(TaskItemErrors.LabelNotFound);
 
-            _labels.Remove(labelToRemove);
-
+            _labels.Remove(existingLabel);
             MarkAsUpdated();
         }
 

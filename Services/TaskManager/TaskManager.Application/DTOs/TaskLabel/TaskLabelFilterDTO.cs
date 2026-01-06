@@ -6,7 +6,7 @@ namespace TaskManager.Application.DTOs.TaskLabel
     public record TaskLabelFilterDTO(
         int? Id,
         int? UserId,
-        int? TaskItemId,
+        int? ItemId,
         string? NameContains,
         LabelColor? LabelColor,
         DateOnly? CreatedAt,

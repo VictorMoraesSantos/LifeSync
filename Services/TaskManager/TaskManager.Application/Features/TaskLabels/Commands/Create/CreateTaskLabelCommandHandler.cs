@@ -19,8 +19,7 @@ namespace TaskManager.Application.Features.TaskLabels.Commands.Create
             CreateTaskLabelDTO dto = new(
                 command.Name,
                 command.LabelColor,
-                command.UserId,
-                command.TaskItemId);
+                command.UserId);
 
             var result = await _taskLabelService.CreateAsync(dto, cancellationToken);
             if (!result.IsSuccess)

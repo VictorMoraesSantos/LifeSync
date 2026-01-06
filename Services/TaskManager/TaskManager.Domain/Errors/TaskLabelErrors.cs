@@ -12,7 +12,9 @@ namespace TaskManager.Domain.Errors
         public static Error CreateError => Error.Problem("Erro ao criar rótulo");
         public static Error UpdateError => Error.Problem("Erro ao atualizar rótulo");
         public static Error DeleteError => Error.Problem("Erro ao excluir rótulo");
-
+        public static Error NullItem => Error.Failure("Item não pode ser nulo");
+        public static Error DuplicateItem => Error.Failure("Item já existe para este rótulo");
+        public static Error ItemNotFound => Error.Failure("Item não encontrado neste rótulo");
         // Erros de listas
         public static Error EmptyOrNullList => Error.Failure("Lista de rótulos não pode ser nula ou vazia");
         public static Error InvalidIds => Error.Failure("Lista de IDs inválida ou vazia");

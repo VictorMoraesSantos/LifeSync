@@ -10,12 +10,13 @@ namespace TaskManager.Domain.Entities
         public int UserId { get; private set; }
         public string Name { get; private set; }
         public LabelColor LabelColor { get; private set; }
-        public int? TaskItemId { get; private set; }
-        public TaskItem? TaskItem { get; private set; }
+
+        private readonly List<TaskItem> _items = new();
+        public IReadOnlyCollection<TaskItem> Items => _items.AsReadOnly();
 
         protected TaskLabel() { }
 
-        public TaskLabel(string name, LabelColor labelColor, int userId, int? taskItemId)
+        public TaskLabel(string name, LabelColor labelColor, int userId)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new DomainException(TaskLabelErrors.InvalidName);
@@ -23,7 +24,6 @@ namespace TaskManager.Domain.Entities
             Name = name.Trim();
             LabelColor = labelColor;
             UserId = userId;
-            TaskItemId = taskItemId;
         }
 
         public void Update(string name, LabelColor labelColor)
@@ -33,7 +33,31 @@ namespace TaskManager.Domain.Entities
 
             Name = name.Trim();
             LabelColor = labelColor;
+            MarkAsUpdated();
+        }
 
+        public void AddTaskItem(TaskItem item)
+        {
+            if (item == null)
+                throw new DomainException(TaskLabelErrors.NullItem);
+
+            if (_items.Any(i => i.Id == item.Id))
+                throw new DomainException(TaskLabelErrors.DuplicateItem);
+
+            _items.Add(item);
+            MarkAsUpdated();
+        }
+
+        public void RemoveTaskItem(TaskItem item)
+        {
+            if (item == null)
+                throw new DomainException(TaskLabelErrors.NullItem);
+
+            var existingItem = _items.FirstOrDefault(i => i.Id == item.Id);
+            if (existingItem == null)
+                throw new DomainException(TaskLabelErrors.ItemNotFound);
+
+            _items.Remove(existingItem);
             MarkAsUpdated();
         }
     }
