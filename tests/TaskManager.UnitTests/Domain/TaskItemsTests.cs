@@ -182,6 +182,7 @@ namespace TaskManager.UnitTests.Domain
             Assert.Equal(newStatus, taskItem.Status);
         }
 
+        [Fact]
         public void Update_WithValidParameters_ShouldUpdateProperties()
         {
             // Arrange
@@ -206,8 +207,8 @@ namespace TaskManager.UnitTests.Domain
 
             // Act
             taskItem.Update(newTitle, newDescription, newStatus, newPriority, newDueDate);
-            // Assert
 
+            // Assert
             Assert.Equal(newTitle, taskItem.Title);
             Assert.Equal(newDescription, taskItem.Description);
             Assert.Equal(newStatus, taskItem.Status);
@@ -293,7 +294,6 @@ namespace TaskManager.UnitTests.Domain
         }
 
         [Theory]
-        [InlineData(null)]
         [InlineData(0)]
         [InlineData(5)]
         public void Update_WithInvalidPriority_ShouldThrowDomainException(int invalidPriority)
@@ -323,7 +323,7 @@ namespace TaskManager.UnitTests.Domain
                     newTitle,
                     newDescription,
                     newStatus,
-                    (Priority)(invalidPriority),
+                    (Priority)invalidPriority,
                     newDueDate));
 
             // Assert
@@ -331,9 +331,8 @@ namespace TaskManager.UnitTests.Domain
             Assert.Equal(TaskItemErrors.InvalidPriority.Description, result?.Message);
         }
 
-
         [Fact]
-        public void Update_WithDueDateInPast_ShouldUpdateSucess()
+        public void Update_WithDueDateInPast_ShouldThrowDomainException()
         {
             // Arrange
             var validTitle = "valid title";
@@ -356,16 +355,17 @@ namespace TaskManager.UnitTests.Domain
             var pastDueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1));
 
             // Act
-            taskItem.Update(
-                newTitle,
-                newDescription,
-                newStatus,
-                newPriority,
-                pastDueDate);
+            var result = Record.Exception(() =>
+                taskItem.Update(
+                    newTitle,
+                    newDescription,
+                    newStatus,
+                    newPriority,
+                    pastDueDate));
 
             // Assert
-            Assert.NotNull(taskItem.UpdatedAt);
-            Assert.Equal(pastDueDate, taskItem.DueDate);
+            Assert.IsType<DomainException>(result);
+            Assert.Equal(TaskItemErrors.DueDateInPast.Description, result?.Message);
         }
 
         [Fact]
@@ -418,14 +418,13 @@ namespace TaskManager.UnitTests.Domain
                 validDueDate,
                 validUserId);
 
-            var validLabelTitle = "valid title";
+            var validLabelName = "valid label";
             var validLabelColor = LabelColor.Red;
 
             var taskLabel = new TaskLabel(
-                validLabelTitle,
+                validLabelName,
                 validLabelColor,
-                validUserId,
-                taskItem.Id);
+                validUserId);
 
             //Act
             taskItem.AddLabel(taskLabel);
@@ -456,7 +455,7 @@ namespace TaskManager.UnitTests.Domain
 
             //Assert
             Assert.IsType<DomainException>(result);
-            Assert.Equal(TaskItemErrors.NullLabel.Description, result?.Message);
+            Assert.Equal(TaskItemErrors.NullLabel.Description, result?.Message);    
         }
 
         [Fact]
@@ -476,14 +475,13 @@ namespace TaskManager.UnitTests.Domain
                 validDueDate,
                 validUserId);
 
-            var validLabelTitle = "valid title";
+            var validLabelName = "valid label";
             var validLabelColor = LabelColor.Red;
 
             var taskLabel = new TaskLabel(
-                validLabelTitle,
+                validLabelName,
                 validLabelColor,
-                validUserId,
-                taskItem.Id);
+                validUserId);
 
             //Act
             taskItem.AddLabel(taskLabel);
@@ -511,14 +509,13 @@ namespace TaskManager.UnitTests.Domain
                 validDueDate,
                 validUserId);
 
-            var validLabelTitle = "valid title";
+            var validLabelName = "valid label";
             var validLabelColor = LabelColor.Red;
 
             var taskLabel = new TaskLabel(
-                validLabelTitle,
+                validLabelName,
                 validLabelColor,
-                validUserId,
-                taskItem.Id);
+                validUserId);
 
             //Act
             taskItem.AddLabel(taskLabel);
@@ -570,14 +567,13 @@ namespace TaskManager.UnitTests.Domain
                 validDueDate,
                 validUserId);
 
-            var validLabelTitle = "valid title";
+            var validLabelName = "valid label";
             var validLabelColor = LabelColor.Red;
 
             var taskLabel = new TaskLabel(
-                validLabelTitle,
+                validLabelName,
                 validLabelColor,
-                validUserId,
-                taskItem.Id);
+                validUserId);
 
             //Act
             var result = Record.Exception(() => taskItem.RemoveLabel(taskLabel));
