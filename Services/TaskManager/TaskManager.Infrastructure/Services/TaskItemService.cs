@@ -15,14 +15,17 @@ namespace TaskManager.Infrastructure.Services
     public class TaskItemService : ITaskItemService
     {
         private readonly ITaskItemRepository _taskItemRepository;
+        private readonly ITaskLabelRepository _taskLabelRepository;
         private readonly ILogger<TaskItemService> _logger;
 
         public TaskItemService(
             ITaskItemRepository taskItemRepository,
-            ILogger<TaskItemService> logger)
+            ILogger<TaskItemService> logger,
+            ITaskLabelRepository taskLabelRepository)
         {
             _taskItemRepository = taskItemRepository;
             _logger = logger;
+            _taskLabelRepository = taskLabelRepository;
         }
 
         public async Task<Result<TaskItemDTO>> GetByIdAsync(int id, CancellationToken cancellationToken)
@@ -187,6 +190,18 @@ namespace TaskManager.Infrastructure.Services
 
                 var entity = dto.ToEntity();
 
+                if(dto.TaskLabelsId != null && dto.TaskLabelsId.Any())
+                {
+                    foreach(var labelId in dto.TaskLabelsId)
+                    {
+                        var label = await _taskLabelRepository.GetById(labelId, cancellationToken);
+                        if(label == null)
+                            return Result.Failure<int>(TaskItemErrors.LabelNotFound);
+
+                        entity.AddLabel(label);
+                    }
+                }
+
                 await _taskItemRepository.Create(entity, cancellationToken);
 
                 _logger.LogInformation("Tarefa criada com sucesso: {TaskId}", entity.Id);
@@ -261,6 +276,62 @@ namespace TaskManager.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao atualizar tarefa {TaskId}", dto.Id);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<bool>> AddLabelAsync(UpdateLabelsDTO dto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (dto == null)
+                    return Result.Failure<bool>(Error.NullValue);
+
+                var itemEntity = await _taskItemRepository.GetById(dto.TaskItemId, cancellationToken);
+                if (itemEntity == null)
+                    return Result.Failure<bool>(TaskItemErrors.NotFound(dto.TaskItemId));
+
+                foreach (var labelId in dto.TaskLabelsId.Where(id => !itemEntity.HasLabel(id)))
+                {
+                    var label = await _taskLabelRepository.GetById(labelId, cancellationToken);
+                    if (label != null)
+                        itemEntity.AddLabel(label);
+                }
+
+                await _taskItemRepository.Update(itemEntity, cancellationToken);
+                return Result.Success<bool>(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao adicionar labels à tarefa {TaskId}", dto.TaskItemId);
+                return Result.Failure<bool>(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<bool>> RemoveLabelAsync(UpdateLabelsDTO dto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if(dto == null)
+                    return Result.Failure<bool>(Error.NullValue);
+
+                var itemEntity = await _taskItemRepository.GetById(dto.TaskItemId, cancellationToken);
+                if (itemEntity == null)
+                    return Result.Failure<bool>(TaskItemErrors.NotFound(dto.TaskItemId));
+                
+                foreach (var labelId in dto.TaskLabelsId)
+                {
+                    var label = await _taskLabelRepository.GetById(labelId, cancellationToken);
+                    if (label != null)
+                        itemEntity.RemoveLabel(label);
+                }
+
+                await _taskItemRepository.Update(itemEntity, cancellationToken);
+                return Result.Success<bool>(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao remover labels da tarefa {TaskId}", dto.TaskItemId);
                 return Result.Failure<bool>(Error.Failure(ex.Message));
             }
         }

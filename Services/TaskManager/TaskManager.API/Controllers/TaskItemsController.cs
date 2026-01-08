@@ -3,8 +3,10 @@ using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs.TaskItem;
+using TaskManager.Application.Features.TaskItems.Commands.AddLabel;
 using TaskManager.Application.Features.TaskItems.Commands.Create;
 using TaskManager.Application.Features.TaskItems.Commands.Delete;
+using TaskManager.Application.Features.TaskItems.Commands.RemoveLabel;
 using TaskManager.Application.Features.TaskItems.Commands.Update;
 using TaskManager.Application.Features.TaskItems.Queries.GetAll;
 using TaskManager.Application.Features.TaskItems.Queries.GetByFilter;
@@ -86,6 +88,26 @@ namespace TaskManager.API.Controllers
             return !failedResults.Any()
                 ? HttpResult<object>.Created(results.Length)
                 : HttpResult<object>.BadRequest(failedResults.Select(r => r.Error!.Description).ToArray());
+        }
+
+        [HttpPost("{id}/addLabels")]
+        public async Task<HttpResult<object>> AddLabels(int id, [FromBody] AddLabelCommand command, CancellationToken cancellationToken)
+        {
+            var addCommand = new AddLabelCommand(id, command.TaskLabelsId);
+            var result = await _sender.Send(addCommand, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value!.IsSuccess)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
+        }
+
+        [HttpPost("{id}/removeLabels")]
+        public async Task<HttpResult<object>> RemoveLabel(int id, [FromBody] RemoveLabelCommand command, CancellationToken cancellationToken)
+        {
+            var removeCommand = new RemoveLabelCommand(id, command.TaskLabelsId);
+            var result = await _sender.Send(removeCommand, cancellationToken);
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value!.IsSuccess)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
         [HttpPut("{id:int}")]

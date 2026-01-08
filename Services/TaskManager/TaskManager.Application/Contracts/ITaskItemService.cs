@@ -1,4 +1,5 @@
-﻿using Core.Application.Interfaces;
+﻿using BuildingBlocks.Results;
+using Core.Application.Interfaces;
 using TaskManager.Application.DTOs.TaskItem;
 
 namespace TaskManager.Application.Interfaces
@@ -8,5 +9,8 @@ namespace TaskManager.Application.Interfaces
         ICreateService<CreateTaskItemDTO>,
         IUpdateService<UpdateTaskItemDTO>,
         IDeleteService<int>
-    { }
+    {
+        Task<Result<bool>> AddLabelAsync(UpdateLabelsDTO dto, CancellationToken cancellationToken = default);
+        Task<Result<bool>> RemoveLabelAsync(UpdateLabelsDTO dto, CancellationToken cancellationToken = default);
+    }
 }

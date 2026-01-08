@@ -15,8 +15,19 @@ namespace TaskManager.Application.Mapping
                 entity.Name,
                 entity.LabelColor,
                 entity.UserId,
-                entity.Items.Select(i => i.ToDTO()).ToList());
+                entity.Items.Select(i => i.ToSimpleDTO()).ToList()); // ✅ Usa ToSimpleDTO() para evitar ciclo
             return dto;
+        }
+
+        public static TaskLabelSimpleDTO ToSimpleDTO(this TaskLabel entity)
+        {
+            return new TaskLabelSimpleDTO(
+                entity.Id,
+                entity.CreatedAt,
+                entity.UpdatedAt,
+                entity.Name,
+                entity.LabelColor,
+                entity.UserId);
         }
 
         public static TaskLabel ToEntity(this CreateTaskLabelDTO dto)

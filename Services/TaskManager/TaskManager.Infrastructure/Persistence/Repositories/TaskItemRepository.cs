@@ -21,7 +21,6 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
         public async Task<TaskItem?> GetById(int id, CancellationToken cancellationToken = default)
         {
             TaskItem? entity = await _context.TaskItems
-                .AsNoTracking()
                 .Include(x => x.Labels)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 

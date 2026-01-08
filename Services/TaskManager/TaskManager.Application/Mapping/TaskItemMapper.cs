@@ -17,8 +17,22 @@ namespace TaskManager.Application.Mapping
                 entity.Priority,
                 entity.DueDate,
                 entity.UserId,
-                entity.Labels.Select(l => l.ToDTO()).ToList());
+                entity.Labels.Select(l => l.ToSimpleDTO()).ToList());
             return dto;
+        }
+
+        public static TaskItemSimpleDTO ToSimpleDTO(this TaskItem entity)
+        {
+            return new TaskItemSimpleDTO(
+                entity.Id,
+                entity.CreatedAt,
+                entity.UpdatedAt,
+                entity.Title,
+                entity.Description,
+                entity.Status,
+                entity.Priority,
+                entity.DueDate,
+                entity.UserId);
         }
 
         public static TaskItem ToEntity(this CreateTaskItemDTO dto)
@@ -28,7 +42,8 @@ namespace TaskManager.Application.Mapping
                 dto.Description,
                 dto.Priority,
                 dto.DueDate,
-                dto.UserId);
+                dto.UserId,
+                null);
             return entity;
         }
     }

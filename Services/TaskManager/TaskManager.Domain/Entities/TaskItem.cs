@@ -24,7 +24,8 @@ namespace TaskManager.Domain.Entities
             string description,
             Priority priority,
             DateOnly dueDate,
-            int userId)
+            int userId,
+            List<TaskLabel>? labels)
         {
             SetTitle(title);
             SetDescription(description);
@@ -32,6 +33,13 @@ namespace TaskManager.Domain.Entities
             SetPriority(priority);
             SetDueDate(dueDate);
             UserId = userId;
+            if(labels != null)
+            {
+                foreach (var label in labels)
+                {
+                    AddLabel(label);
+                }
+            }
         }
 
         public void Update(

@@ -14,14 +14,16 @@ namespace TaskManager.UnitTests.Application
     public class TaskItemServiceTests
     {
         private readonly Mock<ITaskItemRepository> _mockRepository;
+        private readonly Mock<ITaskLabelRepository> _mockLabelRepository;
         private readonly Mock<ILogger<TaskItemService>> _mockLogger;
         private readonly TaskItemService _service;
 
         public TaskItemServiceTests()
         {
             _mockRepository = new Mock<ITaskItemRepository>();
+            _mockLabelRepository = new Mock<ITaskLabelRepository>();
             _mockLogger = new Mock<ILogger<TaskItemService>>();
-            _service = new TaskItemService(_mockRepository.Object, _mockLogger.Object);
+            _service = new TaskItemService(_mockRepository.Object, _mockLogger.Object, _mockLabelRepository.Object);
         }
 
         [Fact]
@@ -34,7 +36,8 @@ namespace TaskManager.UnitTests.Application
                 "valid description",
                 Priority.Medium,
                 DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3)),
-                1);
+                1,
+                null);
 
             _mockRepository
                 .Setup(r => r.GetById(taskId, It.IsAny<CancellationToken>()))
@@ -93,7 +96,7 @@ namespace TaskManager.UnitTests.Application
             // Arrange
             var totalItems = 100;
             var fakeItems = Enumerable.Range(1, totalItems)
-                .Select(i => new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1))
+                .Select(i => new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null))
                 .ToList();
 
             _mockRepository
@@ -149,7 +152,7 @@ namespace TaskManager.UnitTests.Application
 
             var totalItems = 4;
             var fakeItems = Enumerable.Range(1, totalItems)
-                .Select(i => new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), userId))
+                .Select(i => new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), userId, null))
                 .ToList();
 
             _mockRepository
@@ -193,7 +196,7 @@ namespace TaskManager.UnitTests.Application
             var fakeItems = Enumerable.Range(1, totalItems)
                 .Select(i =>
                 {
-                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null);
                     item.Update("valid title", "valid description", status, Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)));
                     return item;
                 })
@@ -240,7 +243,7 @@ namespace TaskManager.UnitTests.Application
             var fakeItems = Enumerable.Range(1, totalItems)
                 .Select(i =>
                 {
-                    var item = new TaskItem("valid title", "valid description", priority, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    var item = new TaskItem("valid title", "valid description", priority, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null);
                     return item;
                 })
                 .ToList();
@@ -282,7 +285,7 @@ namespace TaskManager.UnitTests.Application
             var fakeItems = Enumerable.Range(1, totalItems)
                 .Select(i =>
                 {
-                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null);
                     return item;
                 })
                 .ToList();
@@ -331,7 +334,7 @@ namespace TaskManager.UnitTests.Application
             var fakeItems = Enumerable.Range(1, totalItems)
                 .Select(i =>
                 {
-                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null);
                     return item;
                 })
                 .ToList();
@@ -373,7 +376,7 @@ namespace TaskManager.UnitTests.Application
             var fakeItems = Enumerable.Range(1, totalItems)
                 .Select(i =>
                 {
-                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)), 1);
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(5)), 1, null);
                     return item;
                 })
                 .ToList();
@@ -414,7 +417,7 @@ namespace TaskManager.UnitTests.Application
             var fakeItems = Enumerable.Range(1, totalItems)
                 .Select(i =>
                 {
-                    var item = new TaskItem("valid title", "valid description", Priority.Medium, targetDate, 1);
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, targetDate, 1, null);
                     return item;
                 })
                 .ToList();
@@ -455,7 +458,7 @@ namespace TaskManager.UnitTests.Application
             var fakeItems = Enumerable.Range(1, totalItems)
                 .Select(i =>
                 {
-                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1);
+                    var item = new TaskItem("valid title", "valid description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null);
                     item.Update("valid title", "valid description", Status.Pending, Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)));
                     return item;
                 })
@@ -495,11 +498,11 @@ namespace TaskManager.UnitTests.Application
             var totalItems = 5;
             var fakeItems = new List<TaskItem>
             {
-                new TaskItem("Bravo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
-                new TaskItem("Alpha", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
-                new TaskItem("Delta", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
-                new TaskItem("Charlie", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
-                new TaskItem("Echo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1)
+                new TaskItem("Bravo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null),
+                new TaskItem("Alpha", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null),
+                new TaskItem("Delta", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null),
+                new TaskItem("Charlie", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null),
+                new TaskItem("Echo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null)
             };
             _mockRepository
                 .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.SortBy == filter.SortBy && f.SortDesc == filter.SortDesc), It.IsAny<CancellationToken>()))
@@ -537,11 +540,11 @@ namespace TaskManager.UnitTests.Application
             var totalItems = 5;
             var fakeItems = new List<TaskItem>
             {
-                new TaskItem("Bravo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
-                new TaskItem("Alpha", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
-                new TaskItem("Delta", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
-                new TaskItem("Charlie", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1),
-                new TaskItem("Echo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1)
+                new TaskItem("Bravo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null),
+                new TaskItem("Alpha", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null),
+                new TaskItem("Delta", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null),
+                new TaskItem("Charlie", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null),
+                new TaskItem("Echo", "Description", Priority.Medium, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)), 1, null)
             };
             _mockRepository
                 .Setup(r => r.FindByFilter(It.Is<TaskItemQueryFilter>(f => f.SortBy == filter.SortBy && f.SortDesc == filter.SortDesc), It.IsAny<CancellationToken>()))

@@ -8,7 +8,8 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Create
         string Description,
         Priority Priority,
         DateOnly DueDate,
-        int UserId
+        int UserId,
+        List<int>? TaskLabelsId = null
     ) : ICommand<CreateTaskItemResult>;
 
     public record CreateTaskItemResult(int Id);

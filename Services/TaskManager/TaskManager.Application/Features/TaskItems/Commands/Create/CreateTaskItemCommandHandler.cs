@@ -42,7 +42,8 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Create
                 command.Description,
                 command.Priority,
                 command.DueDate,
-                command.UserId);
+                command.UserId,
+                command.TaskLabelsId);
 
             Result<int> result = await _taskItemService.CreateAsync(dto, cancellationToken);
             if (!result.IsSuccess)
