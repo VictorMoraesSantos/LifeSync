@@ -36,9 +36,9 @@ namespace TaskManager.Application.Features.TaskItems.Commands.AddLabel
             if (!existingTask.IsSuccess)
                 return Result.Failure<AddLabelResult>(existingTask.Error!);
 
-            Result<AddLabelResult> accessValidation = ValidateAccess<AddLabelResult>(existingTask.Value!.UserId);
-            if (!accessValidation.IsSuccess)
-                return Result.Failure<AddLabelResult>(accessValidation.Error!);
+            //Result<AddLabelResult> accessValidation = ValidateAccess<AddLabelResult>(existingTask.Value!.UserId);
+            //if (!accessValidation.IsSuccess)
+            //    return Result.Failure<AddLabelResult>(accessValidation.Error!);
 
             var dto = new UpdateLabelsDTO(command.TaskItemId, command.TaskLabelsId);
 

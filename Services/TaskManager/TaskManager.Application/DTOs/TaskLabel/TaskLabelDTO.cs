@@ -9,7 +9,7 @@ namespace TaskManager.Application.DTOs.TaskLabel
         DateTime CreatedAt,
         DateTime? UpdatedAt,
         string Name,
-        LabelColor Color,
+        LabelColor LabelColor,
         int UserId,
         List<TaskItemSimpleDTO> Items)
         : DTOBase(Id, CreatedAt, UpdatedAt);

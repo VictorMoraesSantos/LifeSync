@@ -5,7 +5,7 @@ namespace Core.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class ApiController : ControllerBase
     {
     }

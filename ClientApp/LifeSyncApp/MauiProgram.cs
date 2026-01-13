@@ -1,4 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using LifeSyncApp.Services.ApiService.Implementation;
+using LifeSyncApp.Services.ApiService.Interface;
+using LifeSyncApp.Services.TaskManager.Implementation;
+using LifeSyncApp.ViewModels.TaskManager;
+using LifeSyncApp.Views.TaskManager.TaskItem;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace LifeSyncApp
 {
@@ -15,8 +21,36 @@ namespace LifeSyncApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddHttpClient("LifeSyncApi", client =>
+            {
+                client.BaseAddress = new Uri("http://10.0.2.2:6006");
+                client.Timeout = TimeSpan.FromSeconds(30);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            // JsonSerializerOptions
+            builder.Services.AddSingleton(new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = false,
+                WriteIndented = true
+            });
+
+            // API Services
+            builder.Services.AddScoped(typeof(IApiService<>), typeof(ApiService<>));
+            builder.Services.AddScoped(typeof(ApiService<>));
+
+            // Business Services
+            builder.Services.AddSingleton<TaskItemService>();
+            builder.Services.AddSingleton<TaskLabelService>();
+
+            // ViewModels
+            builder.Services.AddTransient<TaskItemsViewModel>();
+
+            // Views
+            builder.Services.AddTransient<TaskItemPage>();
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

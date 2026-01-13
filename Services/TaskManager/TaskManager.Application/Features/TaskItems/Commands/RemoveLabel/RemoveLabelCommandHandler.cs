@@ -18,9 +18,11 @@ namespace TaskManager.Application.Features.TaskItems.Commands.RemoveLabel
         private readonly IValidator<RemoveLabelCommand> _validator;
 
         public RemoveLabelCommandHandler(
+            ITaskItemService taskItemService,
             IValidator<RemoveLabelCommand> validator,
             IHttpContextAccessor httpContext) : base(httpContext)
         {
+            _taskItemService = taskItemService;
             _validator = validator;
         }
 

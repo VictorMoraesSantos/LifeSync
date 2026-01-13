@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeSyncApp.Views.TaskManager.TaskItem.TaskItemPage"
+             xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
+             xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
+             x:DataType="viewmodels:TaskItemsViewModel"
+             Title="Minhas Tarefas">
+
+    <Grid RowDefinitions="Auto,*" Padding="10">
+        <!-- RefreshView com CollectionView -->
+        <RefreshView Grid.Row="1"
+                     Command="{Binding LoadTasksCommand}">
+
+            <CollectionView ItemsSource="{Binding TaskItems}"
+                           SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <StackLayout Padding="20" 
+                                VerticalOptions="Center"
+                                HorizontalOptions="Center">
+                        <Label Text="Nenhuma tarefa encontrada"
+                              FontSize="18"
+                              HorizontalTextAlignment="Center"
+                              TextColor="Gray" />
+                    </StackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:TaskItem">
+                        <Border Margin="0,5" 
+                              Padding="15"
+                              StrokeShape="RoundRectangle 15,15,15,15"
+                              BackgroundColor="White">
+
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto" 
+                                  ColumnDefinitions="*,Auto"
+                                  RowSpacing="8">
+
+                                <HorizontalStackLayout>
+
+                                    <Border Grid.Row="0" 
+                        Grid.RowSpan="2"
+                        Grid.Column="0"
+                        WidthRequest="16"
+                        HeightRequest="16"
+                        StrokeShape="Ellipse"
+                        Stroke="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                        StrokeThickness="1"
+                        BackgroundColor="{Binding Status, Converter={StaticResource StatusToLightColorConverter}}"
+                        HorizontalOptions="Start">
+
+                                        <!-- Ícone dentro do círculo -->
+                                        <Label Text="{Binding Status, Converter={StaticResource StatusToIconConverter}}"
+                           FontSize="8"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
+                                    </Border>
+
+                                    <Label Grid.Row="0" 
+                                       Grid.Column="0"
+                                       Text="{Binding Title}"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#2C3E50"
+                                       LineBreakMode="TailTruncation"/>
+                                </HorizontalStackLayout>
+
+                                <Label Text="{Binding Priority}"
+                                       Grid.Row="0" 
+                                       Grid.Column="1"
+                                       FontSize="12"
+                                       TextColor="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"
+                                       FontAttributes="Bold"/>
+
+                                <Label Grid.Row="1" 
+                                       Grid.Column="0"
+                                       Grid.ColumnSpan="2"
+                                       Text="{Binding Description}"
+                                       FontSize="14"
+                                       TextColor="#7F8C8D"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="2"/>
+
+                                <HorizontalStackLayout Grid.Row="2" 
+                                                      Grid.Column="0"
+                                                      Grid.ColumnSpan="2"
+                                                      Spacing="15">
+
+                                    <HorizontalStackLayout Spacing="5">
+                                        <Label Text="📅"
+                                              FontSize="12"
+                                              VerticalOptions="Center"/>
+                                        <Label Text="{Binding DueDate, StringFormat='{0:dd/MM/yyyy}'}"
+                                              FontSize="12"
+                                              TextColor="#95A5A6"
+                                              VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </HorizontalStackLayout>
+
+                                <!-- Labels -->
+                                <CollectionView Grid.Row="3"
+                                              Grid.Column="0"
+                                              Grid.ColumnSpan="2"
+                                              ItemsSource="{Binding Labels}"
+                                              IsVisible="{Binding Labels.Count, Converter={StaticResource HasItemsConverter}}">
+                                    <CollectionView.ItemsLayout>
+                                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5"/>
+                                    </CollectionView.ItemsLayout>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:TaskLabel">
+                                            <Border Padding="8,2"
+                                                    StrokeShape="RoundRectangle 5,5,5,5"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="{Binding Color, Converter={StaticResource LabelColorToLightColorConverter}}">
+                                                <Label Text="{Binding Name}"
+                                                      FontSize="12"
+                                                      TextColor="{Binding Color, Converter={StaticResource LabelColorToConverter}}"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+
+                            </Grid>
+
+                            <!-- Tap Gesture para edição -->
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=EditTaskCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+
+</ContentPage>
