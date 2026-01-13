@@ -459,7 +459,7 @@ namespace TaskManager.UnitTests.Domain
 
             //Assert
             Assert.IsType<DomainException>(result);
-            Assert.Equal(TaskItemErrors.NullLabel.Description, result?.Message);    
+            Assert.Equal(TaskItemErrors.NullLabel.Description, result?.Message);
         }
 
         [Fact]

@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
-using System.Runtime.CompilerServices;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;

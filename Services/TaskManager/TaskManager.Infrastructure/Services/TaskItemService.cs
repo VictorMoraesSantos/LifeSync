@@ -190,12 +190,12 @@ namespace TaskManager.Infrastructure.Services
 
                 var entity = dto.ToEntity();
 
-                if(dto.TaskLabelsId != null && dto.TaskLabelsId.Any())
+                if (dto.TaskLabelsId != null && dto.TaskLabelsId.Any())
                 {
-                    foreach(var labelId in dto.TaskLabelsId)
+                    foreach (var labelId in dto.TaskLabelsId)
                     {
                         var label = await _taskLabelRepository.GetById(labelId, cancellationToken);
-                        if(label == null)
+                        if (label == null)
                             return Result.Failure<int>(TaskItemErrors.LabelNotFound);
 
                         entity.AddLabel(label);
@@ -312,13 +312,13 @@ namespace TaskManager.Infrastructure.Services
         {
             try
             {
-                if(dto == null)
+                if (dto == null)
                     return Result.Failure<bool>(Error.NullValue);
 
                 var itemEntity = await _taskItemRepository.GetById(dto.TaskItemId, cancellationToken);
                 if (itemEntity == null)
                     return Result.Failure<bool>(TaskItemErrors.NotFound(dto.TaskItemId));
-                
+
                 foreach (var labelId in dto.TaskLabelsId)
                 {
                     var label = await _taskLabelRepository.GetById(labelId, cancellationToken);

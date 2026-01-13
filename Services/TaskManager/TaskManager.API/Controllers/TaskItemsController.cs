@@ -1,7 +1,6 @@
 ﻿using BuildingBlocks.CQRS.Sender;
 using BuildingBlocks.Results;
 using Core.API.Controllers;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Application.Features.TaskItems.Commands.AddLabel;

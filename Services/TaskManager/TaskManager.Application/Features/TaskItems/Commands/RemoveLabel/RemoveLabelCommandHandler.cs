@@ -3,11 +3,7 @@ using BuildingBlocks.Results;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TaskManager.Application.DTOs.TaskItem;
-using TaskManager.Application.Features.TaskItems.Commands.AddLabel;
 using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.RemoveLabel

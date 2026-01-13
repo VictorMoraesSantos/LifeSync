@@ -33,7 +33,7 @@ namespace TaskManager.Domain.Entities
             SetPriority(priority);
             SetDueDate(dueDate);
             UserId = userId;
-            if(labels != null)
+            if (labels != null)
             {
                 foreach (var label in labels)
                 {
