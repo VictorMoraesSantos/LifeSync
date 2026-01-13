@@ -1,12 +1,7 @@
 ﻿using LifeSyncApp.DTOs.TaskManager.TaskItem;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Services.TaskManager.Implementation;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.TaskManager

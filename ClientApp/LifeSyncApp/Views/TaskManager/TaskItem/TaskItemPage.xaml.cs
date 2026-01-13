@@ -8,7 +8,7 @@ public partial class TaskItemPage : ContentPage
 
     public TaskItemPage(TaskItemsViewModel vm)
     {
-        InitializeComponent(); 
+        InitializeComponent();
         _viewModel = vm;
         BindingContext = _viewModel;
     }

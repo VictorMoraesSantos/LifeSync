@@ -1,6 +1,4 @@
-﻿using LifeSyncApp.Views.TaskManager.TaskItem;
-
-namespace LifeSyncApp
+﻿namespace LifeSyncApp
 {
     public partial class AppShell : Shell
     {
