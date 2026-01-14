@@ -170,7 +170,6 @@ namespace TaskManager.UnitTests.Application
         [InlineData(Status.Pending)]
         [InlineData(Status.InProgress)]
         [InlineData(Status.Completed)]
-        [InlineData(Status.Cancelled)]
         public async Task GetByFilterAsync_WhenFilterByStatus_ShouldReturnMatchingItems(Status status)
         {
             // Arrange

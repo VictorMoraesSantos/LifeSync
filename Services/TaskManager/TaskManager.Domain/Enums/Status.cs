@@ -5,7 +5,6 @@
         Pending = 1,
         InProgress = 2,
         Completed = 3,
-        Cancelled = 4,
     }
 
     public static class StatusExtensions
@@ -17,7 +16,6 @@
                 Status.Pending => "Pendente",
                 Status.InProgress => "Em progresso",
                 Status.Completed => "Completado",
-                Status.Cancelled => "Cancelado",
                 _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
             };
         }
