@@ -4,16 +4,16 @@
              x:Class="LifeSyncApp.Views.TaskManager.TaskItem.TaskItemPage"
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
              xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
+             xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
              x:DataType="viewmodels:TaskItemsViewModel"
              Title="Minhas Tarefas">
 
     <Grid RowDefinitions="Auto,*" Padding="10">
-        <!-- RefreshView com CollectionView -->
         <RefreshView Grid.Row="1"
                      Command="{Binding LoadTasksCommand}">
 
             <CollectionView ItemsSource="{Binding TaskItems}"
-                           SelectionMode="None">
+                            SelectionMode="None">
                 <CollectionView.EmptyView>
                     <StackLayout Padding="20" 
                                 VerticalOptions="Center"
@@ -28,33 +28,34 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:TaskItem">
                         <Border Margin="0,5" 
-                              Padding="15"
-                              StrokeShape="RoundRectangle 15,15,15,15"
-                              BackgroundColor="White">
+                                Padding="15"
+                                StrokeShape="RoundRectangle 15,15,15,15"
+                                BackgroundColor="White">
 
                             <Grid RowDefinitions="Auto,Auto,Auto,Auto" 
                                   ColumnDefinitions="*,Auto"
                                   RowSpacing="8">
 
-                                <HorizontalStackLayout>
+                                <HorizontalStackLayout Spacing="8">
+                                    <Border WidthRequest="20"
+                                            HeightRequest="20"
+                                            StrokeShape="Ellipse"
+                                            Stroke="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                            StrokeThickness="2"
+                                            BackgroundColor="{Binding Status, Converter={StaticResource StatusToLightColorConverter}}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer 
+                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=ToggleStatusCommand}"
+                                                 CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
 
-                                    <Border Grid.Row="0" 
-                        Grid.RowSpan="2"
-                        Grid.Column="0"
-                        WidthRequest="16"
-                        HeightRequest="16"
-                        StrokeShape="Ellipse"
-                        Stroke="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                        StrokeThickness="1"
-                        BackgroundColor="{Binding Status, Converter={StaticResource StatusToLightColorConverter}}"
-                        HorizontalOptions="Start">
-
-                                        <!-- Ícone dentro do círculo -->
                                         <Label Text="{Binding Status, Converter={StaticResource StatusToIconConverter}}"
-                           FontSize="8"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"
-                           TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
+                                               FontSize="8"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
                                     </Border>
 
                                     <Label Grid.Row="0" 
@@ -63,7 +64,16 @@
                                        FontSize="14"
                                        FontAttributes="Bold"
                                        TextColor="#2C3E50"
-                                       LineBreakMode="TailTruncation"/>
+                                       LineBreakMode="TailTruncation">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label"
+                                                         Binding="{Binding Status}"
+                                                         Value="{x:Static enums:Status.Completed}">
+                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                <Setter Property="TextColor" Value="#95A5A6"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                 </HorizontalStackLayout>
 
                                 <Label Text="{Binding Priority}"
@@ -98,7 +108,6 @@
                                     </HorizontalStackLayout>
                                 </HorizontalStackLayout>
 
-                                <!-- Labels -->
                                 <CollectionView Grid.Row="3"
                                               Grid.Column="0"
                                               Grid.ColumnSpan="2"
@@ -122,13 +131,6 @@
                                 </CollectionView>
 
                             </Grid>
-
-                            <!-- Tap Gesture para edição -->
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=EditTaskCommand}"
-                                    CommandParameter="{Binding .}"/>
-                            </Border.GestureRecognizers>
 
                         </Border>
                     </DataTemplate>

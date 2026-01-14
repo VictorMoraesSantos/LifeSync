@@ -37,7 +37,6 @@ namespace LifeSyncApp
 
             // API Services
             builder.Services.AddScoped(typeof(IApiService<>), typeof(ApiService<>));
-            builder.Services.AddScoped(typeof(ApiService<>));
 
             // Business Services
             builder.Services.AddSingleton<TaskItemService>();

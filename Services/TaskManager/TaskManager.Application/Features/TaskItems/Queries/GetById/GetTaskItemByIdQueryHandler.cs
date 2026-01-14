@@ -24,9 +24,9 @@ namespace TaskManager.Application.Features.TaskItems.Queries.GetById
             if (!result.IsSuccess)
                 return Result.Failure<GetTaskItemByIdResult>(result.Error!);
 
-            var validation = ValidateAccess<GetTaskItemByIdResult>(result.Value!.UserId);
-            if (!validation.IsSuccess)
-                return validation;
+            //var validation = ValidateAccess<GetTaskItemByIdResult>(result.Value!.UserId);
+            //if (!validation.IsSuccess)
+            //    return validation;
 
             return Result.Success(new GetTaskItemByIdResult(result.Value!));
         }

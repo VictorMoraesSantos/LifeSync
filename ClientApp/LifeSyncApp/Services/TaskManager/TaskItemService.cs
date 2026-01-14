@@ -1,15 +1,15 @@
 ﻿using LifeSyncApp.DTOs.TaskManager.TaskItem;
 using LifeSyncApp.Models.TaskManager;
-using LifeSyncApp.Services.ApiService.Implementation;
+using LifeSyncApp.Services.ApiService.Interface;
 
 namespace LifeSyncApp.Services.TaskManager.Implementation
 {
     public class TaskItemService
     {
-        private readonly ApiService<TaskItem> _apiService;
+        private readonly IApiService<TaskItem> _apiService;
         private const string BaseUrl = "/taskmanager-service/api/task-items";
 
-        public TaskItemService(ApiService<TaskItem> apiService)
+        public TaskItemService(IApiService<TaskItem> apiService)
         {
             _apiService = apiService;
         }
@@ -64,10 +64,9 @@ namespace LifeSyncApp.Services.TaskManager.Implementation
             return result;
         }
 
-        public async Task<TaskItem> EditTaskItemAsync(int id, UpdateTaskItemDTO data)
+        public async Task UpdateTaskItemAsync(int id, UpdateTaskItemDTO data)
         {
-            var result = await _apiService.PutAsync($"{BaseUrl}/{id}", data);
-            return result;
+            await _apiService.PutAsync($"{BaseUrl}/{id}", data);
         }
 
         public async Task DeleteTaskItemAsync(int id)

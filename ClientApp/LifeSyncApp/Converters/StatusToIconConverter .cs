@@ -13,7 +13,7 @@ namespace LifeSyncApp.Converters
                 return status switch
                 {
                     Status.Pending => "○",
-                    Status.InProgress => "◐",
+                    Status.InProgress => "●",
                     Status.Completed => "✓",
                     Status.Cancelled => "✕",
                     _ => "○"

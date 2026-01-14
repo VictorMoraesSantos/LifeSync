@@ -58,10 +58,9 @@ namespace LifeSyncApp.Services.TaskManager.Implementation
             return result;
         }
 
-        public async Task<TaskLabel> EditTaskLabelAsync(int id, UpdateTaskLabelDTO data)
+        public async Task EditTaskLabelAsync(int id, UpdateTaskLabelDTO data)
         {
-            var result = await _apiService.PutAsync($"{BaseUrl}/{id}", data);
-            return result;
+            await _apiService.PutAsync($"{BaseUrl}/{id}", data);
         }
 
         public async Task DeleteTaskLabelAsync(int id)

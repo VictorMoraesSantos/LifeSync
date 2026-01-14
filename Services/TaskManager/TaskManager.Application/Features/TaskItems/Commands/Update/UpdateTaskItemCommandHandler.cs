@@ -37,9 +37,9 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
             if (!existingTask.IsSuccess)
                 return Result.Failure<UpdateTaskItemResult>(existingTask.Error!);
 
-            Result<UpdateTaskItemResult> accessValidation = ValidateAccess<UpdateTaskItemResult>(existingTask.Value!.UserId);
-            if (!accessValidation.IsSuccess)
-                return accessValidation;
+            //Result<UpdateTaskItemResult> accessValidation = ValidateAccess<UpdateTaskItemResult>(existingTask.Value!.UserId);
+            //if (!accessValidation.IsSuccess)
+            //    return accessValidation;
 
             UpdateTaskItemDTO dto = new(
                 command.Id,

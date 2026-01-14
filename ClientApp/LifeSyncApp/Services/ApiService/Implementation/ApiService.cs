@@ -27,9 +27,9 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.GetAsync(endpoint);
-                var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<T>>(_jsonOptions);
-                var resultData = apiResponse?.Data;
-                return resultData.First();
+                var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<T>>(_jsonOptions);
+                var resultData = apiResponse.Data;
+                return resultData;
             }
             catch (HttpRequestException ex)
             {
@@ -59,9 +59,9 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.PostAsJsonAsync(endpoint, data, _jsonOptions);
-                var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<T>>(_jsonOptions);
-                var resultData = apiResponse?.Data;
-                return resultData.First();
+                var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<T>>(_jsonOptions);
+                var resultData = apiResponse.Data;
+                return resultData;
             }
             catch (HttpRequestException ex)
             {
@@ -70,14 +70,15 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             }
         }
 
-        public async Task<T> PutAsync(string endpoint, object data)
+        public async Task PutAsync(string endpoint, object data)
         {
             try
             {
                 var response = await _httpClient.PutAsJsonAsync(endpoint, data, _jsonOptions);
-                var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<T>>(_jsonOptions);
-                var result = apiResponse?.Data;
-                return result.First();
+                if (response.IsSuccessStatusCode)
+                    return;
+
+                return;
             }
             catch (HttpRequestException ex)
             {
