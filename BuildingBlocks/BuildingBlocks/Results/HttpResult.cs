@@ -21,6 +21,7 @@ namespace BuildingBlocks.Results
         public static HttpResult NotFound(params string[] errors) => new HttpResult(HttpStatusCode.NotFound, errors);
         public static HttpResult Forbidden(params string[] errors) => new HttpResult(HttpStatusCode.Forbidden, errors);
         public static HttpResult InternalError(params string[] errors) => new HttpResult(HttpStatusCode.InternalServerError, errors);
+        public static HttpResult Unauthorized(params string[] errors) => new HttpResult(HttpStatusCode.Unauthorized, errors);
     }
 
     public class HttpResult<T>
@@ -84,6 +85,7 @@ namespace BuildingBlocks.Results
         public static HttpResult<T> NotFound(params string[] errors) => new HttpResult<T>(HttpStatusCode.NotFound, errors);
         public static HttpResult<T> Forbidden(params string[] errors) => new HttpResult<T>(HttpStatusCode.Forbidden, errors);
         public static HttpResult<T> InternalError(params string[] errors) => new HttpResult<T>(HttpStatusCode.InternalServerError, errors);
+        public static HttpResult<T> Unauthorized(params string[] errors) => new HttpResult<T>(HttpStatusCode.Unauthorized, errors);
 
         public static HttpResult<T> FromException(Exception ex)
         {

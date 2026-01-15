@@ -8,9 +8,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Update
 {
-    public class UpdateTaskItemCommandHandler :
-        SecureCommandHandlerBase,
-        ICommandHandler<UpdateTaskItemCommand, UpdateTaskItemResult>
+    public class UpdateTaskItemCommandHandler : ICommandHandler<UpdateTaskItemCommand, UpdateTaskItemResult>
     {
         private readonly ITaskItemService _taskItemService;
         private readonly IValidator<UpdateTaskItemCommand> _validator;
@@ -18,7 +16,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
         public UpdateTaskItemCommandHandler(
             ITaskItemService taskItemService,
             IValidator<UpdateTaskItemCommand> validator,
-            IHttpContextAccessor httpContext) : base(httpContext)
+            IHttpContextAccessor httpContext)
         {
             _taskItemService = taskItemService;
             _validator = validator;
@@ -36,10 +34,6 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Update
             Result<TaskItemDTO?> existingTask = await _taskItemService.GetByIdAsync(command.Id, cancellationToken);
             if (!existingTask.IsSuccess)
                 return Result.Failure<UpdateTaskItemResult>(existingTask.Error!);
-
-            //Result<UpdateTaskItemResult> accessValidation = ValidateAccess<UpdateTaskItemResult>(existingTask.Value!.UserId);
-            //if (!accessValidation.IsSuccess)
-            //    return accessValidation;
 
             UpdateTaskItemDTO dto = new(
                 command.Id,

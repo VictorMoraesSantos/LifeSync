@@ -12,6 +12,7 @@ using TaskManager.Application.Features.TaskItems.Queries.GetAll;
 using TaskManager.Application.Features.TaskItems.Queries.GetByFilter;
 using TaskManager.Application.Features.TaskItems.Queries.GetById;
 using TaskManager.Application.Features.TaskItems.Queries.GetByUser;
+using BuildingBlocks.Authorization;
 
 namespace TaskManager.API.Controllers
 {
@@ -28,6 +29,7 @@ namespace TaskManager.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<HttpResult<object>> GetById(int id, CancellationToken cancellationToken)
         {
+            var userId = User.GetUserId();
             var query = new GetTaskItemByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
 

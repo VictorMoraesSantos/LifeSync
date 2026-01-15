@@ -8,7 +8,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.RemoveLabel
 {
-    public class RemoveLabelCommandHandler : SecureCommandHandlerBase, ICommandHandler<RemoveLabelCommand, RemoveLabelResult>
+    public class RemoveLabelCommandHandler : ICommandHandler<RemoveLabelCommand, RemoveLabelResult>
     {
         private readonly ITaskItemService _taskItemService;
         private readonly IValidator<RemoveLabelCommand> _validator;
@@ -16,7 +16,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.RemoveLabel
         public RemoveLabelCommandHandler(
             ITaskItemService taskItemService,
             IValidator<RemoveLabelCommand> validator,
-            IHttpContextAccessor httpContext) : base(httpContext)
+            IHttpContextAccessor httpContext)
         {
             _taskItemService = taskItemService;
             _validator = validator;
@@ -34,10 +34,6 @@ namespace TaskManager.Application.Features.TaskItems.Commands.RemoveLabel
             Result<TaskItemDTO?> existingTask = await _taskItemService.GetByIdAsync(command.TaskItemId, cancellationToken);
             if (!existingTask.IsSuccess)
                 return Result.Failure<RemoveLabelResult>(existingTask.Error!);
-
-            Result<RemoveLabelResult> accessValidation = ValidateAccess<RemoveLabelResult>(existingTask.Value!.UserId);
-            if (!accessValidation.IsSuccess)
-                return Result.Failure<RemoveLabelResult>(accessValidation.Error!);
 
             var dto = new UpdateLabelsDTO(command.TaskItemId, command.TaskLabelsId);
 

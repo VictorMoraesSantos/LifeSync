@@ -6,15 +6,13 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Delete
 {
-    public class DeleteTaskItemCommandHandler :
-        SecureCommandHandlerBase,
-        ICommandHandler<DeleteTaskItemCommand, DeleteTaskItemResult>
+    public class DeleteTaskItemCommandHandler : ICommandHandler<DeleteTaskItemCommand, DeleteTaskItemResult>
     {
         private readonly ITaskItemService _taskItemService;
 
         public DeleteTaskItemCommandHandler(
             ITaskItemService taskItemService,
-            IHttpContextAccessor httpContext) : base(httpContext)
+            IHttpContextAccessor httpContext)
         {
             _taskItemService = taskItemService;
         }
@@ -24,10 +22,6 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Delete
             Result<TaskItemDTO?> existingTask = await _taskItemService.GetByIdAsync(command.Id, cancellationToken);
             if (!existingTask.IsSuccess)
                 return Result.Failure<DeleteTaskItemResult>(existingTask.Error!);
-
-            Result<DeleteTaskItemResult> accessValidation = ValidateAccess<DeleteTaskItemResult>(existingTask.Value!.UserId);
-            if (!accessValidation.IsSuccess)
-                return accessValidation;
 
             Result<bool> result = await _taskItemService.DeleteAsync(command.Id, cancellationToken);
             if (!result.IsSuccess)

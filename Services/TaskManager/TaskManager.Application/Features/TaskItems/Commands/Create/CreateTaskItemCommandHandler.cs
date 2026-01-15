@@ -8,9 +8,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Create
 {
-    public class CreateTaskItemCommandHandler :
-        SecureCommandHandlerBase,
-        ICommandHandler<CreateTaskItemCommand, CreateTaskItemResult>
+    public class CreateTaskItemCommandHandler : ICommandHandler<CreateTaskItemCommand, CreateTaskItemResult>
     {
         private readonly ITaskItemService _taskItemService;
         private readonly IValidator<CreateTaskItemCommand> _validator;
@@ -18,7 +16,7 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Create
         public CreateTaskItemCommandHandler(
             ITaskItemService taskItemService,
             IValidator<CreateTaskItemCommand> validator,
-            IHttpContextAccessor httpContext) : base(httpContext)
+            IHttpContextAccessor httpContext)
         {
             _taskItemService = taskItemService;
             _validator = validator;
@@ -26,10 +24,6 @@ namespace TaskManager.Application.Features.TaskItems.Commands.Create
 
         public async Task<Result<CreateTaskItemResult>> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
         {
-            Result? ownershipValidation = ValidateOwnership(command.UserId);
-            if (!ownershipValidation.IsSuccess)
-                return Result.Failure<CreateTaskItemResult>(ownershipValidation.Error!);
-
             ValidationResult validation = await _validator.ValidateAsync(command, cancellationToken);
             if (!validation.IsValid)
             {

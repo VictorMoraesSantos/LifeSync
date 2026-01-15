@@ -8,7 +8,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.AddLabel
 {
-    public class AddLabelCommandHandler : SecureCommandHandlerBase, ICommandHandler<AddLabelCommand, AddLabelResult>
+    public class AddLabelCommandHandler : ICommandHandler<AddLabelCommand, AddLabelResult>
     {
         private readonly ITaskItemService _taskItemService;
         private readonly IValidator<AddLabelCommand> _validator;
@@ -17,7 +17,6 @@ namespace TaskManager.Application.Features.TaskItems.Commands.AddLabel
             ITaskItemService taskItemService,
             IValidator<AddLabelCommand> validator,
             IHttpContextAccessor httpContext)
-            : base(httpContext)
         {
             _taskItemService = taskItemService;
             _validator = validator;
@@ -35,10 +34,6 @@ namespace TaskManager.Application.Features.TaskItems.Commands.AddLabel
             Result<TaskItemDTO?> existingTask = await _taskItemService.GetByIdAsync(command.TaskItemId, cancellationToken);
             if (!existingTask.IsSuccess)
                 return Result.Failure<AddLabelResult>(existingTask.Error!);
-
-            //Result<AddLabelResult> accessValidation = ValidateAccess<AddLabelResult>(existingTask.Value!.UserId);
-            //if (!accessValidation.IsSuccess)
-            //    return Result.Failure<AddLabelResult>(accessValidation.Error!);
 
             var dto = new UpdateLabelsDTO(command.TaskItemId, command.TaskLabelsId);
 
