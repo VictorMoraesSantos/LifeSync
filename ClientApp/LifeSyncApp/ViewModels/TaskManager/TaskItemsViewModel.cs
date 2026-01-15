@@ -11,15 +11,15 @@ namespace LifeSyncApp.ViewModels.TaskManager
     {
         private readonly TaskItemService _taskItemService;
         private readonly ObservableCollection<TaskItem> _taskItems = new();
+        private readonly ObservableCollection<TaskGroup> _groupedTasks = new();
 
         public ObservableCollection<TaskItem> TaskItems => _taskItems;
-        public ICommand LoadTasksCommand { get; }
+        public ObservableCollection<TaskGroup> GroupedTasks => _groupedTasks;
         public ICommand ToggleStatusCommand { get; }
 
         public TaskItemsViewModel(TaskItemService taskItemService)
         {
             _taskItemService = taskItemService;
-            LoadTasksCommand = new Command(async () => await LoadTasksAsync());
             ToggleStatusCommand = new Command<TaskItem>(async (task) => await ToggleStatusAsync(task));
         }
 
@@ -27,16 +27,29 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             var query = new TaskItemFilterDTO(UserId: 22);
             var tasks = await _taskItemService.SearchTaskItemAsync(query);
+
             _taskItems.Clear();
+            _groupedTasks.Clear();
+
             foreach (var task in tasks)
             {
                 _taskItems.Add(task);
             }
+
+            var grouped = _taskItems
+                .OrderBy(t => t.DueDate)
+                .GroupBy(t => t.DueDate)
+                .Select(g => new TaskGroup(g.Key, g));
+
+            foreach (var group in grouped)
+            {
+                _groupedTasks.Add(group);
+            }
         }
+
         public async Task ToggleStatusAsync(TaskItem task)
         {
-            var index = _taskItems.IndexOf(task);
-            if (index < 0)
+            if (task == null)
                 return;
 
             var updatedStatus = task.Status switch
@@ -54,12 +67,20 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 task.Priority,
                 task.DueDate);
 
-
             await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
-            task = await _taskItemService.GetTaskItemAsync(task.Id);
 
-            _taskItems.RemoveAt(index);
-            _taskItems.Insert(index, task);
+            var updatedTask = await _taskItemService.GetTaskItemAsync(task.Id);
+
+            var index = _taskItems.IndexOf(task);
+            _taskItems[index] = updatedTask;
+
+            var group = _groupedTasks.FirstOrDefault(g => g.Contains(task));
+            if (group != null)
+            {
+                var groupIndex = group.IndexOf(task);
+                if (groupIndex >= 0)
+                    group[groupIndex] = updatedTask;
+            }
         }
     }
 }

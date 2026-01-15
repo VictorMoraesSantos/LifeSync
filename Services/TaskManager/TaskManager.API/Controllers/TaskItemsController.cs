@@ -29,7 +29,6 @@ namespace TaskManager.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<HttpResult<object>> GetById(int id, CancellationToken cancellationToken)
         {
-            var userId = User.GetUserId();
             var query = new GetTaskItemByIdQuery(id);
             var result = await _sender.Send(query, cancellationToken);
 

@@ -9,13 +9,15 @@ public partial class TaskItemPage : ContentPage
     public TaskItemPage(TaskItemsViewModel vm)
     {
         InitializeComponent();
-        _viewModel = vm;
-        BindingContext = _viewModel;
+        BindingContext = vm;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadTasksAsync();
+        if (BindingContext is TaskItemsViewModel viewModel)
+        {
+            await viewModel.LoadTasksAsync();
+        }
     }
 }

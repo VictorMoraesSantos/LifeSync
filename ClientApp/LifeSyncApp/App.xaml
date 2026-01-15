@@ -15,6 +15,7 @@
             <converters:PriorityToColorConverter x:Key="PriorityToColorConverter"/>
             <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
             <converters:StatusToIconConverter x:Key="StatusToIconConverter"/>
+            <converters:OverdueToColorConverter x:Key="OverdueToColorConverter" />
             <converters:LabelColorToConverter x:Key="LabelColorToConverter"/>
             <converters:LabelColorToLightColorConverter  x:Key="LabelColorToLightColorConverter"/>
             <converters:HasItemsConverter x:Key="HasItemsConverter"/>
