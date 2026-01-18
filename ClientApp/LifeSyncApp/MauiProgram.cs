@@ -3,6 +3,7 @@ using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.ViewModels.TaskManager;
 using LifeSyncApp.Views.TaskManager.TaskItem;
+using Microsoft.Maui.Handlers;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -15,6 +16,22 @@ namespace LifeSyncApp
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .ConfigureMauiHandlers(handlers =>
+                {
+#if ANDROID
+                    EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                    {
+                        handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+                        handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+                    });
+
+                    EditorHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+                    {
+                        handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+                        handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+                    });
+#endif
+                })
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

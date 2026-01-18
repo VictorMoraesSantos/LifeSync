@@ -22,6 +22,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand OpenCreateTaskModalCommand { get; }
         public ICommand CloseCreateTaskModalCommand { get; }
         public ICommand CreateTaskCommand { get; }
+        public ICommand SetPriorityCommand { get; }
+        public ICommand FocusDueDatePickerCommand { get; }
+
+        public DatePicker? DueDatePicker { get; set; }
 
         private bool _isCreateTaskModalOpen;
         public bool IsCreateTaskModalOpen
@@ -107,6 +111,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
             OpenCreateTaskModalCommand = new Command(OpenCreateTaskModal);
             CloseCreateTaskModalCommand = new Command(CloseCreateTaskModal);
             CreateTaskCommand = new Command(async () => await CreateTaskAsync());
+            SetPriorityCommand = new Command<Priority>(p => NewTaskPriority = p);
+            FocusDueDatePickerCommand = new Command(() => DueDatePicker?.Focus());
+            DueDatePicker = new DatePicker();
         }
 
         private void OpenCreateTaskModal()
@@ -182,7 +189,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             existingGroup.Add(task);
 
-            // Atualiza contagem exibida no header (TaskGroup não notifica; então recria o grupo)
             var index = _groupedTasks.IndexOf(existingGroup);
             _groupedTasks[index] = new TaskGroup(existingGroup.DueDate, existingGroup);
         }

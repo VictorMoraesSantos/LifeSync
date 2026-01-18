@@ -273,13 +273,15 @@
               IsVisible="{Binding IsCreateTaskModalOpen}"
               InputTransparent="False">
 
-            <BoxView Color="#000" Opacity=".5">
+            <BoxView Color="#000" Opacity=".55">
                 <BoxView.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CloseCreateTaskModalCommand}" />
                 </BoxView.GestureRecognizers>
             </BoxView>
 
-            <taskitem:CreateTaskItemPopup />
+            <Grid VerticalOptions="End">
+                <taskitem:CreateTaskItemPopup />
+            </Grid>
         </Grid>
     </Grid>
 </ContentPage>

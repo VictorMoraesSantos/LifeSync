@@ -11,7 +11,6 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Converters -->
             <converters:PriorityToColorConverter x:Key="PriorityToColorConverter"/>
             <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
             <converters:StatusToLightColorConverter x:Key="StatusToLightColorConverter"/>
