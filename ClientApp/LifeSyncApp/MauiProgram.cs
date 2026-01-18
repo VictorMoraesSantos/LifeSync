@@ -3,8 +3,8 @@ using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.ViewModels.TaskManager;
 using LifeSyncApp.Views.TaskManager.TaskItem;
-using Microsoft.Maui.Handlers;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Handlers;
 using System.Text.Json;
 
 namespace LifeSyncApp

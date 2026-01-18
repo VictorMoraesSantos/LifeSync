@@ -4,7 +4,6 @@ using LifeSyncApp.Models.TaskManager.Enums;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using System.Diagnostics;
 
 namespace LifeSyncApp.ViewModels.TaskManager
 {

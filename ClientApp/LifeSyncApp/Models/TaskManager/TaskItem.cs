@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using LifeSyncApp.Models.TaskManager.Enums;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using LifeSyncApp.Models.TaskManager.Enums;
 
 namespace LifeSyncApp.Models.TaskManager
 {
