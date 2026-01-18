@@ -122,24 +122,69 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         private async Task CreateTaskAsync()
         {
-            if (!CanCreateTask)
+            if (!CanCreateTask || IsBusy)
                 return;
 
-            const int userId = 22;
+            try
+            {
+                IsBusy = true;
 
-            var dto = new CreateTaskItemDTO(
-                Title: NewTaskTitle!,
-                Description: NewTaskDescription ?? string.Empty,
-                Priority: NewTaskPriority,
-                DueDate: DateOnly.FromDateTime(NewTaskDueDate),
-                UserId: userId,
-                TaskLabelsId: null);
+                const int userId = 22;
 
-            IsCreateTaskModalOpen = false;
+                var dto = new CreateTaskItemDTO(
+                    Title: NewTaskTitle!,
+                    Description: NewTaskDescription ?? string.Empty,
+                    Priority: NewTaskPriority,
+                    DueDate: DateOnly.FromDateTime(NewTaskDueDate),
+                    UserId: userId,
+                    TaskLabelsId: null);
 
-            await _taskItemService.CreateTaskItemAsync(dto);
+                var newId = await _taskItemService.CreateTaskItemAsync(dto);
 
-            await LoadTasksAsync();
+                var created = new TaskItem
+                {
+                    Id = newId,
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Priority = dto.Priority,
+                    DueDate = dto.DueDate,
+                    Status = Status.Pending,
+                    UserId = dto.UserId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                InsertTaskIntoGroups(created);
+
+                IsCreateTaskModalOpen = false;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private void InsertTaskIntoGroups(TaskItem task)
+        {
+            _taskItems.Add(task);
+
+            var existingGroup = _groupedTasks.FirstOrDefault(g => g.DueDate == task.DueDate);
+            if (existingGroup is null)
+            {
+                var newGroup = new TaskGroup(task.DueDate, new[] { task });
+
+                var insertIndex = 0;
+                while (insertIndex < _groupedTasks.Count && _groupedTasks[insertIndex].DueDate < task.DueDate)
+                    insertIndex++;
+
+                _groupedTasks.Insert(insertIndex, newGroup);
+                return;
+            }
+
+            existingGroup.Add(task);
+
+            // Atualiza contagem exibida no header (TaskGroup não notifica; então recria o grupo)
+            var index = _groupedTasks.IndexOf(existingGroup);
+            _groupedTasks[index] = new TaskGroup(existingGroup.DueDate, existingGroup);
         }
 
         public async Task LoadTasksAsync()
