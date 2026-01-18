@@ -137,6 +137,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             IsCreateTaskModalOpen = false;
 
+            await _taskItemService.CreateTaskItemAsync(dto);
+
             await LoadTasksAsync();
         }
 
