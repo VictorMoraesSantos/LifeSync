@@ -1,0 +1,21 @@
+using LifeSyncApp.Models.TaskManager.Enums;
+using System.Globalization;
+
+namespace LifeSyncApp.Converters
+{
+    public class StatusToLightColorConverter : IValueConverter
+    {
+        private readonly StatusToColorConverter _baseConverter = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var baseColor = _baseConverter.Convert(value, targetType, parameter, culture) as Color;
+            return baseColor?.WithAlpha(0.20f) ?? Colors.Transparent;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

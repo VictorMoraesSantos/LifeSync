@@ -58,9 +58,9 @@ namespace LifeSyncApp.Services.TaskManager.Implementation
             return result;
         }
 
-        public async Task<TaskItem> CreateTaskItemAsync(CreateTaskItemDTO data)
+        public async Task<int> CreateTaskItemAsync(CreateTaskItemDTO data)
         {
-            var result = await _apiService.PostAsync(BaseUrl, data);
+            var result = await _apiService.PostAsync<int>(BaseUrl, data);
             return result;
         }
 

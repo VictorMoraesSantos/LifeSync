@@ -54,12 +54,12 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             }
         }
 
-        public async Task<T> PostAsync(string endpoint, object data)
+        public async Task<TResult> PostAsync<TResult>(string endpoint, object data)
         {
             try
             {
                 var response = await _httpClient.PostAsJsonAsync(endpoint, data, _jsonOptions);
-                var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<T>>(_jsonOptions);
+                var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<TResult>>(_jsonOptions);
                 var resultData = apiResponse.Data;
                 return resultData;
             }

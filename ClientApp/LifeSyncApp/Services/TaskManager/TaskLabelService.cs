@@ -52,9 +52,9 @@ namespace LifeSyncApp.Services.TaskManager.Implementation
             return result;
         }
 
-        public async Task<TaskLabel> CreateTaskLabelAsync(CreateTaskLabelDTO data)
+        public async Task<int> CreateTaskLabelAsync(CreateTaskLabelDTO data)
         {
-            var result = await _apiService.PostAsync(BaseUrl, data);
+            var result = await _apiService.PostAsync<int>(BaseUrl, data);
             return result;
         }
 
