@@ -128,12 +128,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
             CloseCreateTaskModalCommand = new Command(CloseCreateTaskModal);
             CreateTaskCommand = new Command(async () => await CreateTaskAsync());
             SetPriorityCommand = new Command<Priority>(p => NewTaskPriority = p);
-            FocusDueDatePickerCommand = new Command(() => DueDatePicker?.Focus());
+            FocusDueDatePickerCommand = new Command(() => { });
             ViewTaskDetailCommand = new Command<TaskItem>(async (task) => await NavigateToTaskDetailAsync(task));
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             EditTaskCommand = new Command(async () => await EditTaskAsync());
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
-            DueDatePicker = new DatePicker();
         }
 
         public async Task LoadTasksAsync()
@@ -256,12 +255,26 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto);
 
+                    // Recarrega a tarefa atualizada pelo backend para refletir na tela de detalhes
+                    var refreshedFromApi = (await _taskItemService.SearchTaskItemAsync(new TaskItemFilterDTO(UserId: userId)))
+                        .FirstOrDefault(t => t.Id == EditingTaskId);
+
                     if (existingTask != null)
                     {
                         existingTask.Title = NewTaskTitle!;
                         existingTask.Description = NewTaskDescription ?? string.Empty;
                         existingTask.Priority = NewTaskPriority;
                         existingTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
+
+                        if (refreshedFromApi != null)
+                        {
+                            existingTask.Title = refreshedFromApi.Title;
+                            existingTask.Description = refreshedFromApi.Description;
+                            existingTask.Priority = refreshedFromApi.Priority;
+                            existingTask.DueDate = refreshedFromApi.DueDate;
+                            existingTask.Status = refreshedFromApi.Status;
+                            existingTask.UpdatedAt = refreshedFromApi.UpdatedAt;
+                        }
 
                         if (SelectedTask?.Id == existingTask.Id)
                             SelectedTask = existingTask;
@@ -277,12 +290,22 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     }
                     else if (SelectedTask?.Id == EditingTaskId)
                     {
-                        SelectedTask.Title = NewTaskTitle!;
-                        SelectedTask.Description = NewTaskDescription ?? string.Empty;
-                        SelectedTask.Priority = NewTaskPriority;
-                        SelectedTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
+                        if (refreshedFromApi != null)
+                        {
+                            SelectedTask = refreshedFromApi;
+                        }
+                        else
+                        {
+                            SelectedTask.Title = NewTaskTitle!;
+                            SelectedTask.Description = NewTaskDescription ?? string.Empty;
+                            SelectedTask.Priority = NewTaskPriority;
+                            SelectedTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
+                        }
                         OnPropertyChanged(nameof(SelectedTask));
                     }
+
+                    if (SelectedTask?.Id == EditingTaskId && refreshedFromApi != null)
+                        SelectedTask = refreshedFromApi;
                 }
                 else
                 {

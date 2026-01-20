@@ -187,15 +187,15 @@
                                    HeightRequest="18"
                                    VerticalOptions="Center"
                                    Opacity="0.75"/>
-                        </Grid>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding FocusDueDatePickerCommand}"/>
-                        </Border.GestureRecognizers>
-                    </Border>
 
-                    <DatePicker x:Name="DueDatePicker"
-                                Date="{Binding NewTaskDueDate}"
-                                IsVisible="False" />
+                            <!-- DatePicker sobreposto (invisível, mas clicável) -->
+                            <DatePicker x:Name="DueDatePicker"
+                                        Grid.ColumnSpan="2"
+                                        Date="{Binding NewTaskDueDate}"
+                                        Opacity="0.01"
+                                        BackgroundColor="Transparent" />
+                        </Grid>
+                    </Border>
 
                     <Label Text="Etiquetas" FontSize="12" TextColor="#6B7280"/>
 
