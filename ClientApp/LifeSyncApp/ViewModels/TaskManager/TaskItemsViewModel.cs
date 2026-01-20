@@ -136,6 +136,47 @@ namespace LifeSyncApp.ViewModels.TaskManager
             DueDatePicker = new DatePicker();
         }
 
+        public async Task LoadTasksAsync()
+        {
+            var query = new TaskItemFilterDTO(UserId: 22);
+            var tasks = await _taskItemService.SearchTaskItemAsync(query);
+
+            _taskItems.Clear();
+            _groupedTasks.Clear();
+
+            foreach (var task in tasks)
+                _taskItems.Add(task);
+
+            _groupedTasks.Clear();
+
+            var grouped = tasks.ToList()
+                .OrderBy(t => t.DueDate)
+                .GroupBy(t => t.DueDate)
+                .Select(g => new TaskGroup(g.Key, g));
+
+            foreach (var group in grouped)
+                _groupedTasks.Add(group);
+        }
+
+        public async Task ToggleStatusAsync(TaskItem task)
+        {
+            if (task is null)
+                return;
+
+            var updatedStatus = task.Status switch
+            {
+                Status.Pending => Status.InProgress,
+                Status.InProgress => Status.Completed,
+                Status.Completed => Status.Pending,
+                _ => Status.Pending
+            };
+
+            task.Status = updatedStatus;
+
+            var updatedItem = new UpdateTaskItemDTO(task.Title, task.Description, updatedStatus, task.Priority, task.DueDate);
+            await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
+        }
+
         private void OpenCreateTaskModal(TaskItem? taskToEdit = null)
         {
             if (taskToEdit != null)
@@ -280,9 +321,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 IsBusy = true;
                 await _taskItemService.DeleteTaskItemAsync(SelectedTask.Id);
 
-                //RemoveTaskFromGroups(SelectedTask);
-                //SelectedTask = null;
-
                 await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
                 await Shell.Current.GoToAsync("..");
             }
@@ -294,29 +332,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             {
                 IsBusy = false;
             }
-        }
-
-        private void RemoveTaskFromGroups(TaskItem task)
-        {
-            var itemInList = _taskItems.FirstOrDefault(t => t.Id == task.Id);
-            if (itemInList != null)
-                _taskItems.Remove(itemInList);
-
-            var existingGroup = _groupedTasks.FirstOrDefault(g => g.DueDate == task.DueDate);
-            if (existingGroup is null)
-                return;
-
-            var itemInGroup = existingGroup.FirstOrDefault(t => t.Id == task.Id);
-            if (itemInGroup != null)
-                existingGroup.Remove(itemInGroup);
-
-            if (!existingGroup.Any())
-            {
-                _groupedTasks.Remove(existingGroup);
-                return;
-            }
-            var index = _groupedTasks.IndexOf(existingGroup);
-            _groupedTasks[index] = new TaskGroup(existingGroup.DueDate, existingGroup);
         }
 
         private void InsertTaskIntoGroups(TaskItem task)
@@ -340,47 +355,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             var index = _groupedTasks.IndexOf(existingGroup);
             _groupedTasks[index] = new TaskGroup(existingGroup.DueDate, existingGroup);
-        }
-
-        public async Task LoadTasksAsync()
-        {
-            var query = new TaskItemFilterDTO(UserId: 22);
-            var tasks = await _taskItemService.SearchTaskItemAsync(query);
-
-            _taskItems.Clear();
-            _groupedTasks.Clear();
-
-            foreach (var task in tasks)
-                _taskItems.Add(task);
-
-            _groupedTasks.Clear();
-
-            var grouped = tasks.ToList()
-                .OrderBy(t => t.DueDate)
-                .GroupBy(t => t.DueDate)
-                .Select(g => new TaskGroup(g.Key, g));
-
-            foreach (var group in grouped)
-                _groupedTasks.Add(group);
-        }
-
-        public async Task ToggleStatusAsync(TaskItem task)
-        {
-            if (task is null)
-                return;
-
-            var updatedStatus = task.Status switch
-            {
-                Status.Pending => Status.InProgress,
-                Status.InProgress => Status.Completed,
-                Status.Completed => Status.Pending,
-                _ => Status.Pending
-            };
-
-            task.Status = updatedStatus;
-
-            var updatedItem = new UpdateTaskItemDTO(task.Title, task.Description, updatedStatus, task.Priority, task.DueDate);
-            await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
         }
     }
 }
