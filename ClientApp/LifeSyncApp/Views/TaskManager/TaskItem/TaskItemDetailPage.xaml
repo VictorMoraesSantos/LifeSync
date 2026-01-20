@@ -10,7 +10,6 @@
 
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" RowSpacing="0">
 
-        <!-- Top app header (same as list page) -->
         <Grid Grid.Row="0"
               Padding="16,12"
               BackgroundColor="White"
@@ -67,16 +66,18 @@
 
         <BoxView Grid.Row="1" HeightRequest="1" Color="#E0E0E0"/>
 
-        <!-- Secondary header: back + edit/delete icons -->
         <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Padding="16,12" BackgroundColor="White">
             <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+
                 <Image Source="arrow_back.svg" WidthRequest="16" HeightRequest="16" VerticalOptions="Center"/>
+
                 <Button Text="Voltar"
                         BackgroundColor="Transparent"
                         TextColor="#6B7280"
                         FontSize="14"
                         Padding="0"
                         Command="{Binding GoBackCommand}"/>
+
             </HorizontalStackLayout>
 
             <ImageButton Grid.Column="2"
@@ -113,6 +114,7 @@
                        LineBreakMode="WordWrap"/>
 
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto" ColumnSpacing="12">
+
                     <Label Text="Status" FontSize="12" TextColor="#6B7280" VerticalOptions="Center"/>
 
                     <Border Grid.Column="1"
@@ -123,19 +125,23 @@
                             BackgroundColor="#F9FAFB"
                             HorizontalOptions="End">
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+
                             <Ellipse WidthRequest="10"
                                      HeightRequest="10"
                                      Fill="{Binding SelectedTask.Status, Converter={StaticResource StatusToColorConverter}}"
                                      VerticalOptions="Center"/>
+
                             <Label Text="{Binding SelectedTask.Status}"
                                    FontSize="13"
                                    TextColor="#111"
                                    VerticalOptions="Center"/>
+
                         </HorizontalStackLayout>
                     </Border>
                 </Grid>
 
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+
                     <Label Text="Prioridade" FontSize="12" TextColor="#6B7280" VerticalOptions="Center"/>
 
                     <Border Grid.Column="1"
@@ -151,9 +157,11 @@
                 </Grid>
 
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+
                     <Label Text="Vencimento" FontSize="12" TextColor="#6B7280" VerticalOptions="Center"/>
 
                     <Grid Grid.Column="1" ColumnDefinitions="Auto,Auto" ColumnSpacing="8" VerticalOptions="Center">
+
                         <Image Source="calendar.svg"
                                WidthRequest="16"
                                HeightRequest="16"
@@ -161,10 +169,11 @@
                                Opacity="0.75"/>
 
                         <Label Grid.Column="1"
-                               Text="{Binding SelectedTask.DueDate, StringFormat='{0:dd \'de\' MMM. \'de\' yyyy}'}"
+                               Text="{Binding SelectedTask.DueDate}"
                                FontSize="13"
                                TextColor="#DC2626"
                                VerticalOptions="Center"/>
+
                     </Grid>
                 </Grid>
 
@@ -172,6 +181,7 @@
                     <Image Source="label.svg" WidthRequest="16" HeightRequest="16" Opacity="0.75"/>
                     <Label Grid.Column="1" Text="Etiquetas" FontSize="12" TextColor="#6B7280" VerticalOptions="Center"/>
                 </Grid>
+
                 <Border StrokeThickness="0"
                         StrokeShape="RoundRectangle 10"
                         Padding="12,8"
@@ -184,16 +194,15 @@
 
                 <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="12">
                     <Label Grid.Row="0" Grid.Column="0" Text="Criada em" FontSize="12" TextColor="#6B7280"/>
-                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding SelectedTask.CreatedAt, StringFormat='{0:dd \'de\' MMM. \'de\' yyyy}'}" FontSize="12" TextColor="#111" HorizontalTextAlignment="End"/>
+                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding SelectedTask.CreatedAt}" FontSize="12" TextColor="#111" HorizontalTextAlignment="End"/>
 
                     <Label Grid.Row="1" Grid.Column="0" Text="Atualizada em" FontSize="12" TextColor="#6B7280"/>
-                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding SelectedTask.UpdatedAt, StringFormat='{0:dd \'de\' MMM. \'de\' yyyy}'}" FontSize="12" TextColor="#111" HorizontalTextAlignment="End"/>
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding SelectedTask.UpdatedAt}" FontSize="12" TextColor="#111" HorizontalTextAlignment="End"/>
                 </Grid>
 
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- Footer buttons (like reference) -->
         <Grid Grid.Row="5" RowDefinitions="Auto,Auto" Padding="16,12" RowSpacing="12">
 
             <BoxView Grid.Row="0" HeightRequest="1" Color="#EEEEEE" Margin="-16,0,-16,0"/>

@@ -9,11 +9,12 @@
              x:DataType="viewmodels:TaskItemsViewModel"
              Title="">
 
-    <Grid RowDefinitions="Auto,*">
-        <Grid Grid.Row="0" 
-              Padding="16,12"
-              BackgroundColor="White"
-              ColumnDefinitions="*,Auto,Auto">
+    <Grid>
+        <Grid RowDefinitions="Auto,*">
+            <Grid Grid.Row="0" 
+                  Padding="16,12"
+                  BackgroundColor="White"
+                  ColumnDefinitions="*,Auto,Auto">
 
             <Label Text="Tarefas"
                    FontSize="16"
@@ -62,14 +63,14 @@
                            VerticalOptions="Center"/>
                 </HorizontalStackLayout>
             </Border>
-        </Grid>
-        <BoxView Grid.Row="0"
-                 HeightRequest="1"
-                 Color="#E0E0E0"
-                 VerticalOptions="End"/>
+            </Grid>
+            <BoxView Grid.Row="0"
+                     HeightRequest="1"
+                     Color="#E0E0E0"
+                     VerticalOptions="End"/>
 
-        <ScrollView Grid.Row="1" Padding="10">
-            <VerticalStackLayout>
+            <ScrollView Grid.Row="1" Padding="10">
+                <VerticalStackLayout>
 
                 <Border Padding="14,10"
                         Margin="0, 16, 0, 0"
@@ -273,21 +274,19 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
-        <Grid Grid.RowSpan="2"
-              IsVisible="{Binding IsCreateTaskModalOpen}"
-              InputTransparent="False">
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
 
-            <BoxView Color="#000" Opacity=".55">
-                <BoxView.GestureRecognizers>
+        <!-- Full-page overlay + modal (covers header too) -->
+        <Grid IsVisible="{Binding IsCreateTaskModalOpen}">
+            <Grid BackgroundColor="#000000" Opacity="0.45">
+                <Grid.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CloseCreateTaskModalCommand}" />
-                </BoxView.GestureRecognizers>
-            </BoxView>
-
-            <Grid VerticalOptions="End">
-                <taskitem:CreateTaskItemPopup />
+                </Grid.GestureRecognizers>
             </Grid>
+
+            <taskitem:CreateTaskItemPopup BindingContext="{Binding .}" />
         </Grid>
     </Grid>
 </ContentPage>
