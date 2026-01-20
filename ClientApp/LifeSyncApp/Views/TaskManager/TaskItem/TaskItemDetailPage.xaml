@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
+             xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
+             x:Class="LifeSyncApp.Views.TaskManager.TaskItem.TaskItemDetailPage"
+             x:DataType="viewmodels:TaskItemsViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="0">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="16,12">
+            <Button Grid.Column="0"
+                Text="← Voltar"
+                BackgroundColor="Transparent"
+                TextColor="#111"
+                FontSize="14"
+                Padding="0"
+                Command="{Binding GoBackCommand}"/>
+
+            <Button Grid.Column="2"
+                Text="🖊"
+                BackgroundColor="Transparent"
+                TextColor="#111"
+                FontSize="16"
+                Padding="8"
+                Command="{Binding EditTaskCommand}"/>
+        </Grid>
+
+        <BoxView Grid.Row="1" HeightRequest="1" Color="#EEEEEE"/>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="2" Padding="16,20">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- Título -->
+                <Label Text="{Binding SelectedTask.Title}"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="#111"
+                   LineBreakMode="WordWrap"/>
+
+                <!-- Descrição -->
+                <Label Text="{Binding SelectedTask.Description}"
+                   FontSize="14"
+                   TextColor="#6B7280"
+                   LineBreakMode="WordWrap"/>
+
+                <!-- Status -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Status" 
+                       FontSize="12" 
+                       TextColor="#6B7280"/>
+
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Ellipse WidthRequest="12" 
+                             HeightRequest="12" 
+                             VerticalOptions="Center"
+                             Margin="0,0,8,0"
+                             Fill="{Binding SelectedTask.Status, Converter={StaticResource StatusToColorConverter}}"/>
+
+                        <Label Grid.Column="1"
+                           Text="{Binding SelectedTask.Status}"
+                           FontSize="14"
+                           TextColor="#111"
+                           VerticalOptions="Center"/>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Prioridade -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Prioridade" 
+                       FontSize="12" 
+                       TextColor="#6B7280"/>
+
+                    <Border StrokeThickness="0"
+                        StrokeShape="RoundRectangle 6"
+                        Padding="12,6"
+                        HorizontalOptions="Start"
+                        BackgroundColor="{Binding SelectedTask.Priority, Converter={StaticResource PriorityToBackgroundConverter}}">
+
+                        <Label Text="{Binding SelectedTask.Priority}"
+                           FontSize="13" 
+                           TextColor="#111"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Vencimento -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Vencimento" 
+                       FontSize="12" 
+                       TextColor="#6B7280"/>
+
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Image Source="calendar.svg"
+                           WidthRequest="16"
+                           HeightRequest="16"
+                           VerticalOptions="Center"
+                           Margin="0,0,8,0"
+                           Opacity="0.75"/>
+
+                        <Label Grid.Column="1"
+                           Text="{Binding SelectedTask.DueDate, StringFormat='{0:dd/MM/yyyy}'}"
+                           FontSize="14"
+                           TextColor="#111"
+                           VerticalOptions="Center"/>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Etiquetas -->
+                <VerticalStackLayout Spacing="8" IsVisible="False">
+                    <Label Text="Etiquetas" 
+                       FontSize="12" 
+                       TextColor="#6B7280"/>
+
+                    <Border Stroke="#E5E7EB" 
+                        StrokeThickness="1" 
+                        StrokeShape="RoundRectangle 10"
+                        Padding="10,6" 
+                        BackgroundColor="#F0FDF4"
+                        HorizontalOptions="Start">
+                        <HorizontalStackLayout Spacing="8">
+                            <BoxView WidthRequest="8" 
+                                 HeightRequest="8" 
+                                 CornerRadius="4" 
+                                 Color="#10B981" 
+                                 VerticalOptions="Center"/>
+                            <Label Text="Pessoal" 
+                               FontSize="12" 
+                               TextColor="#111" 
+                               VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Metadados -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Criada em" 
+                       FontSize="12" 
+                       TextColor="#6B7280"/>
+                    <Label Text="{Binding SelectedTask.CreatedAt, StringFormat='{0:dd/MM/yyyy}'}"
+                       FontSize="14"
+                       TextColor="#111"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding SelectedTask.UpdatedAt, Converter={StaticResource IsNotNullConverter}}">
+                    <Label Text="Atualizada em" 
+                       FontSize="12" 
+                       TextColor="#6B7280"/>
+                    <Label Text="{Binding SelectedTask.UpdatedAt, StringFormat='{0:dd/MM/yyyy}'}"
+                       FontSize="14"
+                       TextColor="#111"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Footer Buttons -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto" Padding="16,12" RowSpacing="12">
+
+            <BoxView Grid.Row="0" HeightRequest="1" Color="#EEEEEE" Margin="-16,0,-16,0"/>
+
+            <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
+
+                <Button Text="Excluir"
+                    BackgroundColor="White"
+                    TextColor="#DC2626"
+                    BorderColor="#E5E7EB"
+                    BorderWidth="1"
+                    CornerRadius="10"
+                    HeightRequest="44"
+                    Command="{Binding DeleteTaskCommand}"/>
+
+                <Button Grid.Column="1"
+                    Text="Editar"
+                    BackgroundColor="#111"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="44"
+                    Command="{Binding EditTaskCommand}"/>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</ContentPage>

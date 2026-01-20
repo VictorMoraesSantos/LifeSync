@@ -23,6 +23,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand CreateTaskCommand { get; }
         public ICommand SetPriorityCommand { get; }
         public ICommand FocusDueDatePickerCommand { get; }
+        public ICommand ViewTaskDetailCommand { get; }
+        public ICommand GoBackCommand { get; }
+        public ICommand EditTaskCommand { get; }
+        public ICommand DeleteTaskCommand { get; }
 
         public DatePicker? DueDatePicker { get; set; }
 
@@ -32,13 +36,28 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _isCreateTaskModalOpen;
             set
             {
-                if (_isCreateTaskModalOpen != value)
-                {
-                    _isCreateTaskModalOpen = value;
-                    OnPropertyChanged(nameof(IsCreateTaskModalOpen));
-                }
+                _isCreateTaskModalOpen = value;
+                OnPropertyChanged(nameof(IsCreateTaskModalOpen));
             }
         }
+
+        private int? _editingTaskId;
+        public int? EditingTaskId
+        {
+            get => _editingTaskId;
+            set
+            {
+                _editingTaskId = value;
+                OnPropertyChanged(nameof(EditingTaskId));
+                OnPropertyChanged(nameof(IsEditMode));
+                OnPropertyChanged(nameof(ModalTitle));
+                OnPropertyChanged(nameof(SaveButtonText));
+            }
+        }
+
+        public bool IsEditMode => EditingTaskId.HasValue;
+        public string ModalTitle => IsEditMode ? "Editar Tarefa" : "Nova Tarefa";
+        public string SaveButtonText => IsEditMode ? "Salvar Alterações" : "Criar Tarefa";
 
         private string? _newTaskTitle;
         public string? NewTaskTitle
@@ -46,12 +65,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _newTaskTitle;
             set
             {
-                if (_newTaskTitle != value)
-                {
-                    _newTaskTitle = value;
-                    OnPropertyChanged(nameof(NewTaskTitle));
-                    OnPropertyChanged(nameof(CanCreateTask));
-                }
+                _newTaskTitle = value;
+                OnPropertyChanged(nameof(NewTaskTitle));
+                OnPropertyChanged(nameof(CanCreateTask));
             }
         }
 
@@ -61,11 +77,19 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _newTaskDescription;
             set
             {
-                if (_newTaskDescription != value)
-                {
-                    _newTaskDescription = value;
-                    OnPropertyChanged(nameof(NewTaskDescription));
-                }
+                _newTaskDescription = value;
+                OnPropertyChanged(nameof(NewTaskDescription));
+            }
+        }
+
+        private TaskItem? _selectedTask;
+        public TaskItem? SelectedTask
+        {
+            get => _selectedTask;
+            set
+            {
+                _selectedTask = value;
+                OnPropertyChanged(nameof(SelectedTask));
             }
         }
 
@@ -77,11 +101,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _newTaskPriority;
             set
             {
-                if (_newTaskPriority != value)
-                {
-                    _newTaskPriority = value;
-                    OnPropertyChanged(nameof(NewTaskPriority));
-                }
+                _newTaskPriority = value;
+                OnPropertyChanged(nameof(NewTaskPriority));
             }
         }
 
@@ -91,13 +112,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _newTaskDueDate;
             set
             {
-                if (_newTaskDueDate != value)
-                {
-                    _newTaskDueDate = value;
-                    OnPropertyChanged(nameof(NewTaskDueDate));
-                }
+                _newTaskDueDate = value;
+                OnPropertyChanged(nameof(NewTaskDueDate));
             }
-
         }
 
         public bool CanCreateTask => !string.IsNullOrWhiteSpace(NewTaskTitle);
@@ -107,24 +124,73 @@ namespace LifeSyncApp.ViewModels.TaskManager
             _taskItemService = taskItemService;
 
             ToggleStatusCommand = new Command<TaskItem>(async (task) => await ToggleStatusAsync(task));
-            OpenCreateTaskModalCommand = new Command(OpenCreateTaskModal);
+            OpenCreateTaskModalCommand = new Command<TaskItem>(OpenCreateTaskModal);
             CloseCreateTaskModalCommand = new Command(CloseCreateTaskModal);
             CreateTaskCommand = new Command(async () => await CreateTaskAsync());
             SetPriorityCommand = new Command<Priority>(p => NewTaskPriority = p);
             FocusDueDatePickerCommand = new Command(() => DueDatePicker?.Focus());
+            ViewTaskDetailCommand = new Command<TaskItem>(async (task) => await NavigateToTaskDetailAsync(task));
+            GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
+            EditTaskCommand = new Command(async () => await EditTaskAsync());
+            DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
             DueDatePicker = new DatePicker();
         }
 
-        private void OpenCreateTaskModal()
+        private void OpenCreateTaskModal(TaskItem? taskToEdit = null)
         {
-            NewTaskTitle = null;
-            NewTaskDescription = null;
-            NewTaskPriority = Priority.Medium;
-            NewTaskDueDate = DateTime.Today;
+            if (taskToEdit != null)
+            {
+                EditingTaskId = taskToEdit.Id;
+                NewTaskTitle = taskToEdit.Title;
+                NewTaskDescription = taskToEdit.Description;
+                NewTaskPriority = taskToEdit.Priority;
+                NewTaskDueDate = taskToEdit.DueDate.ToDateTime(TimeOnly.MinValue);
+            }
+            else
+            {
+                EditingTaskId = null;
+                NewTaskTitle = null;
+                NewTaskDescription = null;
+                NewTaskPriority = Priority.Medium;
+                NewTaskDueDate = DateTime.Today;
+            }
+
             IsCreateTaskModalOpen = true;
         }
 
         private void CloseCreateTaskModal() => IsCreateTaskModalOpen = false;
+
+        private async Task NavigateToTaskDetailAsync(TaskItem task)
+        {
+            if (task == null) return;
+
+            SelectedTask = task;
+
+            await Shell.Current.GoToAsync($"taskdetail?taskId={task.Id}");
+        }
+
+        public async Task LoadTaskDetailAsync(int taskId)
+        {
+            var task = _taskItems.FirstOrDefault(t => t.Id == taskId);
+            if (task != null)
+            {
+                SelectedTask = task;
+            }
+            else
+            {
+                var query = new TaskItemFilterDTO(UserId: 22);
+                var tasks = await _taskItemService.SearchTaskItemAsync(query);
+                SelectedTask = tasks.FirstOrDefault(t => t.Id == taskId);
+            }
+        }
+
+        private async Task EditTaskAsync()
+        {
+            if (SelectedTask == null) return;
+
+            await Shell.Current.GoToAsync("..");
+            OpenCreateTaskModal(SelectedTask);
+        }
 
         private async Task CreateTaskAsync()
         {
@@ -134,39 +200,123 @@ namespace LifeSyncApp.ViewModels.TaskManager
             try
             {
                 IsBusy = true;
-
                 const int userId = 22;
 
-                var dto = new CreateTaskItemDTO(
-                    Title: NewTaskTitle!,
-                    Description: NewTaskDescription ?? string.Empty,
-                    Priority: NewTaskPriority,
-                    DueDate: DateOnly.FromDateTime(NewTaskDueDate),
-                    UserId: userId,
-                    TaskLabelsId: null);
-
-                var newId = await _taskItemService.CreateTaskItemAsync(dto);
-
-                var created = new TaskItem
+                if (IsEditMode)
                 {
-                    Id = newId,
-                    Title = dto.Title,
-                    Description = dto.Description,
-                    Priority = dto.Priority,
-                    DueDate = dto.DueDate,
-                    Status = Status.Pending,
-                    UserId = dto.UserId,
-                    CreatedAt = DateTime.UtcNow
-                };
+                    var existingTask = _taskItems.FirstOrDefault(t => t.Id == EditingTaskId);
+                    var currentStatus = existingTask?.Status ?? Status.Pending;
+                    var updateDto = new UpdateTaskItemDTO(
+                        Title: NewTaskTitle!,
+                        Description: NewTaskDescription ?? string.Empty,
+                        Status: currentStatus,
+                        Priority: NewTaskPriority,
+                        DueDate: DateOnly.FromDateTime(NewTaskDueDate)
+                    );
 
-                InsertTaskIntoGroups(created);
+                    await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto);
+
+                    if (existingTask != null)
+                    {
+                        existingTask.Title = NewTaskTitle!;
+                        existingTask.Description = NewTaskDescription ?? string.Empty;
+                        existingTask.Priority = NewTaskPriority;
+                        existingTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
+
+                        await LoadTasksAsync();
+                    }
+                }
+                else
+                {
+                    var dto = new CreateTaskItemDTO(
+                        Title: NewTaskTitle!,
+                        Description: NewTaskDescription ?? string.Empty,
+                        Priority: NewTaskPriority,
+                        DueDate: DateOnly.FromDateTime(NewTaskDueDate),
+                        UserId: userId,
+                        TaskLabelsId: null);
+                    var newId = await _taskItemService.CreateTaskItemAsync(dto);
+                    var created = new TaskItem
+                    {
+                        Id = newId,
+                        Title = dto.Title,
+                        Description = dto.Description,
+                        Priority = dto.Priority,
+                        DueDate = dto.DueDate,
+                        Status = Status.Pending,
+                        UserId = dto.UserId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    InsertTaskIntoGroups(created);
+                }
 
                 IsCreateTaskModalOpen = false;
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível salvar a tarefa: {ex.Message}", "OK");
             }
             finally
             {
                 IsBusy = false;
             }
+        }
+
+        private async Task DeleteTaskAsync()
+        {
+            if (SelectedTask == null) return;
+
+            bool confirm = await Shell.Current.DisplayAlert(
+                "Excluir Tarefa",
+                "Tem certeza que deseja excluir esta tarefa?",
+                "Sim",
+                "Não");
+
+            if (!confirm) return;
+
+            try
+            {
+                IsBusy = true;
+                await _taskItemService.DeleteTaskItemAsync(SelectedTask.Id);
+
+                //RemoveTaskFromGroups(SelectedTask);
+                //SelectedTask = null;
+
+                await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
+                await Shell.Current.GoToAsync("..");
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível excluir a tarefa: {ex.Message}", "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private void RemoveTaskFromGroups(TaskItem task)
+        {
+            var itemInList = _taskItems.FirstOrDefault(t => t.Id == task.Id);
+            if (itemInList != null)
+                _taskItems.Remove(itemInList);
+
+            var existingGroup = _groupedTasks.FirstOrDefault(g => g.DueDate == task.DueDate);
+            if (existingGroup is null)
+                return;
+
+            var itemInGroup = existingGroup.FirstOrDefault(t => t.Id == task.Id);
+            if (itemInGroup != null)
+                existingGroup.Remove(itemInGroup);
+
+            if (!existingGroup.Any())
+            {
+                _groupedTasks.Remove(existingGroup);
+                return;
+            }
+            var index = _groupedTasks.IndexOf(existingGroup);
+            _groupedTasks[index] = new TaskGroup(existingGroup.DueDate, existingGroup);
         }
 
         private void InsertTaskIntoGroups(TaskItem task)

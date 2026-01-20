@@ -17,12 +17,9 @@ public partial class TaskItemPage : ContentPage
     {
         base.OnAppearing();
 
-        if (_loaded)
+        if (BindingContext is not TaskItemsViewModel viewModel)
             return;
 
-        _loaded = true;
-
-        if (BindingContext is TaskItemsViewModel viewModel)
-            await viewModel.LoadTasksAsync();
+        await viewModel.LoadTasksAsync();
     }
 }

@@ -72,6 +72,7 @@ namespace LifeSyncApp.Services.TaskManager.Implementation
         public async Task DeleteTaskItemAsync(int id)
         {
             await _apiService.DeleteAsync($"{BaseUrl}/{id}");
+            return;
         }
     }
 }

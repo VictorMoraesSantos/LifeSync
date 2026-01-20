@@ -245,8 +245,8 @@
                             HeightRequest="44"
                             Command="{Binding CloseCreateTaskModalCommand}"/>
 
-                    <Button Grid.Column="1"
-                            Text="Criar Tarefa"
+					<Button Grid.Column="1"
+                            Text="{Binding SaveButtonText}"
                             BackgroundColor="#111"
                             TextColor="White"
                             CornerRadius="10"

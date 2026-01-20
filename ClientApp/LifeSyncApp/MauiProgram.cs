@@ -61,9 +61,8 @@ namespace LifeSyncApp
 
             // ViewModels
             builder.Services.AddTransient<TaskItemsViewModel>();
-
-            // Views
             builder.Services.AddTransient<TaskItemPage>();
+            builder.Services.AddTransient<TaskItemDetailPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
