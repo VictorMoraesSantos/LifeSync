@@ -5,7 +5,7 @@ namespace LifeSyncApp.Views.TaskManager.TaskItem;
 [QueryProperty(nameof(TaskId), "taskId")]
 public partial class TaskItemDetailPage : ContentPage
 {
-    private TaskItemsViewModel _viewModel;
+    private readonly TaskItemsViewModel _viewModel;
 
     private int _taskId;
     public int TaskId
@@ -24,7 +24,6 @@ public partial class TaskItemDetailPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
         if (TaskId > 0)
             await _viewModel.LoadTaskDetailAsync(TaskId);
     }

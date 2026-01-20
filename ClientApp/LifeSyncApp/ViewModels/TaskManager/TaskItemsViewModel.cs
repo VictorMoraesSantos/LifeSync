@@ -229,7 +229,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             if (SelectedTask == null) return;
 
-            await Shell.Current.GoToAsync("..");
             OpenCreateTaskModal(SelectedTask);
         }
 
@@ -264,7 +263,25 @@ namespace LifeSyncApp.ViewModels.TaskManager
                         existingTask.Priority = NewTaskPriority;
                         existingTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
 
+                        if (SelectedTask?.Id == existingTask.Id)
+                            SelectedTask = existingTask;
+
                         await LoadTasksAsync();
+
+                        if (SelectedTask?.Id is int selectedId)
+                        {
+                            var refreshed = _taskItems.FirstOrDefault(t => t.Id == selectedId);
+                            if (refreshed != null)
+                                SelectedTask = refreshed;
+                        }
+                    }
+                    else if (SelectedTask?.Id == EditingTaskId)
+                    {
+                        SelectedTask.Title = NewTaskTitle!;
+                        SelectedTask.Description = NewTaskDescription ?? string.Empty;
+                        SelectedTask.Priority = NewTaskPriority;
+                        SelectedTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
+                        OnPropertyChanged(nameof(SelectedTask));
                     }
                 }
                 else

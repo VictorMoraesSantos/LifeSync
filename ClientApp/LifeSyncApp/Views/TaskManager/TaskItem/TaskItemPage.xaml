@@ -278,7 +278,6 @@
             </ScrollView>
         </Grid>
 
-        <!-- Full-page overlay + modal (covers header too) -->
         <Grid IsVisible="{Binding IsCreateTaskModalOpen}">
             <Grid BackgroundColor="#000000" Opacity="0.45">
                 <Grid.GestureRecognizers>
