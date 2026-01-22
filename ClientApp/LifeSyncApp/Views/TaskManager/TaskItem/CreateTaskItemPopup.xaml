@@ -13,20 +13,19 @@
         <Grid RowDefinitions="Auto,Auto,*,Auto"
               RowSpacing="0">
 
-            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,12">
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,0">
                 <Label Text="Nova Tarefa"
                        FontSize="16"
                        FontAttributes="None"
                        TextColor="#111"
                        VerticalOptions="Center"/>
 
-                <Button Grid.Column="1"
-                        Text="✕"
-                        BackgroundColor="Transparent"
-                        TextColor="#111"
-                        FontSize="16"
-                        Padding="8"
-                        Command="{Binding CloseCreateTaskModalCommand}"/>
+                <ImageButton Grid.Column="1" 
+                             Source="close.svg" 
+                             BackgroundColor="Transparent" 
+                             Padding="8" 
+                             Margin="8" 
+                             Command="{Binding CloseCreateTaskModalCommand}" />
             </Grid>
 
             <BoxView Grid.Row="1" HeightRequest="1" Color="#EEEEEE"/>
@@ -188,7 +187,6 @@
                                    VerticalOptions="Center"
                                    Opacity="0.75"/>
 
-                            <!-- DatePicker sobreposto (invisível, mas clicável) -->
                             <DatePicker x:Name="DueDatePicker"
                                         Grid.ColumnSpan="2"
                                         Date="{Binding NewTaskDueDate}"
@@ -245,7 +243,7 @@
                             HeightRequest="44"
                             Command="{Binding CloseCreateTaskModalCommand}"/>
 
-					<Button Grid.Column="1"
+                    <Button Grid.Column="1"
                             Text="{Binding SaveButtonText}"
                             BackgroundColor="#111"
                             TextColor="White"

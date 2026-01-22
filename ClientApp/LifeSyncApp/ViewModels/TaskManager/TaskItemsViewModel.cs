@@ -27,6 +27,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand GoBackCommand { get; }
         public ICommand EditTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
+        public ICommand OpenFiltersCommand { get; set; }
+        public ICommand CloseFilterTaskModalCommand { get; set; }
 
         public DatePicker? DueDatePicker { get; set; }
 
@@ -38,6 +40,17 @@ namespace LifeSyncApp.ViewModels.TaskManager
             {
                 _isCreateTaskModalOpen = value;
                 OnPropertyChanged(nameof(IsCreateTaskModalOpen));
+            }
+        }
+
+        private bool _isFilterTaskModalOpen;
+        public bool IsFilterTaskModalOpen
+        {
+            get => _isFilterTaskModalOpen;
+            set
+            {
+                _isFilterTaskModalOpen = value;
+                OnPropertyChanged(nameof(IsFilterTaskModalOpen));
             }
         }
 
@@ -133,6 +146,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             EditTaskCommand = new Command(async () => await EditTaskAsync());
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
+            CloseFilterTaskModalCommand = new Command(CloseFilterTaskModal);
+            OpenFiltersCommand = new Command(OpenFiltersModal);
         }
 
         public async Task LoadTasksAsync()
@@ -175,6 +190,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
             var updatedItem = new UpdateTaskItemDTO(task.Title, task.Description, updatedStatus, task.Priority, task.DueDate);
             await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
         }
+
+        private void OpenFiltersModal() => IsFilterTaskModalOpen = true;
+
+        private void CloseFilterTaskModal() => IsFilterTaskModalOpen = false;
 
         private void OpenCreateTaskModal(TaskItem? taskToEdit = null)
         {

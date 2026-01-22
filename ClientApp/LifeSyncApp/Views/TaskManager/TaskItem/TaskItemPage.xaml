@@ -16,53 +16,53 @@
                   BackgroundColor="White"
                   ColumnDefinitions="*,Auto,Auto">
 
-            <Label Text="Tarefas"
-                   FontSize="16"
-                   FontAttributes="None"
-                   TextColor="#2C3E50"
-                   VerticalOptions="Center"/>
-
-            <Border Grid.Column="1"
-                    WidthRequest="44"
-                    HeightRequest="44"
-                    StrokeShape="RoundRectangle 8"
-                    Stroke="Transparent"
-                    BackgroundColor="#F5F5F5"
-                    Margin="0,0,8,0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GoToLabelsCommand}"/>
-                </Border.GestureRecognizers>
-                <Image Source="label.svg"
-                       WidthRequest="20"
-                       HeightRequest="20"
-                       HorizontalOptions="Center"
+                <Label Text="Tarefas"
+                       FontSize="16"
+                       FontAttributes="None"
+                       TextColor="#2C3E50"
                        VerticalOptions="Center"/>
-            </Border>
 
-            <Border Grid.Column="2"
-                    WidthRequest="88"
-                    HeightRequest="44"
-                    StrokeShape="RoundRectangle 8"
-                    Stroke="Transparent"
-                    BackgroundColor="#171717">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding OpenCreateTaskModalCommand}"/>
-                </Border.GestureRecognizers>
-                <HorizontalStackLayout Spacing="6"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center">
-                    <Image Source="add.svg"
+                <Border Grid.Column="1"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="Transparent"
+                        BackgroundColor="#F5F5F5"
+                        Margin="0,0,8,0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToLabelsCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Image Source="label.svg"
                            WidthRequest="20"
                            HeightRequest="20"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
-                    <Label Text="Nova"
-                           FontSize="14"
-                           FontAttributes="Bold"
-                           TextColor="White"
-                           VerticalOptions="Center"/>
-                </HorizontalStackLayout>
-            </Border>
+                </Border>
+
+                <Border Grid.Column="2"
+                        WidthRequest="88"
+                        HeightRequest="44"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="Transparent"
+                        BackgroundColor="#171717">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenCreateTaskModalCommand}"/>
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="6"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center">
+                        <Image Source="add.svg"
+                               WidthRequest="20"
+                               HeightRequest="20"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                        <Label Text="Nova"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Border>
             </Grid>
             <BoxView Grid.Row="0"
                      HeightRequest="1"
@@ -286,6 +286,17 @@
             </Grid>
 
             <taskitem:CreateTaskItemPopup BindingContext="{Binding .}" />
+        </Grid>
+
+        <Grid IsVisible="{Binding IsFilterTaskModalOpen}">
+            <Grid BackgroundColor="#000000" Opacity="0.45">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseFilterTaskModalCommand}" />
+                </Grid.GestureRecognizers>
+            </Grid>
+
+            <taskitem:FilterTaskItemPopup x:Name="FilterPopup"
+                                          BindingContext="{Binding .}" />
         </Grid>
     </Grid>
 </ContentPage>

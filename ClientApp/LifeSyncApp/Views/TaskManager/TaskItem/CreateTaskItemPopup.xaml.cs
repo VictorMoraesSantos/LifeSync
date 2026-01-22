@@ -1,3 +1,5 @@
+using LifeSyncApp.ViewModels.TaskManager;
+
 namespace LifeSyncApp.Views.TaskManager.TaskItem;
 
 public partial class CreateTaskItemPopup : ContentView
@@ -11,7 +13,7 @@ public partial class CreateTaskItemPopup : ContentView
     {
         base.OnBindingContextChanged();
 
-        if (BindingContext is LifeSyncApp.ViewModels.TaskManager.TaskItemsViewModel vm)
+        if (BindingContext is TaskItemsViewModel vm)
             vm.DueDatePicker = DueDatePicker;
     }
 }

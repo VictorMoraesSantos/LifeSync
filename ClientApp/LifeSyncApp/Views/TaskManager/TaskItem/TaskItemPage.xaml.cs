@@ -4,7 +4,6 @@ namespace LifeSyncApp.Views.TaskManager.TaskItem;
 
 public partial class TaskItemPage : ContentPage
 {
-    private readonly TaskItemsViewModel _viewModel;
     private bool _loaded;
 
     public TaskItemPage(TaskItemsViewModel vm)
@@ -22,4 +21,5 @@ public partial class TaskItemPage : ContentPage
 
         await viewModel.LoadTasksAsync();
     }
+
 }

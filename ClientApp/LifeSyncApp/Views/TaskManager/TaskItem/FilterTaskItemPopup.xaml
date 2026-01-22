@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
+             x:Class="LifeSyncApp.Views.TaskManager.TaskItem.FilterTaskItemPopup"
+             x:Name="Root">
+
+    <Border BackgroundColor="White"
+            StrokeShape="RoundRectangle  16 16 0 0"
+            Padding="0"
+            HorizontalOptions="Center"
+            VerticalOptions="End"
+            HeightRequest="720">
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto"
+              RowSpacing="0">
+
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,0">
+                <Label Text="Filtros"
+                       FontSize="16"
+                       FontAttributes="None"
+                       TextColor="#111"
+                       VerticalOptions="Center"/>
+
+                <ImageButton Grid.Column="1" 
+                             Source="close.svg" 
+                             BackgroundColor="Transparent" 
+                             Padding="8" 
+                             Margin="8" 
+                             Command="{Binding CloseModal}" />
+            </Grid>
+            <BoxView Grid.Row="1" HeightRequest="1" Color="#EEEEEE"/>
+
+
+            <ScrollView Grid.Row="2" Margin="0, 16">
+                <Grid RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="16">
+
+                    <VerticalStackLayout Grid.Row="0" Spacing="8">
+                        <Label Text="Status" FontSize="16" Margin="4, 16, 0, 0">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label"
+                                             Binding="{Binding StatusSelected}"
+                                             Value="True">
+                                    <Setter Property="TextColor" Value="#fff"/>
+                                    <Setter Property="BackgroundColor" Value="#171717"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label"
+                                             Binding="{Binding StatusSelected}"
+                                             Value="False">
+                                    <Setter Property="TextColor" Value="#404040"/>
+                                    <Setter Property="BackgroundColor" Value="#fff"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#171717">
+                            <Label Text="Todos os status" TextColor="#fff">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding StatusSelected}"
+                                                 Value="True">
+                                        <Setter Property="TextColor" Value="#fff"/>
+                                        <Setter Property="BackgroundColor" Value="#171717"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding StatusSelected}"
+                                                 Value="False">
+                                        <Setter Property="TextColor" Value="#404040"/>
+                                        <Setter Property="BackgroundColor" Value="#fff"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Pendente" TextColor="#404040">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding StatusSelected}"
+                                                 Value="True">
+                                        <Setter Property="TextColor" Value="#fff"/>
+                                        <Setter Property="BackgroundColor" Value="#171717"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding StatusSelected}"
+                                                 Value="False">
+                                        <Setter Property="TextColor" Value="#404040"/>
+                                        <Setter Property="BackgroundColor" Value="#fff"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Em andamento" TextColor="#404040">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding StatusSelected}"
+                                                 Value="True">
+                                        <Setter Property="TextColor" Value="#fff"/>
+                                        <Setter Property="BackgroundColor" Value="#171717"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding StatusSelected}"
+                                                 Value="False">
+                                        <Setter Property="TextColor" Value="#404040"/>
+                                        <Setter Property="BackgroundColor" Value="#fff"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Concluída" TextColor="#404040"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Row="1" Spacing="4">
+                        <Label Text="Prioridade" FontSize="16" Margin="4, 0, 12, 0"/>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#171717">
+                            <Label Text="Todos as prioridades" TextColor="#fff"/>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Baixa" TextColor="#404040"/>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Média" TextColor="#404040"/>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Alta" TextColor="#404040"/>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Urgente" TextColor="#404040"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Row="2" Spacing="4">
+                        <Label Text="Vencimento" FontSize="16" Margin="4, 0, 12, 0"/>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#171717">
+                            <Label Text="Todos as datas" TextColor="#fff"/>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Hoje" TextColor="#404040"/>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Esta semana" TextColor="#404040"/>
+                        </Border>
+                        <Border StrokeShape="12" Padding="16" BackgroundColor="#fff">
+                            <Label Text="Este mês" TextColor="#404040"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+            </ScrollView>
+
+            <Grid Grid.Row="3" RowDefinitions="Auto,Auto" Padding="16" RowSpacing="16">
+
+                <BoxView Grid.Row="0" HeightRequest="1" Color="#EEEEEE" Margin="-16,0,-16,0"/>
+
+                <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
+
+                    <Button Text="Limpar tudo"
+                            BackgroundColor="White"
+                            TextColor="#404040"
+                            BorderColor="#404040"
+                            BorderWidth=".5"
+                            FontSize="16"
+                            CornerRadius="10"
+                            HeightRequest="44"
+                            Command="{Binding ClearFiltersCommand}"/>
+
+                    <Button Grid.Column="1"
+                            Text="Aplicar filtros"
+                            BackgroundColor="#171717"
+                            TextColor="#FFF"
+                            CornerRadius="10"
+                            FontSize="16"
+                            HeightRequest="44"
+                            Command="{Binding ApplyFiltersCommand}"/>
+                </Grid>
+            </Grid>
+
+        </Grid>
+    </Border>
+</ContentView>
