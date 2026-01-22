@@ -10,8 +10,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
             All, Today, ThisWeek, ThisMonth
         }
 
-        private Status? _selectedStatus { get; set; }
-        public Status? SelectedStatus
+        // Propriedades string para binding com XAML
+        private string _selectedStatus;
+        public string SelectedStatus
         {
             get => _selectedStatus;
             set
@@ -21,8 +22,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        private Priority? _selectedPriority { get; set; }
-        public Priority? SelectedPriority
+        private string _selectedPriority;
+        public string SelectedPriority
         {
             get => _selectedPriority;
             set
@@ -32,14 +33,14 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        private DateFilterOption? _selectedDateOption { get; set; }
-        public DateFilterOption? SelectedDateOption
+        private string _selectedDateFilter;
+        public string SelectedDateFilter
         {
-            get => _selectedDateOption;
+            get => _selectedDateFilter;
             set
             {
-                _selectedDateOption = value;
-                OnPropertyChanged(nameof(SelectedDateOption));
+                _selectedDateFilter = value;
+                OnPropertyChanged(nameof(SelectedDateFilter));
             }
         }
 
@@ -58,6 +59,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
             _onApplyFilters = onApplyFilters;
             _onCloseModal = onCloseModal;
 
+            // Inicializar com valores padrão (todos os filtros)
+            SelectedStatus = "";
+            SelectedPriority = "";
+            SelectedDateFilter = "";
+
             CloseModalCommand = new Command(() => _onCloseModal?.Invoke());
             SelectStatusCommand = new Command<string>(SelectStatus);
             SelectPriorityCommand = new Command<string>(SelectPriority);
@@ -68,18 +74,38 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         private void SelectStatus(string status)
         {
-            SelectedStatus = status switch
+            SelectedStatus = status ?? "";
+        }
+
+        private void SelectPriority(string priority)
+        {
+            SelectedPriority = priority ?? "";
+        }
+
+        private void SelectDateFilter(string dateOption)
+        {
+            SelectedDateFilter = dateOption ?? "";
+        }
+
+        private void ClearFilters()
+        {
+            SelectedStatus = "";
+            SelectedPriority = "";
+            SelectedDateFilter = "";
+        }
+
+        private void ApplyFilters()
+        {
+            // Converter strings para enums ao aplicar filtros
+            Status? statusEnum = SelectedStatus switch
             {
                 "Pending" => Status.Pending,
                 "InProgress" => Status.InProgress,
                 "Completed" => Status.Completed,
                 _ => null
             };
-        }
 
-        private void SelectPriority(string priority)
-        {
-            SelectedPriority = priority switch
+            Priority? priorityEnum = SelectedPriority switch
             {
                 "Low" => Priority.Low,
                 "Medium" => Priority.Medium,
@@ -87,30 +113,17 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 "Urgent" => Priority.Urgent,
                 _ => null
             };
-        }
 
-        private void SelectDateFilter(string dateOption)
-        {
-            SelectedDateOption = dateOption switch
+            DateFilterOption? dateFilterEnum = SelectedDateFilter switch
             {
-                "All" => DateFilterOption.All,
                 "Today" => DateFilterOption.Today,
                 "ThisWeek" => DateFilterOption.ThisWeek,
                 "ThisMonth" => DateFilterOption.ThisMonth,
-                _ => null
+                "" => DateFilterOption.All,
+                _ => DateFilterOption.All
             };
-        }
 
-        private void ClearFilters()
-        {
-            SelectedStatus = null;
-            SelectedPriority = null;
-            SelectedDateOption = DateFilterOption.All;
-        }
-
-        private void ApplyFilters()
-        {
-            _onApplyFilters?.Invoke(SelectedStatus, SelectedPriority, SelectedDateOption);
+            _onApplyFilters?.Invoke(statusEnum, priorityEnum, dateFilterEnum);
             _onCloseModal?.Invoke();
         }
     }

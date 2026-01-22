@@ -17,7 +17,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
         private Status? _currentStatusFilter;
         private Priority? _currentPriorityFilter;
         private DateFilterOption? _currentDateFilter = DateFilterOption.All;
-        public FilterTaskItemViewModel? FilterViewModel { get; private set; }
+
+        public FilterTaskItemViewModel FilterViewModel { get; private set; }
 
         public ObservableCollection<TaskItem> TaskItems => _taskItems;
         public ObservableCollection<TaskGroup> GroupedTasks => _groupedTasks;
@@ -34,7 +35,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand EditTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
         public ICommand OpenFiltersCommand { get; set; }
-        public ICommand CloseFilterTaskModalCommand { get; set; }
 
         public DatePicker? DueDatePicker { get; set; }
 
@@ -152,41 +152,72 @@ namespace LifeSyncApp.ViewModels.TaskManager
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             EditTaskCommand = new Command(async () => await EditTaskAsync());
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
-            CloseFilterTaskModalCommand = new Command(() => IsFilterTaskModalOpen = false);
-            OpenFiltersCommand = new Command(() => IsFilterTaskModalOpen = true);
+            OpenFiltersCommand = new Command(OpenFiltersModal);
 
-            FilterViewModel = new FilterTaskItemViewModel(ApplyFilters, CloseFilterModal);
+            // Inicializar FilterViewModel com callbacks
+            FilterViewModel = new FilterTaskItemViewModel(
+                onApplyFilters: (status, priority, dateFilter) =>
+                {
+                    // Chamar método async de forma segura
+                    _ = ApplyFiltersAsync(status, priority, dateFilter);
+                },
+                onCloseModal: CloseFilterModal
+            );
         }
 
         public async Task LoadTasksAsync()
         {
-            var query = new TaskItemFilterDTO(UserId: 22, Status: _currentStatusFilter, Priority: _currentPriorityFilter, DueDate: GetDueDateFromFilter(_currentDateFilter));
-            var tasks = await _taskItemService.SearchTaskItemAsync(query);
+            try
+            {
+                var query = new TaskItemFilterDTO(
+                    UserId: 22,
+                    Status: _currentStatusFilter,
+                    Priority: _currentPriorityFilter,
+                    DueDate: GetDueDateFromFilter(_currentDateFilter)
+                );
 
-            _taskItems.Clear();
-            _groupedTasks.Clear();
+                var tasks = await _taskItemService.SearchTaskItemAsync(query);
 
-            foreach (var task in tasks)
-                _taskItems.Add(task);
+                _taskItems.Clear();
+                _groupedTasks.Clear();
 
-            _groupedTasks.Clear();
+                foreach (var task in tasks)
+                    _taskItems.Add(task);
 
-            var grouped = tasks.ToList()
-                .OrderBy(t => t.DueDate)
-                .GroupBy(t => t.DueDate)
-                .Select(g => new TaskGroup(g.Key, g));
+                var grouped = tasks
+                    .OrderBy(t => t.DueDate)
+                    .GroupBy(t => t.DueDate)
+                    .Select(g => new TaskGroup(g.Key, g));
 
-            foreach (var group in grouped)
-                _groupedTasks.Add(group);
+                foreach (var group in grouped)
+                    _groupedTasks.Add(group);
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar tarefas: {ex.Message}", "OK");
+            }
         }
 
-        private async void ApplyFilters(Status? status, Priority? priority, DateFilterOption? dateFilter)
+        private async Task ApplyFiltersAsync(Status? status, Priority? priority, DateFilterOption? dateFilter)
         {
-            _currentStatusFilter = status;
-            _currentPriorityFilter = priority;
-            _currentDateFilter = dateFilter;
+            try
+            {
+                IsBusy = true;
 
-            await LoadTasksAsync();
+                _currentStatusFilter = status;
+                _currentPriorityFilter = priority;
+                _currentDateFilter = dateFilter ?? DateFilterOption.All;
+
+                await LoadTasksAsync();
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao aplicar filtros: {ex.Message}", "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         private DateOnly? GetDueDateFromFilter(DateFilterOption? filter)
@@ -196,6 +227,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 DateFilterOption.Today => DateOnly.FromDateTime(DateTime.Today),
                 DateFilterOption.ThisWeek => DateOnly.FromDateTime(DateTime.Today.AddDays(7)),
                 DateFilterOption.ThisMonth => DateOnly.FromDateTime(DateTime.Today.AddMonths(1)),
+                DateFilterOption.All => null,
                 _ => null
             };
         }
@@ -215,18 +247,32 @@ namespace LifeSyncApp.ViewModels.TaskManager
             if (task is null)
                 return;
 
-            var updatedStatus = task.Status switch
+            try
             {
-                Status.Pending => Status.InProgress,
-                Status.InProgress => Status.Completed,
-                Status.Completed => Status.Pending,
-                _ => Status.Pending
-            };
+                var updatedStatus = task.Status switch
+                {
+                    Status.Pending => Status.InProgress,
+                    Status.InProgress => Status.Completed,
+                    Status.Completed => Status.Pending,
+                    _ => Status.Pending
+                };
 
-            task.Status = updatedStatus;
+                task.Status = updatedStatus;
 
-            var updatedItem = new UpdateTaskItemDTO(task.Title, task.Description, updatedStatus, task.Priority, task.DueDate);
-            await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
+                var updatedItem = new UpdateTaskItemDTO(
+                    task.Title,
+                    task.Description,
+                    updatedStatus,
+                    task.Priority,
+                    task.DueDate
+                );
+
+                await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao atualizar status: {ex.Message}", "OK");
+            }
         }
 
         private void OpenCreateTaskModal(TaskItem? taskToEdit = null)
