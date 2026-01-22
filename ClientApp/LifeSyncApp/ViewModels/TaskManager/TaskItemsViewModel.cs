@@ -4,6 +4,7 @@ using LifeSyncApp.Models.TaskManager.Enums;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using static LifeSyncApp.ViewModels.TaskManager.FilterTaskItemViewModel;
 
 namespace LifeSyncApp.ViewModels.TaskManager
 {
@@ -12,6 +13,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
         private readonly TaskItemService _taskItemService;
         private readonly ObservableCollection<TaskItem> _taskItems = new();
         private readonly ObservableCollection<TaskGroup> _groupedTasks = new();
+
+        private Status? _currentStatusFilter;
+        private Priority? _currentPriorityFilter;
+        private DateFilterOption? _currentDateFilter = DateFilterOption.All;
+        public FilterTaskItemViewModel? FilterViewModel { get; private set; }
 
         public ObservableCollection<TaskItem> TaskItems => _taskItems;
         public ObservableCollection<TaskGroup> GroupedTasks => _groupedTasks;
@@ -146,13 +152,15 @@ namespace LifeSyncApp.ViewModels.TaskManager
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             EditTaskCommand = new Command(async () => await EditTaskAsync());
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
-            CloseFilterTaskModalCommand = new Command(CloseFilterTaskModal);
-            OpenFiltersCommand = new Command(OpenFiltersModal);
+            CloseFilterTaskModalCommand = new Command(() => IsFilterTaskModalOpen = false);
+            OpenFiltersCommand = new Command(() => IsFilterTaskModalOpen = true);
+
+            FilterViewModel = new FilterTaskItemViewModel(ApplyFilters, CloseFilterModal);
         }
 
         public async Task LoadTasksAsync()
         {
-            var query = new TaskItemFilterDTO(UserId: 22);
+            var query = new TaskItemFilterDTO(UserId: 22, Status: _currentStatusFilter, Priority: _currentPriorityFilter, DueDate: GetDueDateFromFilter(_currentDateFilter));
             var tasks = await _taskItemService.SearchTaskItemAsync(query);
 
             _taskItems.Clear();
@@ -170,6 +178,36 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             foreach (var group in grouped)
                 _groupedTasks.Add(group);
+        }
+
+        private async void ApplyFilters(Status? status, Priority? priority, DateFilterOption? dateFilter)
+        {
+            _currentStatusFilter = status;
+            _currentPriorityFilter = priority;
+            _currentDateFilter = dateFilter;
+
+            await LoadTasksAsync();
+        }
+
+        private DateOnly? GetDueDateFromFilter(DateFilterOption? filter)
+        {
+            return filter switch
+            {
+                DateFilterOption.Today => DateOnly.FromDateTime(DateTime.Today),
+                DateFilterOption.ThisWeek => DateOnly.FromDateTime(DateTime.Today.AddDays(7)),
+                DateFilterOption.ThisMonth => DateOnly.FromDateTime(DateTime.Today.AddMonths(1)),
+                _ => null
+            };
+        }
+
+        private void OpenFiltersModal()
+        {
+            IsFilterTaskModalOpen = true;
+        }
+
+        private void CloseFilterModal()
+        {
+            IsFilterTaskModalOpen = false;
         }
 
         public async Task ToggleStatusAsync(TaskItem task)
@@ -190,10 +228,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             var updatedItem = new UpdateTaskItemDTO(task.Title, task.Description, updatedStatus, task.Priority, task.DueDate);
             await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
         }
-
-        private void OpenFiltersModal() => IsFilterTaskModalOpen = true;
-
-        private void CloseFilterTaskModal() => IsFilterTaskModalOpen = false;
 
         private void OpenCreateTaskModal(TaskItem? taskToEdit = null)
         {
@@ -252,9 +286,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         private async Task CreateTaskAsync()
         {
-            if (!CanCreateTask || IsBusy)
-                return;
-
             try
             {
                 IsBusy = true;
@@ -274,7 +305,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto);
 
-                    // Recarrega a tarefa atualizada pelo backend para refletir na tela de detalhes
                     var refreshedFromApi = (await _taskItemService.SearchTaskItemAsync(new TaskItemFilterDTO(UserId: userId)))
                         .FirstOrDefault(t => t.Id == EditingTaskId);
 
