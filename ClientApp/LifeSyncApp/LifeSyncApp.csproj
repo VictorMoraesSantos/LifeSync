@@ -78,6 +78,9 @@
 	  <MauiXaml Update="Views\TaskManager\TaskItem\TaskItemPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\TaskManager\TaskLabel\TaskLabelPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

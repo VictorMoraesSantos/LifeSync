@@ -10,7 +10,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             All, Today, ThisWeek, ThisMonth
         }
 
-        // Propriedades string para binding com XAML
         private string _selectedStatus;
         public string SelectedStatus
         {
@@ -59,7 +58,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             _onApplyFilters = onApplyFilters;
             _onCloseModal = onCloseModal;
 
-            // Inicializar com valores padrão (todos os filtros)
             SelectedStatus = "";
             SelectedPriority = "";
             SelectedDateFilter = "";
@@ -96,7 +94,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         private void ApplyFilters()
         {
-            // Converter strings para enums ao aplicar filtros
             Status? statusEnum = SelectedStatus switch
             {
                 "Pending" => Status.Pending,

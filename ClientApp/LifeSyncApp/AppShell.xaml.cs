@@ -1,4 +1,5 @@
 ﻿using LifeSyncApp.Views.TaskManager.TaskItem;
+using LifeSyncApp.Views.TaskManager.TaskLabel;
 
 namespace LifeSyncApp
 {
@@ -9,6 +10,7 @@ namespace LifeSyncApp
             InitializeComponent();
 
             Routing.RegisterRoute("taskdetail", typeof(TaskItemDetailPage));
+            Routing.RegisterRoute("tasklabels", typeof(TaskLabelPage));
         }
     }
 }

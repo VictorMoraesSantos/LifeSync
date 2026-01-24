@@ -3,6 +3,7 @@ using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.ViewModels.TaskManager;
 using LifeSyncApp.Views.TaskManager.TaskItem;
+using LifeSyncApp.Views.TaskManager.TaskLabel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
 using System.Text.Json;
@@ -56,13 +57,17 @@ namespace LifeSyncApp
             builder.Services.AddScoped(typeof(IApiService<>), typeof(ApiService<>));
 
             // Business Services
-            builder.Services.AddSingleton<TaskItemService>();
-            builder.Services.AddSingleton<TaskLabelService>();
+            builder.Services.AddScoped<TaskItemService>();
+            builder.Services.AddScoped<TaskLabelService>();
 
             // ViewModels
             builder.Services.AddTransient<TaskItemsViewModel>();
+            builder.Services.AddTransient<TaskLabelViewModel>();
+
+            // Views
             builder.Services.AddTransient<TaskItemPage>();
             builder.Services.AddTransient<TaskItemDetailPage>();
+            builder.Services.AddTransient<TaskLabelPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

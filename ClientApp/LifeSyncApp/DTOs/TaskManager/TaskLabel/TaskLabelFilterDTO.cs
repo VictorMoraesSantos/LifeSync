@@ -3,16 +3,16 @@
 namespace LifeSyncApp.DTOs.TaskManager.TaskLabel
 {
     public record TaskLabelFilterDTO(
-        int? Id,
-        int? UserId,
-        int? ItemId,
-        string? NameContains,
-        LabelColor? LabelColor,
-        DateOnly? CreatedAt,
-        DateOnly? UpdatedAt,
-        bool? IsDeleted,
-        string? SortBy,
-        bool? SortDesc,
-        int? Page,
-        int? PageSize);
+        int? Id = null,
+        int? UserId = null,
+        int? ItemId = null,
+        string? NameContains = null,
+        LabelColor? LabelColor = null,
+        DateOnly? CreatedAt = null,
+        DateOnly? UpdatedAt = null,
+        bool? IsDeleted = null,
+        string? SortBy = null,
+        bool? SortDesc = null,
+        int? Page = null,
+        int? PageSize = null);
 }

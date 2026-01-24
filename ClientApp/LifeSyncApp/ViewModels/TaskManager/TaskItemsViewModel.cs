@@ -142,6 +142,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             _taskItemService = taskItemService;
 
+            GoToLabelsCommand = new Command(async () => await NavigateToTaskLabelPage());
             ToggleStatusCommand = new Command<TaskItem>(async (task) => await ToggleStatusAsync(task));
             OpenCreateTaskModalCommand = new Command<TaskItem>(OpenCreateTaskModal);
             CloseCreateTaskModalCommand = new Command(CloseCreateTaskModal);
@@ -154,11 +155,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
             OpenFiltersCommand = new Command(OpenFiltersModal);
 
-            // Inicializar FilterViewModel com callbacks
             FilterViewModel = new FilterTaskItemViewModel(
                 onApplyFilters: (status, priority, dateFilter) =>
                 {
-                    // Chamar método async de forma segura
                     _ = ApplyFiltersAsync(status, priority, dateFilter);
                 },
                 onCloseModal: CloseFilterModal
@@ -173,8 +172,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     UserId: 22,
                     Status: _currentStatusFilter,
                     Priority: _currentPriorityFilter,
-                    DueDate: GetDueDateFromFilter(_currentDateFilter)
-                );
+                    DueDate: GetDueDateFromFilter(_currentDateFilter));
 
                 var tasks = await _taskItemService.SearchTaskItemAsync(query);
 
@@ -218,6 +216,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
             {
                 IsBusy = false;
             }
+        }
+
+        private async Task NavigateToTaskLabelPage()
+        {
+            await Shell.Current.GoToAsync("tasklabels");
         }
 
         private DateOnly? GetDueDateFromFilter(DateFilterOption? filter)
