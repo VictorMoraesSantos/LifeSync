@@ -12,7 +12,6 @@ using TaskManager.Application.Features.TaskItems.Queries.GetAll;
 using TaskManager.Application.Features.TaskItems.Queries.GetByFilter;
 using TaskManager.Application.Features.TaskItems.Queries.GetById;
 using TaskManager.Application.Features.TaskItems.Queries.GetByUser;
-using BuildingBlocks.Authorization;
 
 namespace TaskManager.API.Controllers
 {

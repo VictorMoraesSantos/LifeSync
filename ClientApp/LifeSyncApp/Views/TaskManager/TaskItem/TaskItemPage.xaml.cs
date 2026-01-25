@@ -4,8 +4,6 @@ namespace LifeSyncApp.Views.TaskManager.TaskItem;
 
 public partial class TaskItemPage : ContentPage
 {
-    private bool _loaded;
-
     public TaskItemPage(TaskItemsViewModel vm)
     {
         InitializeComponent();

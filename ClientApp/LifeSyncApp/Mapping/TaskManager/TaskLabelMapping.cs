@@ -12,7 +12,7 @@ namespace LifeSyncApp.Mapping.TaskManager
                 taskLabel.CreatedAt,
                 taskLabel.UpdatedAt,
                 taskLabel.Name,
-                taskLabel.Color,
+                taskLabel.LabelColor,
                 taskLabel.UserId);
             return dto;
         }
@@ -27,7 +27,7 @@ namespace LifeSyncApp.Mapping.TaskManager
         {
             var dto = new CreateTaskLabelDTO(
                 taskLabel.Name,
-                taskLabel.Color,
+                taskLabel.LabelColor,
                 taskLabel.UserId);
             return dto;
         }
@@ -36,7 +36,7 @@ namespace LifeSyncApp.Mapping.TaskManager
         {
             var dto = new UpdateTaskLabelDTO(
                 taskLabel.Name,
-                taskLabel.Color);
+                taskLabel.LabelColor);
             return dto;
         }
     }

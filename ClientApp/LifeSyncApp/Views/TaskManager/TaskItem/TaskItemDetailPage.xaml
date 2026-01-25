@@ -48,7 +48,7 @@
                         Stroke="Transparent"
                         BackgroundColor="#171717">
                     <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenCreateTaskModalCommand}"/>
+                        <TapGestureRecognizer Command="{Binding OpenManageTaskModalCommand}"/>
                     </Border.GestureRecognizers>
                     <HorizontalStackLayout Spacing="6"
                                            HorizontalOptions="Center"
@@ -235,14 +235,14 @@
             </Grid>
         </Grid>
 
-        <Grid IsVisible="{Binding IsCreateTaskModalOpen}">
+        <Grid IsVisible="{Binding IsManageTaskModalOpen}">
             <Grid BackgroundColor="#000000" Opacity="0.45">
                 <Grid.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding CloseCreateTaskModalCommand}" />
+                    <TapGestureRecognizer Command="{Binding CloseManageTaskModalCommand}" />
                 </Grid.GestureRecognizers>
             </Grid>
 
-            <taskitem:CreateTaskItemPopup BindingContext="{Binding .}" />
+            <taskitem:ManageTaskItemPopup BindingContext="{Binding .}" />
         </Grid>
     </Grid>
 </ContentPage>

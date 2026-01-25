@@ -1,15 +1,15 @@
 ﻿using LifeSyncApp.DTOs.TaskManager.TaskLabel;
 using LifeSyncApp.Models.TaskManager;
-using LifeSyncApp.Services.ApiService.Implementation;
+using LifeSyncApp.Services.ApiService.Interface;
 
 namespace LifeSyncApp.Services.TaskManager.Implementation
 {
     public class TaskLabelService
     {
-        private readonly ApiService<TaskLabel> _apiService;
-        private const string BaseUrl = "/task-manager/api/task-labels";
+        private readonly IApiService<TaskLabel> _apiService;
+        private const string BaseUrl = "/taskmanager-service/api/task-labels";
 
-        public TaskLabelService(ApiService<TaskLabel> apiService)
+        public TaskLabelService(IApiService<TaskLabel> apiService)
         {
             _apiService = apiService;
         }
@@ -48,7 +48,7 @@ namespace LifeSyncApp.Services.TaskManager.Implementation
                 queryParams.Add($"NameContains={Uri.EscapeDataString(query.NameContains)}");
 
             var queryString = string.Join("&", queryParams);
-            var result = await _apiService.SearchAsync($"{BaseUrl}?{queryString}");
+            var result = await _apiService.SearchAsync($"{BaseUrl}/search?{queryString}");
             return result;
         }
 

@@ -1,5 +1,4 @@
 ﻿using Core.Application.DTO;
-using TaskManager.Application.DTOs.TaskItem;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.DTOs.TaskLabel
@@ -10,7 +9,6 @@ namespace TaskManager.Application.DTOs.TaskLabel
         DateTime? UpdatedAt,
         string Name,
         LabelColor LabelColor,
-        int UserId,
-        List<TaskItemSimpleDTO> Items)
+        int UserId)
         : DTOBase(Id, CreatedAt, UpdatedAt);
 }

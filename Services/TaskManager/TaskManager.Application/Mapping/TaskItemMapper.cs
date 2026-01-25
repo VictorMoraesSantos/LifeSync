@@ -17,22 +17,10 @@ namespace TaskManager.Application.Mapping
                 entity.Priority,
                 entity.DueDate,
                 entity.UserId,
-                entity.Labels.Select(l => l.ToSimpleDTO()).ToList());
-            return dto;
-        }
+                entity.Labels.Select(l => l.ToDTO()).ToList()
+            );
 
-        public static TaskItemSimpleDTO ToSimpleDTO(this TaskItem entity)
-        {
-            return new TaskItemSimpleDTO(
-                entity.Id,
-                entity.CreatedAt,
-                entity.UpdatedAt,
-                entity.Title,
-                entity.Description,
-                entity.Status,
-                entity.Priority,
-                entity.DueDate,
-                entity.UserId);
+            return dto;
         }
 
         public static TaskItem ToEntity(this CreateTaskItemDTO dto)

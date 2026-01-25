@@ -1,105 +1,174 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
+             xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
              x:Class="LifeSyncApp.Views.TaskManager.TaskLabel.TaskLabelPage"
+             x:DataType="viewmodels:TaskLabelViewModel"
              Title=""
              Shell.NavBarIsVisible="False">
-    <Grid>
-        <Grid RowDefinitions="Auto, Auto, Auto, Auto">
-            <Grid Grid.Row="0" 
-                  Padding="16,12"
-                  BackgroundColor="White"
-                  ColumnDefinitions="*,Auto,Auto">
 
-                <Label Text="Tarefas"
-                       FontSize="16"
-                       FontAttributes="None"
-                       TextColor="#2C3E50"
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, *">
+
+        <Grid Grid.Row="0" 
+              Padding="16,12"
+              BackgroundColor="White"
+              ColumnDefinitions="*,Auto,Auto">
+
+            <Label Text="Tarefas"
+                   FontSize="16"
+                   FontAttributes="None"
+                   TextColor="#2C3E50"
+                   VerticalOptions="Center"/>
+
+            <Border Grid.Column="1"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="Transparent"
+                    BackgroundColor="#F5F5F5"
+                    Margin="0,0,8,0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoToLabelsCommand}"/>
+                </Border.GestureRecognizers>
+
+                <Image Source="label.svg"
+                       WidthRequest="20"
+                       HeightRequest="20"
+                       HorizontalOptions="Center"
                        VerticalOptions="Center"/>
+            </Border>
 
-                <Border Grid.Column="1"
-                        WidthRequest="44"
-                        HeightRequest="44"
-                        StrokeShape="RoundRectangle 8"
-                        Stroke="Transparent"
-                        BackgroundColor="#F5F5F5"
-                        Margin="0,0,8,0">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoToLabelsCommand}"/>
-                    </Border.GestureRecognizers>
-                    <Image Source="label.svg"
+            <Border Grid.Column="2"
+                    WidthRequest="88"
+                    HeightRequest="44"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="Transparent"
+                    BackgroundColor="#171717">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenCreateTaskModalCommand}"/>
+                </Border.GestureRecognizers>
+
+                <HorizontalStackLayout Spacing="6"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center">
+                    <Image Source="add.svg"
                            WidthRequest="20"
                            HeightRequest="20"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
-                </Border>
-
-                <Border Grid.Column="2"
-                        WidthRequest="88"
-                        HeightRequest="44"
-                        StrokeShape="RoundRectangle 8"
-                        Stroke="Transparent"
-                        BackgroundColor="#171717">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenCreateTaskModalCommand}"/>
-                    </Border.GestureRecognizers>
-                    <HorizontalStackLayout Spacing="6"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center">
-                        <Image Source="add.svg"
-                               WidthRequest="20"
-                               HeightRequest="20"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                        <Label Text="Nova"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="White"
-                               VerticalOptions="Center"/>
-                    </HorizontalStackLayout>
-                </Border>
-            </Grid>
-
-            <BoxView Grid.Row="1" HeightRequest="1" Color="#E0E0E0"/>
-
-            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Padding="16,12" BackgroundColor="White">
-                <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
-                    <HorizontalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoBackCommand}" />
-                    </HorizontalStackLayout.GestureRecognizers>
-
-                    <Image Source="arrow_back.svg" WidthRequest="16" HeightRequest="16" VerticalOptions="Center"/>
-
-                    <Button Text="Voltar"
-                            BackgroundColor="Transparent"
-                            TextColor="#6B7280"
-                            FontSize="14"
-                            Padding="0"
-                            Command="{Binding GoBackCommand}"/>
-
+                    <Label Text="Nova"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           VerticalOptions="Center"/>
                 </HorizontalStackLayout>
-
-                <ImageButton Grid.Column="2"
-                             Source="label.svg"
-                             BackgroundColor="Transparent"
-                             WidthRequest="16"
-                             HeightRequest="16"
-                             VerticalOptions="Center"
-                             HorizontalOptions="Center"
-                             Padding="8"/>
-
-                <Label Grid.Column="3" Text="Etiquetas" FontSize="16" VerticalTextAlignment="Center"/>
-            </Grid>
-
-            <VerticalStackLayout Grid.Row="3" Margin="16, 0">
-
-                <Border BackgroundColor="#171717" StrokeShape="10" Padding="8, 14">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center">
-                        <Image Source="add.png"/>
-                        <Label Text="Nova Etiqueta" TextColor="#fff" FontSize="16"/>
-                    </HorizontalStackLayout>
-                </Border>
-            </VerticalStackLayout>
+            </Border>
         </Grid>
+
+        <BoxView Grid.Row="1" HeightRequest="1" Color="#E0E0E0"/>
+
+        <Grid Grid.Row="2" 
+              ColumnDefinitions="Auto,*,Auto" 
+              Padding="16,16" 
+              BackgroundColor="White">
+
+            <HorizontalStackLayout Grid.Column="0" 
+                                   Spacing="6"
+                                   VerticalOptions="Center">
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </HorizontalStackLayout.GestureRecognizers>
+
+                <Image Source="arrow_back.svg" 
+                       WidthRequest="16" 
+                       HeightRequest="16" 
+                       VerticalOptions="Center"/>
+
+                <Label Text="Voltar"
+                       TextColor="#6B7280"
+                       FontSize="14"
+                       VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="2" 
+                                   Spacing="6" 
+                                   VerticalOptions="Center">
+
+                <Image Source="label.svg"
+                       WidthRequest="16"
+                       HeightRequest="16"
+                       VerticalOptions="Center"/>
+
+                <Label Text="Etiquetas" 
+                       FontSize="16" 
+                       VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <Border Grid.Row="3" 
+                Margin="20,0"
+                BackgroundColor="#171717" 
+                StrokeShape="10" 
+                Padding="8,14">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CreateNewLabelCommand}"/>
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="8" 
+                                   VerticalOptions="Center" 
+                                   HorizontalOptions="Center">
+                <Image Source="add.png"/>
+                <Label Text="Nova Etiqueta" 
+                       TextColor="#fff" 
+                       FontSize="16"
+                       FontAttributes="Bold"/>
+            </HorizontalStackLayout>
+        </Border>
+
+        <CollectionView Grid.Row="4" 
+                        ItemsSource="{Binding TaskLabels}"
+                        Margin="20,0,20,20">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:TaskLabel">
+                    <Grid Padding="0,8" 
+                          ColumnDefinitions="32,*,Auto,Auto"
+                          ColumnSpacing="12">
+
+                        <Ellipse Grid.Column="0"
+                                 WidthRequest="10"
+                                 HeightRequest="10"
+                                 Fill="{Binding LabelColor}"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Start"/>
+
+                        <Label Grid.Column="1"
+                               Text="{Binding Name}"
+                               FontSize="16"
+                               TextColor="#2C3E50"
+                               VerticalOptions="Center"/>
+
+                        <ImageButton Grid.Column="2"
+                                     Source="edit.svg"
+                                     WidthRequest="20"
+                                     HeightRequest="20"
+                                     BackgroundColor="Transparent"
+                                     Padding="8"
+                                     VerticalOptions="Center"
+                                     Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskLabelViewModel}}, Path=EditLabelCommand}"
+                                     CommandParameter="{Binding .}"/>
+
+                        <ImageButton Grid.Column="3"
+                                     Source="trash.svg"
+                                     WidthRequest="20"
+                                     HeightRequest="20"
+                                     BackgroundColor="Transparent"
+                                     Padding="8"
+                                     VerticalOptions="Center"
+                                     Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskLabelViewModel}}, Path=DeleteLabelCommand}"
+                                     CommandParameter="{Binding .}"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </Grid>
 </ContentPage>

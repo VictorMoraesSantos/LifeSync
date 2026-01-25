@@ -25,7 +25,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
-                var query = new TaskLabelFilterDTO(UserId: 22);
+                var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
                 var labels = await _taskLabelService.SearchTaskLabelAsync(query);
 
                 _taskLabels.Clear();
@@ -34,7 +34,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     _taskLabels.Add(label);
 
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 await Shell.Current.DisplayAlert("Error", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
             }
         }

@@ -14,7 +14,7 @@ namespace TaskManager.Application.DTOs.TaskItem
         Priority Priority,
         DateOnly DueDate,
         int UserId,
-        List<TaskLabelSimpleDTO> Labels)
+        List<TaskLabelDTO> Labels)
         : DTOBase(Id, CreatedAt, UpdatedAt);
 }
 

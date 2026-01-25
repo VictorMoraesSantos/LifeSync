@@ -11,23 +11,26 @@ namespace LifeSyncApp.ViewModels.TaskManager
     public class TaskItemsViewModel : BaseViewModel
     {
         private readonly TaskItemService _taskItemService;
+
         private readonly ObservableCollection<TaskItem> _taskItems = new();
+        public ObservableCollection<TaskItem> TaskItems => _taskItems;
+
         private readonly ObservableCollection<TaskGroup> _groupedTasks = new();
+        public ObservableCollection<TaskGroup> GroupedTasks => _groupedTasks;
+
+        public FilterTaskItemViewModel FilterViewModel { get; private set; }
+
+        public DatePicker? DueDatePicker { get; set; }
 
         private Status? _currentStatusFilter;
         private Priority? _currentPriorityFilter;
         private DateFilterOption? _currentDateFilter = DateFilterOption.All;
 
-        public FilterTaskItemViewModel FilterViewModel { get; private set; }
-
-        public ObservableCollection<TaskItem> TaskItems => _taskItems;
-        public ObservableCollection<TaskGroup> GroupedTasks => _groupedTasks;
-
         public ICommand ToggleStatusCommand { get; }
         public ICommand GoToLabelsCommand { get; }
-        public ICommand OpenCreateTaskModalCommand { get; }
-        public ICommand CloseCreateTaskModalCommand { get; }
-        public ICommand CreateTaskCommand { get; }
+        public ICommand OpenManageTaskModalCommand { get; }
+        public ICommand CloseManageTaskModalCommand { get; }
+        public ICommand ManageTaskCommand { get; }
         public ICommand SetPriorityCommand { get; }
         public ICommand FocusDueDatePickerCommand { get; }
         public ICommand ViewTaskDetailCommand { get; }
@@ -36,16 +39,14 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand DeleteTaskCommand { get; }
         public ICommand OpenFiltersCommand { get; set; }
 
-        public DatePicker? DueDatePicker { get; set; }
-
-        private bool _isCreateTaskModalOpen;
-        public bool IsCreateTaskModalOpen
+        private bool _isManageTaskModalOpen;
+        public bool IsManageTaskModalOpen
         {
-            get => _isCreateTaskModalOpen;
+            get => _isManageTaskModalOpen;
             set
             {
-                _isCreateTaskModalOpen = value;
-                OnPropertyChanged(nameof(IsCreateTaskModalOpen));
+                _isManageTaskModalOpen = value;
+                OnPropertyChanged(nameof(IsManageTaskModalOpen));
             }
         }
 
@@ -74,6 +75,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
+        public bool CanManageTask => !string.IsNullOrWhiteSpace(NewTaskTitle);
         public bool IsEditMode => EditingTaskId.HasValue;
         public string ModalTitle => IsEditMode ? "Editar Tarefa" : "Nova Tarefa";
         public string SaveButtonText => IsEditMode ? "Salvar Alterações" : "Criar Tarefa";
@@ -86,7 +88,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             {
                 _newTaskTitle = value;
                 OnPropertyChanged(nameof(NewTaskTitle));
-                OnPropertyChanged(nameof(CanCreateTask));
+                OnPropertyChanged(nameof(CanManageTask));
             }
         }
 
@@ -112,8 +114,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        public ObservableCollection<Priority> PriorityOptions { get; } = new(Enum.GetValues<Priority>());
-
         private Priority _newTaskPriority = Priority.Medium;
         public Priority NewTaskPriority
         {
@@ -136,31 +136,28 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        public bool CanCreateTask => !string.IsNullOrWhiteSpace(NewTaskTitle);
-
         public TaskItemsViewModel(TaskItemService taskItemService)
         {
             _taskItemService = taskItemService;
 
             GoToLabelsCommand = new Command(async () => await NavigateToTaskLabelPage());
             ToggleStatusCommand = new Command<TaskItem>(async (task) => await ToggleStatusAsync(task));
-            OpenCreateTaskModalCommand = new Command<TaskItem>(OpenCreateTaskModal);
-            CloseCreateTaskModalCommand = new Command(CloseCreateTaskModal);
-            CreateTaskCommand = new Command(async () => await CreateTaskAsync());
+            OpenManageTaskModalCommand = new Command<TaskItem>(OpenManageTaskModal);
+            CloseManageTaskModalCommand = new Command(() => IsManageTaskModalOpen = false);
+            ManageTaskCommand = new Command(async () => await ManageTaskAsync());
             SetPriorityCommand = new Command<Priority>(p => NewTaskPriority = p);
             FocusDueDatePickerCommand = new Command(() => { });
             ViewTaskDetailCommand = new Command<TaskItem>(async (task) => await NavigateToTaskDetailAsync(task));
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             EditTaskCommand = new Command(async () => await EditTaskAsync());
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
-            OpenFiltersCommand = new Command(OpenFiltersModal);
-
+            OpenFiltersCommand = new Command(() => IsFilterTaskModalOpen = true);
             FilterViewModel = new FilterTaskItemViewModel(
                 onApplyFilters: (status, priority, dateFilter) =>
                 {
                     _ = ApplyFiltersAsync(status, priority, dateFilter);
                 },
-                onCloseModal: CloseFilterModal
+                onCloseModal: () => IsFilterTaskModalOpen = false
             );
         }
 
@@ -235,16 +232,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             };
         }
 
-        private void OpenFiltersModal()
-        {
-            IsFilterTaskModalOpen = true;
-        }
-
-        private void CloseFilterModal()
-        {
-            IsFilterTaskModalOpen = false;
-        }
-
         public async Task ToggleStatusAsync(TaskItem task)
         {
             if (task is null)
@@ -278,7 +265,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        private void OpenCreateTaskModal(TaskItem? taskToEdit = null)
+        private void OpenManageTaskModal(TaskItem? taskToEdit = null)
         {
             if (taskToEdit != null)
             {
@@ -297,10 +284,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 NewTaskDueDate = DateTime.Today;
             }
 
-            IsCreateTaskModalOpen = true;
+            IsManageTaskModalOpen = true;
         }
-
-        private void CloseCreateTaskModal() => IsCreateTaskModalOpen = false;
 
         private async Task NavigateToTaskDetailAsync(TaskItem task)
         {
@@ -330,10 +315,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             if (SelectedTask == null) return;
 
-            OpenCreateTaskModal(SelectedTask);
+            OpenManageTaskModal(SelectedTask);
         }
 
-        private async Task CreateTaskAsync()
+        private async Task ManageTaskAsync()
         {
             try
             {
@@ -430,7 +415,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     InsertTaskIntoGroups(created);
                 }
 
-                IsCreateTaskModalOpen = false;
+                IsManageTaskModalOpen = false;
             }
             catch (Exception ex)
             {

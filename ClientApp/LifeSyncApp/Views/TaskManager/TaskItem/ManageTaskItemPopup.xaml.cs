@@ -2,9 +2,9 @@ using LifeSyncApp.ViewModels.TaskManager;
 
 namespace LifeSyncApp.Views.TaskManager.TaskItem;
 
-public partial class CreateTaskItemPopup : ContentView
+public partial class ManageTaskItemPopup : ContentView
 {
-    public CreateTaskItemPopup()
+    public ManageTaskItemPopup()
     {
         InitializeComponent();
     }

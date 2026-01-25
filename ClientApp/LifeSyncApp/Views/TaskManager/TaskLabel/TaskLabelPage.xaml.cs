@@ -11,4 +11,14 @@ public partial class TaskLabelPage : ContentPage
         InitializeComponent();
         BindingContext = taskLabelViewModel;
     }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is not TaskLabelViewModel viewModel)
+            return;
+
+        await viewModel.LoadLabelsAsync();
+    }
 }

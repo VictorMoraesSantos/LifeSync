@@ -1,7 +1,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
-             x:Class="LifeSyncApp.Views.TaskManager.TaskItem.CreateTaskItemPopup">
+             x:Class="LifeSyncApp.Views.TaskManager.TaskItem.ManageTaskItemPopup">
 
     <Border BackgroundColor="White"
             StrokeShape="RoundRectangle  16 16 0 0"
@@ -25,7 +25,7 @@
                              BackgroundColor="Transparent" 
                              Padding="8" 
                              Margin="8" 
-                             Command="{Binding CloseCreateTaskModalCommand}" />
+                             Command="{Binding CloseManageTaskModalCommand}" />
             </Grid>
 
             <BoxView Grid.Row="1" HeightRequest="1" Color="#EEEEEE"/>
@@ -241,7 +241,7 @@
                             BorderWidth="1"
                             CornerRadius="10"
                             HeightRequest="44"
-                            Command="{Binding CloseCreateTaskModalCommand}"/>
+                            Command="{Binding CloseManageTaskModalCommand}"/>
 
                     <Button Grid.Column="1"
                             Text="{Binding SaveButtonText}"
@@ -249,8 +249,8 @@
                             TextColor="White"
                             CornerRadius="10"
                             HeightRequest="44"
-                            Command="{Binding CreateTaskCommand}"
-                            IsEnabled="{Binding CanCreateTask}"/>
+                            Command="{Binding ManageTaskCommand}"
+                            IsEnabled="{Binding CanManageTask}"/>
                 </Grid>
             </Grid>
 
