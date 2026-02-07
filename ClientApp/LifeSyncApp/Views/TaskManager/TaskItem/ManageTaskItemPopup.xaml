@@ -16,7 +16,7 @@
               RowSpacing="0">
 
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,0">
-                <Label Text="Nova Tarefa"
+                <Label Text="{Binding ModalTitle}"
                        FontSize="16"
                        FontAttributes="None"
                        TextColor="#111"
@@ -25,7 +25,7 @@
                 <ImageButton Grid.Column="1" 
                              Source="close.svg" 
                              BackgroundColor="Transparent" 
-                             Padding="8" 
+                             Padding="8"  
                              Margin="8" 
                              Command="{Binding CloseManageTaskModalCommand}" />
             </Grid>
