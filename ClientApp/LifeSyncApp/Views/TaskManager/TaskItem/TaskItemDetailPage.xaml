@@ -11,65 +11,8 @@
 
     <Grid>
 
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" RowSpacing="0">
-
-            <Grid Grid.Row="0"
-                  Padding="16,12"
-                  BackgroundColor="White"
-                  ColumnDefinitions="*,Auto,Auto">
-
-                <Label Text="Tarefas"
-                       FontSize="16"
-                       FontAttributes="None"
-                       TextColor="#2C3E50"
-                       VerticalOptions="Center"/>
-
-                <Border Grid.Column="1"
-                        WidthRequest="44"
-                        HeightRequest="44"
-                        StrokeShape="RoundRectangle 8"
-                        Stroke="Transparent"
-                        BackgroundColor="#F5F5F5"
-                        Margin="0,0,8,0">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoToLabelsCommand}"/>
-                    </Border.GestureRecognizers>
-                    <Image Source="label.svg"
-                           WidthRequest="20"
-                           HeightRequest="20"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"/>
-                </Border>
-
-                <Border Grid.Column="2"
-                        WidthRequest="88"
-                        HeightRequest="44"
-                        StrokeShape="RoundRectangle 8"
-                        Stroke="Transparent"
-                        BackgroundColor="#171717">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenManageTaskModalCommand}"/>
-                    </Border.GestureRecognizers>
-                    <HorizontalStackLayout Spacing="6"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center">
-                        <Image Source="add.svg"
-                               WidthRequest="20"
-                               HeightRequest="20"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                        <Label Text="Nova"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="White"
-                               VerticalOptions="Center"/>
-                    </HorizontalStackLayout>
-                </Border>
-            </Grid>
-
-            <BoxView Grid.Row="1" HeightRequest="1" Color="#E0E0E0"/>
-
-            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Padding="16,12" BackgroundColor="White">
+        <Grid RowDefinitions="Auto, Auto, *, Auto" RowSpacing="0">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Padding="16,12" BackgroundColor="White">
                 <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
                     <HorizontalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoBackCommand}" />
@@ -103,9 +46,9 @@
                              Command="{Binding DeleteTaskCommand}"/>
             </Grid>
 
-            <BoxView Grid.Row="3" HeightRequest="1" Color="#EEEEEE"/>
+            <BoxView Grid.Row="1" HeightRequest="1" Color="#EEEEEE"/>
 
-            <ScrollView Grid.Row="4" Padding="16,20">
+            <ScrollView Grid.Row="2" Padding="16,20">
                 <VerticalStackLayout Spacing="18">
 
                     <Label Text="{Binding SelectedTask.Title}"
@@ -209,7 +152,7 @@
                 </VerticalStackLayout>
             </ScrollView>
 
-            <Grid Grid.Row="5" RowDefinitions="Auto,Auto" Padding="16,12" RowSpacing="12">
+            <Grid Grid.Row="3" RowDefinitions="Auto,Auto" Padding="16,12" RowSpacing="12">
 
                 <BoxView Grid.Row="0" HeightRequest="1" Color="#EEEEEE" Margin="-16,0,-16,0"/>
 
@@ -235,14 +178,12 @@
             </Grid>
         </Grid>
 
-        <Grid IsVisible="{Binding IsManageTaskModalOpen}">
+        <Grid x:Name="ManageTaskOverlay" IsVisible="{Binding IsManageTaskModalOpen}">
             <Grid BackgroundColor="#000000" Opacity="0.45">
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CloseManageTaskModalCommand}" />
                 </Grid.GestureRecognizers>
             </Grid>
-
-            <taskitem:ManageTaskItemPopup BindingContext="{Binding .}" />
         </Grid>
     </Grid>
 </ContentPage>

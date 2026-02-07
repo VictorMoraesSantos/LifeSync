@@ -1,11 +1,14 @@
 ﻿using LifeSyncApp.Models.TaskManager.Enums;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.Concurrent;
 
 namespace LifeSyncApp.Models.TaskManager
 {
     public class TaskItem : INotifyPropertyChanged
     {
+        private static readonly ConcurrentDictionary<string, PropertyChangedEventArgs> _eventArgsCache = new();
+
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
@@ -20,7 +23,7 @@ namespace LifeSyncApp.Models.TaskManager
                 if (_title != value)
                 {
                     _title = value;
-                    OnPropertyChanged(nameof(Title));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -34,10 +37,9 @@ namespace LifeSyncApp.Models.TaskManager
                 if (_description != value)
                 {
                     _description = value;
-                    OnPropertyChanged(nameof(Description));
+                    OnPropertyChanged();
                 }
             }
-
         }
 
         private Status _status;
@@ -49,7 +51,7 @@ namespace LifeSyncApp.Models.TaskManager
                 if (_status != value)
                 {
                     _status = value;
-                    OnPropertyChanged(nameof(Status));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -63,7 +65,7 @@ namespace LifeSyncApp.Models.TaskManager
                 if (_priority != value)
                 {
                     _priority = value;
-                    OnPropertyChanged(nameof(Priority));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -77,7 +79,7 @@ namespace LifeSyncApp.Models.TaskManager
                 if (_dueDate != value)
                 {
                     _dueDate = value;
-                    OnPropertyChanged(nameof(DueDate));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -91,14 +93,18 @@ namespace LifeSyncApp.Models.TaskManager
                 if (_labels != value)
                 {
                     _labels = value;
-                    OnPropertyChanged(nameof(Labels));
+                    OnPropertyChanged();
                 }
             }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            if (propertyName is null) return;
+            var args = _eventArgsCache.GetOrAdd(propertyName, name => new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, args);
+        }
     }
 }

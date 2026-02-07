@@ -20,15 +20,17 @@ namespace LifeSyncApp
                 .ConfigureMauiHandlers(handlers =>
                 {
 #if ANDROID
+                    var transparentColorStateList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+
                     EntryHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
                     {
-                        handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+                        handler.PlatformView.BackgroundTintList = transparentColorStateList;
                         handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
                     });
 
                     EditorHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
                     {
-                        handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+                        handler.PlatformView.BackgroundTintList = transparentColorStateList;
                         handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
                     });
 #endif
@@ -49,7 +51,7 @@ namespace LifeSyncApp
             // JsonSerializerOptions
             builder.Services.AddSingleton(new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = false,
+                PropertyNameCaseInsensitive = true,
                 WriteIndented = true
             });
 
@@ -61,8 +63,8 @@ namespace LifeSyncApp
             builder.Services.AddScoped<TaskLabelService>();
 
             // ViewModels
-            builder.Services.AddTransient<TaskItemsViewModel>();
-            builder.Services.AddTransient<TaskLabelViewModel>();
+            builder.Services.AddSingleton<TaskItemsViewModel>();
+            builder.Services.AddSingleton<TaskLabelViewModel>();
 
             // Views
             builder.Services.AddTransient<TaskItemPage>();

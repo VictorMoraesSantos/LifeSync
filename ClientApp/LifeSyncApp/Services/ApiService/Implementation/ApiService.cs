@@ -16,10 +16,7 @@ namespace LifeSyncApp.Services.ApiService.Implementation
         {
             _httpClient = httpClient.CreateClient("LifeSyncApi");
             _logger = logger;
-            _jsonOptions = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+            _jsonOptions = jsonOptions;
         }
 
         public async Task<T> GetAsync(string endpoint)
@@ -27,6 +24,7 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.GetAsync(endpoint);
+                response.EnsureSuccessStatusCode();
                 var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<T>>(_jsonOptions);
                 var resultData = apiResponse.Data;
                 return resultData;
@@ -43,6 +41,7 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.GetAsync(endpoint);
+                response.EnsureSuccessStatusCode();
                 var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<T>>(_jsonOptions);
                 var resultData = apiResponse?.Data ?? new List<T>();
                 return resultData;
@@ -59,6 +58,7 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.PostAsJsonAsync(endpoint, data, _jsonOptions);
+                response.EnsureSuccessStatusCode();
                 var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<TResult>>(_jsonOptions);
                 var resultData = apiResponse.Data;
                 return resultData;

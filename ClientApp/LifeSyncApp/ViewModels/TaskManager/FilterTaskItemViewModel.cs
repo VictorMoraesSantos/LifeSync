@@ -16,6 +16,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _selectedStatus;
             set
             {
+                if (_selectedStatus == value) return;
                 _selectedStatus = value;
                 OnPropertyChanged(nameof(SelectedStatus));
             }
@@ -27,6 +28,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _selectedPriority;
             set
             {
+                if (_selectedPriority == value) return;
                 _selectedPriority = value;
                 OnPropertyChanged(nameof(SelectedPriority));
             }
@@ -38,6 +40,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _selectedDateFilter;
             set
             {
+                if (_selectedDateFilter == value) return;
                 _selectedDateFilter = value;
                 OnPropertyChanged(nameof(SelectedDateFilter));
             }

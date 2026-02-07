@@ -13,7 +13,7 @@ namespace LifeSyncApp.Models.TaskManager
         public TaskGroup(DateOnly dueDate, IEnumerable<TaskItem> tasks) : base(tasks)
         {
             DueDate = dueDate;
-            TaskCount = tasks.Count();
+            TaskCount = Count;
             IsOverdue = dueDate < DateOnly.FromDateTime(DateTime.Today);
             DisplayDate = FormatDueDate(dueDate);
         }

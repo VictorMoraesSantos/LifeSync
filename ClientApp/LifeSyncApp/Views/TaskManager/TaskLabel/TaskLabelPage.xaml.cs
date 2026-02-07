@@ -4,7 +4,7 @@ namespace LifeSyncApp.Views.TaskManager.TaskLabel;
 
 public partial class TaskLabelPage : ContentPage
 {
-    private readonly TaskLabelViewModel _taskLabelViewModel;
+    private bool _isLoaded;
 
     public TaskLabelPage(TaskLabelViewModel taskLabelViewModel)
     {
@@ -19,6 +19,10 @@ public partial class TaskLabelPage : ContentPage
         if (BindingContext is not TaskLabelViewModel viewModel)
             return;
 
-        await viewModel.LoadLabelsAsync();
+        if (!_isLoaded)
+        {
+            await viewModel.LoadLabelsAsync();
+            _isLoaded = true;
+        }
     }
 }

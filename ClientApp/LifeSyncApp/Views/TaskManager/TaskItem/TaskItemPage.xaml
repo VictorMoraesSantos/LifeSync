@@ -46,7 +46,7 @@
                         Stroke="Transparent"
                         BackgroundColor="#171717">
                     <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenCreateTaskModalCommand}"/>
+                        <TapGestureRecognizer Command="{Binding OpenManageTaskModalCommand}"/>
                     </Border.GestureRecognizers>
                     <HorizontalStackLayout Spacing="6"
                                            HorizontalOptions="Center"
@@ -69,35 +69,36 @@
                      Color="#E0E0E0"
                      VerticalOptions="End"/>
 
-            <ScrollView Grid.Row="1" Padding="10">
-                <VerticalStackLayout>
+            <CollectionView Grid.Row="1"
+                            Margin="10"
+                            ItemsSource="{Binding GroupedTasks}"
+                            IsGrouped="True"
+                            SelectionMode="None">
 
-                <Border Padding="14,10"
-                        Margin="0, 16, 0, 0"
-                        StrokeShape="RoundRectangle 10"
-                        Stroke="#E6E6E6"
-                        StrokeThickness="1"
-                        BackgroundColor="White"
-                        HorizontalOptions="Start">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenFiltersCommand}" />
-                    </Border.GestureRecognizers>
+                    <CollectionView.Header>
+                        <Border Padding="14,10"
+                                Margin="0, 16, 0, 0"
+                                StrokeShape="RoundRectangle 10"
+                                Stroke="#E6E6E6"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                HorizontalOptions="Start">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenFiltersCommand}" />
+                            </Border.GestureRecognizers>
 
-                    <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
-                        <Image Source="filter.svg"
-                               WidthRequest="18"
-                               HeightRequest="18"
-                               VerticalOptions="Center" />
-                        <Label Text="Filtros"
-                               FontSize="14"
-                               TextColor="#2C3E50"
-                               VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                </Border>
-
-                <CollectionView ItemsSource="{Binding GroupedTasks}"
-                                IsGrouped="True"
-                                SelectionMode="None">
+                            <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                                <Image Source="filter.svg"
+                                       WidthRequest="18"
+                                       HeightRequest="18"
+                                       VerticalOptions="Center" />
+                                <Label Text="Filtros"
+                                       FontSize="14"
+                                       TextColor="#2C3E50"
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </CollectionView.Header>
 
                     <CollectionView.EmptyView>
                         <StackLayout Padding="20" 
@@ -248,55 +249,46 @@
                                            LineBreakMode="TailTruncation"
                                            MaxLines="2"/>
 
-                                    <CollectionView Grid.Row="2"
-                                                    Grid.Column="0"
-                                                    Grid.ColumnSpan="2"
-                                                    ItemsSource="{Binding Labels}"
-                                                    IsVisible="{Binding Labels.Count, Converter={StaticResource HasItemsConverter}}">
-                                        <CollectionView.ItemsLayout>
-                                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5"/>
-                                        </CollectionView.ItemsLayout>
-                                        <CollectionView.ItemTemplate>
+                                    <HorizontalStackLayout Grid.Row="2"
+                                                           Grid.Column="0"
+                                                           Grid.ColumnSpan="2"
+                                                           Spacing="5"
+                                                           BindableLayout.ItemsSource="{Binding Labels}"
+                                                           IsVisible="{Binding Labels.Count, Converter={StaticResource HasItemsConverter}}">
+                                        <BindableLayout.ItemTemplate>
                                             <DataTemplate x:DataType="models:TaskLabel">
                                                 <Border Padding="8,2"
                                                         StrokeShape="RoundRectangle 5,5,5,5"
                                                         StrokeThickness="0"
-                                                        BackgroundColor="{Binding Color, Converter={StaticResource LabelColorToLightColorConverter}}">
+                                                        BackgroundColor="{Binding LabelColor, Converter={StaticResource LabelColorToLightColorConverter}}">
                                                     <Label Text="{Binding Name}"
                                                            FontSize="12"
-                                                           TextColor="{Binding Color, Converter={StaticResource LabelColorToConverter}}"/>
+                                                           TextColor="{Binding LabelColor, Converter={StaticResource LabelColorToConverter}}"/>
                                                 </Border>
                                             </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>
+                                        </BindableLayout.ItemTemplate>
+                                    </HorizontalStackLayout>
                                 </Grid>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
-                </CollectionView>
-                </VerticalStackLayout>
-            </ScrollView>
+            </CollectionView>
         </Grid>
 
-        <Grid IsVisible="{Binding IsManageTaskModalOpen}">
+        <Grid x:Name="ManageTaskOverlay" IsVisible="{Binding IsManageTaskModalOpen}">
             <Grid BackgroundColor="#000000" Opacity="0.45">
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CloseManageTaskModalCommand}" />
                 </Grid.GestureRecognizers>
             </Grid>
-
-            <taskitem:ManageTaskItemPopup BindingContext="{Binding .}" />
         </Grid>
 
-        <Grid IsVisible="{Binding IsFilterTaskModalOpen}">
+        <Grid x:Name="FilterTaskOverlay" IsVisible="{Binding IsFilterTaskModalOpen}">
             <Grid BackgroundColor="#000000" Opacity="0.45">
                 <Grid.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding CloseFilterTaskModalCommand}" />
+                    <TapGestureRecognizer Command="{Binding FilterViewModel.CloseModalCommand}" />
                 </Grid.GestureRecognizers>
             </Grid>
-
-            <taskitem:FilterTaskItemPopup x:Name="FilterPopup"
-                                          BindingContext="{Binding .}" />
         </Grid>
     </Grid>
 </ContentPage>

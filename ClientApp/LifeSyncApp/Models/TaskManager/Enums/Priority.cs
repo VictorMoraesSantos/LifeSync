@@ -10,7 +10,7 @@
 
     public static class PriorityExtensions
     {
-        public static string ToString(this Priority priority)
+        public static string ToFriendlyString(this Priority priority)
         {
             return priority switch
             {

@@ -12,15 +12,44 @@ namespace LifeSyncApp.ViewModels.TaskManager
     {
         private readonly TaskItemService _taskItemService;
 
-        private readonly ObservableCollection<TaskItem> _taskItems = new();
-        public ObservableCollection<TaskItem> TaskItems => _taskItems;
+        private ObservableCollection<TaskItem> _taskItems = new();
+        public ObservableCollection<TaskItem> TaskItems
+        {
+            get => _taskItems;
+            set
+            {
+                _taskItems = value;
+                OnPropertyChanged(nameof(TaskItems));
+            }
+        }
 
-        private readonly ObservableCollection<TaskGroup> _groupedTasks = new();
-        public ObservableCollection<TaskGroup> GroupedTasks => _groupedTasks;
+        private ObservableCollection<TaskGroup> _groupedTasks = new();
+        public ObservableCollection<TaskGroup> GroupedTasks
+        {
+            get => _groupedTasks;
+            set
+            {
+                _groupedTasks = value;
+                OnPropertyChanged(nameof(GroupedTasks));
+            }
+        }
 
         public FilterTaskItemViewModel FilterViewModel { get; private set; }
 
-        public DatePicker? DueDatePicker { get; set; }
+        private WeakReference<DatePicker>? _dueDatePickerRef;
+        public DatePicker? DueDatePicker
+        {
+            get
+            {
+                if (_dueDatePickerRef != null && _dueDatePickerRef.TryGetTarget(out var picker))
+                    return picker;
+                return null;
+            }
+            set
+            {
+                _dueDatePickerRef = value != null ? new WeakReference<DatePicker>(value) : null;
+            }
+        }
 
         private Status? _currentStatusFilter;
         private Priority? _currentPriorityFilter;
@@ -172,20 +201,16 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     DueDate: GetDueDateFromFilter(_currentDateFilter));
 
                 var tasks = await _taskItemService.SearchTaskItemAsync(query);
+                var taskList = tasks.ToList();
 
-                _taskItems.Clear();
-                _groupedTasks.Clear();
+                TaskItems = new ObservableCollection<TaskItem>(taskList);
 
-                foreach (var task in tasks)
-                    _taskItems.Add(task);
-
-                var grouped = tasks
+                var grouped = taskList
                     .OrderBy(t => t.DueDate)
                     .GroupBy(t => t.DueDate)
                     .Select(g => new TaskGroup(g.Key, g));
 
-                foreach (var group in grouped)
-                    _groupedTasks.Add(group);
+                GroupedTasks = new ObservableCollection<TaskGroup>(grouped);
             }
             catch (Exception ex)
             {
@@ -339,56 +364,28 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto);
 
-                    var refreshedFromApi = (await _taskItemService.SearchTaskItemAsync(new TaskItemFilterDTO(UserId: userId)))
-                        .FirstOrDefault(t => t.Id == EditingTaskId);
-
                     if (existingTask != null)
                     {
                         existingTask.Title = NewTaskTitle!;
                         existingTask.Description = NewTaskDescription ?? string.Empty;
                         existingTask.Priority = NewTaskPriority;
                         existingTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
-
-                        if (refreshedFromApi != null)
-                        {
-                            existingTask.Title = refreshedFromApi.Title;
-                            existingTask.Description = refreshedFromApi.Description;
-                            existingTask.Priority = refreshedFromApi.Priority;
-                            existingTask.DueDate = refreshedFromApi.DueDate;
-                            existingTask.Status = refreshedFromApi.Status;
-                            existingTask.UpdatedAt = refreshedFromApi.UpdatedAt;
-                        }
+                        existingTask.UpdatedAt = DateTime.UtcNow;
 
                         if (SelectedTask?.Id == existingTask.Id)
                             SelectedTask = existingTask;
 
-                        await LoadTasksAsync();
-
-                        if (SelectedTask?.Id is int selectedId)
-                        {
-                            var refreshed = _taskItems.FirstOrDefault(t => t.Id == selectedId);
-                            if (refreshed != null)
-                                SelectedTask = refreshed;
-                        }
+                        OnPropertyChanged(nameof(SelectedTask));
                     }
                     else if (SelectedTask?.Id == EditingTaskId)
                     {
-                        if (refreshedFromApi != null)
-                        {
-                            SelectedTask = refreshedFromApi;
-                        }
-                        else
-                        {
-                            SelectedTask.Title = NewTaskTitle!;
-                            SelectedTask.Description = NewTaskDescription ?? string.Empty;
-                            SelectedTask.Priority = NewTaskPriority;
-                            SelectedTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
-                        }
+                        SelectedTask.Title = NewTaskTitle!;
+                        SelectedTask.Description = NewTaskDescription ?? string.Empty;
+                        SelectedTask.Priority = NewTaskPriority;
+                        SelectedTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
+                        SelectedTask.UpdatedAt = DateTime.UtcNow;
                         OnPropertyChanged(nameof(SelectedTask));
                     }
-
-                    if (SelectedTask?.Id == EditingTaskId && refreshedFromApi != null)
-                        SelectedTask = refreshedFromApi;
                 }
                 else
                 {

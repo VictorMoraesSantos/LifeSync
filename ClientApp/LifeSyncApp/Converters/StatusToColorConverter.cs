@@ -1,24 +1,30 @@
-using LifeSyncApp.Models.TaskManager.Enums;
+﻿using LifeSyncApp.Models.TaskManager.Enums;
 using System.Globalization;
 
 namespace LifeSyncApp.Converters
 {
     public class StatusToColorConverter : IValueConverter
     {
+        internal static readonly Color Pending = Color.FromArgb("#95A5A6");
+        internal static readonly Color InProgress = Color.FromArgb("#3498DB");
+        internal static readonly Color Completed = Color.FromArgb("#2ECC71");
+        internal static readonly Color Cancelled = Color.FromArgb("#E74C3C");
+        internal static readonly Color Default = Color.FromArgb("#BDC3C7");
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is Status status)
             {
                 return status switch
                 {
-                    Status.Pending => Color.FromArgb("#95A5A6"),      // Cinza
-                    Status.InProgress => Color.FromArgb("#3498DB"),   // Azul
-                    Status.Completed => Color.FromArgb("#2ECC71"),    // Verde
-                    Status.Cancelled => Color.FromArgb("#E74C3C"),    // Vermelho
-                    _ => Color.FromArgb("#BDC3C7")                    // Cinza claro
+                    Status.Pending => Pending,
+                    Status.InProgress => InProgress,
+                    Status.Completed => Completed,
+                    Status.Cancelled => Cancelled,
+                    _ => Default
                 };
             }
-            return Color.FromArgb("#BDC3C7");
+            return Default;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
