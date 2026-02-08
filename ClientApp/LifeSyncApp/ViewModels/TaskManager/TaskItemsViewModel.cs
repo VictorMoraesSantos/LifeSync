@@ -194,6 +194,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
+                IsBusy = true;
+
                 var query = new TaskItemFilterDTO(
                     UserId: 22,
                     Status: _currentStatusFilter,
@@ -201,20 +203,35 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     DueDate: GetDueDateFromFilter(_currentDateFilter));
 
                 var tasks = await _taskItemService.SearchTaskItemAsync(query);
-                var taskList = tasks.ToList();
 
-                TaskItems = new ObservableCollection<TaskItem>(taskList);
+                // Mover processamento pesado para background thread
+                var (taskItems, groupedTasks) = await Task.Run(() =>
+                {
+                    var taskList = tasks.ToList();
 
-                var grouped = taskList
-                    .OrderBy(t => t.DueDate)
-                    .GroupBy(t => t.DueDate)
-                    .Select(g => new TaskGroup(g.Key, g));
+                    var grouped = taskList
+                        .OrderBy(t => t.DueDate)
+                        .GroupBy(t => t.DueDate)
+                        .Select(g => new TaskGroup(g.Key, g))
+                        .ToList();
 
-                GroupedTasks = new ObservableCollection<TaskGroup>(grouped);
+                    return (
+                        new ObservableCollection<TaskItem>(taskList),
+                        new ObservableCollection<TaskGroup>(grouped)
+                    );
+                });
+
+                // Atualizar UI na main thread
+                TaskItems = taskItems;
+                GroupedTasks = groupedTasks;
             }
             catch (Exception ex)
             {
                 await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar tarefas: {ex.Message}", "OK");
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
 

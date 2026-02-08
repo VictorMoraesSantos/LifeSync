@@ -4,7 +4,6 @@ namespace LifeSyncApp.Views.TaskManager.TaskItem;
 
 public partial class TaskItemPage : ContentPage
 {
-    private bool _isLoaded;
     private ManageTaskItemPopup? _managePopup;
     private FilterTaskItemPopup? _filterPopup;
 
@@ -22,11 +21,16 @@ public partial class TaskItemPage : ContentPage
 
         if (BindingContext is not TaskItemsViewModel viewModel)
             return;
+        await viewModel.LoadTasksAsync();
+    }
 
-        if (!_isLoaded)
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        if (BindingContext is TaskItemsViewModel vm)
         {
-            await viewModel.LoadTasksAsync();
-            _isLoaded = true;
+            vm.PropertyChanged -= OnViewModelPropertyChanged;
         }
     }
 

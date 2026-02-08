@@ -48,15 +48,20 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
+                IsBusy = true;
+
                 var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
                 var labels = await _taskLabelService.SearchTaskLabelAsync(query);
 
                 TaskLabels = new ObservableCollection<TaskLabel>(labels);
-
             }
             catch (Exception ex)
             {
                 await Shell.Current.DisplayAlert("Error", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
 

@@ -63,8 +63,8 @@ namespace LifeSyncApp
             builder.Services.AddScoped<TaskLabelService>();
 
             // ViewModels
-            builder.Services.AddSingleton<TaskItemsViewModel>();
-            builder.Services.AddSingleton<TaskLabelViewModel>();
+            builder.Services.AddTransient<TaskItemsViewModel>();
+            builder.Services.AddTransient<TaskLabelViewModel>();
 
             // Views
             builder.Services.AddTransient<TaskItemPage>();

@@ -69,6 +69,19 @@
                      Color="#E0E0E0"
                      VerticalOptions="End"/>
 
+            <!-- Loading Overlay -->
+            <Grid Grid.Row="1"
+                  IsVisible="{Binding IsBusy}"
+                  BackgroundColor="#80FFFFFF"
+                  ZIndex="100">
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                  Color="#171717"
+                                  VerticalOptions="Center"
+                                  HorizontalOptions="Center"
+                                  HeightRequest="50"
+                                  WidthRequest="50"/>
+            </Grid>
+
             <CollectionView Grid.Row="1"
                             Margin="10"
                             ItemsSource="{Binding GroupedTasks}"
