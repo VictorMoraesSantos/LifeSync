@@ -6,143 +6,301 @@
              xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              x:Class="LifeSyncApp.Views.Financial.TransactionsPage"
              x:DataType="vm:TransactionsViewModel"
-             Title="Finanças">
+             Title=""
+             BackgroundColor="#F9FAFB">
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="0">
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="0">
         
-        <!-- Header -->
-        <Grid Grid.Row="0" Padding="20,20,20,10" BackgroundColor="{StaticResource Primary}">
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Suas Finanças"
-                       Style="{StaticResource H2}"
-                       TextColor="{StaticResource TextInverse}" />
+        <!-- Header com Gradiente Premium -->
+        <Grid Grid.Row="0" 
+              Padding="20,50,20,30">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#6366F1" Offset="0" />
+                    <GradientStop Color="#4F46E5" Offset="1" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Minhas Finanças"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="White" />
                        
                 <Label Text="Gerencie suas receitas e despesas"
-                       Style="{StaticResource BodyMedium}"
-                       TextColor="{StaticResource TextInverse}"
-                       Opacity="0.8" />
+                       FontSize="14"
+                       TextColor="White"
+                       Opacity="0.9" />
             </VerticalStackLayout>
         </Grid>
 
-        <!-- Search and Filter Bar -->
-        <Border Grid.Row="1" 
-                Style="{StaticResource CardBase}"
-                Margin="16,0,16,8">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                
-                <!-- Search -->
-                <Border Grid.Column="0" Style="{StaticResource InputField}">
-                    <Entry Placeholder="Buscar transações..."
-                           Text="{Binding SearchText}"
-                           VerticalOptions="Center" />
-                </Border>
-                
-                <!-- Add Button -->
-                <Border Grid.Column="1"
-                        Style="{StaticResource PrimaryButton}"
-                        WidthRequest="48"
-                        HeightRequest="48">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding CreateTransactionCommand}" />
-                    </Border.GestureRecognizers>
-                    
-                    <Label Text="+"
-                           FontSize="24"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource TextInverse}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
-                </Border>
-            </Grid>
-        </Border>
-
-        <!-- Transactions List -->
-        <RefreshView Grid.Row="2"
-                     IsRefreshing="{Binding IsRefreshing}"
-                     Command="{Binding RefreshCommand}"
-                     Margin="16,0">
+        <!-- Cards de Resumo -->
+        <Grid Grid.Row="1" 
+              ColumnDefinitions="*,*,*" 
+              ColumnSpacing="12"
+              Padding="20,20,20,16"
+              Margin="0,-30,0,0">
             
-            <CollectionView ItemsSource="{Binding FilteredTransactions}"
-                            SelectionMode="None"
-                            EmptyView="Nenhuma transação encontrada">
+            <!-- Saldo Total -->
+            <Border Grid.Column="0" 
+                    BackgroundColor="White"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="12">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.08" Radius="12" Offset="0,4" />
+                </Border.Shadow>
                 
-                <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
-                </CollectionView.ItemsLayout>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Saldo"
+                           FontSize="11"
+                           TextColor="#6B7280" />
+                    <Label Text="R$ 5.430"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#111827" />
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Receitas -->
+            <Border Grid.Column="1" 
+                    BackgroundColor="White"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="12">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.08" Radius="12" Offset="0,4" />
+                </Border.Shadow>
                 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Transaction">
-                        <SwipeView>
-                            <!-- Swipe Actions -->
-                            <SwipeView.RightItems>
-                                <SwipeItems>
-                                    <SwipeItem Text="Editar"
-                                               BackgroundColor="{StaticResource Primary}"
-                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionsViewModel}}, Path=EditTransactionCommand}"
-                                               CommandParameter="{Binding .}" />
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Receitas"
+                           FontSize="11"
+                           TextColor="#6B7280" />
+                    <Label Text="R$ 8.500"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#10B981" />
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Despesas -->
+            <Border Grid.Column="2" 
+                    BackgroundColor="White"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="12">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.08" Radius="12" Offset="0,4" />
+                </Border.Shadow>
+                
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Despesas"
+                           FontSize="11"
+                           TextColor="#6B7280" />
+                    <Label Text="R$ 3.070"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#EF4444" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Área de Conteúdo -->
+        <Grid Grid.Row="2" Padding="20,0,20,0">
+            <VerticalStackLayout Spacing="16">
+                
+                <!-- Pills de Filtro -->
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                    <HorizontalStackLayout Spacing="8">
+                        <!-- Todas -->
+                        <Border BackgroundColor="#6366F1"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 20"
+                                Padding="16,8">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding FilterByTypeCommand}" CommandParameter="{x:Null}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Todas"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
+                        </Border>
+                        
+                        <!-- Receitas -->
+                        <Border BackgroundColor="White"
+                                Stroke="#E5E7EB"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 20"
+                                Padding="16,8">
+                            <Label Text="Receitas"
+                                   FontSize="14"
+                                   TextColor="#6B7280" />
+                        </Border>
+                        
+                        <!-- Despesas -->
+                        <Border BackgroundColor="White"
+                                Stroke="#E5E7EB"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 20"
+                                Padding="16,8">
+                            <Label Text="Despesas"
+                                   FontSize="14"
+                                   TextColor="#6B7280" />
+                        </Border>
+                    </HorizontalStackLayout>
+                </ScrollView>
+
+                <!-- Lista de Transações -->
+                <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                             Command="{Binding RefreshCommand}">
+                    
+                    <CollectionView ItemsSource="{Binding FilteredTransactions}"
+                                    SelectionMode="None">
+                        
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                        </CollectionView.ItemsLayout>
+                        
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Transaction">
+                                <SwipeView>
+                                    <SwipeView.RightItems>
+                                        <SwipeItems>
+                                            <SwipeItem Text="Editar"
+                                                       BackgroundColor="#6366F1"
+                                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionsViewModel}}, Path=EditTransactionCommand}"
+                                                       CommandParameter="{Binding .}" />
+                                            
+                                            <SwipeItem Text="Excluir"
+                                                       BackgroundColor="#EF4444"
+                                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionsViewModel}}, Path=DeleteTransactionCommand}"
+                                                       CommandParameter="{Binding .}" />
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
                                     
-                                    <SwipeItem Text="Excluir"
-                                               BackgroundColor="{StaticResource Error}"
-                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionsViewModel}}, Path=DeleteTransactionCommand}"
-                                               CommandParameter="{Binding .}" />
-                                </SwipeItems>
-                            </SwipeView.RightItems>
-                            
-                            <!-- Transaction Card -->
-                            <Border Style="{StaticResource CardElevated}">
-                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="4">
-                                    
-                                    <!-- Type Indicator -->
-                                    <Border Grid.Column="0"
-                                            BackgroundColor="{Binding TransactionTypeColor}"
-                                            StrokeShape="RoundRectangle 12"
+                                    <!-- Card Premium de Transação -->
+                                    <Border BackgroundColor="White"
                                             Stroke="Transparent"
-                                            WidthRequest="48"
-                                            HeightRequest="48">
-                                        <Label Text="{Binding TransactionTypeIcon}"
-                                               FontSize="20"
-                                               TextColor="{StaticResource TextInverse}"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center" />
+                                            StrokeShape="RoundRectangle 16"
+                                            Padding="16">
+                                        <Border.Shadow>
+                                            <Shadow Brush="Black" Opacity="0.05" Radius="8" Offset="0,2" />
+                                        </Border.Shadow>
+                                        
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                            
+                                            <!-- Ícone com Círculo -->
+                                            <Border Grid.Column="0"
+                                                    BackgroundColor="{Binding TransactionTypeColor}"
+                                                    Stroke="Transparent"
+                                                    StrokeShape="RoundRectangle 28"
+                                                    WidthRequest="56"
+                                                    HeightRequest="56"
+                                                    Opacity="0.15">
+                                                <Label Text="{Binding Category.Icon}"
+                                                       FontSize="24"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+                                            
+                                            <!-- Detalhes da Transação -->
+                                            <VerticalStackLayout Grid.Column="1" 
+                                                                 Spacing="4" 
+                                                                 VerticalOptions="Center">
+                                                <Label Text="{Binding Description}"
+                                                       FontSize="15"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#111827" />
+                                                
+                                                <Label Text="{Binding Category.Name}"
+                                                       FontSize="13"
+                                                       TextColor="#6B7280" />
+                                                
+                                                <Label Text="{Binding FormattedDate}"
+                                                       FontSize="12"
+                                                       TextColor="#9CA3AF" />
+                                            </VerticalStackLayout>
+                                            
+                                            <!-- Valor -->
+                                            <VerticalStackLayout Grid.Column="2" 
+                                                                 Spacing="2"
+                                                                 VerticalOptions="Center"
+                                                                 HorizontalOptions="End">
+                                                <Label Text="{Binding FormattedAmount}"
+                                                       FontSize="17"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{Binding TransactionTypeColor}"
+                                                       HorizontalOptions="End" />
+                                                
+                                                <Border BackgroundColor="{Binding TransactionTypeColor}"
+                                                        Stroke="Transparent"
+                                                        StrokeShape="RoundRectangle 10"
+                                                        Padding="8,2"
+                                                        Opacity="0.15">
+                                                    <Label Text="{Binding PaymentMethodDisplay}"
+                                                           FontSize="11"
+                                                           TextColor="{Binding TransactionTypeColor}"
+                                                           HorizontalOptions="Center" />
+                                                </Border>
+                                            </VerticalStackLayout>
+                                        </Grid>
                                     </Border>
-                                    
-                                    <!-- Transaction Info -->
-                                    <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                        <Label Text="{Binding Description}"
-                                               Style="{StaticResource BodyLarge}"
-                                               FontAttributes="Bold" />
-                                        
-                                        <HorizontalStackLayout Spacing="8">
-                                            <Label Text="{Binding Category.Name}"
-                                                   Style="{StaticResource BodySmall}"
-                                                   TextColor="{StaticResource TextSecondary}" />
-                                            
-                                            <Label Text="•"
-                                                   Style="{StaticResource BodySmall}"
-                                                   TextColor="{StaticResource TextTertiary}" />
-                                            
-                                            <Label Text="{Binding FormattedDate}"
-                                                   Style="{StaticResource BodySmall}"
-                                                   TextColor="{StaticResource TextSecondary}" />
-                                        </HorizontalStackLayout>
-                                        
-                                        <Label Text="{Binding PaymentMethodDisplay}"
-                                               Style="{StaticResource Caption}" />
-                                    </VerticalStackLayout>
-                                    
-                                    <!-- Amount -->
-                                    <Label Grid.Column="2"
-                                           Text="{Binding FormattedAmount}"
-                                           Style="{StaticResource H4}"
-                                           TextColor="{Binding TransactionTypeColor}"
-                                           VerticalOptions="Center" />
-                                </Grid>
-                            </Border>
-                        </SwipeView>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </RefreshView>
+                                </SwipeView>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout Spacing="16" 
+                                                 Padding="40"
+                                                 VerticalOptions="Center">
+                                <Label Text="💸"
+                                       FontSize="64"
+                                       HorizontalOptions="Center"
+                                       Opacity="0.3" />
+                                <Label Text="Nenhuma transação"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Adicione sua primeira transação financeira"
+                                       FontSize="14"
+                                       TextColor="#6B7280"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+                </RefreshView>
+
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Botão FAB -->
+        <Border Grid.RowSpan="3"
+                BackgroundColor="#6366F1"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 28"
+                WidthRequest="56"
+                HeightRequest="56"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,20,20">
+            <Border.Shadow>
+                <Shadow Brush="#6366F1" Opacity="0.4" Radius="16" Offset="0,4" />
+            </Border.Shadow>
+            
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CreateTransactionCommand}" />
+            </Border.GestureRecognizers>
+            
+            <Label Text="+"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Margin="0,-2,0,0" />
+        </Border>
 
         <!-- Loading Overlay -->
         <controls:LoadingOverlay Grid.RowSpan="3"

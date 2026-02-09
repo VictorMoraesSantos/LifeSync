@@ -1,4 +1,4 @@
-﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<?xml version = "1.0" encoding = "UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:LifeSyncApp"
@@ -10,15 +10,9 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
-            <converters:PriorityToColorConverter x:Key="PriorityToColorConverter"/>
-            <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
-            <converters:StatusToLightColorConverter x:Key="StatusToLightColorConverter"/>
-            <converters:StatusToIconConverter x:Key="StatusToIconConverter"/>
-            <converters:OverdueToColorConverter x:Key="OverdueToColorConverter" />
-            <converters:LabelColorToConverter x:Key="LabelColorToConverter"/>
-            <converters:LabelColorToLightColorConverter  x:Key="LabelColorToLightColorConverter"/>
-            <converters:HasItemsConverter x:Key="HasItemsConverter"/>
+            
+            <!-- Converters -->
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
