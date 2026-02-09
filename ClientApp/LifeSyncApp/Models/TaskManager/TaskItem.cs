@@ -1,4 +1,4 @@
-﻿using LifeSyncApp.Models.TaskManager.Enums;
+using LifeSyncApp.Models.TaskManager.Enums;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.Concurrent;
@@ -52,6 +52,7 @@ namespace LifeSyncApp.Models.TaskManager
                 {
                     _status = value;
                     OnPropertyChanged();
+                    UpdateStatusProperties();
                 }
             }
         }
@@ -66,6 +67,7 @@ namespace LifeSyncApp.Models.TaskManager
                 {
                     _priority = value;
                     OnPropertyChanged();
+                    UpdatePriorityColor();
                 }
             }
         }
@@ -80,6 +82,8 @@ namespace LifeSyncApp.Models.TaskManager
                 {
                     _dueDate = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(DueDateFormatted));
+                    OnPropertyChanged(nameof(IsOverdue));
                 }
             }
         }
@@ -96,6 +100,119 @@ namespace LifeSyncApp.Models.TaskManager
                     OnPropertyChanged();
                 }
             }
+        }
+
+        // ===== PROPRIEDADES COMPUTADAS PARA ELIMINAR CONVERTERS =====
+
+        // Status properties
+        private Color _statusColor = Colors.Gray;
+        public Color StatusColor
+        {
+            get => _statusColor;
+            private set
+            {
+                if (_statusColor != value)
+                {
+                    _statusColor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Color _statusLightColor = Color.FromArgb("#F3F4F6");
+        public Color StatusLightColor
+        {
+            get => _statusLightColor;
+            private set
+            {
+                if (_statusLightColor != value)
+                {
+                    _statusLightColor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string _statusIcon = "";
+        public string StatusIcon
+        {
+            get => _statusIcon;
+            private set
+            {
+                if (_statusIcon != value)
+                {
+                    _statusIcon = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        // Priority property
+        private Color _priorityColor = Color.FromArgb("#F59E0B");
+        public Color PriorityColor
+        {
+            get => _priorityColor;
+            private set
+            {
+                if (_priorityColor != value)
+                {
+                    _priorityColor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        // Formatted dates
+        public string DueDateFormatted => DueDate == DateOnly.FromDateTime(DateTime.Today)
+            ? "Hoje"
+            : DueDate == DateOnly.FromDateTime(DateTime.Today.AddDays(1))
+            ? "Amanh\u00e3"
+            : DueDate.ToString("dd/MM/yyyy");
+
+        public string CreatedAtFormatted => CreatedAt.ToString("dd/MM/yyyy");
+
+        public bool IsOverdue => DueDate < DateOnly.FromDateTime(DateTime.Today) && Status != Status.Completed;
+
+        // ===== MÉTODOS PRIVADOS =====
+
+        private void UpdateStatusProperties()
+        {
+            switch (Status)
+            {
+                case Status.Pending:
+                    StatusColor = Color.FromArgb("#6B7280");
+                    StatusLightColor = Color.FromArgb("#F3F4F6");
+                    StatusIcon = "";
+                    break;
+                case Status.InProgress:
+                    StatusColor = Color.FromArgb("#3B82F6");
+                    StatusLightColor = Color.FromArgb("#DBEAFE");
+                    StatusIcon = "\u25B6"; // Play icon
+                    break;
+                case Status.Completed:
+                    StatusColor = Color.FromArgb("#10B981");
+                    StatusLightColor = Color.FromArgb("#D1FAE5");
+                    StatusIcon = "\u2713"; // Checkmark
+                    break;
+            }
+        }
+
+        private void UpdatePriorityColor()
+        {
+            PriorityColor = Priority switch
+            {
+                Priority.High => Color.FromArgb("#DC2626"),
+                Priority.Medium => Color.FromArgb("#F59E0B"),
+                Priority.Low => Color.FromArgb("#10B981"),
+                _ => Color.FromArgb("#6B7280")
+            };
+        }
+
+        // Constructor para inicializar propriedades computadas
+        public TaskItem()
+        {
+            UpdateStatusProperties();
+            UpdatePriorityColor();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
