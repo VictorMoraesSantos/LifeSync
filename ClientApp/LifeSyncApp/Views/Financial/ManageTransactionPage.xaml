@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             xmlns:enums="clr-namespace:LifeSyncApp.Models.Financial.Enums"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
+             x:Class="LifeSyncApp.Views.Financial.ManageTransactionPage"
+             x:DataType="vm:ManageTransactionViewModel"
+             Title="{Binding PageTitle}">
+
+    <ScrollView Padding="20">
+        <VerticalStackLayout Spacing="20">
+            
+            <!-- Type Selection -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Tipo de Transação"
+                       Style="{StaticResource BodyMedium}"
+                       FontAttributes="Bold" />
+                
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <!-- Income Button -->
+                    <Border Grid.Column="0"
+                            Style="{StaticResource PrimaryButton}"
+                            BackgroundColor="{Binding IsIncome, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#10B981:#F3F4F6'}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectTypeCommand}"
+                                                  CommandParameter="{x:Static enums:TransactionType.Income}" />
+                        </Border.GestureRecognizers>
+                        
+                        <Label Text="↑ Receita"
+                               Style="{StaticResource BodyMedium}"
+                               FontAttributes="Bold"
+                               TextColor="{Binding IsIncome, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#FFFFFF:#6B7280'}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    
+                    <!-- Expense Button -->
+                    <Border Grid.Column="1"
+                            Style="{StaticResource PrimaryButton}"
+                            BackgroundColor="{Binding IsExpense, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#EF4444:#F3F4F6'}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectTypeCommand}"
+                                                  CommandParameter="{x:Static enums:TransactionType.Expense}" />
+                        </Border.GestureRecognizers>
+                        
+                        <Label Text="↓ Despesa"
+                               Style="{StaticResource BodyMedium}"
+                               FontAttributes="Bold"
+                               TextColor="{Binding IsExpense, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#FFFFFF:#6B7280'}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Amount -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Valor *"
+                       Style="{StaticResource BodyMedium}"
+                       FontAttributes="Bold" />
+                
+                <Border Style="{StaticResource InputField}">
+                    <Entry Placeholder="0,00"
+                           Keyboard="Numeric"
+                           Text="{Binding Amount}"
+                           VerticalOptions="Center" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Description -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Descrição *"
+                       Style="{StaticResource BodyMedium}"
+                       FontAttributes="Bold" />
+                
+                <Border Style="{StaticResource InputField}"
+                        HeightRequest="80">
+                    <Editor Placeholder="Digite a descrição..."
+                            Text="{Binding Description}"
+                            AutoSize="TextChanges" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Transaction Date -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Data"
+                       Style="{StaticResource BodyMedium}"
+                       FontAttributes="Bold" />
+                
+                <Border Style="{StaticResource InputField}">
+                    <DatePicker Date="{Binding TransactionDate}"
+                                Format="dd/MM/yyyy"
+                                VerticalOptions="Center" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Payment Method -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Método de Pagamento"
+                       Style="{StaticResource BodyMedium}"
+                       FontAttributes="Bold" />
+                
+                <Border Style="{StaticResource InputField}">
+                    <Picker SelectedItem="{Binding SelectedPaymentMethod}"
+                            ItemsSource="{x:Array Type={x:Type enums:PaymentMethod}}"
+                            VerticalOptions="Center" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Action Buttons -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,20,0,0">
+                <!-- Cancel Button -->
+                <Border Grid.Column="0" Style="{StaticResource SecondaryButton}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CancelCommand}" />
+                    </Border.GestureRecognizers>
+                    
+                    <Label Text="Cancelar"
+                           Style="{StaticResource BodyMedium}"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+                
+                <!-- Save Button -->
+                <Border Grid.Column="1" Style="{StaticResource PrimaryButton}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SaveCommand}" />
+                    </Border.GestureRecognizers>
+                    
+                    <Label Text="Salvar"
+                           Style="{StaticResource BodyMedium}"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextInverse}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <!-- Loading Overlay -->
+    <ContentPage.Resources>
+        <controls:LoadingOverlay x:Key="LoadingOverlay"
+                                 IsVisible="{Binding IsBusy}"
+                                 LoadingText="Salvando..." />
+    </ContentPage.Resources>
+
+</ContentPage>
