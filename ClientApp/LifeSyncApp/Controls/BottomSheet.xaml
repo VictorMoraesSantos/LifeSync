@@ -2,43 +2,45 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LifeSyncApp.Controls.BottomSheet"
-             x:Name="this">
+             x:Name="BottomSheetControl">
     
-    <Grid RowDefinitions="*,Auto">
-        <!-- Overlay -->
-        <BoxView Grid.Row="0"
-                 BackgroundColor="{StaticResource Overlay}"
-                 Opacity="{Binding OverlayOpacity, Source={x:Reference this}}"
-                 IsVisible="{Binding IsOpen, Source={x:Reference this}}">
+    <Grid IsVisible="{Binding IsOpen, Source={x:Reference BottomSheetControl}}">
+        
+        <!-- Overlay Background -->
+        <BoxView BackgroundColor="{StaticResource OverlayColor}">
             <BoxView.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding CloseCommand, Source={x:Reference this}}" />
+                <TapGestureRecognizer Command="{Binding CloseCommand, Source={x:Reference BottomSheetControl}}" />
             </BoxView.GestureRecognizers>
         </BoxView>
-
+        
         <!-- Bottom Sheet Container -->
-        <Border Grid.Row="1"
-                BackgroundColor="{StaticResource BackgroundPrimary}"
+        <Border BackgroundColor="{StaticResource BackgroundPrimary}"
                 StrokeShape="RoundRectangle 24,24,0,0"
                 Stroke="Transparent"
-                TranslationY="{Binding TranslationY, Source={x:Reference this}}"
-                MaximumHeightRequest="{Binding MaxHeight, Source={x:Reference this}}">
+                VerticalOptions="End"
+                MaximumHeightRequest="{Binding MaxHeight, Source={x:Reference BottomSheetControl}}">
             
             <Grid RowDefinitions="Auto,*" Padding="0">
-                <!-- Handle -->
-                <BoxView Grid.Row="0"
-                         WidthRequest="40"
-                         HeightRequest="4"
-                         CornerRadius="2"
-                         BackgroundColor="{StaticResource BorderPrimary}"
-                         Margin="0,12,0,0"
-                         HorizontalOptions="Center" />
-
-                <!-- Content -->
-                <Grid Grid.Row="1" Padding="24,16,24,24">
-                    <ContentPresenter Content="{Binding Content, Source={x:Reference this}}" />
+                
+                <!-- Drag Handle -->
+                <Border Grid.Row="0"
+                        WidthRequest="40"
+                        HeightRequest="4"
+                        BackgroundColor="{StaticResource Gray300}"
+                        StrokeShape="RoundRectangle 2"
+                        Stroke="Transparent"
+                        Margin="0,12,0,16"
+                        HorizontalOptions="Center" />
+                
+                <!-- Content Area -->
+                <Grid Grid.Row="1" Padding="20,0,20,20">
+                    <ContentPresenter Content="{Binding Content, Source={x:Reference BottomSheetControl}}" />
                 </Grid>
+                
             </Grid>
+            
         </Border>
+        
     </Grid>
     
 </ContentView>
