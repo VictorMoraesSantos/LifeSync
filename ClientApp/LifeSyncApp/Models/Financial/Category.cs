@@ -1,30 +1,126 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
 
 namespace LifeSyncApp.Models.Financial;
 
-public partial class Category : ObservableObject
+public class Category : INotifyPropertyChanged
 {
-    [ObservableProperty]
-    private int id;
+    private int _id;
+    private string _name = string.Empty;
+    private string? _description;
+    private string _color = "#6366F1";
+    private string _icon = "📋";
+    private int _userId;
+    private DateTime _createdAt;
+    private DateTime? _updatedAt;
 
-    [ObservableProperty]
-    private string name = string.Empty;
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            if (_id != value)
+            {
+                _id = value;
+                OnPropertyChanged(nameof(Id));
+            }
+        }
+    }
 
-    [ObservableProperty]
-    private string? description;
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (_name != value)
+            {
+                _name = value;
+                OnPropertyChanged(nameof(Name));
+            }
+        }
+    }
 
-    [ObservableProperty]
-    private string color = "#6366F1";
+    public string? Description
+    {
+        get => _description;
+        set
+        {
+            if (_description != value)
+            {
+                _description = value;
+                OnPropertyChanged(nameof(Description));
+            }
+        }
+    }
 
-    [ObservableProperty]
-    private string icon = "📋";
+    public string Color
+    {
+        get => _color;
+        set
+        {
+            if (_color != value)
+            {
+                _color = value;
+                OnPropertyChanged(nameof(Color));
+            }
+        }
+    }
 
-    [ObservableProperty]
-    private int userId;
+    public string Icon
+    {
+        get => _icon;
+        set
+        {
+            if (_icon != value)
+            {
+                _icon = value;
+                OnPropertyChanged(nameof(Icon));
+            }
+        }
+    }
 
-    [ObservableProperty]
-    private DateTime createdAt;
+    public int UserId
+    {
+        get => _userId;
+        set
+        {
+            if (_userId != value)
+            {
+                _userId = value;
+                OnPropertyChanged(nameof(UserId));
+            }
+        }
+    }
 
-    [ObservableProperty]
-    private DateTime? updatedAt;
+    public DateTime CreatedAt
+    {
+        get => _createdAt;
+        set
+        {
+            if (_createdAt != value)
+            {
+                _createdAt = value;
+                OnPropertyChanged(nameof(CreatedAt));
+            }
+        }
+    }
+
+    public DateTime? UpdatedAt
+    {
+        get => _updatedAt;
+        set
+        {
+            if (_updatedAt != value)
+            {
+                _updatedAt = value;
+                OnPropertyChanged(nameof(UpdatedAt));
+            }
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
