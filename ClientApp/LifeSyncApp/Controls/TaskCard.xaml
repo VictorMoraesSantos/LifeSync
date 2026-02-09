@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
+             xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
+             x:Class="LifeSyncApp.Controls.TaskCard"
+             x:DataType="models:TaskItem">
+    
+    <Border Style="{StaticResource Card}"
+            Padding="16"
+            Margin="0,0,0,12">
+        
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer 
+                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=TapCommand}"
+                CommandParameter="{Binding .}"/>
+        </Border.GestureRecognizers>
+
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto" 
+              ColumnDefinitions="*,Auto"
+              RowSpacing="12">
+
+            <!-- Status Circle + Title -->
+            <HorizontalStackLayout Grid.Row="0" 
+                                   Grid.Column="0"
+                                   Spacing="12"
+                                   VerticalOptions="Center">
+                
+                <!-- Status Button -->
+                <Border WidthRequest="32"
+                        HeightRequest="32"
+                        StrokeShape="Ellipse"
+                        Stroke="{Binding StatusColor}"
+                        StrokeThickness="2.5"
+                        BackgroundColor="{Binding StatusLightColor}">
+                    
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer 
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=StatusToggleCommand}"
+                            CommandParameter="{Binding .}"/>
+                    </Border.GestureRecognizers>
+
+                    <Label Text="{Binding StatusIcon}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="{Binding StatusColor}"/>
+                </Border>
+
+                <!-- Title -->
+                <Label Text="{Binding Title}"
+                       Style="{StaticResource Body}"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="2">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label"
+                                     Binding="{Binding Status}"
+                                     Value="{x:Static enums:Status.Completed}">
+                            <Setter Property="TextDecorations" Value="Strikethrough"/>
+                            <Setter Property="TextColor" Value="{StaticResource TextTertiary}"/>
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </HorizontalStackLayout>
+
+            <!-- Priority Badge -->
+            <Border Grid.Row="0" 
+                    Grid.Column="1"
+                    BackgroundColor="{Binding PriorityColor}"
+                    Padding="10,6"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="Transparent"
+                    VerticalOptions="Center">
+                <Label Text="{Binding Priority}"
+                       Style="{StaticResource Caption}"
+                       FontAttributes="Bold"
+                       TextColor="White"/>
+            </Border>
+
+            <!-- Description -->
+            <Label Grid.Row="1" 
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Text="{Binding Description}"
+                   Style="{StaticResource BodySecondary}"
+                   LineBreakMode="TailTruncation"
+                   MaxLines="2"
+                   IsVisible="{Binding Description, Converter={StaticResource StringNotEmptyConverter}}"/>
+
+            <!-- Labels FlexLayout -->
+            <FlexLayout Grid.Row="2"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Wrap="Wrap"
+                        JustifyContent="Start"
+                        BindableLayout.ItemsSource="{Binding Labels}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:TaskLabel">
+                        <Border Padding="10,6"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderPrimary}"
+                                StrokeThickness="1"
+                                BackgroundColor="{StaticResource BackgroundSecondary}"
+                                Margin="0,0,8,0">
+                            <HorizontalStackLayout Spacing="6">
+                                <Ellipse WidthRequest="8"
+                                         HeightRequest="8"
+                                         Fill="{Binding LabelColor, Converter={StaticResource LabelColorToConverter}}"
+                                         VerticalOptions="Center"/>
+                                <Label Text="{Binding Name}"
+                                       Style="{StaticResource Caption}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+
+            <!-- Footer: Date + Time -->
+            <HorizontalStackLayout Grid.Row="3"
+                                   Grid.Column="0"
+                                   Grid.ColumnSpan="2"
+                                   Spacing="16">
+                
+                <!-- Due Date -->
+                <HorizontalStackLayout Spacing="6">
+                    <Image Source="calendar.svg"
+                           WidthRequest="16"
+                           HeightRequest="16"
+                           VerticalOptions="Center"/>
+                    <Label Text="{Binding DueDateFormatted}"
+                           Style="{StaticResource Caption}"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <!-- Created At -->
+                <HorizontalStackLayout Spacing="6">
+                    <Image Source="clock.svg"
+                           WidthRequest="16"
+                           HeightRequest="16"
+                           VerticalOptions="Center"/>
+                    <Label Text="{Binding CreatedAtFormatted}"
+                           Style="{StaticResource Caption}"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </HorizontalStackLayout>
+
+        </Grid>
+    </Border>
+    
+</ContentView>
