@@ -4,27 +4,34 @@ namespace LifeSyncApp.Controls;
 
 public partial class BottomSheet : ContentView
 {
-    private const uint AnimationDuration = 300;
-    private double _screenHeight;
-
     public static readonly BindableProperty IsOpenProperty =
-        BindableProperty.Create(nameof(IsOpen), typeof(bool), typeof(BottomSheet), false, 
+        BindableProperty.Create(
+            nameof(IsOpen),
+            typeof(bool),
+            typeof(BottomSheet),
+            false,
             propertyChanged: OnIsOpenChanged);
 
     public static readonly BindableProperty ContentProperty =
-        BindableProperty.Create(nameof(Content), typeof(View), typeof(BottomSheet));
-
-    public static readonly BindableProperty CloseCommandProperty =
-        BindableProperty.Create(nameof(CloseCommand), typeof(ICommand), typeof(BottomSheet));
+        BindableProperty.Create(
+            nameof(Content),
+            typeof(View),
+            typeof(BottomSheet),
+            null);
 
     public static readonly BindableProperty MaxHeightProperty =
-        BindableProperty.Create(nameof(MaxHeight), typeof(double), typeof(BottomSheet), 600.0);
+        BindableProperty.Create(
+            nameof(MaxHeight),
+            typeof(double),
+            typeof(BottomSheet),
+            600.0);
 
-    public static readonly BindableProperty TranslationYProperty =
-        BindableProperty.Create(nameof(TranslationY), typeof(double), typeof(BottomSheet), 1000.0);
-
-    public static readonly BindableProperty OverlayOpacityProperty =
-        BindableProperty.Create(nameof(OverlayOpacity), typeof(double), typeof(BottomSheet), 0.0);
+    public static readonly BindableProperty CloseCommandProperty =
+        BindableProperty.Create(
+            nameof(CloseCommand),
+            typeof(ICommand),
+            typeof(BottomSheet),
+            null);
 
     public bool IsOpen
     {
@@ -32,16 +39,10 @@ public partial class BottomSheet : ContentView
         set => SetValue(IsOpenProperty, value);
     }
 
-    public View Content
+    public new View Content
     {
         get => (View)GetValue(ContentProperty);
         set => SetValue(ContentProperty, value);
-    }
-
-    public ICommand CloseCommand
-    {
-        get => (ICommand)GetValue(CloseCommandProperty);
-        set => SetValue(CloseCommandProperty, value);
     }
 
     public double MaxHeight
@@ -50,59 +51,39 @@ public partial class BottomSheet : ContentView
         set => SetValue(MaxHeightProperty, value);
     }
 
-    public double TranslationY
+    public ICommand CloseCommand
     {
-        get => (double)GetValue(TranslationYProperty);
-        set => SetValue(TranslationYProperty, value);
-    }
-
-    public double OverlayOpacity
-    {
-        get => (double)GetValue(OverlayOpacityProperty);
-        set => SetValue(OverlayOpacityProperty, value);
+        get => (ICommand)GetValue(CloseCommandProperty);
+        set => SetValue(CloseCommandProperty, value);
     }
 
     public BottomSheet()
     {
         InitializeComponent();
-        _screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
     }
 
-    private static async void OnIsOpenChanged(BindableObject bindable, object oldValue, object newValue)
+    private static void OnIsOpenChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        if (bindable is BottomSheet bottomSheet)
+        if (bindable is BottomSheet bottomSheet && newValue is bool isOpen)
         {
-            var isOpen = (bool)newValue;
-            await bottomSheet.AnimateSheet(isOpen);
+            if (isOpen)
+            {
+                bottomSheet.FadeTo(1, 250, Easing.CubicOut);
+            }
+            else
+            {
+                bottomSheet.FadeTo(0, 200, Easing.CubicIn);
+            }
         }
     }
 
-    private async Task AnimateSheet(bool open)
+    public void Open()
     {
-        if (open)
-        {
-            // Open animation
-            var translateTask = this.TranslateTo(0, 0, AnimationDuration, Easing.CubicOut);
-            var opacityTask = Task.Run(async () =>
-            {
-                await Task.Delay(50);
-                await MainThread.InvokeOnMainThreadAsync(() => OverlayOpacity = 1);
-            });
-            
-            TranslationY = 0;
-            await Task.WhenAll(translateTask, opacityTask);
-        }
-        else
-        {
-            // Close animation
-            var translateTask = this.TranslateTo(0, _screenHeight, AnimationDuration, Easing.CubicIn);
-            var opacityTask = Task.Run(async () =>
-            {
-                await MainThread.InvokeOnMainThreadAsync(() => OverlayOpacity = 0);
-            });
-            
-            await Task.WhenAll(translateTask, opacityTask);
-            TranslationY = _screenHeight;
-        }
+        IsOpen = true;
+    }
+
+    public void Close()
+    {
+        IsOpen = false;
     }
 }
