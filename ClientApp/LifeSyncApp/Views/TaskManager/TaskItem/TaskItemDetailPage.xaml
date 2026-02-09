@@ -4,6 +4,7 @@
              xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
              xmlns:taskitem="clr-namespace:LifeSyncApp.Views.TaskManager.TaskItem"
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
+             xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
              x:Class="LifeSyncApp.Views.TaskManager.TaskItem.TaskItemDetailPage"
              x:DataType="viewmodels:TaskItemsViewModel"
              Shell.NavBarIsVisible="False"
@@ -126,18 +127,49 @@
                         </Grid>
                     </Grid>
 
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" VerticalOptions="Center">
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="10"
+                          VerticalOptions="Center">
                         <Image Source="label.svg" WidthRequest="16" HeightRequest="16" Opacity="0.75"/>
                         <Label Grid.Column="1" Text="Etiquetas" FontSize="12" TextColor="#6B7280" VerticalOptions="Center"/>
                     </Grid>
 
-                    <Border StrokeThickness="0"
-                            StrokeShape="RoundRectangle 10"
-                            Padding="12,8"
-                            BackgroundColor="#DCFCE7"
-                            HorizontalOptions="Start">
-                        <Label Text="Pessoal" FontSize="13" TextColor="#16A34A"/>
-                    </Border>
+                    <VerticalStackLayout Spacing="8">
+                        <FlexLayout Wrap="Wrap"
+                                    JustifyContent="Start"
+                                    AlignItems="Start"
+                                    BindableLayout.ItemsSource="{Binding SelectedTask.Labels}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:TaskLabel">
+                                    <Border Stroke="#E5E7EB"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 10"
+                                            Padding="10,6"
+                                            BackgroundColor="White"
+                                            Margin="0,0,8,8">
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Ellipse WidthRequest="10"
+                                                     HeightRequest="10"
+                                                     Fill="{Binding LabelColor, Converter={StaticResource LabelColorToConverter}}"
+                                                     VerticalOptions="Center"/>
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="13"
+                                                   TextColor="#111"
+                                                   VerticalOptions="Center"/>
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                            <BindableLayout.EmptyViewTemplate>
+                                <DataTemplate>
+                                    <Label Text="Nenhuma etiqueta"
+                                           FontSize="12"
+                                           TextColor="#9CA3AF"
+                                           Margin="0,4"/>
+                                </DataTemplate>
+                            </BindableLayout.EmptyViewTemplate>
+                        </FlexLayout>
+                    </VerticalStackLayout>
 
                     <BoxView HeightRequest="1" Color="#EEEEEE" Margin="0,4,0,0"/>
 

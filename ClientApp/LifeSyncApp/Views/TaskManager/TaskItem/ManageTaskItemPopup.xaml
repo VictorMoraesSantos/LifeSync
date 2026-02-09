@@ -2,8 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
+             xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
+             xmlns:converters="clr-namespace:LifeSyncApp.Converters"
              x:DataType="viewmodels:TaskItemsViewModel"
              x:Class="LifeSyncApp.Views.TaskManager.TaskItem.ManageTaskItemPopup">
+
+    <ContentView.Resources>
+        <converters:LabelColorToConverter x:Key="LabelColorToConverter"/>
+    </ContentView.Resources>
 
     <Border BackgroundColor="White"
             StrokeShape="RoundRectangle  16 16 0 0"
@@ -199,33 +205,46 @@
 
                     <Label Text="Etiquetas" FontSize="12" TextColor="#6B7280"/>
 
-                    <HorizontalStackLayout Spacing="10">
-
-                        <Border Stroke="#E5E7EB" StrokeThickness="1" StrokeShape="RoundRectangle 10"
-                                Padding="10,6" BackgroundColor="White">
-                            <HorizontalStackLayout Spacing="8">
-                                <BoxView WidthRequest="8" HeightRequest="8" CornerRadius="4" Color="#60A5FA" VerticalOptions="Center"/>
-                                <Label Text="Trabalho" FontSize="12" TextColor="#111" VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                        </Border>
-
-                        <Border Stroke="#E5E7EB" StrokeThickness="1" StrokeShape="RoundRectangle 10"
-                                Padding="10,6" BackgroundColor="White">
-                            <HorizontalStackLayout Spacing="8">
-                                <BoxView WidthRequest="8" HeightRequest="8" CornerRadius="4" Color="#34D399" VerticalOptions="Center"/>
-                                <Label Text="Pessoal" FontSize="12" TextColor="#111" VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                        </Border>
-
-                        <Border Stroke="#E5E7EB" StrokeThickness="1" StrokeShape="RoundRectangle 10"
-                                Padding="10,6" BackgroundColor="White">
-                            <HorizontalStackLayout Spacing="8">
-                                <BoxView WidthRequest="8" HeightRequest="8" CornerRadius="4" Color="#F87171" VerticalOptions="Center"/>
-                                <Label Text="Urgente" FontSize="12" TextColor="#111" VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                        </Border>
-
-                    </HorizontalStackLayout>
+                    <FlexLayout BindableLayout.ItemsSource="{Binding AvailableLabels}"
+                                Wrap="Wrap"
+                                JustifyContent="Start"
+                                AlignItems="Start"
+                                AlignContent="Start">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:SelectableLabelItem">
+                                <Border Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        Padding="10,6"
+                                        BackgroundColor="White"
+                                        Margin="0,0,8,8">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=ToggleLabelCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding IsSelected}"
+                                                     Value="True">
+                                            <Setter Property="BackgroundColor" Value="#F3F4F6"/>
+                                            <Setter Property="Stroke" Value="#6B7280"/>
+                                            <Setter Property="StrokeThickness" Value="2"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Ellipse WidthRequest="10"
+                                                 HeightRequest="10"
+                                                 Fill="{Binding Label.LabelColor, Converter={StaticResource LabelColorToConverter}}"
+                                                 VerticalOptions="Center"/>
+                                        <Label Text="{Binding Label.Name}"
+                                               FontSize="12"
+                                               TextColor="#111"
+                                               VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
 
                 </VerticalStackLayout>
             </ScrollView>

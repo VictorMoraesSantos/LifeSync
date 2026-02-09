@@ -3,125 +3,143 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
              xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
+             xmlns:local="clr-namespace:LifeSyncApp.Views.TaskManager.TaskItem"
+             xmlns:converters="clr-namespace:LifeSyncApp.Converters"
              x:Class="LifeSyncApp.Views.TaskManager.TaskLabel.TaskLabelPage"
              x:DataType="viewmodels:TaskLabelViewModel"
              Title=""
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto, Auto, *">
-        <Grid Grid.Row="0" 
-              ColumnDefinitions="Auto,*,Auto" 
-              Padding="16,16" 
-              BackgroundColor="White">
+    <ContentPage.Resources>
+        <converters:LabelColorToConverter x:Key="LabelColorToConverter"/>
+    </ContentPage.Resources>
 
-            <HorizontalStackLayout Grid.Column="0" 
-                                   Spacing="6"
-                                   VerticalOptions="Center">
-                <HorizontalStackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
-                </HorizontalStackLayout.GestureRecognizers>
+    <!-- Root Grid to contain main content and modal overlay -->
+    <Grid>
+        <Grid RowDefinitions="Auto, Auto, *">
+            <Grid Grid.Row="0"
+                  ColumnDefinitions="Auto,*,Auto"
+                  Padding="16,16"
+                  BackgroundColor="White">
 
-                <Image Source="arrow_back.svg" 
-                       WidthRequest="16" 
-                       HeightRequest="16" 
-                       VerticalOptions="Center"/>
+                <HorizontalStackLayout Grid.Column="0"
+                                       Spacing="6"
+                                       VerticalOptions="Center">
+                    <HorizontalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                    </HorizontalStackLayout.GestureRecognizers>
 
-                <Label Text="Voltar"
-                       TextColor="#6B7280"
-                       FontSize="14"
-                       VerticalOptions="Center"/>
-            </HorizontalStackLayout>
+                    <Image Source="arrow_back.svg"
+                           WidthRequest="16"
+                           HeightRequest="16"
+                           VerticalOptions="Center"/>
 
-            <HorizontalStackLayout Grid.Column="2" 
-                                   Spacing="6" 
-                                   VerticalOptions="Center">
+                    <Label Text="Voltar"
+                           TextColor="#6B7280"
+                           FontSize="14"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
 
-                <Image Source="label.svg"
-                       WidthRequest="16"
-                       HeightRequest="16"
-                       VerticalOptions="Center"/>
+                <HorizontalStackLayout Grid.Column="2"
+                                       Spacing="6"
+                                       VerticalOptions="Center">
 
-                <Label Text="Etiquetas" 
-                       FontSize="16" 
-                       VerticalOptions="Center"/>
-            </HorizontalStackLayout>
+                    <Image Source="label.svg"
+                           WidthRequest="16"
+                           HeightRequest="16"
+                           VerticalOptions="Center"/>
+
+                    <Label Text="Etiquetas"
+                           FontSize="16"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </Grid>
+
+            <Border Grid.Row="1"
+                    Margin="16, 0, 16, 10"
+                    BackgroundColor="#171717"
+                    StrokeShape="10"
+                    Padding="8,14">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenCreateNewLabelCommand}"/>
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="8"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="Center">
+                    <Image Source="add.png"/>
+                    <Label Text="Nova Etiqueta"
+                           TextColor="#fff"
+                           FontSize="16"
+                           FontAttributes="Bold"/>
+                </HorizontalStackLayout>
+            </Border>
+
+            <CollectionView Grid.Row="2"
+                            ItemsSource="{Binding TaskLabels}"
+                            Margin="16, 0, 16, 16">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:TaskLabel">
+                        <Border Padding="0,0" Margin="0, 5" MaximumWidthRequest="400" StrokeShape="RoundRectangle 8">
+
+                            <Grid ColumnDefinitions="*,*" Margin="10, 10" >
+                                <HorizontalStackLayout Grid.Column="0" Spacing="10">
+                                    <Ellipse WidthRequest="14"
+                                             HeightRequest="14"
+                                             Fill="{Binding LabelColor, Converter={StaticResource LabelColorToConverter}}"
+                                             VerticalOptions="Center"
+                                             HorizontalOptions="Start"/>
+
+                                    <Label Text="{Binding Name}"
+                                           FontSize="16"
+                                           TextColor="#2C3E50"
+                                           VerticalOptions="Center"
+                                           FontAttributes="None"/>
+                                </HorizontalStackLayout>
+
+                                <HorizontalStackLayout Grid.Column="1" HorizontalOptions="End">
+                                    <ImageButton Grid.Column="2"
+                                                 Source="edit.svg"
+                                                 MaximumWidthRequest="40"
+                                                 MaximumHeightRequest="40"
+                                                 BackgroundColor="Transparent"
+                                                 Padding="8"
+                                                 VerticalOptions="Center"
+                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskLabelViewModel}}, Path=EditLabelCommand}"
+                                                 CommandParameter="{Binding .}"/>
+
+                                    <ImageButton Grid.Column="3"
+                                                 Source="trash.svg"
+                                                 MaximumWidthRequest="40"
+                                                 MaximumHeightRequest="40"
+                                                 BackgroundColor="Transparent"
+                                                 Padding="8"
+                                                 VerticalOptions="Center"
+                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskLabelViewModel}}, Path=DeleteLabelCommand}"
+                                                 CommandParameter="{Binding .}"/>
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator Grid.Row="2"
+                              IsRunning="{Binding IsBusy}"
+                              IsVisible="{Binding IsBusy}"
+                              Color="#171717"
+                              VerticalOptions="Center"
+                              HorizontalOptions="Center" />
         </Grid>
 
-        <Border Grid.Row="1" 
-                Margin="16, 0, 16, 10"
-                BackgroundColor="#171717" 
-                StrokeShape="10" 
-                Padding="8,14">
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding OpenCreateNewLabelCommand}"/>
-            </Border.GestureRecognizers>
-            <HorizontalStackLayout Spacing="8" 
-                                   VerticalOptions="Center" 
-                                   HorizontalOptions="Center">
-                <Image Source="add.png"/>
-                <Label Text="Nova Etiqueta" 
-                       TextColor="#fff" 
-                       FontSize="16"
-                       FontAttributes="Bold"/>
-            </HorizontalStackLayout>
-        </Border>
-
-        <CollectionView Grid.Row="2"
-                        ItemsSource="{Binding TaskLabels}"
-                        Margin="16, 0, 16, 16">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:TaskLabel">
-                    <Border Padding="0,0" Margin="0, 5" MaximumWidthRequest="400" StrokeShape="RoundRectangle 8">
-
-                        <Grid ColumnDefinitions="*,*" Margin="10, 10" >
-                            <HorizontalStackLayout Grid.Column="0">
-                                <Ellipse Grid.Column="0"
-                                         WidthRequest="10"
-                                         HeightRequest="10"
-                                         Fill="{Binding LabelColor}"
-                                         VerticalOptions="Center"
-                                         HorizontalOptions="Start"/>
-
-                                <Label Grid.Column="1"
-                                   Text="{Binding Name}"
-                                   FontSize="16"
-                                   TextColor="#2C3E50"
-                                   VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-
-                            <HorizontalStackLayout Grid.Column="1" HorizontalOptions="End">
-                                <ImageButton Grid.Column="2"
-                                             Source="edit.svg"
-                                             MaximumWidthRequest="40"
-                                             MaximumHeightRequest="40"
-                                             BackgroundColor="Transparent"
-                                             Padding="8"
-                                             VerticalOptions="Center"
-                                             Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskLabelViewModel}}, Path=EditLabelCommand}"
-                                             CommandParameter="{Binding .}"/>
-
-                                <ImageButton Grid.Column="3"
-                                             Source="trash.svg"
-                                             MaximumWidthRequest="40"
-                                             MaximumHeightRequest="40"
-                                             BackgroundColor="Transparent"
-                                             Padding="8"
-                                             VerticalOptions="Center"
-                                             Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskLabelViewModel}}, Path=DeleteLabelCommand}"
-                                             CommandParameter="{Binding .}"/>
-                            </HorizontalStackLayout>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-        <!-- Loading Indicator -->
-        <ActivityIndicator Grid.Row="2"
-                          IsRunning="{Binding IsBusy}"
-                          IsVisible="{Binding IsBusy}"
-                          Color="#171717"
-                          VerticalOptions="Center"
-                          HorizontalOptions="Center" />
+        <!-- Modal Overlay -->
+        <Grid IsVisible="{Binding IsManageLabelModalOpen}">
+            <BoxView BackgroundColor="#000000" Opacity="0.45">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseManageLabelModalCommand}" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <local:ManageTaskLabelPopup />
+        </Grid>
     </Grid>
 </ContentPage>

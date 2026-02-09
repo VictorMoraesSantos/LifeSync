@@ -13,7 +13,6 @@ public partial class TaskLabelPage : ContentPage
         _viewModel = taskLabelViewModel;
         BindingContext = taskLabelViewModel;
 
-        // Pré-carregar dados em background durante a construção da página
         _ = Task.Run(async () =>
         {
             if (!_isLoaded)
@@ -27,7 +26,6 @@ public partial class TaskLabelPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // Se ainda não carregou, aguardar
         if (!_isLoaded && !_viewModel.IsBusy)
         {
             Task.Run(async () =>
@@ -41,7 +39,6 @@ public partial class TaskLabelPage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        // Limpar seleção ao sair
         _viewModel.SelectedLabel = null;
     }
 }

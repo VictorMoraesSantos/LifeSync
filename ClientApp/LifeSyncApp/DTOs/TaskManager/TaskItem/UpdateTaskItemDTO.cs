@@ -7,5 +7,6 @@ namespace LifeSyncApp.DTOs.TaskManager.TaskItem
         string Description,
         Status Status,
         Priority Priority,
-        DateOnly DueDate);
+        DateOnly DueDate,
+        List<int>? TaskLabelsId);
 }

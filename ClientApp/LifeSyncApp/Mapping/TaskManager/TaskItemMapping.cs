@@ -46,7 +46,8 @@ namespace LifeSyncApp.Mapping.TaskManager
                 item.Description,
                 item.Status,
                 item.Priority,
-                item.DueDate);
+                item.DueDate,
+                item.Labels?.Select(l => l.Id).ToList());
             return dto;
         }
 

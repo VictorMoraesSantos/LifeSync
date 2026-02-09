@@ -11,6 +11,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
     public class TaskItemsViewModel : BaseViewModel
     {
         private readonly TaskItemService _taskItemService;
+        private readonly TaskLabelService _taskLabelService;
         private bool _isLoadingTasks;
 
         private ObservableCollection<TaskItem> _taskItems = new();
@@ -68,6 +69,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand EditTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
         public ICommand OpenFiltersCommand { get; set; }
+        public ICommand ToggleLabelCommand { get; }
 
         private bool _isManageTaskModalOpen;
         public bool IsManageTaskModalOpen
@@ -184,9 +186,25 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        public TaskItemsViewModel(TaskItemService taskItemService)
+        // Labels management
+        private ObservableCollection<SelectableLabelItem> _availableLabels = new();
+        public ObservableCollection<SelectableLabelItem> AvailableLabels
+        {
+            get => _availableLabels;
+            set
+            {
+                if (_availableLabels != value)
+                {
+                    _availableLabels = value;
+                    OnPropertyChanged(nameof(AvailableLabels));
+                }
+            }
+        }
+
+        public TaskItemsViewModel(TaskItemService taskItemService, TaskLabelService taskLabelService)
         {
             _taskItemService = taskItemService;
+            _taskLabelService = taskLabelService;
 
             GoToLabelsCommand = new Command(async () => await NavigateToTaskLabelPage());
             ToggleStatusCommand = new Command<TaskItem>(async (task) => await ToggleStatusAsync(task));
@@ -200,6 +218,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             EditTaskCommand = new Command(async () => await EditTaskAsync());
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
             OpenFiltersCommand = new Command(() => IsFilterTaskModalOpen = true);
+            ToggleLabelCommand = new Command<SelectableLabelItem>(ToggleLabel);
             FilterViewModel = new FilterTaskItemViewModel(
                 onApplyFilters: (status, priority, dateFilter) =>
                 {
@@ -338,7 +357,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     task.Description,
                     updatedStatus,
                     task.Priority,
-                    task.DueDate
+                    task.DueDate,
+                    task.Labels?.Select(l => l.Id).ToList()
                 );
 
                 await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem).ConfigureAwait(false);
@@ -354,6 +374,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         private void OpenManageTaskModal(TaskItem? taskToEdit = null)
         {
+            List<int> selectedIds = new();
+
             if (taskToEdit != null)
             {
                 EditingTaskId = taskToEdit.Id;
@@ -361,6 +383,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 NewTaskDescription = taskToEdit.Description;
                 NewTaskPriority = taskToEdit.Priority;
                 NewTaskDueDate = taskToEdit.DueDate.ToDateTime(TimeOnly.MinValue);
+
+                // Store selected label IDs from the task
+                selectedIds = taskToEdit.Labels.Select(l => l.Id).ToList();
             }
             else
             {
@@ -370,6 +395,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 NewTaskPriority = Priority.Medium;
                 NewTaskDueDate = DateTime.Today;
             }
+
+            // Load available labels with pre-selection
+            _ = LoadLabelsAsync(selectedIds);
 
             IsManageTaskModalOpen = true;
         }
@@ -427,12 +455,21 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 {
                     var existingTask = _taskItems.FirstOrDefault(t => t.Id == EditingTaskId);
                     var currentStatus = existingTask?.Status ?? Status.Pending;
+
+                    var selectedLabels = AvailableLabels
+                        .Where(l => l.IsSelected)
+                        .Select(l => l.Label)
+                        .ToList();
+
+                    var selectedLabelIds = selectedLabels.Select(l => l.Id).ToList();
+
                     var updateDto = new UpdateTaskItemDTO(
                         Title: NewTaskTitle!,
                         Description: NewTaskDescription ?? string.Empty,
                         Status: currentStatus,
                         Priority: NewTaskPriority,
-                        DueDate: DateOnly.FromDateTime(NewTaskDueDate)
+                        DueDate: DateOnly.FromDateTime(NewTaskDueDate),
+                        TaskLabelsId: selectedLabelIds.Count > 0 ? selectedLabelIds : null
                     );
 
                     await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto).ConfigureAwait(false);
@@ -446,6 +483,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                             existingTask.Priority = NewTaskPriority;
                             existingTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
                             existingTask.UpdatedAt = DateTime.UtcNow;
+                            existingTask.Labels = selectedLabels;
 
                             if (SelectedTask?.Id == existingTask.Id)
                                 SelectedTask = existingTask;
@@ -459,19 +497,27 @@ namespace LifeSyncApp.ViewModels.TaskManager
                             SelectedTask.Priority = NewTaskPriority;
                             SelectedTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
                             SelectedTask.UpdatedAt = DateTime.UtcNow;
+                            SelectedTask.Labels = selectedLabels;
                             OnPropertyChanged(nameof(SelectedTask));
                         }
                     });
                 }
                 else
                 {
+                    var selectedLabels = AvailableLabels
+                        .Where(l => l.IsSelected)
+                        .Select(l => l.Label)
+                        .ToList();
+
+                    var selectedLabelIds = selectedLabels.Select(l => l.Id).ToList();
+
                     var dto = new CreateTaskItemDTO(
                         Title: NewTaskTitle!,
                         Description: NewTaskDescription ?? string.Empty,
                         Priority: NewTaskPriority,
                         DueDate: DateOnly.FromDateTime(NewTaskDueDate),
                         UserId: userId,
-                        TaskLabelsId: null);
+                        TaskLabelsId: selectedLabelIds.Count > 0 ? selectedLabelIds : null);
                     var newId = await _taskItemService.CreateTaskItemAsync(dto).ConfigureAwait(false);
 
                     await MainThread.InvokeOnMainThreadAsync(() =>
@@ -485,7 +531,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
                             DueDate = dto.DueDate,
                             Status = Status.Pending,
                             UserId = dto.UserId,
-                            CreatedAt = DateTime.UtcNow
+                            CreatedAt = DateTime.UtcNow,
+                            Labels = selectedLabels
                         };
 
                         InsertTaskIntoGroups(created);
@@ -544,6 +591,46 @@ namespace LifeSyncApp.ViewModels.TaskManager
             {
                 await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
             }
+        }
+
+        private async Task LoadLabelsAsync(List<int>? preSelectedIds = null)
+        {
+            try
+            {
+                var query = new LifeSyncApp.DTOs.TaskManager.TaskLabel.TaskLabelFilterDTO(
+                    UserId: 22,
+                    SortBy: "name"
+                );
+
+                var labels = await _taskLabelService.SearchTaskLabelAsync(query).ConfigureAwait(false);
+
+                var selectableLabels = await Task.Run(() =>
+                {
+                    return labels.Select(label => new SelectableLabelItem(
+                        label,
+                        isSelected: preSelectedIds?.Contains(label.Id) ?? false
+                    )).ToList();
+                });
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    AvailableLabels = new ObservableCollection<SelectableLabelItem>(selectableLabels);
+                });
+            }
+            catch (Exception ex)
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
+                });
+            }
+        }
+
+        private void ToggleLabel(SelectableLabelItem labelItem)
+        {
+            if (labelItem == null) return;
+
+            labelItem.IsSelected = !labelItem.IsSelected;
         }
 
         private void InsertTaskIntoGroups(TaskItem task)
