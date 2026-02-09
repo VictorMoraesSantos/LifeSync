@@ -152,6 +152,12 @@ public class ManageTransactionViewModel : INotifyPropertyChanged, IQueryAttribut
         SelectTypeCommand = new Command<TransactionType>(type => SelectedType = type);
     }
 
+    public async Task InitializeAsync()
+    {
+        // Método vazio para compatibilidade
+        await Task.CompletedTask;
+    }
+
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         if (query.TryGetValue("id", out var idObj) && int.TryParse(idObj?.ToString(), out var id))
