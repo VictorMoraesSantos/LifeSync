@@ -3,12 +3,40 @@
     x:Class="LifeSyncApp.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:LifeSyncApp.Views.TaskManager.TaskItem"
-    Title="LifeSyncApp">
+    xmlns:taskmanager="clr-namespace:LifeSyncApp.Views.TaskManager.TaskItem"
+    xmlns:financial="clr-namespace:LifeSyncApp.Views.Financial"
+    Title="LifeSync"
+    FlyoutBehavior="Flyout">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:TaskItemPage}"
-        Route="MainPage" />
+    <!-- Flyout Header -->
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="#6366F1" Padding="20,40,20,20">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="LifeSync"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="White" />
+                <Label Text="Organize sua vida"
+                       FontSize="14"
+                       TextColor="White"
+                       Opacity="0.9" />
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- Menu Items -->
+    <FlyoutItem Title="Tarefas" Icon="task_icon.png">
+        <ShellContent
+            Title="Tarefas"
+            ContentTemplate="{DataTemplate taskmanager:TaskItemPage}"
+            Route="tasks" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Finanças" Icon="wallet_icon.png">
+        <ShellContent
+            Title="Finanças"
+            ContentTemplate="{DataTemplate financial:TransactionsPage}"
+            Route="financial" />
+    </FlyoutItem>
 
 </Shell>

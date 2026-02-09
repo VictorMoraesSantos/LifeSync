@@ -1,5 +1,4 @@
-﻿using LifeSyncApp.Views.TaskManager.TaskItem;
-using LifeSyncApp.Views.TaskManager.TaskLabel;
+using LifeSyncApp.Views.Financial;
 
 namespace LifeSyncApp
 {
@@ -9,8 +8,9 @@ namespace LifeSyncApp
         {
             InitializeComponent();
 
-            Routing.RegisterRoute("taskdetail", typeof(TaskItemDetailPage));
-            Routing.RegisterRoute("tasklabels", typeof(TaskLabelPage));
+            // Registrar rotas de navegação
+            Routing.RegisterRoute("create-transaction", typeof(ManageTransactionPage));
+            Routing.RegisterRoute("edit-transaction", typeof(ManageTransactionPage));
         }
     }
 }
