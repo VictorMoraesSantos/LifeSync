@@ -1,9 +1,12 @@
 ﻿using LifeSyncApp.Services.ApiService.Implementation;
 using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.TaskManager.Implementation;
+using LifeSyncApp.Services.Financial;
 using LifeSyncApp.ViewModels.TaskManager;
+using LifeSyncApp.ViewModels.Financial;
 using LifeSyncApp.Views.TaskManager.TaskItem;
 using LifeSyncApp.Views.TaskManager.TaskLabel;
+using LifeSyncApp.Views.Financial;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
 using System.Text.Json;
@@ -59,7 +62,6 @@ namespace LifeSyncApp
                 var handler = new Xamarin.Android.Net.AndroidMessageHandler
                 {
                     ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
-                    // Configurações de performance
                     AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
                 };
                 return handler;
@@ -71,12 +73,17 @@ namespace LifeSyncApp
 #endif
             });
 
-            // JsonSerializerOptions otimizado
+            // JsonSerializerOptions otimizado com conversores de enum
             builder.Services.AddSingleton(new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
-                WriteIndented = false, // Desabilitar para produção
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = false,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                Converters =
+                {
+                    new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                }
             });
 
             // API Services
@@ -85,16 +92,20 @@ namespace LifeSyncApp
             // Business Services
             builder.Services.AddScoped<TaskItemService>();
             builder.Services.AddScoped<TaskLabelService>();
+            builder.Services.AddScoped<FinancialService>();
 
-            // ViewModels - CORRIGIDO: Scoped ao invés de Singleton para evitar memory leaks
-            // Cada navegação cria uma nova instância, liberando recursos quando a página é destruída
+            // ViewModels - Scoped para evitar memory leaks
             builder.Services.AddScoped<TaskItemsViewModel>();
             builder.Services.AddScoped<TaskLabelViewModel>();
+            builder.Services.AddScoped<TransactionsViewModel>();
+            builder.Services.AddScoped<ManageTransactionViewModel>();
 
             // Views - Transient para criar nova instância sempre
             builder.Services.AddTransient<TaskItemPage>();
             builder.Services.AddTransient<TaskItemDetailPage>();
             builder.Services.AddTransient<TaskLabelPage>();
+            builder.Services.AddTransient<TransactionsPage>();
+            builder.Services.AddTransient<ManageTransactionPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
