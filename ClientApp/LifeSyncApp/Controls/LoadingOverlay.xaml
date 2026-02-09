@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeSyncApp.Controls.LoadingOverlay"
+             x:Name="LoadingOverlayControl">
+    
+    <Grid IsVisible="{Binding IsVisible, Source={x:Reference LoadingOverlayControl}}">
+        <!-- Semi-transparent background -->
+        <BoxView BackgroundColor="{StaticResource OverlayColor}" />
+        
+        <!-- Loading Content -->
+        <Border BackgroundColor="{StaticResource BackgroundPrimary}"
+                StrokeShape="RoundRectangle 16"
+                Stroke="Transparent"
+                Padding="32,24"
+                WidthRequest="200"
+                HeightRequest="200"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
+            
+            <VerticalStackLayout Spacing="16"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                
+                <!-- Activity Indicator -->
+                <ActivityIndicator IsRunning="True"
+                                   Color="{StaticResource Primary}"
+                                   WidthRequest="48"
+                                   HeightRequest="48"
+                                   HorizontalOptions="Center" />
+                
+                <!-- Loading Text -->
+                <Label Text="{Binding LoadingText, Source={x:Reference LoadingOverlayControl}}"
+                       Style="{StaticResource BodyMedium}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+                
+            </VerticalStackLayout>
+            
+        </Border>
+    </Grid>
+    
+</ContentView>
