@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             xmlns:models="clr-namespace:LifeSyncApp.Models.Financial"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
+             x:Class="LifeSyncApp.Views.Financial.TransactionsPage"
+             x:DataType="vm:TransactionsViewModel"
+             Title="Finanças">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="0">
+        
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="20,20,20,10" BackgroundColor="{StaticResource Primary}">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Suas Finanças"
+                       Style="{StaticResource H2}"
+                       TextColor="{StaticResource TextInverse}" />
+                       
+                <Label Text="Gerencie suas receitas e despesas"
+                       Style="{StaticResource BodyMedium}"
+                       TextColor="{StaticResource TextInverse}"
+                       Opacity="0.8" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Search and Filter Bar -->
+        <Border Grid.Row="1" 
+                Style="{StaticResource CardBase}"
+                Margin="16,0,16,8">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                
+                <!-- Search -->
+                <Border Grid.Column="0" Style="{StaticResource InputField}">
+                    <Entry Placeholder="Buscar transações..."
+                           Text="{Binding SearchText}"
+                           VerticalOptions="Center" />
+                </Border>
+                
+                <!-- Add Button -->
+                <Border Grid.Column="1"
+                        Style="{StaticResource PrimaryButton}"
+                        WidthRequest="48"
+                        HeightRequest="48">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CreateTransactionCommand}" />
+                    </Border.GestureRecognizers>
+                    
+                    <Label Text="+"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextInverse}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Transactions List -->
+        <RefreshView Grid.Row="2"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}"
+                     Margin="16,0">
+            
+            <CollectionView ItemsSource="{Binding FilteredTransactions}"
+                            SelectionMode="None"
+                            EmptyView="Nenhuma transação encontrada">
+                
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                </CollectionView.ItemsLayout>
+                
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Transaction">
+                        <SwipeView>
+                            <!-- Swipe Actions -->
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="Editar"
+                                               BackgroundColor="{StaticResource Primary}"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionsViewModel}}, Path=EditTransactionCommand}"
+                                               CommandParameter="{Binding .}" />
+                                    
+                                    <SwipeItem Text="Excluir"
+                                               BackgroundColor="{StaticResource Error}"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionsViewModel}}, Path=DeleteTransactionCommand}"
+                                               CommandParameter="{Binding .}" />
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            
+                            <!-- Transaction Card -->
+                            <Border Style="{StaticResource CardElevated}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="4">
+                                    
+                                    <!-- Type Indicator -->
+                                    <Border Grid.Column="0"
+                                            BackgroundColor="{Binding TransactionTypeColor}"
+                                            StrokeShape="RoundRectangle 12"
+                                            Stroke="Transparent"
+                                            WidthRequest="48"
+                                            HeightRequest="48">
+                                        <Label Text="{Binding TransactionTypeIcon}"
+                                               FontSize="20"
+                                               TextColor="{StaticResource TextInverse}"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                    
+                                    <!-- Transaction Info -->
+                                    <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                        <Label Text="{Binding Description}"
+                                               Style="{StaticResource BodyLarge}"
+                                               FontAttributes="Bold" />
+                                        
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding Category.Name}"
+                                                   Style="{StaticResource BodySmall}"
+                                                   TextColor="{StaticResource TextSecondary}" />
+                                            
+                                            <Label Text="•"
+                                                   Style="{StaticResource BodySmall}"
+                                                   TextColor="{StaticResource TextTertiary}" />
+                                            
+                                            <Label Text="{Binding FormattedDate}"
+                                                   Style="{StaticResource BodySmall}"
+                                                   TextColor="{StaticResource TextSecondary}" />
+                                        </HorizontalStackLayout>
+                                        
+                                        <Label Text="{Binding PaymentMethodDisplay}"
+                                               Style="{StaticResource Caption}" />
+                                    </VerticalStackLayout>
+                                    
+                                    <!-- Amount -->
+                                    <Label Grid.Column="2"
+                                           Text="{Binding FormattedAmount}"
+                                           Style="{StaticResource H4}"
+                                           TextColor="{Binding TransactionTypeColor}"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Loading Overlay -->
+        <controls:LoadingOverlay Grid.RowSpan="3"
+                                 IsVisible="{Binding IsBusy}"
+                                 LoadingText="Carregando transações..." />
+    </Grid>
+
+</ContentPage>
