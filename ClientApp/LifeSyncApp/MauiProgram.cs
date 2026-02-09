@@ -46,6 +46,7 @@ namespace LifeSyncApp
                 ? "http://10.0.2.2:6006"  // Emulador Android
                 : "http://192.168.0.36:6006";  // Dispositivo físico
 
+            // HttpClient com timeout otimizado
             builder.Services.AddHttpClient("LifeSyncApi", client =>
             {
                 client.BaseAddress = new Uri(baseUrl);
@@ -57,19 +58,25 @@ namespace LifeSyncApp
 #if ANDROID
                 var handler = new Xamarin.Android.Net.AndroidMessageHandler
                 {
-                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
+                    // Configurações de performance
+                    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
                 };
                 return handler;
 #else
-                return new HttpClientHandler();
+                return new HttpClientHandler
+                {
+                    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+                };
 #endif
             });
 
-            // JsonSerializerOptions
+            // JsonSerializerOptions otimizado
             builder.Services.AddSingleton(new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
-                WriteIndented = true
+                WriteIndented = false, // Desabilitar para produção
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
             });
 
             // API Services
@@ -79,9 +86,10 @@ namespace LifeSyncApp
             builder.Services.AddScoped<TaskItemService>();
             builder.Services.AddScoped<TaskLabelService>();
 
-            // ViewModels - Singleton para manter estado entre navegações
-            builder.Services.AddSingleton<TaskItemsViewModel>();
-            builder.Services.AddSingleton<TaskLabelViewModel>();
+            // ViewModels - CORRIGIDO: Scoped ao invés de Singleton para evitar memory leaks
+            // Cada navegação cria uma nova instância, liberando recursos quando a página é destruída
+            builder.Services.AddScoped<TaskItemsViewModel>();
+            builder.Services.AddScoped<TaskLabelViewModel>();
 
             // Views - Transient para criar nova instância sempre
             builder.Services.AddTransient<TaskItemPage>();
@@ -90,6 +98,9 @@ namespace LifeSyncApp
 
 #if DEBUG
             builder.Logging.AddDebug();
+            builder.Logging.SetMinimumLevel(LogLevel.Debug);
+#else
+            builder.Logging.SetMinimumLevel(LogLevel.Warning);
 #endif
 
             return builder.Build();
