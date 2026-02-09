@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 using LifeSyncApp.DTOs.Financial;
-using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Models.Financial.Enums;
 using LifeSyncApp.Services.Financial;
 
@@ -13,12 +12,11 @@ public class TransactionsViewModel : INotifyPropertyChanged
     private readonly FinancialService _financialService;
     private bool _isBusy;
     private bool _isRefreshing;
-    private Transaction? _selectedTransaction;
-    private TransactionFilterDTO _currentFilter;
+    private TransactionDTO? _selectedTransaction;
     private string _searchText = string.Empty;
 
-    public ObservableCollection<Transaction> Transactions { get; } = new();
-    public ObservableCollection<Transaction> FilteredTransactions { get; } = new();
+    public ObservableCollection<TransactionDTO> Transactions { get; } = new();
+    public ObservableCollection<TransactionDTO> FilteredTransactions { get; } = new();
 
     public bool IsBusy
     {
@@ -49,7 +47,7 @@ public class TransactionsViewModel : INotifyPropertyChanged
         }
     }
 
-    public Transaction? SelectedTransaction
+    public TransactionDTO? SelectedTransaction
     {
         get => _selectedTransaction;
         set
@@ -82,20 +80,17 @@ public class TransactionsViewModel : INotifyPropertyChanged
     public ICommand CreateTransactionCommand { get; }
     public ICommand EditTransactionCommand { get; }
     public ICommand DeleteTransactionCommand { get; }
-    public ICommand FilterByTypeCommand { get; }
 
     public TransactionsViewModel(FinancialService financialService)
     {
         _financialService = financialService;
-        _currentFilter = new TransactionFilterDTO { UserId = 1 }; // TODO: Get from auth
 
         LoadTransactionsCommand = new Command(async () => await LoadTransactionsAsync());
         RefreshCommand = new Command(async () => await RefreshAsync());
         SearchCommand = new Command<string>(async (query) => await SearchAsync(query));
         CreateTransactionCommand = new Command(async () => await CreateTransactionAsync());
-        EditTransactionCommand = new Command<Transaction>(async (t) => await EditTransactionAsync(t));
-        DeleteTransactionCommand = new Command<Transaction>(async (t) => await DeleteTransactionAsync(t));
-        FilterByTypeCommand = new Command<TransactionType>(async (type) => await FilterByTypeAsync(type));
+        EditTransactionCommand = new Command<TransactionDTO>(async (t) => await EditTransactionAsync(t));
+        DeleteTransactionCommand = new Command<TransactionDTO>(async (t) => await DeleteTransactionAsync(t));
     }
 
     public async Task LoadTransactionsAsync()
@@ -107,11 +102,11 @@ public class TransactionsViewModel : INotifyPropertyChanged
             IsBusy = true;
             Transactions.Clear();
 
-            var result = await _financialService.SearchTransactionsAsync(_currentFilter);
+            var transactions = await _financialService.GetAllTransactionsAsync();
             
-            foreach (var dto in result.Items)
+            foreach (var transaction in transactions)
             {
-                Transactions.Add(MapDtoToModel(dto));
+                Transactions.Add(transaction);
             }
 
             ApplyFilters();
@@ -135,30 +130,22 @@ public class TransactionsViewModel : INotifyPropertyChanged
 
     public async Task SearchAsync(string? query)
     {
-        _currentFilter.UserId = 1; // TODO: Get from auth
-        await LoadTransactionsAsync();
-    }
-
-    public async Task FilterByTypeAsync(TransactionType type)
-    {
-        _currentFilter.TransactionType = type;
         await LoadTransactionsAsync();
     }
 
     public async Task CreateTransactionAsync()
     {
-        // Navigate to create page
         await Shell.Current.GoToAsync("create-transaction");
     }
 
-    public async Task EditTransactionAsync(Transaction transaction)
+    public async Task EditTransactionAsync(TransactionDTO transaction)
     {
         if (transaction == null) return;
         
         await Shell.Current.GoToAsync($"edit-transaction?id={transaction.Id}");
     }
 
-    public async Task DeleteTransactionAsync(Transaction transaction)
+    public async Task DeleteTransactionAsync(TransactionDTO transaction)
     {
         if (transaction == null) return;
 
@@ -213,34 +200,6 @@ public class TransactionsViewModel : INotifyPropertyChanged
         {
             FilteredTransactions.Add(transaction);
         }
-    }
-
-    private Transaction MapDtoToModel(TransactionDTO dto)
-    {
-        return new Transaction
-        {
-            Id = dto.Id,
-            UserId = dto.UserId,
-            Category = dto.Category != null ? new Category
-            {
-                Id = dto.Category.Id,
-                Name = dto.Category.Name,
-                Description = dto.Category.Description,
-                Color = dto.Category.Color,
-                Icon = dto.Category.Icon,
-                UserId = dto.Category.UserId,
-                CreatedAt = dto.Category.CreatedAt,
-                UpdatedAt = dto.Category.UpdatedAt
-            } : null,
-            CreatedAt = dto.CreatedAt,
-            UpdatedAt = dto.UpdatedAt,
-            PaymentMethod = dto.PaymentMethod,
-            TransactionType = dto.TransactionType,
-            Amount = new Money(dto.Amount?.Amount ?? 0, dto.Amount?.Currency ?? "BRL"),
-            Description = dto.Description,
-            TransactionDate = dto.TransactionDate,
-            IsRecurring = dto.IsRecurring
-        };
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

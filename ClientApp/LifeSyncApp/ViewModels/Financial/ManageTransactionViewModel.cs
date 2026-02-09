@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.Windows.Input;
 using LifeSyncApp.DTOs.Financial;
-using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Models.Financial.Enums;
 using LifeSyncApp.Services.Financial;
 
@@ -12,7 +11,7 @@ public class ManageTransactionViewModel : INotifyPropertyChanged, IQueryAttribut
     private readonly FinancialService _financialService;
     private bool _isBusy;
     private int? _transactionId;
-    private decimal _amount;
+    private int _amount; // Valor em centavos!
     private string _description = string.Empty;
     private DateTime _transactionDate;
     private TransactionType _selectedType;
@@ -52,15 +51,17 @@ public class ManageTransactionViewModel : INotifyPropertyChanged, IQueryAttribut
 
     public string PageTitle => IsEditMode ? "Editar Transação" : "Nova Transação";
 
-    public decimal Amount
+    // Propriedade para exibir como decimal (R$ 10,00)
+    public decimal AmountDisplay
     {
-        get => _amount;
+        get => _amount / 100m;
         set
         {
-            if (_amount != value)
+            var newAmount = (int)(value * 100);
+            if (_amount != newAmount)
             {
-                _amount = value;
-                OnPropertyChanged(nameof(Amount));
+                _amount = newAmount;
+                OnPropertyChanged(nameof(AmountDisplay));
             }
         }
     }
@@ -154,7 +155,6 @@ public class ManageTransactionViewModel : INotifyPropertyChanged, IQueryAttribut
 
     public async Task InitializeAsync()
     {
-        // Método vazio para compatibilidade
         await Task.CompletedTask;
     }
 
@@ -181,12 +181,13 @@ public class ManageTransactionViewModel : INotifyPropertyChanged, IQueryAttribut
             
             if (dto != null)
             {
-                Amount = dto.Amount?.Amount ?? 0;
+                _amount = dto.Amount.Amount;
                 Description = dto.Description;
                 TransactionDate = dto.TransactionDate;
                 SelectedType = dto.TransactionType;
                 SelectedPaymentMethod = dto.PaymentMethod;
                 CategoryId = dto.Category?.Id ?? 1;
+                OnPropertyChanged(nameof(AmountDisplay));
             }
         }
         catch (Exception ex)
@@ -201,7 +202,7 @@ public class ManageTransactionViewModel : INotifyPropertyChanged, IQueryAttribut
 
     private bool CanSave()
     {
-        return !IsBusy && Amount > 0 && !string.IsNullOrWhiteSpace(Description);
+        return !IsBusy && _amount > 0 && !string.IsNullOrWhiteSpace(Description);
     }
 
     private async Task SaveAsync()
@@ -216,11 +217,11 @@ public class ManageTransactionViewModel : INotifyPropertyChanged, IQueryAttribut
             {
                 var updateDto = new UpdateTransactionDTO
                 {
+                    Id = _transactionId.Value,
                     CategoryId = CategoryId,
                     PaymentMethod = SelectedPaymentMethod,
                     TransactionType = SelectedType,
-                    Amount = Amount,
-                    Currency = "BRL",
+                    Amount = new MoneyDTO(_amount, Currency.BRL),
                     Description = Description,
                     TransactionDate = TransactionDate
                 };
@@ -245,8 +246,7 @@ public class ManageTransactionViewModel : INotifyPropertyChanged, IQueryAttribut
                     CategoryId = CategoryId,
                     PaymentMethod = SelectedPaymentMethod,
                     TransactionType = SelectedType,
-                    Amount = Amount,
-                    Currency = "BRL",
+                    Amount = new MoneyDTO(_amount, Currency.BRL),
                     Description = Description,
                     TransactionDate = TransactionDate,
                     IsRecurring = false
