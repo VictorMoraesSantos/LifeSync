@@ -69,19 +69,6 @@
                      Color="#E0E0E0"
                      VerticalOptions="End"/>
 
-            <!-- Loading Overlay -->
-            <Grid Grid.Row="1"
-                  IsVisible="{Binding IsBusy}"
-                  BackgroundColor="#80FFFFFF"
-                  ZIndex="100">
-                <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                  Color="#171717"
-                                  VerticalOptions="Center"
-                                  HorizontalOptions="Center"
-                                  HeightRequest="50"
-                                  WidthRequest="50"/>
-            </Grid>
-
             <CollectionView Grid.Row="1"
                             Margin="10"
                             ItemsSource="{Binding GroupedTasks}"
@@ -288,20 +275,24 @@
             </CollectionView>
         </Grid>
 
-        <Grid x:Name="ManageTaskOverlay" IsVisible="{Binding IsManageTaskModalOpen}">
-            <Grid BackgroundColor="#000000" Opacity="0.45">
-                <Grid.GestureRecognizers>
+        <!-- Manage Task Modal Overlay -->
+        <Grid IsVisible="{Binding IsManageTaskModalOpen}">
+            <BoxView BackgroundColor="#000000" Opacity="0.45">
+                <BoxView.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CloseManageTaskModalCommand}" />
-                </Grid.GestureRecognizers>
-            </Grid>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <taskitem:ManageTaskItemPopup />
         </Grid>
 
-        <Grid x:Name="FilterTaskOverlay" IsVisible="{Binding IsFilterTaskModalOpen}">
-            <Grid BackgroundColor="#000000" Opacity="0.45">
-                <Grid.GestureRecognizers>
+        <!-- Filter Task Modal Overlay -->
+        <Grid IsVisible="{Binding IsFilterTaskModalOpen}">
+            <BoxView BackgroundColor="#000000" Opacity="0.45">
+                <BoxView.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding FilterViewModel.CloseModalCommand}" />
-                </Grid.GestureRecognizers>
-            </Grid>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <taskitem:FilterTaskItemPopup />
         </Grid>
     </Grid>
 </ContentPage>

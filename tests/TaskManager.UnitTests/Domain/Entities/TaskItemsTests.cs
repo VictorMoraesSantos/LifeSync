@@ -3,7 +3,7 @@ using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
 using TaskManager.Domain.Errors;
 
-namespace TaskManager.UnitTests.Domain
+namespace TaskManager.UnitTests.Domain.Entities
 {
     public class TaskItemsTests
     {

@@ -41,11 +41,28 @@ namespace LifeSyncApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            // Configure a URL base baseado na plataforma
+            var baseUrl = DeviceInfo.Platform == DevicePlatform.Android && DeviceInfo.DeviceType == DeviceType.Virtual
+                ? "http://10.0.2.2:6006"  // Emulador Android
+                : "http://192.168.0.36:6006";  // Dispositivo físico
+
             builder.Services.AddHttpClient("LifeSyncApi", client =>
             {
-                client.BaseAddress = new Uri("http://10.0.2.2:6006");
+                client.BaseAddress = new Uri(baseUrl);
                 client.Timeout = TimeSpan.FromSeconds(30);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+            {
+#if ANDROID
+                var handler = new Xamarin.Android.Net.AndroidMessageHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                };
+                return handler;
+#else
+                return new HttpClientHandler();
+#endif
             });
 
             // JsonSerializerOptions
@@ -62,11 +79,11 @@ namespace LifeSyncApp
             builder.Services.AddScoped<TaskItemService>();
             builder.Services.AddScoped<TaskLabelService>();
 
-            // ViewModels
-            builder.Services.AddTransient<TaskItemsViewModel>();
-            builder.Services.AddTransient<TaskLabelViewModel>();
+            // ViewModels - Singleton para manter estado entre navegações
+            builder.Services.AddSingleton<TaskItemsViewModel>();
+            builder.Services.AddSingleton<TaskLabelViewModel>();
 
-            // Views
+            // Views - Transient para criar nova instância sempre
             builder.Services.AddTransient<TaskItemPage>();
             builder.Services.AddTransient<TaskItemDetailPage>();
             builder.Services.AddTransient<TaskLabelPage>();

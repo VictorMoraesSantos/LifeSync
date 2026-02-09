@@ -4,65 +4,32 @@ namespace LifeSyncApp.Views.TaskManager.TaskItem;
 
 public partial class TaskItemPage : ContentPage
 {
-    private ManageTaskItemPopup? _managePopup;
-    private FilterTaskItemPopup? _filterPopup;
+    private readonly TaskItemsViewModel _viewModel;
+    private bool _isLoaded;
 
     public TaskItemPage(TaskItemsViewModel vm)
     {
         InitializeComponent();
+        _viewModel = vm;
         BindingContext = vm;
-
-        vm.PropertyChanged += OnViewModelPropertyChanged;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        if (BindingContext is not TaskItemsViewModel viewModel)
-            return;
-        await viewModel.LoadTasksAsync();
+        if (!_isLoaded)
+        {
+            _isLoaded = true;
+            await _viewModel.LoadTasksAsync();
+        }
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
 
-        if (BindingContext is TaskItemsViewModel vm)
-        {
-            vm.PropertyChanged -= OnViewModelPropertyChanged;
-        }
-    }
-
-    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(TaskItemsViewModel.IsManageTaskModalOpen))
-        {
-            var vm = (TaskItemsViewModel)BindingContext;
-            if (vm.IsManageTaskModalOpen && _managePopup is null)
-            {
-                _managePopup = new ManageTaskItemPopup { BindingContext = vm };
-                ManageTaskOverlay.Add(_managePopup);
-            }
-            else if (!vm.IsManageTaskModalOpen && _managePopup is not null)
-            {
-                ManageTaskOverlay.Remove(_managePopup);
-                _managePopup = null;
-            }
-        }
-        else if (e.PropertyName == nameof(TaskItemsViewModel.IsFilterTaskModalOpen))
-        {
-            var vm = (TaskItemsViewModel)BindingContext;
-            if (vm.IsFilterTaskModalOpen && _filterPopup is null)
-            {
-                _filterPopup = new FilterTaskItemPopup { BindingContext = vm };
-                FilterTaskOverlay.Add(_filterPopup);
-            }
-            else if (!vm.IsFilterTaskModalOpen && _filterPopup is not null)
-            {
-                FilterTaskOverlay.Remove(_filterPopup);
-                _filterPopup = null;
-            }
-        }
+        _viewModel.IsManageTaskModalOpen = false;
+        _viewModel.IsFilterTaskModalOpen = false;
     }
 }

@@ -9,6 +9,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
     public class TaskLabelViewModel : BaseViewModel
     {
         private readonly TaskLabelService _taskLabelService;
+        private bool _isLoadingLabels;
 
         private ObservableCollection<TaskLabel> _taskLabels = new();
         public ObservableCollection<TaskLabel> TaskLabels
@@ -16,52 +17,94 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _taskLabels;
             set
             {
-                _taskLabels = value;
-                OnPropertyChanged(nameof(TaskLabels));
+                if (_taskLabels != value)
+                {
+                    _taskLabels = value;
+                    OnPropertyChanged(nameof(TaskLabels));
+                }
             }
         }
 
         private TaskLabel? _selectedLabel;
         public TaskLabel? SelectedLabel
         {
-            get => _selectedLabel; set
+            get => _selectedLabel;
+            set
             {
-                _selectedLabel = value;
-                OnPropertyChanged(nameof(SelectedLabel));
+                if (_selectedLabel != value)
+                {
+                    _selectedLabel = value;
+                    OnPropertyChanged(nameof(SelectedLabel));
+                }
             }
         }
 
         public ICommand GoBackCommand { get; set; }
         public ICommand DeleteLabelCommand { get; set; }
+        public ICommand EditLabelCommand { get; set; }
         public ICommand OpenCreateNewLabelCommand { get; set; }
 
         public TaskLabelViewModel(TaskLabelService taskLabelService)
         {
-            GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             _taskLabelService = taskLabelService;
 
+            GoBackCommand = new Command(async () => await GoBackAsync());
+            EditLabelCommand = new Command<TaskLabel>(OpenManageLabelModal);
             OpenCreateNewLabelCommand = new Command<TaskLabel>(OpenManageLabelModal);
             DeleteLabelCommand = new Command<TaskLabel>(async (label) => await DeleteLabelAsync(label));
         }
 
-        public async Task LoadLabelsAsync()
+        private async Task GoBackAsync()
         {
             try
             {
-                IsBusy = true;
-
-                var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
-                var labels = await _taskLabelService.SearchTaskLabelAsync(query);
-
-                TaskLabels = new ObservableCollection<TaskLabel>(labels);
+                await Shell.Current.GoToAsync("..");
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Error", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Erro", $"Erro ao voltar: {ex.Message}", "OK");
+                });
+            }
+        }
+
+        public async Task LoadLabelsAsync()
+        {
+            // Evitar múltiplas chamadas simultâneas
+            if (_isLoadingLabels)
+                return;
+
+            try
+            {
+                _isLoadingLabels = true;
+                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
+
+                var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
+                var labels = await _taskLabelService.SearchTaskLabelAsync(query).ConfigureAwait(false);
+
+                // Processar em background thread
+                var labelCollection = await Task.Run(() =>
+                    new ObservableCollection<TaskLabel>(labels)
+                ).ConfigureAwait(false);
+
+                // Atualizar UI na main thread
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    TaskLabels = labelCollection;
+                });
+            }
+            catch (Exception ex)
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
+                });
             }
             finally
             {
-                IsBusy = false;
+                _isLoadingLabels = false;
+                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
             }
         }
 
@@ -81,31 +124,40 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         private async Task DeleteLabelAsync(TaskLabel label)
         {
-            if (SelectedLabel == null) return;
+            if (label == null) return;
 
-            bool confirm = await Shell.Current.DisplayAlert(
-                "Excluir Etiqueta",
-                "Tem certeza que deseja excluir esta etiqueta?",
-                "Sim",
-                "Não");
+            bool confirm = await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                return await Shell.Current.DisplayAlert(
+                    "Excluir Etiqueta",
+                    "Tem certeza que deseja excluir esta etiqueta?",
+                    "Sim",
+                    "Não");
+            });
 
             if (!confirm) return;
 
             try
             {
-                IsBusy = true;
-                await _taskLabelService.DeleteTaskLabelAsync(label.Id);
+                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
+                await _taskLabelService.DeleteTaskLabelAsync(label.Id).ConfigureAwait(false);
 
-                await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
-                await Shell.Current.GoToAsync("..");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Sucesso", "Etiqueta excluída com sucesso!", "OK");
+                    await Shell.Current.GoToAsync("..");
+                });
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Erro", $"Não foi possível excluir a etiqueta: {ex.Message}", "OK");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Erro", $"Não foi possível excluir a etiqueta: {ex.Message}", "OK");
+                });
             }
             finally
             {
-                IsBusy = false;
+                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
             }
         }
     }

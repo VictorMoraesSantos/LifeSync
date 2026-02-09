@@ -89,7 +89,7 @@
 	  <MauiXaml Update="Views\TaskManager\TaskItem\FilterTaskItemPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\TaskManager\TaskItem\ManageTaskLabelPopup.xaml">
+	  <MauiXaml Update="Views\TaskManager\TaskLabel\ManageTaskLabelPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TaskManager\TaskItem\TaskItemDetailPage.xaml">
