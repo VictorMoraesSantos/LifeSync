@@ -4,203 +4,177 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Base Page Style -->
-    <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
-        <Setter Property="BackgroundColor" Value="{StaticResource BackgroundSecondary}" />
-    </Style>
-
     <!-- Typography Styles -->
     <Style x:Key="H1" TargetType="Label">
-        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontSize" Value="32" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="LineHeight" Value="1.2" />
     </Style>
 
     <Style x:Key="H2" TargetType="Label">
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="LineHeight" Value="1.3" />
     </Style>
 
     <Style x:Key="H3" TargetType="Label">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="LineHeight" Value="1.4" />
     </Style>
 
     <Style x:Key="H4" TargetType="Label">
         <Setter Property="FontSize" Value="18" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="LineHeight" Value="1.4" />
     </Style>
 
     <Style x:Key="BodyLarge" TargetType="Label">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="LineHeight" Value="1.5" />
     </Style>
 
-    <Style x:Key="Body" TargetType="Label">
+    <Style x:Key="BodyMedium" TargetType="Label">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="LineHeight" Value="1.5" />
     </Style>
 
-    <Style x:Key="BodySecondary" TargetType="Label">
-        <Setter Property="FontSize" Value="14" />
+    <Style x:Key="BodySmall" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
         <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="LineHeight" Value="1.5" />
     </Style>
 
     <Style x:Key="Caption" TargetType="Label">
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
-    </Style>
-
-    <Style x:Key="Small" TargetType="Label">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="TextColor" Value="{StaticResource TextTertiary}" />
+        <Setter Property="LineHeight" Value="1.4" />
     </Style>
 
     <!-- Button Styles -->
     <Style x:Key="PrimaryButton" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
-        <Setter Property="StrokeThickness" Value="0" />
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
-        <Setter Property="Padding" Value="24,14" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="Padding" Value="16,12" />
         <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryDark}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
     <Style x:Key="SecondaryButton" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource BackgroundTertiary}" />
-        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Gray100}" />
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
-        <Setter Property="Padding" Value="24,14" />
+        <Setter Property="Stroke" Value="{StaticResource BorderPrimary}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Padding" Value="16,12" />
         <Setter Property="HeightRequest" Value="48" />
     </Style>
 
     <Style x:Key="OutlineButton" TargetType="Border">
         <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="Stroke" Value="{StaticResource BorderPrimary}" />
-        <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
-        <Setter Property="Padding" Value="24,14" />
+        <Setter Property="Stroke" Value="{StaticResource Primary}" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="Padding" Value="16,12" />
         <Setter Property="HeightRequest" Value="48" />
     </Style>
 
     <Style x:Key="IconButton" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource BackgroundTertiary}" />
-        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Gray100}" />
         <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Stroke" Value="Transparent" />
         <Setter Property="WidthRequest" Value="44" />
         <Setter Property="HeightRequest" Value="44" />
     </Style>
 
     <!-- Card Styles -->
-    <Style x:Key="Card" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
-        <Setter Property="Padding" Value="16" />
-        <Setter Property="Shadow">
-            <Shadow Brush="{StaticResource ShadowColor}"
-                    Opacity="0.05"
-                    Radius="8"
-                    Offset="0,2" />
-        </Setter>
-    </Style>
-
-    <Style x:Key="CardElevated" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
-        <Setter Property="Padding" Value="16" />
-        <Setter Property="Shadow">
-            <Shadow Brush="{StaticResource ShadowColor}"
-                    Opacity="0.1"
-                    Radius="16"
-                    Offset="0,4" />
-        </Setter>
-    </Style>
-
-    <Style x:Key="CardOutline" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+    <Style x:Key="CardBase" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource BackgroundPrimary}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
         <Setter Property="Stroke" Value="{StaticResource BorderPrimary}" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <Style x:Key="CardElevated" TargetType="Border" BasedOn="{StaticResource CardBase}">
+        <Setter Property="Shadow">
+            <Shadow Brush="{StaticResource ShadowColor}"
+                    Offset="0,2"
+                    Radius="8"
+                    Opacity="0.1" />
+        </Setter>
     </Style>
 
     <!-- Input Styles -->
-    <Style x:Key="InputBorder" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
-        <Setter Property="Stroke" Value="{StaticResource BorderSecondary}" />
+    <Style x:Key="InputField" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource Gray50}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="Stroke" Value="{StaticResource BorderPrimary}" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
         <Setter Property="Padding" Value="16,12" />
         <Setter Property="HeightRequest" Value="48" />
     </Style>
 
     <Style TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextTertiary}" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
     </Style>
 
     <Style TargetType="Editor">
+        <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="PlaceholderColor" Value="{StaticResource TextTertiary}" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="AutoSize" Value="TextChanges" />
     </Style>
 
     <!-- Badge Styles -->
     <Style x:Key="Badge" TargetType="Border">
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 6" />
-        <Setter Property="Padding" Value="8,4" />
-    </Style>
-
-    <Style x:Key="BadgeOutline" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Gray100}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+        <Setter Property="Stroke" Value="{StaticResource BorderPrimary}" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 6" />
         <Setter Property="Padding" Value="8,4" />
     </Style>
 
-    <!-- Divider -->
+    <Style x:Key="StatusBadge" TargetType="Border" BasedOn="{StaticResource Badge}">
+        <Setter Property="Padding" Value="12,6" />
+    </Style>
+
+    <!-- Divider Style -->
     <Style x:Key="Divider" TargetType="BoxView">
         <Setter Property="HeightRequest" Value="1" />
         <Setter Property="Color" Value="{StaticResource BorderPrimary}" />
     </Style>
 
-    <!-- Modal Overlay -->
-    <Style x:Key="ModalOverlay" TargetType="BoxView">
-        <Setter Property="BackgroundColor" Value="{StaticResource OverlayDark}" />
-        <Setter Property="Opacity" Value="0.45" />
+    <!-- Skeleton Loader -->
+    <Style x:Key="SkeletonLoader" TargetType="BoxView">
+        <Setter Property="BackgroundColor" Value="{StaticResource Gray200}" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Opacity" Value="0.6" />
     </Style>
 
-    <!-- Bottom Sheet Style -->
-    <Style x:Key="BottomSheet" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="VerticalOptions" Value="End" />
-    </Style>
-
-    <!-- Chip Style -->
-    <Style x:Key="Chip" TargetType="Border">
-        <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="Stroke" Value="{StaticResource BorderSecondary}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
-        <Setter Property="Padding" Value="12,6" />
-        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
-        <Setter Property="HeightRequest" Value="32" />
-    </Style>
-
-    <!-- Header Style -->
-    <Style x:Key="PageHeader" TargetType="Grid">
-        <Setter Property="Padding" Value="16,12" />
-        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+    <!-- Page Background -->
+    <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+        <Setter Property="BackgroundColor" Value="{StaticResource BackgroundSecondary}" />
     </Style>
 
 </ResourceDictionary>
