@@ -20,7 +20,9 @@ namespace Users.Domain.Entities
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
 
-        protected User() { }
+        protected User()
+        {
+        }
 
         public User(Name name, Contact contact)
         {

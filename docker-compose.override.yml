@@ -1,6 +1,7 @@
 services:
   lifesyncdb:
     container_name: lifesyncdb
+    image: postgres:latest
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -32,6 +33,7 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
+    image: rabbitmq:3-management
     hostname: lifesync-mq
     environment:
       - RABBITMQ_DEFAULT_USER=guest
@@ -48,16 +50,21 @@ services:
 
   mailhog:
     container_name: mailhog
+    image: mailhog/mailhog
+    restart: always
     ports:
       - "1025:1025"
       - "8025:8025"
 
   taskmanager.api:
+    container_name: taskmanager.api
+    build:
+      context: ./Services/TaskManager
+      dockerfile: TaskManager.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__DefaultConnection=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true
       - RabbitMQSettings__Host=rabbitmq
       - RabbitMQSettings__Port=5672
       - RabbitMQSettings__User=guest
@@ -67,57 +74,45 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-    # ports:
-    #   - "6000:8080"
-    #   - "6060:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    restart: on-failure
 
   nutrition.api:
+    container_name: nutrition.api
+    build:
+      context: ./Services/Nutrition
+      dockerfile: Nutrition.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true
     depends_on:
       lifesyncdb:
         condition: service_healthy
-    # ports:
-    #   - "6001:8080"
-    #   - "6061:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    restart: on-failure
 
   financial.api:
+    container_name: financial.api
+    build:
+      context: ./Services/Financial
+      dockerfile: Financial.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true
     depends_on:
       lifesyncdb:
         condition: service_healthy
-    # ports:
-    #   - "6002:8080"
-    #   - "6062:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    restart: on-failure
 
   users.api:
+    container_name: users.api
+    build:
+      context: ./Services/Users
+      dockerfile: Users.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true
       - RabbitMQSettings__Host=rabbitmq
       - RabbitMQSettings__Port=5672
       - RabbitMQSettings__User=guest
@@ -127,39 +122,31 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-    # ports:
-    #   - "6003:8080"
-    #   - "6063:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    restart: on-failure
 
   gym.api:
+    container_name: gym.api
+    build:
+      context: ./Services/Gym
+      dockerfile: Gym.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true
     depends_on:
       lifesyncdb:
         condition: service_healthy
-    # ports:
-    #   - "6004:8080"
-    #   - "6064:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    restart: on-failure
 
   notification.api:
+    container_name: notification.api
+    build:
+      context: ./Services/Notification
+      dockerfile: Notification.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true;Trust Server Certificate=true
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=postgres;Password=postgres;Include Error Detail=true
       - RabbitMQSettings__Host=rabbitmq
       - RabbitMQSettings__Port=5672
       - RabbitMQSettings__User=guest
@@ -177,20 +164,16 @@ services:
         condition: service_healthy
       mailhog:
         condition: service_started
-    # ports:
-    #   - "6005:8080"
-    #   - "6065:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    restart: on-failure
 
   yarpapigateway:
+    container_name: yarpapigateway
+    build:
+      context: ./Services/ApiGateways/YarpApiGateway
+      dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_URLS=http://+:8080
     depends_on:
       - taskmanager.api
       - nutrition.api
@@ -200,18 +183,26 @@ services:
       - notification.api
     ports:
       - "6006:8080"
-      - "6066:8081"
     volumes:
       - yarpapigateway_dataprotection_keys:/keys
+    restart: on-failure
 
   lifesyncapp.webapp:
+    container_name: lifesyncapp.webapp
+    build:
+      context: ./Apps/LifeSyncApp.WebApp
+      dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_URLS=http://+:8080
       - BaseApiUrl=http://yarpapigateway:8080
     depends_on:
       - yarpapigateway
     ports:
       - "6007:8080"
-      - "6067:8081"
+    restart: on-failure
+
+volumes:
+  postgres_lifesync:
+  pgadmin_data:
+  yarpapigateway_dataprotection_keys:

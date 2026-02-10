@@ -24,7 +24,7 @@
                 <RoundRectangle CornerRadius="16"/>
             </Border.StrokeShape>
             <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.3"/>
+                <Shadow Brush="Black"  Offset="0,10" Radius="30" Opacity="0.3"/>
             </Border.Shadow>
 
             <!-- Previne que o tap no card feche o modal -->
@@ -84,12 +84,8 @@
 
                         <!-- Descrição -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Descrição"
-                                   FontSize="14"
-                                   TextColor="#525252"/>
-                            <Border BackgroundColor="#F5F5F5"
-                                    StrokeThickness="0"
-                                    Padding="16,12">
+                            <Label Text="Descrição" FontSize="14" TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="8"/>
                                 </Border.StrokeShape>
@@ -104,12 +100,8 @@
 
                         <!-- Categoria -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Categoria (opcional)"
-                                   FontSize="14"
-                                   TextColor="#525252"/>
-                            <Border BackgroundColor="#F5F5F5"
-                                    StrokeThickness="0"
-                                    Padding="16,12">
+                            <Label Text="Categoria (opcional)" FontSize="14" TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="8"/>
                                 </Border.StrokeShape>

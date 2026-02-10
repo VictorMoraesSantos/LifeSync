@@ -54,7 +54,6 @@ namespace LifeSyncApp
             builder.Services.AddHttpClient("LifeSyncApi", client =>
             {
                 client.BaseAddress = new Uri(baseUrl);
-                client.Timeout = TimeSpan.FromSeconds(5);  // Timeout reduzido para 5 segundos
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             })
             .ConfigurePrimaryHttpMessageHandler(() =>
@@ -89,10 +88,10 @@ namespace LifeSyncApp
             builder.Services.AddScoped<CategoryService>();
 
             // ViewModels - Singleton para manter estado entre navegações
-            builder.Services.AddSingleton<TaskItemsViewModel>();
-            builder.Services.AddSingleton<TaskLabelViewModel>();
-            builder.Services.AddSingleton<FinancialViewModel>();
-            builder.Services.AddSingleton<CategoriesViewModel>();
+            builder.Services.AddTransient<TaskItemsViewModel>();
+            builder.Services.AddTransient<TaskLabelViewModel>();
+            builder.Services.AddTransient<FinancialViewModel>();
+            builder.Services.AddTransient<CategoriesViewModel>();
             builder.Services.AddTransient<ManageTransactionViewModel>();
             builder.Services.AddTransient<ManageCategoryViewModel>();
             builder.Services.AddTransient<TransactionListViewModel>();
