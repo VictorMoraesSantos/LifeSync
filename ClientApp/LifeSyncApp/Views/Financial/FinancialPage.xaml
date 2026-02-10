@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             xmlns:dto="clr-namespace:LifeSyncApp.DTOs.Financial"
+             x:Class="LifeSyncApp.Views.Financial.FinancialPage"
+             x:DataType="viewmodel:FinancialViewModel"
+             BackgroundColor="#FAFAFA">
+
+    <Grid>
+        <Grid RowDefinitions="Auto,*">
+            <!-- Header -->
+            <Grid Grid.Row="0"
+                  BackgroundColor="White"
+                  Padding="16, 12"
+                  ColumnDefinitions="*, auto ,auto">
+
+                <Label Grid.Column="0"
+                           Text="Financeiro"
+                           FontSize="16"
+                           FontAttributes="None"
+                           TextColor="#2C3E50"
+                           VerticalOptions="Center"/>
+
+                <Border Grid.Column="1"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="Transparent"
+                        BackgroundColor="#F5F5F5"
+                        Margin="0,0,8,0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToCategoriesCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Image Source="category.svg"
+                           WidthRequest="20"
+                           HeightRequest="20"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Border>
+
+                <Border Grid.Column="2"
+                        WidthRequest="88"
+                        HeightRequest="44"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="Transparent"
+                        BackgroundColor="#171717">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenManageTransactionModalCommand}"/>
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="6"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center">
+                        <Image Source="add.svg"
+                                               WidthRequest="20"
+                                               HeightRequest="20"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                        <Label Text="Nova"
+                                               FontSize="14"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+            <BoxView Grid.Row="0"
+                     HeightRequest="1"
+                     Color="#E0E0E0"
+                     VerticalOptions="End"/>
+
+            <!-- Content -->
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="16" Spacing="24">
+
+                    <!-- Balance Card -->
+                    <Border BackgroundColor="#171717"
+                            StrokeThickness="0"
+                            Padding="24,24,24,16"
+                            Shadow="{OnPlatform Android='{Shadow Brush=Black, Offset=0 10, Radius=15, Opacity=0.1}'}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="10"/>
+                        </Border.StrokeShape>
+
+                        <VerticalStackLayout Spacing="8">
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="wallet.svg"
+                                       WidthRequest="16"
+                                       HeightRequest="16"/>
+                                <Label Text="Saldo de fevereiro"
+                                       FontSize="14"
+                                       TextColor="#D4D4D4"/>
+                            </HorizontalStackLayout>
+
+                            <Label Text="{Binding Balance, StringFormat='R$ {0:N2}'}"
+                                   FontSize="36"
+                                   FontAttributes="Bold"
+                                   TextColor="White"/>
+
+                            <Label Text="{Binding TransactionCount, StringFormat='{0} transações este mês'}"
+                                   FontSize="14"
+                                   TextColor="#D4D4D4"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Income/Expense Cards -->
+                    <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">
+                        <!-- Income Card -->
+                        <Border Grid.Column="0"
+                                BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E5E5"
+                                Padding="17">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+
+                            <VerticalStackLayout Spacing="12">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Border BackgroundColor="#F0FDF4"
+                                            StrokeThickness="0"
+                                            Padding="8"
+                                            WidthRequest="32"
+                                            HeightRequest="32">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="arrow_circle_up.svg"/>
+                                    </Border>
+                                    <Label Text="Receitas"
+                                           FontSize="14"
+                                           TextColor="#525252"
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+
+                                <Label Text="{Binding TotalIncome, StringFormat='R$ {0:N2}'}"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#00A63E"/>
+
+                                <Label Text="{Binding IncomeCount, StringFormat='{0} entradas'}"
+                                       FontSize="12"
+                                       TextColor="#737373"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Expense Card -->
+                        <Border Grid.Column="2"
+                                BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E5E5"
+                                Padding="17">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+
+                            <VerticalStackLayout Spacing="12">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Border BackgroundColor="#FEF2F2"
+                                            StrokeThickness="0"
+                                            Padding="8"
+                                            WidthRequest="32"
+                                            HeightRequest="32">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="arrow_circle_down.svg"/>
+                                    </Border>
+                                    <Label Text="Despesas"
+                                           FontSize="14"
+                                           TextColor="#525252"
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+
+                                <Label Text="{Binding TotalExpense, StringFormat='R$ {0:N2}'}"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#E7000B"/>
+
+                                <Label Text="{Binding ExpenseCount, StringFormat='{0} saídas'}"
+                                       FontSize="12"
+                                       TextColor="#737373"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Top Categories -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="1"
+                            Stroke="#E5E5E5"
+                            Padding="17">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="10"/>
+                        </Border.StrokeShape>
+
+                        <VerticalStackLayout Spacing="16">
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="data_graph.svg" WidthRequest="16" HeightRequest="16"/>
+                                <Label Text="Top Categorias de Despesas" FontSize="16" FontAttributes="Bold" TextColor="#171717"/>
+                            </HorizontalStackLayout>
+
+                            <CollectionView ItemsSource="{Binding TopCategories}" SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodel:CategoryExpense">
+                                        <VerticalStackLayout Spacing="6" Margin="0,0,0,12">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <Label Grid.Column="0"
+                                                       Text="{Binding CategoryName}"
+                                                       FontSize="14"
+                                                       TextColor="#404040"/>
+
+                                                <Label Grid.Column="1"
+                                                       Text="{Binding Amount, StringFormat='R$ {0:N2}'}"
+                                                       FontSize="14"
+                                                       TextColor="#171717"/>
+                                            </Grid>
+
+                                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" HeightRequest="8">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="8"/>
+                                                </Border.StrokeShape>
+                                                <ProgressBar Progress="{Binding Percentage}" ProgressColor="#171717" BackgroundColor="Transparent"/>
+                                            </Border>
+
+                                            <Label Text="{Binding Percentage, StringFormat='{0:F1}% do total'}" FontSize="12" TextColor="#737373"/>
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Highest Income/Expense -->
+                    <Grid ColumnDefinitions="*, 12, *">
+                        <!-- Highest Income -->
+                        <Border Grid.Column="0"
+                                BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E5E5"
+                                Padding="17">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+
+                            <VerticalStackLayout Spacing="8">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Image Source="trending_up.svg" WidthRequest="16" HeightRequest="16"/>
+                                    <Label Text="Maior receita" FontSize="14" TextColor="#525252"/>
+                                </HorizontalStackLayout>
+                                
+                                <Label Text="{Binding HighestIncome, StringFormat='R$ {0:N2}'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#171717"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Highest Expense -->
+                        <Border Grid.Column="2"
+                                BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E5E5"
+                                Padding="17">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+
+                            <VerticalStackLayout Spacing="8">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Image Source="trending_down.svg" WidthRequest="16" HeightRequest="16"/>
+                                    <Label Text="Maior despesa" FontSize="14" TextColor="#525252"/>
+                                </HorizontalStackLayout>
+                                <Label Text="{Binding HighestExpense, StringFormat='R$ {0:N2}'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#171717"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Recent Transactions -->
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0"
+                                   Text="Transações Recentes"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#171717"/>
+                            <Label Grid.Column="1"
+                                   Text="Ver todas →"
+                                   FontSize="14"
+                                   TextColor="#525252">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ViewAllTransactionsCommand}"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+
+                        <CollectionView ItemsSource="{Binding RecentTransactions}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="dto:TransactionDTO">
+                                    <Border BackgroundColor="White"
+                                            StrokeThickness="1"
+                                            Stroke="#E5E5E5"
+                                            Padding="13"
+                                            Margin="0,0,0,8">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10"/>
+                                        </Border.StrokeShape>
+
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                            <Border Grid.Column="0"
+                                                    BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToColorConverter}, ConverterParameter=0.1}"
+                                                    StrokeThickness="0"
+                                                    WidthRequest="20"
+                                                    HeightRequest="20"
+                                                    VerticalOptions="Start">
+                                                <Border.StrokeShape>
+                                                    <Ellipse/>
+                                                </Border.StrokeShape>
+                                                <Label Text="{Binding TransactionType, Converter={StaticResource TransactionTypeToSignConverter}}"
+                                                       FontSize="12"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToColorConverter}}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"/>
+                                            </Border>
+
+                                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                                <Label Text="{Binding Description}"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#171717"
+                                                       LineBreakMode="TailTruncation"/>
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <Label Text="{Binding PaymentMethod}" FontSize="12" TextColor="#737373"/>
+                                                    <Label Text="•" FontSize="16" TextColor="#D4D4D4"/>
+                                                    <Label Text="{Binding Category.Name}" FontSize="12" TextColor="#737373"/>
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+
+                                            <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                                <Label TextColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToColorConverter}}"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       HorizontalOptions="End">
+                                                    <Label.FormattedText>
+                                                        <FormattedString>
+                                                            <Span Text="{Binding TransactionType, Converter={StaticResource TransactionTypeToSignConverter}}"/>
+                                                            <Span Text="{Binding Amount, Converter={StaticResource MoneyToStringConverter}}"/>
+                                                        </FormattedString>
+                                                    </Label.FormattedText>
+                                                </Label>
+                                                <Label Text="{Binding TransactionDate, StringFormat='{0:dd} de {0:MMM}'}"
+                                                       FontSize="12"
+                                                       TextColor="#A1A1A1"
+                                                       HorizontalOptions="End"/>
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

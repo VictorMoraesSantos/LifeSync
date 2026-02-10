@@ -1,9 +1,14 @@
 ﻿using LifeSyncApp.Services.ApiService.Implementation;
 using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.TaskManager.Implementation;
+using LifeSyncApp.Services.Financial;
 using LifeSyncApp.ViewModels.TaskManager;
+using LifeSyncApp.ViewModels.Financial;
 using LifeSyncApp.Views.TaskManager.TaskItem;
 using LifeSyncApp.Views.TaskManager.TaskLabel;
+using LifeSyncApp.Views.Financial;
+using LifeSyncApp.Views.Academic;
+using LifeSyncApp.Views.Nutrition;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
 using System.Text.Json;
@@ -49,7 +54,7 @@ namespace LifeSyncApp
             builder.Services.AddHttpClient("LifeSyncApi", client =>
             {
                 client.BaseAddress = new Uri(baseUrl);
-                client.Timeout = TimeSpan.FromSeconds(30);
+                client.Timeout = TimeSpan.FromSeconds(5);  // Timeout reduzido para 5 segundos
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             })
             .ConfigurePrimaryHttpMessageHandler(() =>
@@ -79,14 +84,31 @@ namespace LifeSyncApp
             builder.Services.AddScoped<TaskItemService>();
             builder.Services.AddScoped<TaskLabelService>();
 
+            // Financial Services
+            builder.Services.AddScoped<TransactionService>();
+            builder.Services.AddScoped<CategoryService>();
+
             // ViewModels - Singleton para manter estado entre navegações
             builder.Services.AddSingleton<TaskItemsViewModel>();
             builder.Services.AddSingleton<TaskLabelViewModel>();
+            builder.Services.AddSingleton<FinancialViewModel>();
+            builder.Services.AddSingleton<CategoriesViewModel>();
+            builder.Services.AddTransient<ManageTransactionViewModel>();
+            builder.Services.AddTransient<ManageCategoryViewModel>();
+            builder.Services.AddTransient<TransactionListViewModel>();
 
             // Views - Transient para criar nova instância sempre
+            builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<TaskItemPage>();
             builder.Services.AddTransient<TaskItemDetailPage>();
             builder.Services.AddTransient<TaskLabelPage>();
+            builder.Services.AddTransient<FinancialPage>();
+            builder.Services.AddTransient<CategoriesPage>();
+            builder.Services.AddTransient<ManageTransactionModal>();
+            builder.Services.AddTransient<ManageCategoryModal>();
+            builder.Services.AddTransient<TransactionListPage>();
+            builder.Services.AddTransient<AcademicPage>();
+            builder.Services.AddTransient<NutritionPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

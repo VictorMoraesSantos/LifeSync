@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:LifeSyncApp"
              xmlns:converters="clr-namespace:LifeSyncApp.Converters"
+             xmlns:financialConverters="clr-namespace:LifeSyncApp.Converters.Financial"
              x:Class="LifeSyncApp.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -19,6 +20,20 @@
             <converters:LabelColorToConverter x:Key="LabelColorToConverter"/>
             <converters:LabelColorToLightColorConverter  x:Key="LabelColorToLightColorConverter"/>
             <converters:HasItemsConverter x:Key="HasItemsConverter"/>
+
+            <!-- Tab Converters -->
+            <converters:TabBackgroundConverter x:Key="TabBackgroundConverter"/>
+            <converters:TabTextColorConverter x:Key="TabTextColorConverter"/>
+            <converters:TabIconConverter x:Key="TabIconConverter"/>
+
+            <!-- Financial Converters -->
+            <financialConverters:TransactionTypeToColorConverter x:Key="TransactionTypeToColorConverter"/>
+            <financialConverters:TransactionTypeToSignConverter x:Key="TransactionTypeToSignConverter"/>
+            <financialConverters:TransactionTypeToBackgroundConverter x:Key="TransactionTypeToBackgroundConverter"/>
+            <financialConverters:TransactionTypeToBorderConverter x:Key="TransactionTypeToBorderConverter"/>
+            <financialConverters:MoneyToStringConverter x:Key="MoneyToStringConverter"/>
+            <financialConverters:PercentageToWidthConverter x:Key="PercentageToWidthConverter"/>
+            <financialConverters:PaymentMethodToDisplayConverter x:Key="PaymentMethodToDisplayConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

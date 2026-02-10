@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeSyncApp.Views.Academic.AcademicPage"
+             Title="Acadêmico"
+             BackgroundColor="White">
+    <Grid>
+        <VerticalStackLayout
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            Spacing="16">
+            <Label
+                Text="🎓 Acadêmico"
+                FontSize="24"
+                FontAttributes="Bold"
+                TextColor="#171717"
+                HorizontalOptions="Center"/>
+            <Label
+                Text="Esta funcionalidade estará disponível em breve."
+                FontSize="14"
+                TextColor="#737373"
+                HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

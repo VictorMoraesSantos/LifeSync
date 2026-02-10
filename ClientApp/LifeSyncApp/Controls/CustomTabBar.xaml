@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeSyncApp.Controls.CustomTabBar"
+             BackgroundColor="White">
+
+    <Border StrokeThickness="0" BackgroundColor="White">
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,-2" Radius="8" Opacity="0.1"/>
+        </Border.Shadow>
+
+        <Grid ColumnDefinitions="*,*,*,*"
+              Padding="8,8,8,20"
+              BackgroundColor="White">
+
+            <!-- Financeiro Tab -->
+            <Border Grid.Column="0"
+                    x:Name="FinanceiroTab"
+                    BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=0}"
+                    StrokeThickness="0"
+                    Padding="12,8"
+                    HeightRequest="56">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="0"/>
+                </Border.GestureRecognizers>
+
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=financeiro}"
+                           WidthRequest="24"
+                           HeightRequest="24"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Financeiro"
+                           FontSize="11"
+                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=0}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Acadêmico Tab -->
+            <Border Grid.Column="1"
+                    x:Name="AcademicoTab"
+                    BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=1}"
+                    StrokeThickness="0"
+                    Padding="12,8"
+                    HeightRequest="56">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="1"/>
+                </Border.GestureRecognizers>
+
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=academico}"
+                           WidthRequest="24"
+                           HeightRequest="24"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Acadêmico"
+                           FontSize="11"
+                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=1}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Tarefas Tab -->
+            <Border Grid.Column="2"
+                    x:Name="TarefasTab"
+                    BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=2}"
+                    StrokeThickness="0"
+                    Padding="12,8"
+                    HeightRequest="56">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="2"/>
+                </Border.GestureRecognizers>
+
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=tarefas}"
+                           WidthRequest="24"
+                           HeightRequest="24"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Tarefas"
+                           FontSize="11"
+                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=2}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Nutrição Tab -->
+            <Border Grid.Column="3"
+                    x:Name="NutricaoTab"
+                    BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=3}"
+                    StrokeThickness="0"
+                    Padding="12,8"
+                    HeightRequest="56">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="3"/>
+                </Border.GestureRecognizers>
+
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=nutricao}"
+                           WidthRequest="24"
+                           HeightRequest="24"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Nutrição"
+                           FontSize="11"
+                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=3}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+
+        </Grid>
+    </Border>
+</ContentView>

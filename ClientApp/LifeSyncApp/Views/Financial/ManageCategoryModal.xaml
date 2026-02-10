@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             x:Class="LifeSyncApp.Views.Financial.ManageCategoryModal"
+             x:DataType="viewmodel:ManageCategoryViewModel"
+             Shell.PresentationMode="ModalAnimated"
+             BackgroundColor="Transparent">
+
+    <!-- Fundo opaco semi-transparente -->
+    <Grid BackgroundColor="#80000000">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+        </Grid.GestureRecognizers>
+
+        <!-- Card do modal centralizado -->
+        <Border VerticalOptions="Center"
+                HorizontalOptions="Fill"
+                Margin="16"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                MaximumHeightRequest="400">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.3"/>
+            </Border.Shadow>
+
+            <!-- Previne que o tap no card feche o modal -->
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer/>
+            </Border.GestureRecognizers>
+
+            <Grid RowDefinitions="Auto,*">
+                <!-- Header -->
+                <Grid Grid.Row="0"
+                      Padding="20,16"
+                      ColumnDefinitions="Auto,*,Auto"
+                      BackgroundColor="White">
+
+                    <Button Grid.Column="0"
+                            Text="Cancelar"
+                            Command="{Binding CancelCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#737373"
+                            FontSize="16"
+                            Padding="0"
+                            HeightRequest="40"
+                            WidthRequest="80"/>
+
+                    <Label Grid.Column="1"
+                           Text="Nova Categoria"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#171717"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+
+                    <Button Grid.Column="2"
+                            Text="Salvar"
+                            Command="{Binding SaveCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#171717"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            Padding="0"
+                            HeightRequest="40"
+                            WidthRequest="80"/>
+                </Grid>
+
+                <!-- Divider -->
+                <BoxView Grid.Row="0"
+                         VerticalOptions="End"
+                         HeightRequest="1"
+                         BackgroundColor="#E5E5E5"/>
+
+                <!-- Form Content -->
+                <ScrollView Grid.Row="1">
+                    <VerticalStackLayout Padding="20" Spacing="20">
+
+                        <!-- Nome da Categoria -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Nome da Categoria"
+                                   FontSize="14"
+                                   TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5"
+                                    StrokeThickness="0"
+                                    Padding="16,12">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Entry Text="{Binding Name}"
+                                       Placeholder="Ex: Alimentação, Transporte, Saúde"
+                                       PlaceholderColor="#A1A1A1"
+                                       TextColor="#171717"
+                                       FontSize="16"
+                                       BackgroundColor="Transparent"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Descrição (Opcional) -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Descrição (Opcional)"
+                                   FontSize="14"
+                                   TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5"
+                                    StrokeThickness="0"
+                                    Padding="16,12"
+                                    HeightRequest="120">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Editor Text="{Binding Description}"
+                                        Placeholder="Adicione uma descrição..."
+                                        PlaceholderColor="#A1A1A1"
+                                        TextColor="#171717"
+                                        FontSize="16"
+                                        BackgroundColor="Transparent"
+                                        AutoSize="TextChanges"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

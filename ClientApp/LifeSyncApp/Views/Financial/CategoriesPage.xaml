@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             xmlns:dto="clr-namespace:LifeSyncApp.DTOs.Financial"
+             x:Class="LifeSyncApp.Views.Financial.CategoriesPage"
+             x:DataType="viewmodel:CategoriesViewModel"
+             BackgroundColor="#FAFAFA"
+             Shell.NavBarIsVisible="True"
+             Shell.BackgroundColor="White">
+
+    <Shell.TitleView>
+        <Grid Padding="16,0" ColumnDefinitions="Auto,*,Auto" HeightRequest="56">
+            <Image Grid.Column="0"
+                   Source="arrow_back.svg"
+                   WidthRequest="24"
+                   HeightRequest="24"
+                   VerticalOptions="Center">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BackButtonCommand}"/>
+                </Image.GestureRecognizers>
+            </Image>
+
+            <Label Grid.Column="1"
+                   Text="Categorias"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#171717"
+                   VerticalOptions="Center"
+                   Margin="16,0,0,0"/>
+
+            <Border Grid.Column="2"
+                    WidthRequest="100"
+                    HeightRequest="40"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="Transparent"
+                    BackgroundColor="#171717"
+                    VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AddCategoryCommand}"/>
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="6"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center">
+                    <Image Source="add.svg"
+                           WidthRequest="20"
+                           HeightRequest="20"/>
+                    <Label Text="Nova"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="*">
+        <RefreshView Grid.Row="0"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Categories}"
+                            SelectionMode="None"
+                            Margin="16">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center"
+                                         VerticalOptions="Center"
+                                         Spacing="12">
+                        <Label Text="Nenhuma categoria criada"
+                               FontSize="16"
+                               TextColor="#737373"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Toque em 'Nova' para criar sua primeira categoria"
+                               FontSize="14"
+                               TextColor="#A1A1A1"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:CategoryDTO">
+                        <Border BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E5E5"
+                                Padding="16"
+                                Margin="0,0,0,12">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12"/>
+                            </Border.StrokeShape>
+
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                <!-- Category Info -->
+                                <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#171717"/>
+                                    <Label Text="{Binding Description}"
+                                           FontSize="14"
+                                           TextColor="#737373"
+                                           LineBreakMode="TailTruncation"
+                                           IsVisible="{Binding Description, Converter={StaticResource HasItemsConverter}}"/>
+                                </VerticalStackLayout>
+
+                                <!-- Edit Button -->
+                                <Border Grid.Column="1"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        StrokeShape="RoundRectangle 8"
+                                        Stroke="Transparent"
+                                        BackgroundColor="#F5F5F5"
+                                        VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=EditCategoryCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Image Source="edit.svg"
+                                           WidthRequest="20"
+                                           HeightRequest="20"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Border>
+
+                                <!-- Delete Button -->
+                                <Border Grid.Column="2"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        StrokeShape="RoundRectangle 8"
+                                        Stroke="Transparent"
+                                        BackgroundColor="#FEF2F2"
+                                        VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=DeleteCategoryCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Image Source="trash.svg"
+                                           WidthRequest="20"
+                                           HeightRequest="20"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>
