@@ -127,12 +127,11 @@ namespace LifeSyncApp.ViewModels.Financial
 
             try
             {
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
                 System.Diagnostics.Debug.WriteLine("Loading financial data...");
 
                 // Carregar categorias com timeout
-                var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId, cts.Token);
+                var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
                 Categories.Clear();
                 foreach (var category in categories)
                 {
@@ -151,7 +150,7 @@ namespace LifeSyncApp.ViewModels.Financial
                     TransactionDateTo = endOfMonth
                 };
 
-                var transactions = await _transactionService.SearchTransactionsAsync(filter, cts.Token);
+                var transactions = await _transactionService.SearchTransactionsAsync(filter);
                 System.Diagnostics.Debug.WriteLine($"Loaded {transactions.Count} transactions");
 
                 // Calcular estatísticas

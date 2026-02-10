@@ -13,28 +13,33 @@ public partial class MainPage : ContentPage
 
     public MainPage(IServiceProvider serviceProvider)
     {
-        InitializeComponent();
-        _serviceProvider = serviceProvider;
-
-        System.Diagnostics.Debug.WriteLine("MainPage Constructor - Starting");
-
         try
         {
+            System.Diagnostics.Debug.WriteLine("🔵 MainPage: Construtor iniciado");
+            InitializeComponent();
+            _serviceProvider = serviceProvider;
+            System.Diagnostics.Debug.WriteLine("✅ MainPage: InitializeComponent OK");
+            
             // Inicializar com a primeira tab (Financeiro)
             LoadPage(0);
-            System.Diagnostics.Debug.WriteLine("MainPage Constructor - LoadPage(0) completed");
+            System.Diagnostics.Debug.WriteLine("✅ MainPage: Construtor completo");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"MainPage Constructor Error: {ex.Message}\n{ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"❌ ERRO FATAL MainPage Construtor:");
+            System.Diagnostics.Debug.WriteLine($"  Mensagem: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"  StackTrace: {ex.StackTrace}");
+            if (ex.InnerException != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"  InnerException: {ex.InnerException.Message}");
+            }
+            throw;
         }
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-
-        // Inicializar dados de forma não bloqueante
         InitializeCurrentPageAsync();
     }
 
@@ -42,37 +47,35 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine("InitializeCurrentPageAsync - Starting");
+            System.Diagnostics.Debug.WriteLine("🔵 InitializeCurrentPageAsync iniciado");
 
             if (_currentPage?.BindingContext is ViewModels.Financial.FinancialViewModel financialVm)
             {
-                System.Diagnostics.Debug.WriteLine("Calling FinancialViewModel InitializeAsync");
+                System.Diagnostics.Debug.WriteLine("🔵 Chamando FinancialViewModel.InitializeAsync");
                 await financialVm.InitializeAsync();
-                System.Diagnostics.Debug.WriteLine("FinancialViewModel InitializeAsync completed");
+                System.Diagnostics.Debug.WriteLine("✅ FinancialViewModel.InitializeAsync OK");
             }
             else if (_currentPage?.BindingContext is ViewModels.TaskManager.TaskItemsViewModel taskVm)
             {
-                System.Diagnostics.Debug.WriteLine("Calling TaskItemsViewModel LoadTasksAsync");
-                // TaskItemsViewModel não tem InitializeAsync, mas tem LoadTasksAsync
-                // Vamos deixar ele carregar no OnAppearing dele
+                System.Diagnostics.Debug.WriteLine("🔵 TaskItemsViewModel detectado");
             }
-
-            System.Diagnostics.Debug.WriteLine("InitializeCurrentPageAsync - Completed");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error initializing: {ex.Message}\n{ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"❌ ERRO InitializeCurrentPageAsync:");
+            System.Diagnostics.Debug.WriteLine($"  Mensagem: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"  StackTrace: {ex.StackTrace}");
         }
     }
 
     private void OnTabSelected(object sender, int tabIndex)
     {
-        System.Diagnostics.Debug.WriteLine($"OnTabSelected called with index: {tabIndex}");
+        System.Diagnostics.Debug.WriteLine($"🔵 Tab selecionada: {tabIndex}");
 
         // Evitar recarregar a mesma tab
         if (_currentTabIndex == tabIndex && _currentPage != null)
         {
-            System.Diagnostics.Debug.WriteLine($"Same tab selected, skipping reload");
+            System.Diagnostics.Debug.WriteLine($"🟡 Mesma tab, pulando reload");
             return;
         }
 
@@ -83,55 +86,105 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine($"LoadPage called for tab {tabIndex}");
+            System.Diagnostics.Debug.WriteLine($"🔵 LoadPage iniciado para tab {tabIndex}");
 
-            // Criar nova página apenas se necessário
-            ContentPage page = tabIndex switch
+            ContentPage page;
+            
+            // Criar página com try-catch individual
+            try
             {
-                0 => _serviceProvider.GetRequiredService<FinancialPage>(),
-                1 => _serviceProvider.GetRequiredService<AcademicPage>(),
-                2 => _serviceProvider.GetRequiredService<TaskItemPage>(),
-                3 => _serviceProvider.GetRequiredService<NutritionPage>(),
-                _ => throw new ArgumentException("Invalid tab index")
-            };
-
-            System.Diagnostics.Debug.WriteLine($"Page created: {page.GetType().Name}");
-
-            // Extrair o conteúdo
-            var content = page.Content;
-
-            if (content == null)
+                page = tabIndex switch
+                {
+                    0 => _serviceProvider.GetRequiredService<FinancialPage>(),
+                    1 => _serviceProvider.GetRequiredService<AcademicPage>(),
+                    2 => _serviceProvider.GetRequiredService<TaskItemPage>(),
+                    3 => _serviceProvider.GetRequiredService<NutritionPage>(),
+                    _ => throw new ArgumentException($"Tab index inválido: {tabIndex}")
+                };
+                System.Diagnostics.Debug.WriteLine($"✅ Página criada: {page.GetType().Name}");
+            }
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("WARNING: Page content is null!");
+                System.Diagnostics.Debug.WriteLine($"❌ ERRO ao criar página tab {tabIndex}:");
+                System.Diagnostics.Debug.WriteLine($"  Mensagem: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"  StackTrace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  InnerException: {ex.InnerException.Message}");
+                    System.Diagnostics.Debug.WriteLine($"  Inner StackTrace: {ex.InnerException.StackTrace}");
+                }
+                
+                // Mostrar erro visual
+                ContentArea.Content = new VerticalStackLayout
+                {
+                    Spacing = 10,
+                    Padding = new Thickness(20),
+                    Children =
+                    {
+                        new Label
+                        {
+                            Text = "❌ Erro ao Carregar Página",
+                            FontSize = 18,
+                            FontAttributes = FontAttributes.Bold,
+                            TextColor = Colors.Red
+                        },
+                        new Label
+                        {
+                            Text = ex.Message,
+                            FontSize = 14,
+                            TextColor = Colors.Black
+                        },
+                        new Label
+                        {
+                            Text = ex.StackTrace,
+                            FontSize = 10,
+                            TextColor = Colors.Gray
+                        }
+                    }
+                };
                 return;
             }
 
-            // IMPORTANTE: Transferir o BindingContext do page para o content
+            // Extrair conteúdo
+            var content = page.Content;
+            if (content == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"⚠️ WARNING: Content é null para tab {tabIndex}");
+                ContentArea.Content = new Label
+                {
+                    Text = $"⚠️ Conteúdo da página {tabIndex} está vazio",
+                    FontSize = 16,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"✅ Content extraído: {content.GetType().Name}");
+
+            // Transferir BindingContext
             if (page.BindingContext != null)
             {
                 content.BindingContext = page.BindingContext;
-                System.Diagnostics.Debug.WriteLine($"BindingContext transferred: {page.BindingContext.GetType().Name}");
+                System.Diagnostics.Debug.WriteLine($"✅ BindingContext transferido: {page.BindingContext.GetType().Name}");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("WARNING: Page BindingContext is null!");
+                System.Diagnostics.Debug.WriteLine($"⚠️ WARNING: BindingContext é null para tab {tabIndex}");
             }
 
-            // Mostrar o conteúdo
+            // Exibir conteúdo
             ContentArea.Content = content;
-
-            // Manter referência à página para manter o BindingContext ativo
             _currentPage = page;
             _currentTabIndex = tabIndex;
-
             TabBar.SelectedTab = tabIndex;
 
-            System.Diagnostics.Debug.WriteLine($"Tab {tabIndex} loaded successfully");
+            System.Diagnostics.Debug.WriteLine($"✅ Tab {tabIndex} carregada com sucesso");
 
-            // Simular OnAppearing para páginas que não são Financial
+            // Carregar tasks se for TaskManager
             if (tabIndex == 2 && page.BindingContext is ViewModels.TaskManager.TaskItemsViewModel taskVm)
             {
-                System.Diagnostics.Debug.WriteLine("Loading tasks for TaskItemPage...");
+                System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de tasks");
                 _ = Task.Run(async () =>
                 {
                     try
@@ -143,14 +196,49 @@ public partial class MainPage : ContentPage
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Error loading tasks: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar tasks: {ex.Message}");
                     }
                 });
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error loading page: {ex.Message}\n{ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"❌ ERRO GERAL LoadPage tab {tabIndex}:");
+            System.Diagnostics.Debug.WriteLine($"  Mensagem: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"  StackTrace: {ex.StackTrace}");
+            
+            // Mostrar erro visual
+            try
+            {
+                ContentArea.Content = new VerticalStackLayout
+                {
+                    Spacing = 10,
+                    Padding = new Thickness(20),
+                    VerticalOptions = LayoutOptions.Center,
+                    Children =
+                    {
+                        new Label
+                        {
+                            Text = "❌ Erro Fatal",
+                            FontSize = 20,
+                            FontAttributes = FontAttributes.Bold,
+                            TextColor = Colors.Red,
+                            HorizontalOptions = LayoutOptions.Center
+                        },
+                        new Label
+                        {
+                            Text = ex.Message,
+                            FontSize = 14,
+                            TextColor = Colors.Black,
+                            HorizontalOptions = LayoutOptions.Center
+                        }
+                    }
+                };
+            }
+            catch (Exception displayEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Erro até para mostrar erro: {displayEx.Message}");
+            }
         }
     }
 }

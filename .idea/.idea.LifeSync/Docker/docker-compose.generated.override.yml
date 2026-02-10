@@ -1,0 +1,136 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  financial.api:
+    build:
+      context: "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Financial"
+      dockerfile: "Financial.API/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net10.0/Financial.API.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "financialapi:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Financial\\Financial.API:/app:rw"
+    - "C:\\Users\\victor\\source\\repos\\LifeSync:/src:rw"
+    - "C:\\Users\\victor\\AppData\\Roaming\\Microsoft\\UserSecrets:/home/app/.microsoft/usersecrets"
+    - "C:\\Users\\victor\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"
+  gym.api:
+    build:
+      context: "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Gym"
+      dockerfile: "Gym.API/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net10.0/Gym.API.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "gymapi:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Gym\\Gym.API:/app:rw"
+    - "C:\\Users\\victor\\source\\repos\\LifeSync:/src:rw"
+    - "C:\\Users\\victor\\AppData\\Roaming\\Microsoft\\UserSecrets:/home/app/.microsoft/usersecrets"
+    - "C:\\Users\\victor\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"
+  notification.api:
+    build:
+      context: "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Notification"
+      dockerfile: "Notification.API/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net10.0/Notification.API.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "notificationapi:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Notification\\Notification.API:/app:rw"
+    - "C:\\Users\\victor\\source\\repos\\LifeSync:/src:rw"
+    - "C:\\Users\\victor\\AppData\\Roaming\\Microsoft\\UserSecrets:/home/app/.microsoft/usersecrets"
+    - "C:\\Users\\victor\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"
+  nutrition.api:
+    build:
+      context: "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Nutrition"
+      dockerfile: "Nutrition.API/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net10.0/Nutrition.API.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "nutritionapi:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Nutrition\\Nutrition.API:/app:rw"
+    - "C:\\Users\\victor\\source\\repos\\LifeSync:/src:rw"
+    - "C:\\Users\\victor\\AppData\\Roaming\\Microsoft\\UserSecrets:/home/app/.microsoft/usersecrets"
+    - "C:\\Users\\victor\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"
+  taskmanager.api:
+    build:
+      context: "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\TaskManager"
+      dockerfile: "TaskManager.API/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net10.0/TaskManager.API.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "taskmanagerapi:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\TaskManager\\TaskManager.API:/app:rw"
+    - "C:\\Users\\victor\\source\\repos\\LifeSync:/src:rw"
+    - "C:\\Users\\victor\\AppData\\Roaming\\Microsoft\\UserSecrets:/home/app/.microsoft/usersecrets"
+    - "C:\\Users\\victor\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"
+  users.api:
+    build:
+      context: "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Users"
+      dockerfile: "Users.API/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net10.0/Users.API.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "usersapi:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\Users\\Users.API:/app:rw"
+    - "C:\\Users\\victor\\source\\repos\\LifeSync:/src:rw"
+    - "C:\\Users\\victor\\AppData\\Roaming\\Microsoft\\UserSecrets:/home/app/.microsoft/usersecrets"
+    - "C:\\Users\\victor\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"
+  yarpapigateway:
+    build:
+      context: "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\ApiGateways\\\
+        YarpApiGateway"
+      dockerfile: "Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net10.0/YarpApiGateway.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "yarpgateway:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\victor\\source\\repos\\LifeSync\\Services\\ApiGateways\\YarpApiGateway:/app:rw"
+    - "C:\\Users\\victor\\source\\repos\\LifeSync:/src:rw"
+    - "C:\\Users\\victor\\AppData\\Roaming\\Microsoft\\UserSecrets:/home/app/.microsoft/usersecrets"
+    - "C:\\Users\\victor\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"

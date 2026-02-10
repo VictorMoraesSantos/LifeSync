@@ -76,8 +76,7 @@
                     <!-- Balance Card -->
                     <Border BackgroundColor="#171717"
                             StrokeThickness="0"
-                            Padding="24,24,24,16"
-                            Shadow="{OnPlatform Android='{Shadow Brush=Black, Offset=0 10, Radius=15, Opacity=0.1}'}">
+                            Padding="24,24,24,16">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="10"/>
                         </Border.StrokeShape>
