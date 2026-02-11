@@ -1,12 +1,13 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using LifeSyncApp.DTOs.Financial;
+using LifeSyncApp.DTOs.Financial.Category;
+using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
 
 namespace LifeSyncApp.ViewModels.Financial
 {
-    public class FinancialViewModel : ViewModels.BaseViewModel
+    public class FinancialViewModel : BaseViewModel
     {
         private readonly TransactionService _transactionService;
         private readonly CategoryService _categoryService;
@@ -90,27 +91,6 @@ namespace LifeSyncApp.ViewModels.Financial
             GoToCategoriesCommand = new Command(async () => await GoToCategoriesAsync());
             ViewAllTransactionsCommand = new Command(async () => await ViewAllTransactionsAsync());
             RefreshCommand = new Command(async () => await RefreshAsync());
-
-            // DADOS MOCKADOS PARA TESTES
-            LoadMockData();
-
-            System.Diagnostics.Debug.WriteLine("FinancialViewModel initialized");
-        }
-
-        private void LoadMockData()
-        {
-            System.Diagnostics.Debug.WriteLine("Loading mock data for testing");
-
-            Balance = 1500.50m;
-            TotalIncome = 5000m;
-            TotalExpense = 3499.50m;
-            TransactionCount = 12;
-            IncomeCount = 3;
-            ExpenseCount = 9;
-            HighestIncome = 2500m;
-            HighestExpense = 850m;
-
-            System.Diagnostics.Debug.WriteLine($"Mock data loaded: Balance={Balance}, Income={TotalIncome}, Expense={TotalExpense}");
         }
 
         public async Task InitializeAsync()
@@ -120,26 +100,14 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private async Task LoadDataAsync()
         {
-            if (IsBusy)
-                return;
-
-            IsBusy = true;
-
             try
             {
-
-                System.Diagnostics.Debug.WriteLine("Loading financial data...");
-
-                // Carregar categorias com timeout
                 var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
                 Categories.Clear();
                 foreach (var category in categories)
                 {
                     Categories.Add(category);
                 }
-                System.Diagnostics.Debug.WriteLine($"Loaded {categories.Count} categories");
-
-                // Carregar transações do mês atual
                 var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
 
@@ -151,7 +119,6 @@ namespace LifeSyncApp.ViewModels.Financial
                 };
 
                 var transactions = await _transactionService.SearchTransactionsAsync(filter);
-                System.Diagnostics.Debug.WriteLine($"Loaded {transactions.Count} transactions");
 
                 // Calcular estatísticas
                 CalculateStatistics(transactions);
@@ -168,17 +135,8 @@ namespace LifeSyncApp.ViewModels.Financial
 
                 System.Diagnostics.Debug.WriteLine("Financial data loaded successfully");
             }
-            catch (OperationCanceledException)
-            {
-                System.Diagnostics.Debug.WriteLine("API call timeout - using mock data");
-            }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading data: {ex.Message}");
-            }
-            finally
-            {
-                IsBusy = false;
             }
         }
 
@@ -226,13 +184,10 @@ namespace LifeSyncApp.ViewModels.Financial
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("Opening ManageTransactionModal...");
                 await Shell.Current.GoToAsync("ManageTransactionModal");
-                System.Diagnostics.Debug.WriteLine("ManageTransactionModal navigation completed");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error opening transaction modal: {ex.Message}\n{ex.StackTrace}");
                 await Application.Current.MainPage.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
             }
         }
@@ -241,27 +196,17 @@ namespace LifeSyncApp.ViewModels.Financial
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("Opening CategoriesPage...");
                 await Shell.Current.GoToAsync("CategoriesPage");
-                System.Diagnostics.Debug.WriteLine("CategoriesPage navigation completed");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error opening categories: {ex.Message}\n{ex.StackTrace}");
                 await Application.Current.MainPage.DisplayAlert("Erro", $"Não foi possível abrir categorias: {ex.Message}", "OK");
             }
         }
 
         private async Task ViewAllTransactionsAsync()
         {
-            try
-            {
-                await Shell.Current.GoToAsync("TransactionListPage");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error opening transaction list: {ex.Message}\n{ex.StackTrace}");
-            }
+            await Shell.Current.GoToAsync("TransactionListPage");
         }
 
         private async Task RefreshAsync()

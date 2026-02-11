@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
              xmlns:dto="clr-namespace:LifeSyncApp.DTOs.Financial"
+             xmlns:transaction="clr-namespace:LifeSyncApp.DTOs.Financial.Transaction"
              x:Class="LifeSyncApp.Views.Financial.FinancialPage"
              x:DataType="viewmodel:FinancialViewModel"
              BackgroundColor="#FAFAFA">
@@ -297,7 +298,7 @@
 
                         <CollectionView ItemsSource="{Binding RecentTransactions}" SelectionMode="None">
                             <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="dto:TransactionDTO">
+                                <DataTemplate x:DataType="transaction:TransactionDTO">
                                     <Border BackgroundColor="White"
                                             StrokeThickness="1"
                                             Stroke="#E5E5E5"

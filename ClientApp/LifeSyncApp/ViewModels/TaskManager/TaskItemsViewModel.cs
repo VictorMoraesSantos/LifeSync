@@ -1,4 +1,5 @@
 ﻿using LifeSyncApp.DTOs.TaskManager.TaskItem;
+using LifeSyncApp.DTOs.TaskManager.TaskLabel;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Models.TaskManager.Enums;
 using LifeSyncApp.Services.TaskManager.Implementation;
@@ -186,7 +187,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        // Labels management
         private ObservableCollection<SelectableLabelItem> _availableLabels = new();
         public ObservableCollection<SelectableLabelItem> AvailableLabels
         {
@@ -215,7 +215,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             FocusDueDatePickerCommand = new Command(() => { });
             ViewTaskDetailCommand = new Command<TaskItem>(async (task) => await NavigateToTaskDetailAsync(task));
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
-            EditTaskCommand = new Command(async () => await EditTaskAsync());
+            EditTaskCommand = new Command(() => EditTaskAsync());
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
             OpenFiltersCommand = new Command(() => IsFilterTaskModalOpen = true);
             ToggleLabelCommand = new Command<SelectableLabelItem>(ToggleLabel);
@@ -230,14 +230,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         public async Task LoadTasksAsync()
         {
-            // Evitar múltiplas chamadas simultâneas
-            if (_isLoadingTasks)
-                return;
-
             try
             {
-                _isLoadingTasks = true;
-
                 var query = new TaskItemFilterDTO(
                     UserId: 22,
                     Status: _currentStatusFilter,
@@ -245,41 +239,19 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     DueDate: GetDueDateFromFilter(_currentDateFilter));
 
                 var tasks = await _taskItemService.SearchTaskItemAsync(query).ConfigureAwait(false);
+                var taskList = tasks.ToList();
+                var grouped = taskList
+                    .OrderBy(t => t.DueDate)
+                    .GroupBy(t => t.DueDate)
+                    .Select(g => new TaskGroup(g.Key, g))
+                    .ToList();
 
-                // Mover processamento pesado para background thread
-                var (taskItems, groupedTasks) = await Task.Run(() =>
-                {
-                    var taskList = tasks.ToList();
-
-                    var grouped = taskList
-                        .OrderBy(t => t.DueDate)
-                        .GroupBy(t => t.DueDate)
-                        .Select(g => new TaskGroup(g.Key, g))
-                        .ToList();
-
-                    return (
-                        new ObservableCollection<TaskItem>(taskList),
-                        new ObservableCollection<TaskGroup>(grouped)
-                    );
-                }).ConfigureAwait(false);
-
-                // Atualizar UI na main thread
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    TaskItems = taskItems;
-                    GroupedTasks = groupedTasks;
-                });
+                TaskItems = new ObservableCollection<TaskItem>(taskList);
+                GroupedTasks = new ObservableCollection<TaskGroup>(grouped);
             }
             catch (Exception ex)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar tarefas: {ex.Message}", "OK");
-                });
-            }
-            finally
-            {
-                _isLoadingTasks = false;
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar tarefas: {ex.Message}", "OK");
             }
         }
 
@@ -287,24 +259,15 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
-                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
-
                 _currentStatusFilter = status;
                 _currentPriorityFilter = priority;
                 _currentDateFilter = dateFilter ?? DateFilterOption.All;
 
-                await LoadTasksAsync().ConfigureAwait(false);
+                await LoadTasksAsync();
             }
             catch (Exception ex)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.DisplayAlert("Erro", $"Erro ao aplicar filtros: {ex.Message}", "OK");
-                });
-            }
-            finally
-            {
-                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao aplicar filtros: {ex.Message}", "OK");
             }
         }
 
@@ -316,10 +279,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
             catch (Exception ex)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.DisplayAlert("Erro", $"Erro ao navegar: {ex.Message}", "OK");
-                });
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao navegar: {ex.Message}", "OK");
             }
         }
 
@@ -337,9 +297,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         public async Task ToggleStatusAsync(TaskItem task)
         {
-            if (task is null)
-                return;
-
             try
             {
                 var updatedStatus = task.Status switch
@@ -350,7 +307,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     _ => Status.Pending
                 };
 
-                await MainThread.InvokeOnMainThreadAsync(() => task.Status = updatedStatus);
+                task.Status = updatedStatus;
 
                 var updatedItem = new UpdateTaskItemDTO(
                     task.Title,
@@ -361,14 +318,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     task.Labels?.Select(l => l.Id).ToList()
                 );
 
-                await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem).ConfigureAwait(false);
+                await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
             }
             catch (Exception ex)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.DisplayAlert("Erro", $"Erro ao atualizar status: {ex.Message}", "OK");
-                });
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao atualizar status: {ex.Message}", "OK");
             }
         }
 
@@ -384,7 +338,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 NewTaskPriority = taskToEdit.Priority;
                 NewTaskDueDate = taskToEdit.DueDate.ToDateTime(TimeOnly.MinValue);
 
-                // Store selected label IDs from the task
                 selectedIds = taskToEdit.Labels.Select(l => l.Id).ToList();
             }
             else
@@ -396,8 +349,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 NewTaskDueDate = DateTime.Today;
             }
 
-            // Load available labels with pre-selection
-            _ = LoadLabelsAsync(selectedIds);
+            LoadLabels(selectedIds);
 
             IsManageTaskModalOpen = true;
         }
@@ -425,30 +377,27 @@ namespace LifeSyncApp.ViewModels.TaskManager
             var task = _taskItems.FirstOrDefault(t => t.Id == taskId);
             if (task != null)
             {
-                await MainThread.InvokeOnMainThreadAsync(() => SelectedTask = task);
+                SelectedTask = task;
             }
             else
             {
                 var query = new TaskItemFilterDTO(UserId: 22);
-                var tasks = await _taskItemService.SearchTaskItemAsync(query).ConfigureAwait(false);
+                var tasks = await _taskItemService.SearchTaskItemAsync(query);
                 var foundTask = tasks.FirstOrDefault(t => t.Id == taskId);
-                await MainThread.InvokeOnMainThreadAsync(() => SelectedTask = foundTask);
+                SelectedTask = foundTask;
             }
         }
 
-        private Task EditTaskAsync()
+        private void EditTaskAsync()
         {
-            if (SelectedTask == null) return Task.CompletedTask;
-
+            if (SelectedTask == null) return;
             OpenManageTaskModal(SelectedTask);
-            return Task.CompletedTask;
         }
 
         private async Task ManageTaskAsync()
         {
             try
             {
-                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
                 const int userId = 22;
 
                 if (IsEditMode)
@@ -472,35 +421,34 @@ namespace LifeSyncApp.ViewModels.TaskManager
                         TaskLabelsId: selectedLabelIds.Count > 0 ? selectedLabelIds : null
                     );
 
-                    await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto).ConfigureAwait(false);
+                    await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto);
 
-                    await MainThread.InvokeOnMainThreadAsync(() =>
+
+                    if (existingTask != null)
                     {
-                        if (existingTask != null)
-                        {
-                            existingTask.Title = NewTaskTitle!;
-                            existingTask.Description = NewTaskDescription ?? string.Empty;
-                            existingTask.Priority = NewTaskPriority;
-                            existingTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
-                            existingTask.UpdatedAt = DateTime.UtcNow;
-                            existingTask.Labels = selectedLabels;
+                        existingTask.Title = NewTaskTitle!;
+                        existingTask.Description = NewTaskDescription ?? string.Empty;
+                        existingTask.Priority = NewTaskPriority;
+                        existingTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
+                        existingTask.UpdatedAt = DateTime.UtcNow;
+                        existingTask.Labels = selectedLabels;
 
-                            if (SelectedTask?.Id == existingTask.Id)
-                                SelectedTask = existingTask;
+                        if (SelectedTask?.Id == existingTask.Id)
+                            SelectedTask = existingTask;
 
-                            OnPropertyChanged(nameof(SelectedTask));
-                        }
-                        else if (SelectedTask?.Id == EditingTaskId)
-                        {
-                            SelectedTask.Title = NewTaskTitle!;
-                            SelectedTask.Description = NewTaskDescription ?? string.Empty;
-                            SelectedTask.Priority = NewTaskPriority;
-                            SelectedTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
-                            SelectedTask.UpdatedAt = DateTime.UtcNow;
-                            SelectedTask.Labels = selectedLabels;
-                            OnPropertyChanged(nameof(SelectedTask));
-                        }
-                    });
+                        OnPropertyChanged(nameof(SelectedTask));
+                    }
+                    else if (SelectedTask?.Id == EditingTaskId)
+                    {
+                        SelectedTask.Title = NewTaskTitle!;
+                        SelectedTask.Description = NewTaskDescription ?? string.Empty;
+                        SelectedTask.Priority = NewTaskPriority;
+                        SelectedTask.DueDate = DateOnly.FromDateTime(NewTaskDueDate);
+                        SelectedTask.UpdatedAt = DateTime.UtcNow;
+                        SelectedTask.Labels = selectedLabels;
+                        OnPropertyChanged(nameof(SelectedTask));
+                    }
+
                 }
                 else
                 {
@@ -518,39 +466,31 @@ namespace LifeSyncApp.ViewModels.TaskManager
                         DueDate: DateOnly.FromDateTime(NewTaskDueDate),
                         UserId: userId,
                         TaskLabelsId: selectedLabelIds.Count > 0 ? selectedLabelIds : null);
-                    var newId = await _taskItemService.CreateTaskItemAsync(dto).ConfigureAwait(false);
+                    var newId = await _taskItemService.CreateTaskItemAsync(dto);
 
-                    await MainThread.InvokeOnMainThreadAsync(() =>
+
+                    var created = new TaskItem
                     {
-                        var created = new TaskItem
-                        {
-                            Id = newId,
-                            Title = dto.Title,
-                            Description = dto.Description,
-                            Priority = dto.Priority,
-                            DueDate = dto.DueDate,
-                            Status = Status.Pending,
-                            UserId = dto.UserId,
-                            CreatedAt = DateTime.UtcNow,
-                            Labels = selectedLabels
-                        };
+                        Id = newId,
+                        Title = dto.Title,
+                        Description = dto.Description,
+                        Priority = dto.Priority,
+                        DueDate = dto.DueDate,
+                        Status = Status.Pending,
+                        UserId = dto.UserId,
+                        CreatedAt = DateTime.UtcNow,
+                        Labels = selectedLabels
+                    };
 
-                        InsertTaskIntoGroups(created);
-                    });
+                    InsertTaskIntoGroups(created);
                 }
 
-                await MainThread.InvokeOnMainThreadAsync(() => IsManageTaskModalOpen = false);
+                IsManageTaskModalOpen = false;
             }
             catch (Exception ex)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.DisplayAlert("Erro", $"Não foi possível salvar a tarefa: {ex.Message}", "OK");
-                });
-            }
-            finally
-            {
-                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
+
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível salvar a tarefa: {ex.Message}", "OK");
             }
         }
 
@@ -558,78 +498,45 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             if (SelectedTask == null) return;
 
-            bool confirm = await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                return await Shell.Current.DisplayAlert(
+            bool confirm = await Shell.Current.DisplayAlert(
                     "Excluir Tarefa",
                     "Tem certeza que deseja excluir esta tarefa?",
                     "Sim",
                     "Não");
-            });
 
             if (!confirm) return;
 
             try
             {
-                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
                 await _taskItemService.DeleteTaskItemAsync(SelectedTask.Id).ConfigureAwait(false);
-
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
-                    await Shell.Current.GoToAsync("..");
-                });
+                await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
+                await Shell.Current.GoToAsync("..");
             }
             catch (Exception ex)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.DisplayAlert("Erro", $"Não foi possível excluir a tarefa: {ex.Message}", "OK");
-                });
-            }
-            finally
-            {
-                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível excluir a tarefa: {ex.Message}", "OK");
             }
         }
 
-        private async Task LoadLabelsAsync(List<int>? preSelectedIds = null)
+        private async void LoadLabels(List<int>? preSelectedIds = null)
         {
             try
             {
-                var query = new LifeSyncApp.DTOs.TaskManager.TaskLabel.TaskLabelFilterDTO(
-                    UserId: 22,
-                    SortBy: "name"
-                );
+                var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
+                var labels = await _taskLabelService.SearchTaskLabelAsync(query);
+                var selectableLabels = labels.Select(label => new SelectableLabelItem(label, isSelected: preSelectedIds?.Contains(label.Id) ?? false)).ToList();
 
-                var labels = await _taskLabelService.SearchTaskLabelAsync(query).ConfigureAwait(false);
-
-                var selectableLabels = await Task.Run(() =>
-                {
-                    return labels.Select(label => new SelectableLabelItem(
-                        label,
-                        isSelected: preSelectedIds?.Contains(label.Id) ?? false
-                    )).ToList();
-                });
-
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    AvailableLabels = new ObservableCollection<SelectableLabelItem>(selectableLabels);
-                });
+                AvailableLabels = new ObservableCollection<SelectableLabelItem>(selectableLabels);
             }
             catch (Exception ex)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
-                });
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
             }
         }
 
         private void ToggleLabel(SelectableLabelItem labelItem)
         {
             if (labelItem == null) return;
-
             labelItem.IsSelected = !labelItem.IsSelected;
         }
 

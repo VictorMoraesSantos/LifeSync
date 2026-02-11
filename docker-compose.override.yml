@@ -1,7 +1,6 @@
 services:
   lifesyncdb:
     container_name: lifesyncdb
-    image: postgres:latest
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -33,7 +32,6 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
-    image: rabbitmq:3-management
     hostname: lifesync-mq
     environment:
       - RABBITMQ_DEFAULT_USER=guest
@@ -57,10 +55,6 @@ services:
       - "8025:8025"
 
   taskmanager.api:
-    container_name: taskmanager.api
-    build:
-      context: ./Services/TaskManager
-      dockerfile: TaskManager.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -77,10 +71,6 @@ services:
     restart: on-failure
 
   nutrition.api:
-    container_name: nutrition.api
-    build:
-      context: ./Services/Nutrition
-      dockerfile: Nutrition.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -91,10 +81,6 @@ services:
     restart: on-failure
 
   financial.api:
-    container_name: financial.api
-    build:
-      context: ./Services/Financial
-      dockerfile: Financial.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -105,10 +91,6 @@ services:
     restart: on-failure
 
   users.api:
-    container_name: users.api
-    build:
-      context: ./Services/Users
-      dockerfile: Users.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -125,10 +107,6 @@ services:
     restart: on-failure
 
   gym.api:
-    container_name: gym.api
-    build:
-      context: ./Services/Gym
-      dockerfile: Gym.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -139,10 +117,6 @@ services:
     restart: on-failure
 
   notification.api:
-    container_name: notification.api
-    build:
-      context: ./Services/Notification
-      dockerfile: Notification.API/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -167,10 +141,6 @@ services:
     restart: on-failure
 
   yarpapigateway:
-    container_name: yarpapigateway
-    build:
-      context: ./Services/ApiGateways/YarpApiGateway
-      dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -188,10 +158,6 @@ services:
     restart: on-failure
 
   lifesyncapp.webapp:
-    container_name: lifesyncapp.webapp
-    build:
-      context: ./Apps/LifeSyncApp.WebApp
-      dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080

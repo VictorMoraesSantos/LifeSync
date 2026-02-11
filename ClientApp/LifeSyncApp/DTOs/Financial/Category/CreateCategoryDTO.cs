@@ -1,4 +1,4 @@
-namespace LifeSyncApp.DTOs.Financial
+namespace LifeSyncApp.DTOs.Financial.Category
 {
     public class CreateCategoryDTO
     {

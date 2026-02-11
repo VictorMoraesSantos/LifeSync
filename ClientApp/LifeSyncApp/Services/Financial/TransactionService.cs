@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using LifeSyncApp.DTOs.Financial;
+using LifeSyncApp.DTOs.Financial.Transaction;
 
 namespace LifeSyncApp.Services.Financial
 {
@@ -16,7 +16,8 @@ namespace LifeSyncApp.Services.Financial
             _jsonOptions = jsonOptions;
         }
 
-        public async Task<List<TransactionDTO>> GetTransactionsByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+        public async Task<List<TransactionDTO>> GetTransactionsByUserIdAsync(int userId,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -26,7 +27,9 @@ namespace LifeSyncApp.Services.Financial
                 if (!response.IsSuccessStatusCode)
                     return new List<TransactionDTO>();
 
-                var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<TransactionDTO>>>(_jsonOptions, cancellationToken);
+                var result =
+                    await response.Content.ReadFromJsonAsync<ApiResponse<List<TransactionDTO>>>(_jsonOptions,
+                        cancellationToken);
                 return result?.Data ?? new List<TransactionDTO>();
             }
             catch (Exception ex)
@@ -36,7 +39,8 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
-        public async Task<TransactionDTO?> GetTransactionByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<TransactionDTO?> GetTransactionByIdAsync(int id,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -46,7 +50,9 @@ namespace LifeSyncApp.Services.Financial
                 if (!response.IsSuccessStatusCode)
                     return null;
 
-                var result = await response.Content.ReadFromJsonAsync<ApiResponse<TransactionDTO>>(_jsonOptions, cancellationToken);
+                var result =
+                    await response.Content.ReadFromJsonAsync<ApiResponse<TransactionDTO>>(_jsonOptions,
+                        cancellationToken);
                 return result?.Data;
             }
             catch (Exception ex)
@@ -56,7 +62,8 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
-        public async Task<List<TransactionDTO>> SearchTransactionsAsync(TransactionFilterDTO filter, CancellationToken cancellationToken = default)
+        public async Task<List<TransactionDTO>> SearchTransactionsAsync(TransactionFilterDTO filter,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -67,7 +74,9 @@ namespace LifeSyncApp.Services.Financial
                 if (!response.IsSuccessStatusCode)
                     return new List<TransactionDTO>();
 
-                var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<TransactionDTO>>>(_jsonOptions, cancellationToken);
+                var result =
+                    await response.Content.ReadFromJsonAsync<ApiResponse<List<TransactionDTO>>>(_jsonOptions,
+                        cancellationToken);
                 return result?.Data ?? new List<TransactionDTO>();
             }
             catch (Exception ex)
@@ -77,7 +86,8 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
-        public async Task<int?> CreateTransactionAsync(CreateTransactionDTO dto, CancellationToken cancellationToken = default)
+        public async Task<int?> CreateTransactionAsync(CreateTransactionDTO dto,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -87,11 +97,13 @@ namespace LifeSyncApp.Services.Financial
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                    System.Diagnostics.Debug.WriteLine($"Error creating transaction. Status: {response.StatusCode}, Content: {errorContent}");
+                    System.Diagnostics.Debug.WriteLine(
+                        $"Error creating transaction. Status: {response.StatusCode}, Content: {errorContent}");
                     return null;
                 }
 
-                var result = await response.Content.ReadFromJsonAsync<ApiResponse<int>>(_jsonOptions, cancellationToken);
+                var result =
+                    await response.Content.ReadFromJsonAsync<ApiResponse<int>>(_jsonOptions, cancellationToken);
                 return result?.Data;
             }
             catch (Exception ex)
@@ -101,7 +113,8 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
-        public async Task<bool> UpdateTransactionAsync(int id, UpdateTransactionDTO dto, CancellationToken cancellationToken = default)
+        public async Task<bool> UpdateTransactionAsync(int id, UpdateTransactionDTO dto,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -111,7 +124,8 @@ namespace LifeSyncApp.Services.Financial
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                    System.Diagnostics.Debug.WriteLine($"Error updating transaction. Status: {response.StatusCode}, Content: {errorContent}");
+                    System.Diagnostics.Debug.WriteLine(
+                        $"Error updating transaction. Status: {response.StatusCode}, Content: {errorContent}");
                 }
 
                 return response.IsSuccessStatusCode;

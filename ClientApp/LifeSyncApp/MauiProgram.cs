@@ -88,13 +88,13 @@ namespace LifeSyncApp
             builder.Services.AddScoped<CategoryService>();
 
             // ViewModels - Singleton para manter estado entre navegações
-            builder.Services.AddTransient<TaskItemsViewModel>();
-            builder.Services.AddTransient<TaskLabelViewModel>();
-            builder.Services.AddTransient<FinancialViewModel>();
-            builder.Services.AddTransient<CategoriesViewModel>();
-            builder.Services.AddTransient<ManageTransactionViewModel>();
-            builder.Services.AddTransient<ManageCategoryViewModel>();
-            builder.Services.AddTransient<TransactionListViewModel>();
+            builder.Services.AddSingleton<TaskItemsViewModel>();
+            builder.Services.AddSingleton<TaskLabelViewModel>();
+            builder.Services.AddSingleton<FinancialViewModel>();
+            builder.Services.AddSingleton<CategoriesViewModel>();
+            builder.Services.AddSingleton<ManageTransactionViewModel>();
+            builder.Services.AddSingleton<ManageCategoryViewModel>();
+            builder.Services.AddSingleton<TransactionListViewModel>();
 
             // Views - Transient para criar nova instância sempre
             builder.Services.AddTransient<MainPage>();
