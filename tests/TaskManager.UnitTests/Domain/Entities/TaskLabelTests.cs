@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Core.Domain.Exceptions;
+using FluentAssertions;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
 using TaskManager.Domain.Errors;
