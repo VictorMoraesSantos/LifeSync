@@ -121,87 +121,40 @@
                                    FontSize="14"
                                    TextColor="#525252"/>
 
-                            <!-- Grid de métodos de pagamento -->
-                            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                                <!-- PIX -->
-                                <Border Grid.Column="0" Grid.Row="0"
-                                        BackgroundColor="#F5F5F5"
-                                        StrokeThickness="1"
-                                        Stroke="#E5E5E5"
-                                        Padding="12"
-                                        HeightRequest="80">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="8"/>
-                                    </Border.StrokeShape>
-                                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                        <Image Source="wallet.svg" WidthRequest="24" HeightRequest="24"/>
-                                        <Label Text="PIX" FontSize="12" TextColor="#171717" HorizontalOptions="Center"/>
-                                    </VerticalStackLayout>
-                                </Border>
-
-                                <!-- Cartão de Crédito -->
-                                <Border Grid.Column="1" Grid.Row="0"
-                                        BackgroundColor="#171717"
-                                        StrokeThickness="0"
-                                        Padding="12"
-                                        HeightRequest="80">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="8"/>
-                                    </Border.StrokeShape>
-                                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                        <Image Source="wallet.svg" WidthRequest="24" HeightRequest="24"/>
-                                        <Label Text="Cartão de Crédito" FontSize="12" TextColor="White" HorizontalOptions="Center"/>
-                                    </VerticalStackLayout>
-                                </Border>
-
-                                <!-- Cartão de Débito -->
-                                <Border Grid.Column="2" Grid.Row="0"
-                                        BackgroundColor="#F5F5F5"
-                                        StrokeThickness="1"
-                                        Stroke="#E5E5E5"
-                                        Padding="12"
-                                        HeightRequest="80">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="8"/>
-                                    </Border.StrokeShape>
-                                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                        <Image Source="wallet.svg" WidthRequest="24" HeightRequest="24"/>
-                                        <Label Text="Cartão de Débito" FontSize="12" TextColor="#171717" HorizontalOptions="Center"/>
-                                    </VerticalStackLayout>
-                                </Border>
-
-                                <!-- Dinheiro -->
-                                <Border Grid.Column="0" Grid.Row="1"
-                                        BackgroundColor="#F5F5F5"
-                                        StrokeThickness="1"
-                                        Stroke="#E5E5E5"
-                                        Padding="12"
-                                        HeightRequest="80">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="8"/>
-                                    </Border.StrokeShape>
-                                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                        <Image Source="wallet.svg" WidthRequest="24" HeightRequest="24"/>
-                                        <Label Text="Dinheiro" FontSize="12" TextColor="#171717" HorizontalOptions="Center"/>
-                                    </VerticalStackLayout>
-                                </Border>
-
-                                <!-- Outro -->
-                                <Border Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"
-                                        BackgroundColor="#F5F5F5"
-                                        StrokeThickness="1"
-                                        Stroke="#E5E5E5"
-                                        Padding="12"
-                                        HeightRequest="80">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="8"/>
-                                    </Border.StrokeShape>
-                                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                        <Image Source="wallet.svg" WidthRequest="24" HeightRequest="24"/>
-                                        <Label Text="Outro" FontSize="12" TextColor="#171717" HorizontalOptions="Center"/>
-                                    </VerticalStackLayout>
-                                </Border>
-                            </Grid>
+                            <FlexLayout BindableLayout.ItemsSource="{Binding PaymentMethods}"
+                                        Wrap="Wrap"
+                                        JustifyContent="Start"
+                                        AlignItems="Start">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:SelectablePaymentMethodItem">
+                                        <Border BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodBackgroundConverter}}"
+                                                StrokeThickness="1"
+                                                Stroke="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodBorderConverter}}"
+                                                Padding="12"
+                                                HeightRequest="80"
+                                                WidthRequest="110"
+                                                Margin="0,0,8,8">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="8"/>
+                                            </Border.StrokeShape>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ManageTransactionViewModel}}, Path=TogglePaymentMethodCommand}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                                <Image Source="{Binding IconSource}" WidthRequest="24" HeightRequest="24"/>
+                                                <Label Text="{Binding DisplayName}"
+                                                       FontSize="12"
+                                                       TextColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodTextColorConverter}}"
+                                                       HorizontalOptions="Center"
+                                                       HorizontalTextAlignment="Center"
+                                                       MaxLines="2"
+                                                       LineBreakMode="WordWrap"/>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
                         </VerticalStackLayout>
 
                         <!-- Data da Transação -->
@@ -277,6 +230,53 @@
 
                     </VerticalStackLayout>
                 </ScrollView>
+
+                <!-- Footer com Botões - Grid.Row="2" -->
+                <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="0" RowSpacing="0">
+                    <!-- Divider -->
+                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
+
+                    <!-- Botões -->
+                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
+                        <Border Grid.Column="0"
+                                BackgroundColor="#F5F5F5"
+                                StrokeThickness="0"
+                                Padding="16"
+                                HeightRequest="48">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Cancelar"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#171717"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                BackgroundColor="#171717"
+                                StrokeThickness="0"
+                                Padding="16"
+                                HeightRequest="48">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Salvar"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                    </Grid>
+                </Grid>
             </Grid>
         </Border>
     </Grid>

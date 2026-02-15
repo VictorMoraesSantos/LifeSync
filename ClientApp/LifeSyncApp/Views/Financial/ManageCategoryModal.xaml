@@ -50,7 +50,7 @@
                             WidthRequest="80"/>
 
                     <Label Grid.Column="1"
-                           Text="Nova Categoria"
+                           Text="{Binding Title}"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="#171717"
@@ -111,7 +111,7 @@
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="8"/>
                                 </Border.StrokeShape>
-                                <Editor Text="{Binding Description}"
+                                <Editor Text="{Binding CategoryDescription}"
                                         Placeholder="Adicione uma descrição..."
                                         PlaceholderColor="#A1A1A1"
                                         TextColor="#171717"

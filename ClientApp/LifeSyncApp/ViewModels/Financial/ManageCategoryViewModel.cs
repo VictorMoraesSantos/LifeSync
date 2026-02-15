@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using LifeSyncApp.DTOs.Financial;
+using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.Services.Financial;
 
 namespace LifeSyncApp.ViewModels.Financial
@@ -8,9 +9,11 @@ namespace LifeSyncApp.ViewModels.Financial
     {
         private readonly CategoryService _categoryService;
         private int _userId = 1; // TODO: Obter do contexto de autenticação
+        private CategoryDTO? _category;
 
         private string _name = string.Empty;
         private string _description = string.Empty;
+        private bool _isEditing;
 
         public string Name
         {
@@ -22,6 +25,12 @@ namespace LifeSyncApp.ViewModels.Financial
         {
             get => _description;
             set => SetProperty(ref _description, value);
+        }
+
+        public bool IsEditing
+        {
+            get => _isEditing;
+            private set => SetProperty(ref _isEditing, value);
         }
 
         public ICommand SaveCommand { get; }
@@ -39,6 +48,25 @@ namespace LifeSyncApp.ViewModels.Financial
             CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
         }
 
+        public void Initialize(CategoryDTO? category = null)
+        {
+            _category = category;
+            IsEditing = category != null;
+            Title = IsEditing ? "Editar Categoria" : "Nova Categoria";
+
+            if (IsEditing && _category != null)
+            {
+                Name = _category.Name;
+                CategoryDescription = _category.Description ?? string.Empty;
+            }
+            else
+            {
+                // Clear fields for new category
+                Name = string.Empty;
+                CategoryDescription = string.Empty;
+            }
+        }
+
         private bool CanSave()
         {
             return !string.IsNullOrWhiteSpace(Name);
@@ -53,29 +81,41 @@ namespace LifeSyncApp.ViewModels.Financial
 
             try
             {
-                System.Diagnostics.Debug.WriteLine($"Creating category: {Name}");
-                var dto = new CreateCategoryDTO
+                if (IsEditing && _category != null)
                 {
-                    UserId = _userId,
-                    Name = Name,
-                    Description = string.IsNullOrWhiteSpace(CategoryDescription) ? null : CategoryDescription
-                };
-
-                var id = await _categoryService.CreateCategoryAsync(dto);
-                if (id.HasValue)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Category created with ID: {id.Value}");
-                    OnSaved?.Invoke(this, EventArgs.Empty);
+                    var dto = new UpdateCategoryDTO(_category.Id, Name, CategoryDescription);
+                    var success = await _categoryService.UpdateCategoryAsync(_category.Id, dto);
+                    if (success)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Category updated successfully");
+                        OnSaved?.Invoke(this, EventArgs.Empty);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("Failed to update category");
+                        await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível atualizar a categoria.", "OK");
+                    }
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("Failed to create category");
-                    await Application.Current.MainPage.DisplayAlert("Erro", "Não foi possível criar a categoria. Verifique sua conexão e tente novamente.", "OK");
+                    var dto = new CreateCategoryDTO(_userId, Name, CategoryDescription);
+                    var id = await _categoryService.CreateCategoryAsync(dto);
+                    if (id.HasValue)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Category created with ID: {id.Value}");
+                        OnSaved?.Invoke(this, EventArgs.Empty);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("Failed to create category");
+                        await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível criar a categoria.", "OK");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving category: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error saving category: {ex.Message}");
+                await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível salvar a categoria. Verifique sua conexão e tente novamente.", "OK");
             }
             finally
             {

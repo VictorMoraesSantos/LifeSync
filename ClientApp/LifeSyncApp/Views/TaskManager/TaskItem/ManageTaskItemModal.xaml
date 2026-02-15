@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
+             xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
+             xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
+             xmlns:converters="clr-namespace:LifeSyncApp.Converters"
+             x:Class="LifeSyncApp.Views.TaskManager.TaskItem.ManageTaskItemModal"
+             x:DataType="viewmodels:TaskItemsViewModel"
+             Shell.PresentationMode="ModalAnimated"
+             BackgroundColor="Transparent">
+
+    <ContentPage.Resources>
+        <converters:LabelColorToConverter x:Key="LabelColorToConverter"/>
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="#80000000">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding CloseManageTaskModalCommand}"/>
+        </Grid.GestureRecognizers>
+
+        <Border VerticalOptions="End"
+                HorizontalOptions="Fill"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                MaximumHeightRequest="720">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16,16,0,0"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.3"/>
+            </Border.Shadow>
+
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer/>
+            </Border.GestureRecognizers>
+
+            <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="0">
+
+                <!-- Header -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,12">
+                    <Label Text="{Binding ModalTitle}"
+                           FontSize="16"
+                           FontAttributes="None"
+                           TextColor="#111"
+                           VerticalOptions="Center"/>
+
+                    <ImageButton Grid.Column="1"
+                                 Source="close.svg"
+                                 BackgroundColor="Transparent"
+                                 Padding="8"
+                                 Command="{Binding CloseManageTaskModalCommand}" />
+                </Grid>
+
+                <!-- Divider -->
+                <BoxView Grid.Row="1" HeightRequest="1" Color="#E5E5E5"/>
+
+                <!-- Content -->
+                <ScrollView Grid.Row="2" Padding="20,16">
+                    <VerticalStackLayout Spacing="16">
+
+                        <!-- Título -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Título" FontSize="14" TextColor="#525252"/>
+                            <Border Stroke="#E5E7EB" StrokeThickness="1" StrokeShape="RoundRectangle 10" BackgroundColor="White">
+                                <Entry Placeholder="Ex: Finalizar relatório mensal"
+                                       PlaceholderColor="#9CA3AF"
+                                       Text="{Binding NewTaskTitle}"
+                                       BackgroundColor="Transparent"
+                                       Margin="12,4"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Descrição -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Descrição" FontSize="14" TextColor="#525252"/>
+                            <Border Stroke="#E5E7EB" StrokeThickness="1" StrokeShape="RoundRectangle 10" BackgroundColor="White">
+                                <Editor Placeholder="Descreva os detalhes da tarefa..."
+                                        PlaceholderColor="#9CA3AF"
+                                        Text="{Binding NewTaskDescription}"
+                                        AutoSize="TextChanges"
+                                        HeightRequest="92"
+                                        BackgroundColor="Transparent"
+                                        Margin="12,6"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Prioridade -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Prioridade" FontSize="14" TextColor="#525252"/>
+
+                            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+
+                                <Border Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        BackgroundColor="White"
+                                        HeightRequest="40">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SetPriorityCommand}"
+                                                              CommandParameter="{x:Static enums:Priority.Low}"/>
+                                    </Border.GestureRecognizers>
+
+                                    <Label Text="Baixa"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           FontSize="13"
+                                           TextColor="#111"/>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding NewTaskPriority}"
+                                                     Value="{x:Static enums:Priority.Low}">
+                                            <Setter Property="BackgroundColor" Value="#EEF2FF"/>
+                                            <Setter Property="Stroke" Value="#C7D2FE"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                </Border>
+
+                                <Border Grid.Column="1"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        BackgroundColor="White"
+                                        HeightRequest="40">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SetPriorityCommand}"
+                                                              CommandParameter="{x:Static enums:Priority.Medium}"/>
+                                    </Border.GestureRecognizers>
+
+                                    <Label Text="Média"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           FontSize="13"
+                                           TextColor="#111"/>
+
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding NewTaskPriority}"
+                                                     Value="{x:Static enums:Priority.Medium}">
+                                            <Setter Property="BackgroundColor" Value="#EEF2FF"/>
+                                            <Setter Property="Stroke" Value="#C7D2FE"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                </Border>
+
+                                <Border Grid.Column="2"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        BackgroundColor="White"
+                                        HeightRequest="40">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SetPriorityCommand}"
+                                                              CommandParameter="{x:Static enums:Priority.High}"/>
+                                    </Border.GestureRecognizers>
+
+                                    <Label Text="Alta"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           FontSize="13"
+                                           TextColor="#111"/>
+
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding NewTaskPriority}"
+                                                     Value="{x:Static enums:Priority.High}">
+                                            <Setter Property="BackgroundColor" Value="#FFF1F2"/>
+                                            <Setter Property="Stroke" Value="#FECACA"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                </Border>
+
+                                <Border Grid.Column="3"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        BackgroundColor="White"
+                                        HeightRequest="40">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SetPriorityCommand}"
+                                                              CommandParameter="{x:Static enums:Priority.Urgent}"/>
+                                    </Border.GestureRecognizers>
+
+                                    <Label Text="Urgente"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           FontSize="13"
+                                           TextColor="#111"/>
+
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding NewTaskPriority}"
+                                                     Value="{x:Static enums:Priority.Urgent}">
+                                            <Setter Property="BackgroundColor" Value="#FFFBEB"/>
+                                            <Setter Property="Stroke" Value="#FEF08A"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                </Border>
+
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- Data de Vencimento -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Data de Vencimento" FontSize="14" TextColor="#525252"/>
+
+                            <Border Stroke="#E5E7EB" StrokeThickness="1" StrokeShape="RoundRectangle 10" BackgroundColor="White"
+                                    HeightRequest="44">
+                                <Grid ColumnDefinitions="*,Auto" Padding="12,0">
+                                    <Label Text="{Binding NewTaskDueDate, StringFormat='{0:dd/MM/yyyy}'}"
+                                           VerticalOptions="Center"
+                                           TextColor="#111"/>
+                                    <Image Grid.Column="1"
+                                           Source="calendar.svg"
+                                           WidthRequest="18"
+                                           HeightRequest="18"
+                                           VerticalOptions="Center"
+                                           Opacity="0.75"/>
+
+                                    <DatePicker x:Name="DueDatePicker"
+                                                Grid.ColumnSpan="2"
+                                                Date="{Binding NewTaskDueDate}"
+                                                Opacity="0.01"
+                                                BackgroundColor="Transparent" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Etiquetas -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Etiquetas" FontSize="14" TextColor="#525252"/>
+
+                            <FlexLayout BindableLayout.ItemsSource="{Binding AvailableLabels}"
+                                        Wrap="Wrap"
+                                        JustifyContent="Start"
+                                        AlignItems="Start"
+                                        AlignContent="Start">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:SelectableLabelItem">
+                                        <Border Stroke="#E5E7EB"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 10"
+                                                Padding="10,6"
+                                                BackgroundColor="White"
+                                                Margin="0,0,8,8">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=ToggleLabelCommand}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border"
+                                                             Binding="{Binding IsSelected}"
+                                                             Value="True">
+                                                    <Setter Property="BackgroundColor" Value="#F3F4F6"/>
+                                                    <Setter Property="Stroke" Value="#6B7280"/>
+                                                    <Setter Property="StrokeThickness" Value="2"/>
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Ellipse WidthRequest="10"
+                                                         HeightRequest="10"
+                                                         Fill="{Binding Label.LabelColor, Converter={StaticResource LabelColorToConverter}}"
+                                                         VerticalOptions="Center"/>
+                                                <Label Text="{Binding Label.Name}"
+                                                       FontSize="12"
+                                                       TextColor="#111"
+                                                       VerticalOptions="Center"/>
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <!-- Footer -->
+                <Grid Grid.Row="3" RowDefinitions="Auto,Auto" Padding="0" RowSpacing="0">
+                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
+
+                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
+                        <Border Grid.Column="0"
+                                BackgroundColor="#F5F5F5"
+                                StrokeThickness="0"
+                                Padding="16"
+                                HeightRequest="48">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CloseManageTaskModalCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Cancelar"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#171717"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                BackgroundColor="#171717"
+                                StrokeThickness="0"
+                                Padding="16"
+                                HeightRequest="48">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ManageTaskCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding CanManageTask}"
+                                             Value="False">
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="{Binding SaveButtonText}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

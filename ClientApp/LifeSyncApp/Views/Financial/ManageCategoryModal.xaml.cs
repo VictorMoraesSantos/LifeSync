@@ -1,10 +1,14 @@
+using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.ViewModels.Financial;
 
 namespace LifeSyncApp.Views.Financial;
 
+[QueryProperty(nameof(Category), "Category")]
 public partial class ManageCategoryModal : ContentPage
 {
     private readonly ManageCategoryViewModel _viewModel;
+
+    public CategoryDTO? Category { get; set; }
 
     public ManageCategoryModal(ManageCategoryViewModel viewModel)
     {
@@ -22,5 +26,11 @@ public partial class ManageCategoryModal : ContentPage
         {
             await Shell.Current.GoToAsync("..");
         };
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        _viewModel.Initialize(Category);
     }
 }

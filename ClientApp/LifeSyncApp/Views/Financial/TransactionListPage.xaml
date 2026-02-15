@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
-             xmlns:dto="clr-namespace:LifeSyncApp.DTOs.Financial"
+             xmlns:dto="clr-namespace:LifeSyncApp.DTOs.Financial.Transaction"
              x:Class="LifeSyncApp.Views.Financial.TransactionListPage"
              x:DataType="viewmodel:TransactionListViewModel"
              BackgroundColor="#FAFAFA">
@@ -67,6 +67,9 @@
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="10"/>
                         </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenFilterCommand}"/>
+                        </Border.GestureRecognizers>
                         <HorizontalStackLayout Spacing="8">
                             <Image Source="filter.svg"
                                    WidthRequest="16"
@@ -79,11 +82,7 @@
                     </Border>
 
                     <!-- Transaction Groups -->
-                    <BindableLayout.ItemsSource>
-                        <x:Null/>
-                    </BindableLayout.ItemsSource>
-                    <CollectionView ItemsSource="{Binding GroupedTransactions}"
-                                    SelectionMode="None">
+                    <CollectionView ItemsSource="{Binding GroupedTransactions}" SelectionMode="None">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="viewmodel:TransactionGroup">
                                 <VerticalStackLayout Spacing="12" Margin="0,0,0,24">
@@ -122,6 +121,10 @@
                                                     <Border.StrokeShape>
                                                         <RoundRectangle CornerRadius="10"/>
                                                     </Border.StrokeShape>
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:TransactionListViewModel}}, Path=OpenDetailCommand}"
+                                                                              CommandParameter="{Binding .}"/>
+                                                    </Border.GestureRecognizers>
 
                                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                                         <!-- Type Icon -->

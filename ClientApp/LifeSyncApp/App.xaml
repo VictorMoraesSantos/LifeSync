@@ -34,6 +34,9 @@
             <financialConverters:MoneyToStringConverter x:Key="MoneyToStringConverter"/>
             <financialConverters:PercentageToWidthConverter x:Key="PercentageToWidthConverter"/>
             <financialConverters:PaymentMethodToDisplayConverter x:Key="PaymentMethodToDisplayConverter"/>
+            <financialConverters:BoolToPaymentMethodBackgroundConverter x:Key="BoolToPaymentMethodBackgroundConverter"/>
+            <financialConverters:BoolToPaymentMethodBorderConverter x:Key="BoolToPaymentMethodBorderConverter"/>
+            <financialConverters:BoolToPaymentMethodTextColorConverter x:Key="BoolToPaymentMethodTextColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

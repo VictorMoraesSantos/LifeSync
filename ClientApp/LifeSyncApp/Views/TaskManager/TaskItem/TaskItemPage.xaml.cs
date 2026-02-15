@@ -5,7 +5,6 @@ namespace LifeSyncApp.Views.TaskManager.TaskItem;
 public partial class TaskItemPage : ContentPage
 {
     private readonly TaskItemsViewModel _viewModel;
-    private bool _isLoaded;
 
     public TaskItemPage(TaskItemsViewModel vm)
     {
@@ -18,11 +17,8 @@ public partial class TaskItemPage : ContentPage
     {
         base.OnAppearing();
 
-        if (!_isLoaded)
-        {
-            _isLoaded = true;
-            await _viewModel.LoadTasksAsync();
-        }
+        // LoadTasksAsync now uses smart caching - it will only fetch from API if cache expired
+        await _viewModel.LoadTasksAsync();
     }
 
     protected override void OnDisappearing()

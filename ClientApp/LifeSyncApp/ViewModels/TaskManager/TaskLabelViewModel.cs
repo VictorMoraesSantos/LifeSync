@@ -12,6 +12,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
         private readonly TaskLabelService _taskLabelService;
         private bool _isLoadingLabels;
 
+        // Cache management
+        private DateTime? _lastLabelsRefresh;
+        private const int CacheExpirationMinutes = 5;
+
         private ObservableCollection<TaskLabel> _taskLabels = new();
         public ObservableCollection<TaskLabel> TaskLabels
         {
@@ -173,16 +177,28 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        public async Task LoadLabelsAsync()
+        public async Task LoadLabelsAsync(bool forceRefresh = false)
         {
+            // Check cache validity - only refresh if cache is expired or forced
+            if (!forceRefresh && !IsLabelsCacheExpired() && TaskLabels.Any())
+            {
+                System.Diagnostics.Debug.WriteLine("📦 Using cached labels (not expired)");
+                return;
+            }
+
             // Evitar múltiplas chamadas simultâneas
             if (_isLoadingLabels)
+            {
+                System.Diagnostics.Debug.WriteLine("⏳ Labels already loading, skipping duplicate request");
                 return;
+            }
 
             try
             {
                 _isLoadingLabels = true;
                 await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
+
+                System.Diagnostics.Debug.WriteLine($"🔄 Loading labels from API (forceRefresh: {forceRefresh})");
 
                 var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
                 var labels = await _taskLabelService.SearchTaskLabelAsync(query).ConfigureAwait(false);
@@ -197,6 +213,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 {
                     TaskLabels = labelCollection;
                 });
+
+                // Update cache timestamp
+                _lastLabelsRefresh = DateTime.Now;
+                System.Diagnostics.Debug.WriteLine($"✅ Labels loaded successfully ({labels.Count()} labels). Cache updated.");
             }
             catch (Exception ex)
             {
@@ -210,6 +230,41 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 _isLoadingLabels = false;
                 await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
             }
+        }
+
+        /// <summary>
+        /// Force refresh labels from API (used for pull-to-refresh)
+        /// </summary>
+        public async Task RefreshLabelsAsync()
+        {
+            System.Diagnostics.Debug.WriteLine("🔃 Force refreshing labels...");
+            await LoadLabelsAsync(forceRefresh: true);
+        }
+
+        /// <summary>
+        /// Check if labels cache has expired
+        /// </summary>
+        private bool IsLabelsCacheExpired()
+        {
+            if (_lastLabelsRefresh == null)
+                return true;
+
+            var timeSinceLastRefresh = DateTime.Now - _lastLabelsRefresh.Value;
+            bool expired = timeSinceLastRefresh.TotalMinutes >= CacheExpirationMinutes;
+
+            if (expired)
+                System.Diagnostics.Debug.WriteLine($"⏰ Labels cache expired (last refresh: {timeSinceLastRefresh.TotalMinutes:F1} minutes ago)");
+
+            return expired;
+        }
+
+        /// <summary>
+        /// Invalidate labels cache (call after CREATE/UPDATE/DELETE)
+        /// </summary>
+        private void InvalidateLabelsCache()
+        {
+            _lastLabelsRefresh = null;
+            System.Diagnostics.Debug.WriteLine("🗑️ Labels cache invalidated");
         }
 
         private void OpenManageLabelModal(TaskLabel? label)
@@ -271,6 +326,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskLabelService.EditTaskLabelAsync(EditingLabelId.Value, updateDto).ConfigureAwait(false);
 
+                    // Invalidate cache after update
+                    InvalidateLabelsCache();
+
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
                         await Shell.Current.DisplayAlert("Sucesso", "Etiqueta atualizada com sucesso!", "OK");
@@ -287,13 +345,16 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskLabelService.CreateTaskLabelAsync(createDto).ConfigureAwait(false);
 
+                    // Invalidate cache after create
+                    InvalidateLabelsCache();
+
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
                         await Shell.Current.DisplayAlert("Sucesso", "Etiqueta criada com sucesso!", "OK");
                     });
                 }
 
-                // Reload labels list
+                // Reload labels list (will fetch from API since cache was invalidated)
                 await LoadLabelsAsync();
 
                 // Close modal
@@ -334,6 +395,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
             {
                 await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
                 await _taskLabelService.DeleteTaskLabelAsync(label.Id).ConfigureAwait(false);
+
+                // Invalidate cache after delete
+                InvalidateLabelsCache();
 
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {

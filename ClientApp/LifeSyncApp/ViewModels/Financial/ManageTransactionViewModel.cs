@@ -19,7 +19,6 @@ namespace LifeSyncApp.ViewModels.Financial
         private DateTime _transactionDate = DateTime.Now;
         private TransactionType _transactionType = TransactionType.Expense;
         private PaymentMethod _paymentMethod = PaymentMethod.Cash;
-        private PaymentMethodItem? _selectedPaymentMethodItem;
         private CategoryDTO? _selectedCategory;
         private bool _isEditing;
 
@@ -53,18 +52,6 @@ namespace LifeSyncApp.ViewModels.Financial
             set => SetProperty(ref _paymentMethod, value);
         }
 
-        public PaymentMethodItem? SelectedPaymentMethodItem
-        {
-            get => _selectedPaymentMethodItem;
-            set
-            {
-                if (SetProperty(ref _selectedPaymentMethodItem, value) && value != null)
-                {
-                    PaymentMethod = value.Value;
-                }
-            }
-        }
-
         public CategoryDTO? SelectedCategory
         {
             get => _selectedCategory;
@@ -79,11 +66,12 @@ namespace LifeSyncApp.ViewModels.Financial
 
         public ObservableCollection<CategoryDTO> Categories { get; } = new();
         public ObservableCollection<TransactionType> TransactionTypes { get; } = new();
-        public ObservableCollection<PaymentMethodItem> PaymentMethods { get; } = new();
+        public ObservableCollection<SelectablePaymentMethodItem> PaymentMethods { get; } = new();
 
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
         public ICommand SetTransactionTypeCommand { get; }
+        public ICommand TogglePaymentMethodCommand { get; }
 
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
@@ -97,6 +85,7 @@ namespace LifeSyncApp.ViewModels.Financial
             SaveCommand = new Command(async () => await SaveAsync(), CanSave);
             CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
             SetTransactionTypeCommand = new Command<string>(SetTransactionType);
+            TogglePaymentMethodCommand = new Command<SelectablePaymentMethodItem>(TogglePaymentMethod);
 
             LoadEnums();
         }
@@ -110,10 +99,12 @@ namespace LifeSyncApp.ViewModels.Financial
 
             foreach (PaymentMethod method in Enum.GetValues(typeof(PaymentMethod)))
             {
-                PaymentMethods.Add(new PaymentMethodItem
+                PaymentMethods.Add(new SelectablePaymentMethodItem
                 {
                     Value = method,
-                    DisplayName = method.ToDisplayString()
+                    DisplayName = method.ToDisplayString(),
+                    IconSource = "wallet.svg",
+                    IsSelected = method == PaymentMethod.Cash // Default to Cash
                 });
             }
         }
@@ -124,6 +115,21 @@ namespace LifeSyncApp.ViewModels.Financial
             {
                 TransactionType = type;
             }
+        }
+
+        private void TogglePaymentMethod(SelectablePaymentMethodItem? item)
+        {
+            if (item == null) return;
+
+            // Deselect all payment methods
+            foreach (var method in PaymentMethods)
+            {
+                method.IsSelected = false;
+            }
+
+            // Select the clicked one
+            item.IsSelected = true;
+            PaymentMethod = item.Value;
         }
 
         public async Task InitializeAsync(TransactionDTO? transaction = null)
@@ -149,13 +155,37 @@ namespace LifeSyncApp.ViewModels.Financial
                 TransactionDate = _transaction.TransactionDate;
                 TransactionType = _transaction.TransactionType;
                 PaymentMethod = _transaction.PaymentMethod;
-                SelectedPaymentMethodItem = PaymentMethods.FirstOrDefault(p => p.Value == _transaction.PaymentMethod);
+
+                // Select the payment method
+                foreach (var method in PaymentMethods)
+                {
+                    method.IsSelected = method.Value == _transaction.PaymentMethod;
+                }
+
                 SelectedCategory = Categories.FirstOrDefault(c => c.Id == _transaction.Category?.Id);
             }
             else
             {
-                // Set default payment method item
-                SelectedPaymentMethodItem = PaymentMethods.FirstOrDefault(p => p.Value == PaymentMethod.Cash);
+                // Clear all fields for new transaction
+                Description = string.Empty;
+                Amount = 0;
+                TransactionDate = DateTime.Now;
+                TransactionType = TransactionType.Expense;
+                PaymentMethod = PaymentMethod.Cash;
+                SelectedCategory = null;
+
+                // Deselect all payment methods first
+                foreach (var method in PaymentMethods)
+                {
+                    method.IsSelected = false;
+                }
+
+                // Ensure default payment method (Cash) is selected
+                var defaultMethod = PaymentMethods.FirstOrDefault(p => p.Value == PaymentMethod.Cash);
+                if (defaultMethod != null)
+                {
+                    defaultMethod.IsSelected = true;
+                }
             }
         }
 
@@ -175,16 +205,14 @@ namespace LifeSyncApp.ViewModels.Financial
             {
                 if (IsEditing && _transaction != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Updating transaction {_transaction.Id}...");
-                    var dto = new UpdateTransactionDTO
-                    {
-                        Description = Description,
-                        Amount = Money.FromDecimal(Amount),
-                        TransactionDate = TransactionDate,
-                        TransactionType = TransactionType,
-                        PaymentMethod = PaymentMethod,
-                        CategoryId = SelectedCategory?.Id
-                    };
+                    var dto = new UpdateTransactionDTO(
+                        _transaction.Id,
+                        SelectedCategory?.Id,
+                        PaymentMethod,
+                        TransactionType,
+                        Money.FromDecimal(Amount),
+                        Description,
+                        TransactionDate);
 
                     var success = await _transactionService.UpdateTransactionAsync(_transaction.Id, dto);
                     if (success)
@@ -200,16 +228,14 @@ namespace LifeSyncApp.ViewModels.Financial
                 else
                 {
                     System.Diagnostics.Debug.WriteLine("Creating new transaction...");
-                    var dto = new CreateTransactionDTO
-                    {
-                        UserId = _userId,
-                        Description = Description,
-                        Amount = Money.FromDecimal(Amount),
-                        TransactionDate = TransactionDate,
-                        TransactionType = TransactionType,
-                        PaymentMethod = PaymentMethod,
-                        CategoryId = SelectedCategory?.Id
-                    };
+                    var dto = new CreateTransactionDTO(
+                        _userId,
+                        SelectedCategory?.Id,
+                        PaymentMethod,
+                        TransactionType,
+                        Money.FromDecimal(Amount),
+                        Description,
+                        TransactionDate);
 
                     var id = await _transactionService.CreateTransactionAsync(dto);
                     if (id.HasValue)
@@ -235,9 +261,4 @@ namespace LifeSyncApp.ViewModels.Financial
         }
     }
 
-    public class PaymentMethodItem
-    {
-        public PaymentMethod Value { get; set; }
-        public string DisplayName { get; set; } = string.Empty;
-    }
 }

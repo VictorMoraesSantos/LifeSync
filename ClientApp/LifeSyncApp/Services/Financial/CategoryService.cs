@@ -89,6 +89,32 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
+        public async Task<bool> UpdateCategoryAsync(int id, UpdateCategoryDTO dto, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient("LifeSyncApi");
+                System.Diagnostics.Debug.WriteLine($"Updating category {id}: {dto.Name}");
+
+                var response = await client.PutAsJsonAsync($"{BaseUrl}/{id}", dto, _jsonOptions, cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                    System.Diagnostics.Debug.WriteLine($"Error updating category. Status: {response.StatusCode}, Content: {errorContent}");
+                    return false;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Category {id} updated successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating category: {ex.Message}");
+                return false;
+            }
+        }
+
         public async Task<bool> DeleteCategoryAsync(int id, CancellationToken cancellationToken = default)
         {
             try

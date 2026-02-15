@@ -15,6 +15,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
         private readonly TaskLabelService _taskLabelService;
         private bool _isLoadingTasks;
 
+        // Cache management
+        private DateTime? _lastTasksRefresh;
+        private DateTime? _lastLabelsRefresh;
+        private const int CacheExpirationMinutes = 5;
+
         private ObservableCollection<TaskItem> _taskItems = new();
         public ObservableCollection<TaskItem> TaskItems
         {
@@ -228,10 +233,27 @@ namespace LifeSyncApp.ViewModels.TaskManager
             );
         }
 
-        public async Task LoadTasksAsync()
+        public async Task LoadTasksAsync(bool forceRefresh = false)
         {
+            // Check cache validity - only refresh if cache is expired or forced
+            if (!forceRefresh && !IsTasksCacheExpired() && TaskItems.Any())
+            {
+                System.Diagnostics.Debug.WriteLine("📦 Using cached tasks (not expired)");
+                return;
+            }
+
+            // Avoid concurrent loads
+            if (_isLoadingTasks)
+            {
+                System.Diagnostics.Debug.WriteLine("⏳ Tasks already loading, skipping duplicate request");
+                return;
+            }
+
             try
             {
+                _isLoadingTasks = true;
+                System.Diagnostics.Debug.WriteLine($"🔄 Loading tasks from API (forceRefresh: {forceRefresh})");
+
                 var query = new TaskItemFilterDTO(
                     UserId: 22,
                     Status: _currentStatusFilter,
@@ -248,11 +270,54 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                 TaskItems = new ObservableCollection<TaskItem>(taskList);
                 GroupedTasks = new ObservableCollection<TaskGroup>(grouped);
+
+                // Update cache timestamp
+                _lastTasksRefresh = DateTime.Now;
+                System.Diagnostics.Debug.WriteLine($"✅ Tasks loaded successfully ({taskList.Count} tasks). Cache updated.");
             }
             catch (Exception ex)
             {
                 await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar tarefas: {ex.Message}", "OK");
             }
+            finally
+            {
+                _isLoadingTasks = false;
+            }
+        }
+
+        /// <summary>
+        /// Force refresh tasks from API (used for pull-to-refresh)
+        /// </summary>
+        public async Task RefreshTasksAsync()
+        {
+            System.Diagnostics.Debug.WriteLine("🔃 Force refreshing tasks...");
+            await LoadTasksAsync(forceRefresh: true);
+        }
+
+        /// <summary>
+        /// Check if tasks cache has expired
+        /// </summary>
+        private bool IsTasksCacheExpired()
+        {
+            if (_lastTasksRefresh == null)
+                return true;
+
+            var timeSinceLastRefresh = DateTime.Now - _lastTasksRefresh.Value;
+            bool expired = timeSinceLastRefresh.TotalMinutes >= CacheExpirationMinutes;
+
+            if (expired)
+                System.Diagnostics.Debug.WriteLine($"⏰ Tasks cache expired (last refresh: {timeSinceLastRefresh.TotalMinutes:F1} minutes ago)");
+
+            return expired;
+        }
+
+        /// <summary>
+        /// Invalidate tasks cache (call after CREATE/UPDATE/DELETE)
+        /// </summary>
+        private void InvalidateTasksCache()
+        {
+            _lastTasksRefresh = null;
+            System.Diagnostics.Debug.WriteLine("🗑️ Tasks cache invalidated");
         }
 
         private async Task ApplyFiltersAsync(Status? status, Priority? priority, DateFilterOption? dateFilter)
@@ -319,6 +384,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 );
 
                 await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
+
+                // Invalidate cache after update
+                InvalidateTasksCache();
             }
             catch (Exception ex)
             {
@@ -423,6 +491,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto);
 
+                    // Invalidate cache after update
+                    InvalidateTasksCache();
 
                     if (existingTask != null)
                     {
@@ -468,6 +538,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
                         TaskLabelsId: selectedLabelIds.Count > 0 ? selectedLabelIds : null);
                     var newId = await _taskItemService.CreateTaskItemAsync(dto);
 
+                    // Invalidate cache after create
+                    InvalidateTasksCache();
 
                     var created = new TaskItem
                     {
@@ -509,6 +581,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
             try
             {
                 await _taskItemService.DeleteTaskItemAsync(SelectedTask.Id).ConfigureAwait(false);
+
+                // Invalidate cache after delete
+                InvalidateTasksCache();
+
                 await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
                 await Shell.Current.GoToAsync("..");
             }
@@ -522,16 +598,46 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
+                // Check if labels cache is still valid
+                if (!IsLabelsCacheExpired() && AvailableLabels.Any())
+                {
+                    System.Diagnostics.Debug.WriteLine("📦 Using cached labels (not expired)");
+
+                    // Just update selection state
+                    foreach (var label in AvailableLabels)
+                    {
+                        label.IsSelected = preSelectedIds?.Contains(label.Label.Id) ?? false;
+                    }
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine("🔄 Loading labels from API");
                 var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
                 var labels = await _taskLabelService.SearchTaskLabelAsync(query);
                 var selectableLabels = labels.Select(label => new SelectableLabelItem(label, isSelected: preSelectedIds?.Contains(label.Id) ?? false)).ToList();
 
                 AvailableLabels = new ObservableCollection<SelectableLabelItem>(selectableLabels);
+
+                // Update labels cache timestamp
+                _lastLabelsRefresh = DateTime.Now;
+                System.Diagnostics.Debug.WriteLine($"✅ Labels loaded successfully ({labels.Count()} labels). Cache updated.");
             }
             catch (Exception ex)
             {
                 await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
             }
+        }
+
+        /// <summary>
+        /// Check if labels cache has expired
+        /// </summary>
+        private bool IsLabelsCacheExpired()
+        {
+            if (_lastLabelsRefresh == null)
+                return true;
+
+            var timeSinceLastRefresh = DateTime.Now - _lastLabelsRefresh.Value;
+            return timeSinceLastRefresh.TotalMinutes >= CacheExpirationMinutes;
         }
 
         private void ToggleLabel(SelectableLabelItem labelItem)

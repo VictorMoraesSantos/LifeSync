@@ -5,35 +5,20 @@ namespace LifeSyncApp.Views.TaskManager.TaskLabel;
 public partial class TaskLabelPage : ContentPage
 {
     private readonly TaskLabelViewModel _viewModel;
-    private bool _isLoaded;
 
     public TaskLabelPage(TaskLabelViewModel taskLabelViewModel)
     {
         InitializeComponent();
         _viewModel = taskLabelViewModel;
         BindingContext = taskLabelViewModel;
-
-        _ = Task.Run(async () =>
-        {
-            if (!_isLoaded)
-            {
-                await _viewModel.LoadLabelsAsync();
-                _isLoaded = true;
-            }
-        });
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (!_isLoaded && !_viewModel.IsBusy)
-        {
-            Task.Run(async () =>
-            {
-                await _viewModel.LoadLabelsAsync();
-                _isLoaded = true;
-            });
-        }
+
+        // LoadLabelsAsync now uses smart caching - it will only fetch from API if cache expired
+        await _viewModel.LoadLabelsAsync();
     }
 
     protected override void OnDisappearing()

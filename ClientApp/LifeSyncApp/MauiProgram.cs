@@ -95,6 +95,8 @@ namespace LifeSyncApp
             builder.Services.AddSingleton<ManageTransactionViewModel>();
             builder.Services.AddSingleton<ManageCategoryViewModel>();
             builder.Services.AddSingleton<TransactionListViewModel>();
+            builder.Services.AddTransient<TransactionDetailViewModel>();
+            builder.Services.AddTransient<FilterTransactionViewModel>();
 
             // Views - Transient para criar nova instância sempre
             builder.Services.AddTransient<MainPage>();
@@ -106,6 +108,8 @@ namespace LifeSyncApp
             builder.Services.AddTransient<ManageTransactionModal>();
             builder.Services.AddTransient<ManageCategoryModal>();
             builder.Services.AddTransient<TransactionListPage>();
+            builder.Services.AddTransient<TransactionDetailModal>();
+            builder.Services.AddTransient<FilterTransactionModal>();
             builder.Services.AddTransient<AcademicPage>();
             builder.Services.AddTransient<NutritionPage>();
 

@@ -16,6 +16,8 @@ namespace LifeSyncApp
             Routing.RegisterRoute("TransactionListPage", typeof(TransactionListPage));
             Routing.RegisterRoute("ManageTransactionModal", typeof(ManageTransactionModal));
             Routing.RegisterRoute("ManageCategoryModal", typeof(ManageCategoryModal));
+            Routing.RegisterRoute("TransactionDetailModal", typeof(TransactionDetailModal));
+            Routing.RegisterRoute("FilterTransactionModal", typeof(FilterTransactionModal));
         }
     }
 }

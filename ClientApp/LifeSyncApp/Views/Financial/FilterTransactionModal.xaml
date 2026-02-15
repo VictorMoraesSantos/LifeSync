@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             x:Class="LifeSyncApp.Views.Financial.FilterTransactionModal"
+             x:DataType="viewmodel:FilterTransactionViewModel"
+             Shell.PresentationMode="ModalAnimated"
+             BackgroundColor="Transparent">
+
+    <Grid BackgroundColor="#80000000">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+        </Grid.GestureRecognizers>
+
+        <Border VerticalOptions="End"
+                HorizontalOptions="Fill"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                MaximumHeightRequest="600">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16"/>
+            </Border.StrokeShape>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer/>
+            </Border.GestureRecognizers>
+
+            <Grid RowDefinitions="Auto,*,Auto">
+                <!-- Header -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16">
+                    <Label Text="Filtros"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#111"
+                           VerticalOptions="Center"/>
+
+                    <Button Grid.Column="1"
+                            Text="Limpar"
+                            FontSize="14"
+                            TextColor="#525252"
+                            BackgroundColor="Transparent"
+                            Command="{Binding ClearCommand}"/>
+                </Grid>
+
+                <BoxView Grid.Row="0" VerticalOptions="End" HeightRequest="1" BackgroundColor="#E5E5E5"/>
+
+                <!-- Content -->
+                <ScrollView Grid.Row="1" Padding="20">
+                    <VerticalStackLayout Spacing="20">
+
+                        <!-- Tipo -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Tipo" FontSize="14" TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Picker ItemsSource="{Binding TransactionTypes}"
+                                        SelectedIndex="{Binding SelectedTypeIndex}"
+                                        Title="Todos"
+                                        TextColor="#171717"
+                                        FontSize="16"
+                                        BackgroundColor="Transparent"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Categoria -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Categoria" FontSize="14" TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Picker ItemsSource="{Binding Categories}"
+                                        ItemDisplayBinding="{Binding Name}"
+                                        SelectedItem="{Binding SelectedCategory}"
+                                        Title="Todas"
+                                        TextColor="#171717"
+                                        FontSize="16"
+                                        BackgroundColor="Transparent"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Método de Pagamento -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Método de Pagamento" FontSize="14" TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Picker ItemsSource="{Binding PaymentMethods}"
+                                        SelectedIndex="{Binding SelectedPaymentMethodIndex}"
+                                        Title="Todos"
+                                        TextColor="#171717"
+                                        FontSize="16"
+                                        BackgroundColor="Transparent"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Data De -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Data De" FontSize="14" TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <DatePicker Date="{Binding DateFrom}"
+                                            TextColor="#171717"
+                                            FontSize="16"
+                                            BackgroundColor="Transparent"
+                                            Format="dd/MM/yyyy"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Data Até -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Data Até" FontSize="14" TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <DatePicker Date="{Binding DateTo}"
+                                            TextColor="#171717"
+                                            FontSize="16"
+                                            BackgroundColor="Transparent"
+                                            Format="dd/MM/yyyy"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <!-- Footer -->
+                <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="0">
+                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
+
+                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
+                        <Border Grid.Column="0"
+                                BackgroundColor="#F5F5F5"
+                                StrokeThickness="0"
+                                Padding="16"
+                                HeightRequest="48">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Cancelar"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#171717"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                BackgroundColor="#171717"
+                                StrokeThickness="0"
+                                Padding="16"
+                                HeightRequest="48">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ApplyCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Aplicar"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

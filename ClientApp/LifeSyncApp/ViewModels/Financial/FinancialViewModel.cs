@@ -108,16 +108,9 @@ namespace LifeSyncApp.ViewModels.Financial
                 {
                     Categories.Add(category);
                 }
-                var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                var startOfMonth = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
-
-                var filter = new TransactionFilterDTO
-                {
-                    UserId = _userId,
-                    TransactionDateFrom = startOfMonth,
-                    TransactionDateTo = endOfMonth
-                };
-
+                var filter = new TransactionFilterDTO(UserId: _userId, TransactionDateFrom: startOfMonth, TransactionDateTo: endOfMonth);
                 var transactions = await _transactionService.SearchTransactionsAsync(filter);
 
                 // Calcular estatísticas
