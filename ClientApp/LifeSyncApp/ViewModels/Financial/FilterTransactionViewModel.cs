@@ -1,4 +1,3 @@
-using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
@@ -12,46 +11,34 @@ namespace LifeSyncApp.ViewModels.Financial
         private readonly CategoryService _categoryService;
         private int _userId = 1; // TODO: Obter do contexto de autenticação
 
-        private int _selectedTypeIndex = -1;
-        private CategoryDTO? _selectedCategory;
-        private int _selectedPaymentMethodIndex = -1;
-        private DateTime _dateFrom = DateTime.Now.AddMonths(-1);
-        private DateTime _dateTo = DateTime.Now;
+        private string _selectedType = "";
+        private string _selectedPaymentMethod = "";
+        private string _selectedDateFilter = "";
 
-        public int SelectedTypeIndex
+        public string SelectedType
         {
-            get => _selectedTypeIndex;
-            set => SetProperty(ref _selectedTypeIndex, value);
+            get => _selectedType;
+            set => SetProperty(ref _selectedType, value);
         }
 
-        public CategoryDTO? SelectedCategory
+        public string SelectedPaymentMethod
         {
-            get => _selectedCategory;
-            set => SetProperty(ref _selectedCategory, value);
+            get => _selectedPaymentMethod;
+            set => SetProperty(ref _selectedPaymentMethod, value);
         }
 
-        public int SelectedPaymentMethodIndex
+        public string SelectedDateFilter
         {
-            get => _selectedPaymentMethodIndex;
-            set => SetProperty(ref _selectedPaymentMethodIndex, value);
+            get => _selectedDateFilter;
+            set => SetProperty(ref _selectedDateFilter, value);
         }
 
-        public DateTime DateFrom
-        {
-            get => _dateFrom;
-            set => SetProperty(ref _dateFrom, value);
-        }
+        public ObservableCollection<SelectableCategoryItem> SelectableCategories { get; } = new();
 
-        public DateTime DateTo
-        {
-            get => _dateTo;
-            set => SetProperty(ref _dateTo, value);
-        }
-
-        public ObservableCollection<CategoryDTO> Categories { get; } = new();
-        public ObservableCollection<string> TransactionTypes { get; } = new() { "Receita", "Despesa" };
-        public ObservableCollection<string> PaymentMethods { get; } = new();
-
+        public ICommand SelectTypeCommand { get; }
+        public ICommand SelectPaymentMethodCommand { get; }
+        public ICommand SelectCategoryCommand { get; }
+        public ICommand SelectDateFilterCommand { get; }
         public ICommand ApplyCommand { get; }
         public ICommand ClearCommand { get; }
         public ICommand CancelCommand { get; }
@@ -64,53 +51,129 @@ namespace LifeSyncApp.ViewModels.Financial
             _categoryService = categoryService;
             Title = "Filtrar Transações";
 
+            SelectTypeCommand = new Command<string>(t => SelectedType = t ?? "");
+            SelectPaymentMethodCommand = new Command<string>(p => SelectedPaymentMethod = p ?? "");
+            SelectDateFilterCommand = new Command<string>(d => SelectedDateFilter = d ?? "");
+            SelectCategoryCommand = new Command<SelectableCategoryItem>(OnSelectCategory);
+
             ApplyCommand = new Command(OnApply);
             ClearCommand = new Command(OnClear);
             CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
-
-            LoadPaymentMethods();
         }
 
-        public async Task InitializeAsync()
+        public async Task InitializeAsync(TransactionFilterDTO? existingFilter = null)
         {
             var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
-            Categories.Clear();
+            SelectableCategories.Clear();
+
+            SelectableCategories.Add(new SelectableCategoryItem { Id = -1, Name = "Todas as categorias", IsSelected = true });
+
             foreach (var category in categories)
             {
-                Categories.Add(category);
+                SelectableCategories.Add(new SelectableCategoryItem { Id = category.Id, Name = category.Name });
             }
+
+            if (existingFilter != null)
+                ApplyExistingFilter(existingFilter);
         }
 
-        private void LoadPaymentMethods()
+        private void ApplyExistingFilter(TransactionFilterDTO filter)
         {
-            foreach (PaymentMethod method in Enum.GetValues(typeof(PaymentMethod)))
+            SelectedType = filter.TransactionType switch
             {
-                PaymentMethods.Add(method.ToDisplayString());
+                TransactionType.Income => "Income",
+                TransactionType.Expense => "Expense",
+                _ => ""
+            };
+
+            SelectedPaymentMethod = filter.PaymentMethod switch
+            {
+                PaymentMethod.Cash => "Cash",
+                PaymentMethod.CreditCard => "CreditCard",
+                PaymentMethod.DebitCard => "DebitCard",
+                PaymentMethod.BankTransfer => "BankTransfer",
+                PaymentMethod.Pix => "Pix",
+                PaymentMethod.Other => "Other",
+                _ => ""
+            };
+
+            if (filter.CategoryId.HasValue)
+            {
+                foreach (var cat in SelectableCategories)
+                    cat.IsSelected = cat.Id == filter.CategoryId.Value;
             }
+
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            SelectedDateFilter = filter.TransactionDateFrom switch
+            {
+                var d when d == today && filter.TransactionDateTo == today => "Today",
+                var d when d == today.AddDays(-(int)DateTime.Today.DayOfWeek) => "ThisWeek",
+                var d when d == new DateOnly(today.Year, today.Month, 1) => "ThisMonth",
+                _ => ""
+            };
+        }
+
+        private void OnSelectCategory(SelectableCategoryItem? item)
+        {
+            if (item == null) return;
+            foreach (var cat in SelectableCategories)
+                cat.IsSelected = false;
+            item.IsSelected = true;
         }
 
         private void OnApply()
         {
-            TransactionType? selectedType = null;
-            if (SelectedTypeIndex >= 0 && SelectedTypeIndex < TransactionTypes.Count)
+            TransactionType? selectedType = SelectedType switch
             {
-                selectedType = SelectedTypeIndex == 0 ? TransactionType.Income : TransactionType.Expense;
-            }
+                "Income" => TransactionType.Income,
+                "Expense" => TransactionType.Expense,
+                _ => null
+            };
 
-            PaymentMethod? selectedPaymentMethod = null;
-            if (SelectedPaymentMethodIndex >= 0 && SelectedPaymentMethodIndex < PaymentMethods.Count)
+            PaymentMethod? selectedPaymentMethod = SelectedPaymentMethod switch
             {
-                var paymentMethodValues = Enum.GetValues(typeof(PaymentMethod)).Cast<PaymentMethod>().ToList();
-                selectedPaymentMethod = paymentMethodValues[SelectedPaymentMethodIndex];
+                "Cash" => PaymentMethod.Cash,
+                "CreditCard" => PaymentMethod.CreditCard,
+                "DebitCard" => PaymentMethod.DebitCard,
+                "BankTransfer" => PaymentMethod.BankTransfer,
+                "Pix" => PaymentMethod.Pix,
+                "Other" => PaymentMethod.Other,
+                _ => null
+            };
+
+            int? categoryId = null;
+            var selectedCat = SelectableCategories.FirstOrDefault(c => c.IsSelected && c.Id != -1);
+            if (selectedCat != null)
+                categoryId = selectedCat.Id;
+
+            DateOnly? dateFrom = null;
+            DateOnly? dateTo = null;
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            switch (SelectedDateFilter)
+            {
+                case "Today":
+                    dateFrom = today;
+                    dateTo = today;
+                    break;
+                case "ThisWeek":
+                    var startOfWeek = today.AddDays(-(int)DateTime.Today.DayOfWeek);
+                    dateFrom = startOfWeek;
+                    dateTo = today;
+                    break;
+                case "ThisMonth":
+                    dateFrom = new DateOnly(today.Year, today.Month, 1);
+                    dateTo = today;
+                    break;
             }
 
             var filter = new TransactionFilterDTO(
                 UserId: _userId,
                 TransactionType: selectedType,
-                CategoryId: SelectedCategory?.Id,
+                CategoryId: categoryId,
                 PaymentMethod: selectedPaymentMethod,
-                TransactionDateFrom: DateOnly.FromDateTime(DateFrom),
-                TransactionDateTo: DateOnly.FromDateTime(DateTo)
+                TransactionDateFrom: dateFrom,
+                TransactionDateTo: dateTo
             );
 
             OnFiltersApplied?.Invoke(this, filter);
@@ -118,11 +181,11 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private void OnClear()
         {
-            SelectedTypeIndex = -1;
-            SelectedCategory = null;
-            SelectedPaymentMethodIndex = -1;
-            DateFrom = DateTime.Now.AddMonths(-1);
-            DateTo = DateTime.Now;
+            SelectedType = "";
+            SelectedPaymentMethod = "";
+            SelectedDateFilter = "";
+            foreach (var cat in SelectableCategories)
+                cat.IsSelected = cat.Id == -1;
         }
     }
 }

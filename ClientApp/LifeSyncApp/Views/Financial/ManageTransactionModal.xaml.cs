@@ -7,6 +7,7 @@ namespace LifeSyncApp.Views.Financial;
 public partial class ManageTransactionModal : ContentPage
 {
     private readonly ManageTransactionViewModel _viewModel;
+    private readonly FinancialViewModel _financialViewModel;
 
     public TransactionDTO? Transaction { get; set; }
 
@@ -14,23 +15,36 @@ public partial class ManageTransactionModal : ContentPage
     {
         InitializeComponent();
         _viewModel = viewModel;
+        _financialViewModel = financialViewModel;
         BindingContext = _viewModel;
-
-        _viewModel.OnSaved += async (sender, args) =>
-        {
-            financialViewModel.InvalidateDataCache();
-            await Shell.Current.GoToAsync("..");
-        };
-
-        _viewModel.OnCancelled += async (sender, args) =>
-        {
-            await Shell.Current.GoToAsync("..");
-        };
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        _viewModel.OnSaved += OnSaved;
+        _viewModel.OnCancelled += OnCancelled;
+
         await _viewModel.InitializeAsync(Transaction);
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        _viewModel.OnSaved -= OnSaved;
+        _viewModel.OnCancelled -= OnCancelled;
+    }
+
+    private async void OnSaved(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
+        await _financialViewModel.LoadDataAsync(forceRefresh: true);
+    }
+
+    private async void OnCancelled(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
     }
 }

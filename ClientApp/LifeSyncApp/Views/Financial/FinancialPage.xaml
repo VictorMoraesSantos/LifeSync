@@ -6,6 +6,7 @@
              xmlns:transaction="clr-namespace:LifeSyncApp.DTOs.Financial.Transaction"
              x:Class="LifeSyncApp.Views.Financial.FinancialPage"
              x:DataType="viewmodel:FinancialViewModel"
+             x:Name="page"
              BackgroundColor="#FAFAFA">
 
     <Grid>
@@ -184,51 +185,60 @@
                         </Border>
                     </Grid>
 
-                    <!-- Top Categories -->
-                    <Border BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="#E5E5E5"
-                            Padding="17">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="10"/>
-                        </Border.StrokeShape>
+                    <!-- Top Categories - Horizontal Slider -->
+                    <VerticalStackLayout Spacing="12">
+                        <HorizontalStackLayout Spacing="8" Padding="0,0,0,0">
+                            <Image Source="data_graph.svg" WidthRequest="16" HeightRequest="16" VerticalOptions="Center"/>
+                            <Label Text="Top Categorias de Despesas" FontSize="16" FontAttributes="Bold" TextColor="#171717"/>
+                        </HorizontalStackLayout>
 
-                        <VerticalStackLayout Spacing="16">
-                            <HorizontalStackLayout Spacing="8">
-                                <Image Source="data_graph.svg" WidthRequest="16" HeightRequest="16"/>
-                                <Label Text="Top Categorias de Despesas" FontSize="16" FontAttributes="Bold" TextColor="#171717"/>
-                            </HorizontalStackLayout>
-
-                            <CollectionView ItemsSource="{Binding TopCategories}" SelectionMode="None">
-                                <CollectionView.ItemTemplate>
+                        <ScrollView Orientation="Horizontal"
+                                    HorizontalScrollBarVisibility="Never">
+                            <HorizontalStackLayout Spacing="12"
+                                                   BindableLayout.ItemsSource="{Binding TopCategories}">
+                                <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="viewmodel:CategoryExpense">
-                                        <VerticalStackLayout Spacing="6" Margin="0,0,0,12">
-                                            <Grid ColumnDefinitions="*,Auto">
-                                                <Label Grid.Column="0"
-                                                       Text="{Binding CategoryName}"
+                                        <Border BackgroundColor="White"
+                                                StrokeThickness="1"
+                                                Stroke="#E5E5E5"
+                                                Padding="17"
+                                                WidthRequest="272">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="10"/>
+                                            </Border.StrokeShape>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding BindingContext.OpenCategoryTransactionsCommand, Source={x:Reference page}}"
+                                                    CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+
+                                            <VerticalStackLayout Spacing="8">
+                                                <Label Text="{Binding CategoryName}"
                                                        FontSize="14"
                                                        TextColor="#404040"/>
 
-                                                <Label Grid.Column="1"
-                                                       Text="{Binding Amount, StringFormat='R$ {0:N2}'}"
-                                                       FontSize="14"
+                                                <Label Text="{Binding Amount, StringFormat='R$ {0:N2}'}"
+                                                       FontSize="22"
+                                                       FontAttributes="Bold"
                                                        TextColor="#171717"/>
-                                            </Grid>
 
-                                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" HeightRequest="8">
-                                                <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="8"/>
-                                                </Border.StrokeShape>
-                                                <ProgressBar Progress="{Binding ProgressValue}" ProgressColor="#171717" BackgroundColor="Transparent"/>
-                                            </Border>
+                                                <Border BackgroundColor="#F5F5F5" StrokeThickness="0" HeightRequest="8">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="8"/>
+                                                    </Border.StrokeShape>
+                                                    <ProgressBar Progress="{Binding ProgressValue}" ProgressColor="#171717" BackgroundColor="Transparent"/>
+                                                </Border>
 
-                                            <Label Text="{Binding Percentage, StringFormat='{0:F1}% do total'}" FontSize="12" TextColor="#737373"/>
-                                        </VerticalStackLayout>
+                                                <Label Text="{Binding Percentage, StringFormat='{0:F1}% do total de despesas'}"
+                                                       FontSize="12"
+                                                       TextColor="#737373"/>
+                                            </VerticalStackLayout>
+                                        </Border>
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                        </VerticalStackLayout>
-                    </Border>
+                                </BindableLayout.ItemTemplate>
+                            </HorizontalStackLayout>
+                        </ScrollView>
+                    </VerticalStackLayout>
 
                     <!-- Highest Income/Expense -->
                     <Grid ColumnDefinitions="*, 12, *">

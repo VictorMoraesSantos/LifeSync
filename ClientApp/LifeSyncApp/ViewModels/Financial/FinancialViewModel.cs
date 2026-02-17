@@ -85,6 +85,7 @@ namespace LifeSyncApp.ViewModels.Financial
         public ICommand GoToCategoriesCommand { get; }
         public ICommand ViewAllTransactionsCommand { get; }
         public ICommand RefreshCommand { get; }
+        public ICommand OpenCategoryTransactionsCommand { get; }
 
         public FinancialViewModel(TransactionService transactionService, CategoryService categoryService)
         {
@@ -98,6 +99,7 @@ namespace LifeSyncApp.ViewModels.Financial
             GoToCategoriesCommand = new Command(async () => await GoToCategoriesAsync());
             ViewAllTransactionsCommand = new Command(async () => await ViewAllTransactionsAsync());
             RefreshCommand = new Command(async () => await LoadDataAsync(forceRefresh: true));
+            OpenCategoryTransactionsCommand = new Command<CategoryExpense>(async (cat) => await OpenCategoryTransactionsAsync(cat));
         }
 
         public async Task InitializeAsync()
@@ -200,6 +202,7 @@ namespace LifeSyncApp.ViewModels.Financial
                 .GroupBy(t => t.Category!.Id)
                 .Select(g => new CategoryExpense
                 {
+                    CategoryId = g.Key,
                     CategoryName = g.First().Category!.Name,
                     Amount = g.Sum(t => t.Amount.ToDecimal()),
                     Percentage = totalExpenses > 0 ? (double)((g.Sum(t => t.Amount.ToDecimal()) / totalExpenses) * 100) : 0
@@ -250,10 +253,33 @@ namespace LifeSyncApp.ViewModels.Financial
                 { "Transaction", transaction }
             });
         }
+
+        private async Task OpenCategoryTransactionsAsync(CategoryExpense? category)
+        {
+            if (category == null) return;
+
+            var today = DateTime.Today;
+            var startOfMonth = new DateOnly(today.Year, today.Month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+
+            var filter = new TransactionFilterDTO(
+                UserId: _userId,
+                CategoryId: category.CategoryId,
+                TransactionType: TransactionType.Expense,
+                TransactionDateFrom: startOfMonth,
+                TransactionDateTo: endOfMonth
+            );
+
+            await Shell.Current.GoToAsync("TransactionListPage", new Dictionary<string, object>
+            {
+                { "Filter", filter }
+            });
+        }
     }
 
     public class CategoryExpense
     {
+        public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public decimal Amount { get; set; }
         public double Percentage { get; set; }  // 0–100 for display label

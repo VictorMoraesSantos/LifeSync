@@ -340,6 +340,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
+                // Invalida o cache para que novas etiquetas apareçam ao retornar
+                _lastLabelsRefresh = null;
                 await Shell.Current.GoToAsync("tasklabels");
             }
             catch (Exception ex)
@@ -496,8 +498,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto);
 
-                    // Invalidate cache after update
-                    InvalidateTasksCache();
+                    // Mantém cache válido: o estado local já foi atualizado corretamente
+                    _lastTasksRefresh = DateTime.Now;
 
                     if (existingTask != null)
                     {
@@ -543,8 +545,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
                         TaskLabelsId: selectedLabelIds.Count > 0 ? selectedLabelIds : null);
                     var newId = await _taskItemService.CreateTaskItemAsync(dto);
 
-                    // Invalidate cache after create
-                    InvalidateTasksCache();
+                    // Mantém cache válido: a tarefa já foi inserida localmente via InsertTaskIntoGroups
+                    _lastTasksRefresh = DateTime.Now;
 
                     var created = new TaskItem
                     {

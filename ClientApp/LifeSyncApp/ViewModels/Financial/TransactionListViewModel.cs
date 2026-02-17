@@ -26,6 +26,7 @@ namespace LifeSyncApp.ViewModels.Financial
         private readonly TransactionService _transactionService;
         private int _userId = 1; // TODO: Obter do contexto de autenticação
         private TransactionFilterDTO _currentFilter = new();
+        private bool _filterSetFromNavigation = false;
 
         public ObservableCollection<TransactionGroup> GroupedTransactions { get; } = new();
 
@@ -36,6 +37,7 @@ namespace LifeSyncApp.ViewModels.Financial
                 if (value != null)
                 {
                     _currentFilter = value;
+                    _filterSetFromNavigation = true;
                     _ = ApplyFilterAsync();
                 }
             }
@@ -61,6 +63,10 @@ namespace LifeSyncApp.ViewModels.Financial
 
         public async Task InitializeAsync()
         {
+            if (!_filterSetFromNavigation)
+                _currentFilter = new TransactionFilterDTO();
+
+            _filterSetFromNavigation = false;
             await LoadTransactionsAsync();
         }
 
@@ -121,7 +127,10 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private async Task OpenFilterAsync()
         {
-            await Shell.Current.GoToAsync("FilterTransactionModal");
+            await Shell.Current.GoToAsync("FilterTransactionModal", new Dictionary<string, object>
+            {
+                { "ExistingFilter", _currentFilter }
+            });
         }
 
         private async Task ApplyFilterAsync()

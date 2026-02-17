@@ -40,32 +40,6 @@ public partial class MainPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        InitializeCurrentPageAsync();
-    }
-
-    private async void InitializeCurrentPageAsync()
-    {
-        try
-        {
-            System.Diagnostics.Debug.WriteLine("🔵 InitializeCurrentPageAsync iniciado");
-
-            if (_currentPage?.BindingContext is ViewModels.Financial.FinancialViewModel financialVm)
-            {
-                System.Diagnostics.Debug.WriteLine("🔵 Chamando FinancialViewModel.InitializeAsync");
-                await financialVm.InitializeAsync();
-                System.Diagnostics.Debug.WriteLine("✅ FinancialViewModel.InitializeAsync OK");
-            }
-            else if (_currentPage?.BindingContext is ViewModels.TaskManager.TaskItemsViewModel taskVm)
-            {
-                System.Diagnostics.Debug.WriteLine("🔵 TaskItemsViewModel detectado");
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"❌ ERRO InitializeCurrentPageAsync:");
-            System.Diagnostics.Debug.WriteLine($"  Mensagem: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"  StackTrace: {ex.StackTrace}");
-        }
     }
 
     private void OnTabSelected(object sender, int tabIndex)
@@ -180,6 +154,26 @@ public partial class MainPage : ContentPage
             TabBar.SelectedTab = tabIndex;
 
             System.Diagnostics.Debug.WriteLine($"✅ Tab {tabIndex} carregada com sucesso");
+
+            // Carregar dados financeiros se for Financial
+            if (tabIndex == 0 && page.BindingContext is ViewModels.Financial.FinancialViewModel financialVm)
+            {
+                System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de dados financeiros");
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(async () =>
+                        {
+                            await financialVm.InitializeAsync();
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar dados financeiros: {ex.Message}");
+                    }
+                });
+            }
 
             // Carregar tasks se for TaskManager
             if (tabIndex == 2 && page.BindingContext is ViewModels.TaskManager.TaskItemsViewModel taskVm)

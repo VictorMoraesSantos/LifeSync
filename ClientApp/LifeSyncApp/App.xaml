@@ -37,6 +37,8 @@
             <financialConverters:BoolToPaymentMethodBackgroundConverter x:Key="BoolToPaymentMethodBackgroundConverter"/>
             <financialConverters:BoolToPaymentMethodBorderConverter x:Key="BoolToPaymentMethodBorderConverter"/>
             <financialConverters:BoolToPaymentMethodTextColorConverter x:Key="BoolToPaymentMethodTextColorConverter"/>
+            <financialConverters:StringEqualToBackgroundConverter x:Key="StringEqualToBackgroundConverter"/>
+            <financialConverters:StringEqualToTextColorConverter x:Key="StringEqualToTextColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
