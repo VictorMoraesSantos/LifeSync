@@ -1,7 +1,7 @@
-using LifeSyncApp.Views.Financial;
 using LifeSyncApp.Views.Academic;
-using LifeSyncApp.Views.TaskManager.TaskItem;
+using LifeSyncApp.Views.Financial;
 using LifeSyncApp.Views.Nutrition;
+using LifeSyncApp.Views.TaskManager.TaskItem;
 
 namespace LifeSyncApp;
 
@@ -19,7 +19,7 @@ public partial class MainPage : ContentPage
             InitializeComponent();
             _serviceProvider = serviceProvider;
             System.Diagnostics.Debug.WriteLine("✅ MainPage: InitializeComponent OK");
-            
+
             // Inicializar com a primeira tab (Financeiro)
             LoadPage(0);
             System.Diagnostics.Debug.WriteLine("✅ MainPage: Construtor completo");
@@ -89,7 +89,7 @@ public partial class MainPage : ContentPage
             System.Diagnostics.Debug.WriteLine($"🔵 LoadPage iniciado para tab {tabIndex}");
 
             ContentPage page;
-            
+
             // Criar página com try-catch individual
             try
             {
@@ -113,7 +113,7 @@ public partial class MainPage : ContentPage
                     System.Diagnostics.Debug.WriteLine($"  InnerException: {ex.InnerException.Message}");
                     System.Diagnostics.Debug.WriteLine($"  Inner StackTrace: {ex.InnerException.StackTrace}");
                 }
-                
+
                 // Mostrar erro visual
                 ContentArea.Content = new VerticalStackLayout
                 {
@@ -206,7 +206,7 @@ public partial class MainPage : ContentPage
             System.Diagnostics.Debug.WriteLine($"❌ ERRO GERAL LoadPage tab {tabIndex}:");
             System.Diagnostics.Debug.WriteLine($"  Mensagem: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"  StackTrace: {ex.StackTrace}");
-            
+
             // Mostrar erro visual
             try
             {

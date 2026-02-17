@@ -213,23 +213,23 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             GoToLabelsCommand = new Command(async () => await NavigateToTaskLabelPage());
             ToggleStatusCommand = new Command<TaskItem>(async (task) => await ToggleStatusAsync(task));
-            OpenManageTaskModalCommand = new Command<TaskItem>(OpenManageTaskModal);
-            CloseManageTaskModalCommand = new Command(() => IsManageTaskModalOpen = false);
+            OpenManageTaskModalCommand = new Command<TaskItem>(async (task) => await OpenManageTaskModalAsync(task));
+            CloseManageTaskModalCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             ManageTaskCommand = new Command(async () => await ManageTaskAsync());
             SetPriorityCommand = new Command<Priority>(p => NewTaskPriority = p);
             FocusDueDatePickerCommand = new Command(() => { });
             ViewTaskDetailCommand = new Command<TaskItem>(async (task) => await NavigateToTaskDetailAsync(task));
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
-            EditTaskCommand = new Command(() => EditTaskAsync());
+            EditTaskCommand = new Command(async () => await EditTaskAsync());
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
-            OpenFiltersCommand = new Command(() => IsFilterTaskModalOpen = true);
+            OpenFiltersCommand = new Command(async () => await OpenFiltersModalAsync());
             ToggleLabelCommand = new Command<SelectableLabelItem>(ToggleLabel);
             FilterViewModel = new FilterTaskItemViewModel(
                 onApplyFilters: (status, priority, dateFilter) =>
                 {
                     _ = ApplyFiltersAsync(status, priority, dateFilter);
                 },
-                onCloseModal: () => IsFilterTaskModalOpen = false
+                onCloseModal: async () => await Shell.Current.GoToAsync("..")
             );
         }
 
@@ -394,7 +394,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        private void OpenManageTaskModal(TaskItem? taskToEdit = null)
+        private async Task OpenManageTaskModalAsync(TaskItem? taskToEdit = null)
         {
             List<int> selectedIds = new();
 
@@ -419,7 +419,12 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             LoadLabels(selectedIds);
 
-            IsManageTaskModalOpen = true;
+            await Shell.Current.GoToAsync("ManageTaskItemModal");
+        }
+
+        private async Task OpenFiltersModalAsync()
+        {
+            await Shell.Current.GoToAsync("FilterTaskItemPopup");
         }
 
         private async Task NavigateToTaskDetailAsync(TaskItem task)
@@ -456,10 +461,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        private void EditTaskAsync()
+        private async Task EditTaskAsync()
         {
             if (SelectedTask == null) return;
-            OpenManageTaskModal(SelectedTask);
+            await OpenManageTaskModalAsync(SelectedTask);
         }
 
         private async Task ManageTaskAsync()
@@ -557,7 +562,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     InsertTaskIntoGroups(created);
                 }
 
-                IsManageTaskModalOpen = false;
+                await Shell.Current.GoToAsync("..");
             }
             catch (Exception ex)
             {

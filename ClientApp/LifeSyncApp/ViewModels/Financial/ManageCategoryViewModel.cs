@@ -1,7 +1,6 @@
-using System.Windows.Input;
-using LifeSyncApp.DTOs.Financial;
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.Services.Financial;
+using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {
@@ -18,7 +17,11 @@ namespace LifeSyncApp.ViewModels.Financial
         public string Name
         {
             get => _name;
-            set => SetProperty(ref _name, value);
+            set
+            {
+                if (SetProperty(ref _name, value))
+                    ((Command)SaveCommand).ChangeCanExecute();
+            }
         }
 
         public string CategoryDescription
@@ -30,8 +33,14 @@ namespace LifeSyncApp.ViewModels.Financial
         public bool IsEditing
         {
             get => _isEditing;
-            private set => SetProperty(ref _isEditing, value);
+            private set
+            {
+                if (SetProperty(ref _isEditing, value))
+                    OnPropertyChanged(nameof(ActionButtonText));
+            }
         }
+
+        public string ActionButtonText => IsEditing ? "Salvar" : "Criar";
 
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }

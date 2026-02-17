@@ -1,9 +1,9 @@
-using System.Collections.ObjectModel;
-using System.Windows.Input;
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {
@@ -12,6 +12,11 @@ namespace LifeSyncApp.ViewModels.Financial
         private readonly TransactionService _transactionService;
         private readonly CategoryService _categoryService;
         private int _userId = 1; // TODO: Obter do contexto de autenticação
+
+        // Cache management
+        private bool _isLoadingData;
+        private DateTime? _lastDataRefresh;
+        private const int CacheExpirationMinutes = 5;
 
         private decimal _balance;
         private decimal _totalIncome;
@@ -76,6 +81,7 @@ namespace LifeSyncApp.ViewModels.Financial
 
         public ICommand LoadDataCommand { get; }
         public ICommand OpenManageTransactionModalCommand { get; }
+        public ICommand OpenDetailCommand { get; }
         public ICommand GoToCategoriesCommand { get; }
         public ICommand ViewAllTransactionsCommand { get; }
         public ICommand RefreshCommand { get; }
@@ -88,9 +94,10 @@ namespace LifeSyncApp.ViewModels.Financial
 
             LoadDataCommand = new Command(async () => await LoadDataAsync());
             OpenManageTransactionModalCommand = new Command(async () => await OpenManageTransactionModalAsync());
+            OpenDetailCommand = new Command<TransactionDTO>(async (t) => await OpenDetailAsync(t));
             GoToCategoriesCommand = new Command(async () => await GoToCategoriesAsync());
             ViewAllTransactionsCommand = new Command(async () => await ViewAllTransactionsAsync());
-            RefreshCommand = new Command(async () => await RefreshAsync());
+            RefreshCommand = new Command(async () => await LoadDataAsync(forceRefresh: true));
         }
 
         public async Task InitializeAsync()
@@ -98,39 +105,73 @@ namespace LifeSyncApp.ViewModels.Financial
             await LoadDataAsync();
         }
 
-        private async Task LoadDataAsync()
+        public async Task LoadDataAsync(bool forceRefresh = false)
         {
+            // Use cached data if still valid
+            if (!forceRefresh && !IsDataCacheExpired() && RecentTransactions.Any())
+            {
+                System.Diagnostics.Debug.WriteLine("📦 Using cached financial data (not expired)");
+                return;
+            }
+
+            // Prevent concurrent loads
+            if (_isLoadingData)
+            {
+                System.Diagnostics.Debug.WriteLine("⏳ Financial data already loading, skipping duplicate request");
+                return;
+            }
+
             try
             {
+                _isLoadingData = true;
+                IsBusy = true;
+
+                System.Diagnostics.Debug.WriteLine($"🔄 Loading financial data from API (forceRefresh: {forceRefresh})");
+
                 var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
                 Categories.Clear();
                 foreach (var category in categories)
-                {
                     Categories.Add(category);
-                }
+
                 var startOfMonth = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
                 var filter = new TransactionFilterDTO(UserId: _userId, TransactionDateFrom: startOfMonth, TransactionDateTo: endOfMonth);
                 var transactions = await _transactionService.SearchTransactionsAsync(filter);
 
-                // Calcular estatísticas
                 CalculateStatistics(transactions);
 
-                // Carregar transações recentes (últimas 5)
                 RecentTransactions.Clear();
                 foreach (var transaction in transactions.OrderByDescending(t => t.TransactionDate).Take(5))
-                {
                     RecentTransactions.Add(transaction);
-                }
 
-                // Calcular top categorias
                 CalculateTopCategories(transactions);
 
-                System.Diagnostics.Debug.WriteLine("Financial data loaded successfully");
+                _lastDataRefresh = DateTime.Now;
+                System.Diagnostics.Debug.WriteLine("✅ Financial data loaded successfully");
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error loading financial data: {ex.Message}");
             }
+            finally
+            {
+                _isLoadingData = false;
+                IsBusy = false;
+            }
+        }
+
+        private bool IsDataCacheExpired()
+        {
+            if (_lastDataRefresh == null)
+                return true;
+
+            return (DateTime.Now - _lastDataRefresh.Value).TotalMinutes >= CacheExpirationMinutes;
+        }
+
+        public void InvalidateDataCache()
+        {
+            _lastDataRefresh = null;
+            System.Diagnostics.Debug.WriteLine("🗑️ Financial data cache invalidated");
         }
 
         private void CalculateStatistics(List<TransactionDTO> transactions)
@@ -168,9 +209,7 @@ namespace LifeSyncApp.ViewModels.Financial
 
             TopCategories.Clear();
             foreach (var category in categoryGroups)
-            {
                 TopCategories.Add(category);
-            }
         }
 
         private async Task OpenManageTransactionModalAsync()
@@ -202,9 +241,14 @@ namespace LifeSyncApp.ViewModels.Financial
             await Shell.Current.GoToAsync("TransactionListPage");
         }
 
-        private async Task RefreshAsync()
+        private async Task OpenDetailAsync(TransactionDTO? transaction)
         {
-            await LoadDataAsync();
+            if (transaction == null) return;
+
+            await Shell.Current.GoToAsync("TransactionDetailModal", new Dictionary<string, object>
+            {
+                { "Transaction", transaction }
+            });
         }
     }
 
@@ -212,6 +256,7 @@ namespace LifeSyncApp.ViewModels.Financial
     {
         public string CategoryName { get; set; } = string.Empty;
         public decimal Amount { get; set; }
-        public double Percentage { get; set; }
+        public double Percentage { get; set; }  // 0–100 for display label
+        public double ProgressValue => Percentage / 100.0;  // 0–1 for ProgressBar
     }
 }

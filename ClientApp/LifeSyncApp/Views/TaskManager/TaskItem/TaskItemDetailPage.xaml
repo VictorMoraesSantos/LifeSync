@@ -209,13 +209,5 @@
                 </Grid>
             </Grid>
         </Grid>
-
-        <Grid x:Name="ManageTaskOverlay" IsVisible="{Binding IsManageTaskModalOpen}">
-            <Grid BackgroundColor="#000000" Opacity="0.45">
-                <Grid.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding CloseManageTaskModalCommand}" />
-                </Grid.GestureRecognizers>
-            </Grid>
-        </Grid>
     </Grid>
 </ContentPage>

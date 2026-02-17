@@ -1,6 +1,6 @@
-using System.Windows.Input;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Services.Financial;
+using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {

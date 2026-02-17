@@ -1,5 +1,5 @@
-using System.Globalization;
 using LifeSyncApp.Models.Financial;
+using System.Globalization;
 
 namespace LifeSyncApp.Converters.Financial
 {

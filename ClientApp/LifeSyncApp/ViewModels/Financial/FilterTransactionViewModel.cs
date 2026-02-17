@@ -1,10 +1,9 @@
-using System.Collections.ObjectModel;
-using System.Windows.Input;
-using LifeSyncApp.DTOs.Financial;
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {

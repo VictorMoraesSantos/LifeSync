@@ -1,6 +1,6 @@
+using LifeSyncApp.DTOs.Financial.Transaction;
 using System.Net.Http.Json;
 using System.Text.Json;
-using LifeSyncApp.DTOs.Financial.Transaction;
 
 namespace LifeSyncApp.Services.Financial
 {

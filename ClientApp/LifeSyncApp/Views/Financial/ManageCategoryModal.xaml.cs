@@ -10,7 +10,7 @@ public partial class ManageCategoryModal : ContentPage
 
     public CategoryDTO? Category { get; set; }
 
-    public ManageCategoryModal(ManageCategoryViewModel viewModel)
+    public ManageCategoryModal(ManageCategoryViewModel viewModel, CategoriesViewModel categoriesViewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -19,6 +19,7 @@ public partial class ManageCategoryModal : ContentPage
         // Subscribe to events
         _viewModel.OnSaved += async (sender, args) =>
         {
+            categoriesViewModel.InvalidateCategoriesCache();
             await Shell.Current.GoToAsync("..");
         };
 

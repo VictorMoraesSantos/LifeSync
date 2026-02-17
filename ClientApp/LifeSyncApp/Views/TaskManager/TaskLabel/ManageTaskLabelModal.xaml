@@ -19,7 +19,7 @@
                 StrokeThickness="0"
                 MaximumHeightRequest="520">
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="16,16,0,0"/>
+                <RoundRectangle CornerRadius="16"/>
             </Border.StrokeShape>
             <Border.Shadow>
                 <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.3"/>

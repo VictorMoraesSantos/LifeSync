@@ -2,10 +2,10 @@ namespace LifeSyncApp.Views.TaskManager.TaskItem;
 
 public partial class ManageTaskLabelPopup : ContentView
 {
-	public ManageTaskLabelPopup()
-	{
-		InitializeComponent();
-	}
+    public ManageTaskLabelPopup()
+    {
+        InitializeComponent();
+    }
 
     protected override void OnBindingContextChanged()
     {

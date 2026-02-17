@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
              xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
-             xmlns:local="clr-namespace:LifeSyncApp.Views.TaskManager.TaskItem"
              xmlns:converters="clr-namespace:LifeSyncApp.Converters"
              x:Class="LifeSyncApp.Views.TaskManager.TaskLabel.TaskLabelPage"
              x:DataType="viewmodels:TaskLabelViewModel"
@@ -130,16 +129,6 @@
                               Color="#171717"
                               VerticalOptions="Center"
                               HorizontalOptions="Center" />
-        </Grid>
-
-        <!-- Modal Overlay -->
-        <Grid IsVisible="{Binding IsManageLabelModalOpen}">
-            <BoxView BackgroundColor="#000000" Opacity="0.45">
-                <BoxView.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding CloseManageLabelModalCommand}" />
-                </BoxView.GestureRecognizers>
-            </BoxView>
-            <local:ManageTaskLabelPopup />
         </Grid>
     </Grid>
 </ContentPage>

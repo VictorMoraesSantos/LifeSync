@@ -219,7 +219,7 @@
                                                 <Border.StrokeShape>
                                                     <RoundRectangle CornerRadius="8"/>
                                                 </Border.StrokeShape>
-                                                <ProgressBar Progress="{Binding Percentage}" ProgressColor="#171717" BackgroundColor="Transparent"/>
+                                                <ProgressBar Progress="{Binding ProgressValue}" ProgressColor="#171717" BackgroundColor="Transparent"/>
                                             </Border>
 
                                             <Label Text="{Binding Percentage, StringFormat='{0:F1}% do total'}" FontSize="12" TextColor="#737373"/>
@@ -307,23 +307,47 @@
                                         <Border.StrokeShape>
                                             <RoundRectangle CornerRadius="10"/>
                                         </Border.StrokeShape>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:FinancialViewModel}}, Path=OpenDetailCommand}"
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
 
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                             <Border Grid.Column="0"
-                                                    BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToColorConverter}, ConverterParameter=0.1}"
                                                     StrokeThickness="0"
-                                                    WidthRequest="20"
-                                                    HeightRequest="20"
-                                                    VerticalOptions="Start">
+                                                    WidthRequest="32"
+                                                    HeightRequest="32"
+                                                    Padding="6"
+                                                    VerticalOptions="Center">
                                                 <Border.StrokeShape>
-                                                    <Ellipse/>
+                                                    <RoundRectangle CornerRadius="10"/>
                                                 </Border.StrokeShape>
-                                                <Label Text="{Binding TransactionType, Converter={StaticResource TransactionTypeToSignConverter}}"
-                                                       FontSize="12"
-                                                       FontAttributes="Bold"
-                                                       TextColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToColorConverter}}"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"/>
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border"
+                                                                 Binding="{Binding TransactionType}"
+                                                                 Value="Income">
+                                                        <Setter Property="BackgroundColor" Value="#F0FDF4"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Border"
+                                                                 Binding="{Binding TransactionType}"
+                                                                 Value="Expense">
+                                                        <Setter Property="BackgroundColor" Value="#FEF2F2"/>
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Image>
+                                                    <Image.Triggers>
+                                                        <DataTrigger TargetType="Image"
+                                                                     Binding="{Binding TransactionType}"
+                                                                     Value="Income">
+                                                            <Setter Property="Source" Value="arrow_circle_up.svg"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Image"
+                                                                     Binding="{Binding TransactionType}"
+                                                                     Value="Expense">
+                                                            <Setter Property="Source" Value="arrow_circle_down.svg"/>
+                                                        </DataTrigger>
+                                                    </Image.Triggers>
+                                                </Image>
                                             </Border>
 
                                             <VerticalStackLayout Grid.Column="1" Spacing="4">

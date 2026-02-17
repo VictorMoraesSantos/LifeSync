@@ -129,15 +129,27 @@
                                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                                         <!-- Type Icon -->
                                                         <Border Grid.Column="0"
-                                                                WidthRequest="20"
-                                                                HeightRequest="20"
                                                                 StrokeThickness="0"
+                                                                WidthRequest="32"
+                                                                HeightRequest="32"
+                                                                Padding="6"
                                                                 VerticalOptions="Center">
                                                             <Border.StrokeShape>
-                                                                <Ellipse/>
+                                                                <RoundRectangle CornerRadius="10"/>
                                                             </Border.StrokeShape>
-                                                            <Image WidthRequest="20"
-                                                                   HeightRequest="20">
+                                                            <Border.Triggers>
+                                                                <DataTrigger TargetType="Border"
+                                                                             Binding="{Binding TransactionType}"
+                                                                             Value="Income">
+                                                                    <Setter Property="BackgroundColor" Value="#F0FDF4"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger TargetType="Border"
+                                                                             Binding="{Binding TransactionType}"
+                                                                             Value="Expense">
+                                                                    <Setter Property="BackgroundColor" Value="#FEF2F2"/>
+                                                                </DataTrigger>
+                                                            </Border.Triggers>
+                                                            <Image>
                                                                 <Image.Triggers>
                                                                     <DataTrigger TargetType="Image"
                                                                                  Binding="{Binding TransactionType}"

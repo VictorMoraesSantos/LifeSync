@@ -154,10 +154,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
             AvailableColors = Enum.GetValues<LabelColor>().ToList();
 
             GoBackCommand = new Command(async () => await GoBackAsync());
-            EditLabelCommand = new Command<TaskLabel>(OpenManageLabelModal);
-            OpenCreateNewLabelCommand = new Command<TaskLabel>(OpenManageLabelModal);
+            EditLabelCommand = new Command<TaskLabel>(async (label) => await OpenManageLabelModalAsync(label));
+            OpenCreateNewLabelCommand = new Command<TaskLabel>(async (label) => await OpenManageLabelModalAsync(label));
             DeleteLabelCommand = new Command<TaskLabel>(async (label) => await DeleteLabelAsync(label));
-            CloseManageLabelModalCommand = new Command(CloseManageLabelModal);
+            CloseManageLabelModalCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             SaveLabelCommand = new Command(async () => await SaveLabelAsync(), () => CanSaveLabel);
             SelectColorCommand = new Command<LabelColor>(SelectColor);
         }
@@ -267,7 +267,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             System.Diagnostics.Debug.WriteLine("🗑️ Labels cache invalidated");
         }
 
-        private void OpenManageLabelModal(TaskLabel? label)
+        private async Task OpenManageLabelModalAsync(TaskLabel? label)
         {
             if (label != null)
             {
@@ -288,18 +288,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 SelectedLabelColor = LabelColor.Blue;
             }
 
-            IsManageLabelModalOpen = true;
-        }
-
-        private void CloseManageLabelModal()
-        {
-            IsManageLabelModalOpen = false;
-
-            // Reset form
-            LabelName = string.Empty;
-            SelectedLabelColor = LabelColor.Blue;
-            EditingLabelId = null;
-            IsEditMode = false;
+            await Shell.Current.GoToAsync("ManageTaskLabelModal");
         }
 
         private void SelectColor(LabelColor color)
@@ -358,10 +347,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 await LoadLabelsAsync();
 
                 // Close modal
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    CloseManageLabelModal();
-                });
+                await Shell.Current.GoToAsync("..");
             }
             catch (Exception ex)
             {

@@ -5,7 +5,7 @@
              xmlns:models="clr-namespace:LifeSyncApp.Models.Financial"
              x:Class="LifeSyncApp.Views.Financial.ManageTransactionModal"
              x:DataType="viewmodel:ManageTransactionViewModel"
-             Shell.PresentationMode="ModalAnimated"
+             Shell.PresentationMode="Modal"
              BackgroundColor="Transparent">
 
     <!-- Fundo opaco semi-transparente -->

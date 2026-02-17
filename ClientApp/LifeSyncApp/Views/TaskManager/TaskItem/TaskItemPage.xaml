@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LifeSyncApp.Views.TaskManager.TaskItem.TaskItemPage"
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
-             xmlns:taskitem="clr-namespace:LifeSyncApp.Views.TaskManager.TaskItem"
              xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
              xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
              x:DataType="viewmodels:TaskItemsViewModel"
@@ -283,26 +282,6 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
             </CollectionView>
-        </Grid>
-
-        <!-- Manage Task Modal Overlay -->
-        <Grid IsVisible="{Binding IsManageTaskModalOpen}">
-            <BoxView BackgroundColor="#000000" Opacity="0.45">
-                <BoxView.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding CloseManageTaskModalCommand}" />
-                </BoxView.GestureRecognizers>
-            </BoxView>
-            <taskitem:ManageTaskItemPopup />
-        </Grid>
-
-        <!-- Filter Task Modal Overlay -->
-        <Grid IsVisible="{Binding IsFilterTaskModalOpen}">
-            <BoxView BackgroundColor="#000000" Opacity="0.45">
-                <BoxView.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding FilterViewModel.CloseModalCommand}" />
-                </BoxView.GestureRecognizers>
-            </BoxView>
-            <taskitem:FilterTaskItemPopup />
         </Grid>
     </Grid>
 </ContentPage>

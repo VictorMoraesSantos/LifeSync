@@ -9,6 +9,6 @@ namespace LifeSyncApp.DTOs.Financial.Transaction
         TransactionType TransactionType,
         Money Amount,
         string Description,
-        DateTime TransactionDate,   
+        DateTime TransactionDate,
         bool IsRecurring = false);
 }

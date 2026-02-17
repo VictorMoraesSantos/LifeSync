@@ -1,7 +1,7 @@
 ﻿using LifeSyncApp.Models.TaskManager.Enums;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Collections.Concurrent;
 
 namespace LifeSyncApp.Models.TaskManager
 {

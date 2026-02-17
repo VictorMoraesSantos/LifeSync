@@ -1,20 +1,24 @@
+using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.ViewModels.Financial;
 
 namespace LifeSyncApp.Views.Financial;
 
+[QueryProperty(nameof(Transaction), "Transaction")]
 public partial class ManageTransactionModal : ContentPage
 {
     private readonly ManageTransactionViewModel _viewModel;
 
-    public ManageTransactionModal(ManageTransactionViewModel viewModel)
+    public TransactionDTO? Transaction { get; set; }
+
+    public ManageTransactionModal(ManageTransactionViewModel viewModel, FinancialViewModel financialViewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
 
-        // Subscribe to events
         _viewModel.OnSaved += async (sender, args) =>
         {
+            financialViewModel.InvalidateDataCache();
             await Shell.Current.GoToAsync("..");
         };
 
@@ -27,6 +31,6 @@ public partial class ManageTransactionModal : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InitializeAsync();
+        await _viewModel.InitializeAsync(Transaction);
     }
 }
