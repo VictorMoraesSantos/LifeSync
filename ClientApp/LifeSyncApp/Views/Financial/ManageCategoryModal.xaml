@@ -4,7 +4,7 @@
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
              x:Class="LifeSyncApp.Views.Financial.ManageCategoryModal"
              x:DataType="viewmodel:ManageCategoryViewModel"
-             Shell.PresentationMode="Modal"
+             Shell.PresentationMode="ModalAnimated"
              BackgroundColor="Transparent">
 
     <!-- Overlay escuro -->

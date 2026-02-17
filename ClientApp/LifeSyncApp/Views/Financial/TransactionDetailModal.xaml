@@ -4,7 +4,7 @@
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
              x:Class="LifeSyncApp.Views.Financial.TransactionDetailModal"
              x:DataType="viewmodel:TransactionDetailViewModel"
-             Shell.PresentationMode="Modal"
+             Shell.PresentationMode="ModalAnimated"
              BackgroundColor="Transparent">
 
     <Grid BackgroundColor="#80000000">
