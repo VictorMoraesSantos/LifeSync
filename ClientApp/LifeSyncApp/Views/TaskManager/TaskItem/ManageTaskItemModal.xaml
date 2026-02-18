@@ -38,7 +38,9 @@
             <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="0">
 
                 <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,12">
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="*,Auto"
+                      Padding="16,12">
                     <Label Text="{Binding ModalTitle}"
                            FontSize="16"
                            FontAttributes="None"

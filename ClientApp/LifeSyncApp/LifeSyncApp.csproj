@@ -103,9 +103,4 @@
 	  </MauiXaml>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Views\Financial\Category\" />
-	  <Folder Include="Views\Financial\Transaction\" />
-	</ItemGroup>
-
 </Project>

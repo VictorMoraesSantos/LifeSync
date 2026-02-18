@@ -7,133 +7,99 @@
              Shell.PresentationMode="ModalAnimated"
              BackgroundColor="Transparent">
 
-    <!-- Overlay escuro -->
     <Grid BackgroundColor="#66000000">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
         </Grid.GestureRecognizers>
 
-        <!-- Bottom Sheet (parte inferior) -->
         <Border VerticalOptions="End"
                 HorizontalOptions="Fill"
                 BackgroundColor="White"
-                StrokeThickness="0">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="16,16,0,0"/>
-            </Border.StrokeShape>
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 16,16,0,0" >
+
             <Border.Shadow>
                 <Shadow Brush="Black" Offset="0,-25" Radius="50" Opacity="0.25"/>
             </Border.Shadow>
 
-            <!-- Previne que o tap no card feche o modal -->
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer/>
-            </Border.GestureRecognizers>
-
             <Grid RowDefinitions="Auto,Auto,Auto,Auto">
-
-                <!-- Header: Título (esquerda) + Botão X (direita) -->
                 <Grid Grid.Row="0"
-                      Padding="20,16,20,0"
-                      ColumnDefinitions="*,Auto"
-                      HeightRequest="69">
+                      ColumnDefinitions="*, Auto"
+                      Padding="16,12" >
 
-                    <Label Grid.Column="0"
-                           Text="{Binding Title}"
+                    <Label Text="{Binding Title}"
                            FontSize="16"
                            FontAttributes="Bold"
-                           TextColor="#171717"
+                           TextColor="#111"
                            VerticalOptions="Center"/>
 
-                    <Border Grid.Column="1"
-                            WidthRequest="36"
-                            HeightRequest="36"
-                            StrokeShape="RoundRectangle 10"
-                            Stroke="Transparent"
-                            BackgroundColor="Transparent"
-                            VerticalOptions="Center">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
-                        </Border.GestureRecognizers>
-                        <Image Source="close.svg"
-                               WidthRequest="20"
-                               HeightRequest="20"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
+                    <ImageButton Grid.Column="1"
+                                 Source="close.svg"
+                                 BackgroundColor="Transparent"
+                                 Padding="8"
+                                 Command="{Binding CancelCommand}" />
                 </Grid>
 
-                <!-- Divider -->
                 <BoxView Grid.Row="0"
                          VerticalOptions="End"
                          HeightRequest="1"
                          BackgroundColor="#E5E5E5"/>
 
-                <!-- Formulário -->
                 <ScrollView Grid.Row="1">
                     <VerticalStackLayout Padding="20" Spacing="20">
-
-                        <!-- Nome da Categoria -->
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Nome da Categoria"
                                    FontSize="14"
                                    TextColor="#525252"/>
+
                             <Border BackgroundColor="White"
+                                    Padding="12, 0"
                                     StrokeThickness="1"
-                                    Stroke="#E5E5E5"
-                                    Padding="16,12"
-                                    HeightRequest="50">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="10"/>
-                                </Border.StrokeShape>
+                                    Stroke="#E5E7EB"
+                                    StrokeShape="RoundRectangle 10">
+
                                 <Entry Text="{Binding Name}"
                                        Placeholder="Ex: Alimentação, Transporte, Saúde..."
-                                       PlaceholderColor="#0A0A0A80"
+                                       PlaceholderColor="#9CA3AF"
                                        TextColor="#171717"
                                        FontSize="16"
-                                       BackgroundColor="Transparent"
-                                       VerticalOptions="Center"/>
+                                       BackgroundColor="Transparent"/>
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- Descrição (opcional) -->
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Descrição (opcional)"
                                    FontSize="14"
                                    TextColor="#525252"/>
+
                             <Border BackgroundColor="White"
                                     StrokeThickness="1"
                                     Stroke="#E5E5E5"
-                                    Padding="16,12"
-                                    HeightRequest="98">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="10"/>
-                                </Border.StrokeShape>
+                                    Padding="12, 0"
+                                    StrokeShape="RoundRectangle 10"
+                                    HeightRequest="90">
+
                                 <Editor Text="{Binding CategoryDescription}"
                                         Placeholder="Ex: Gastos com supermercado, restaurantes e delivery"
-                                        PlaceholderColor="#0A0A0A80"
+                                        PlaceholderColor="#9CA3AF"
                                         TextColor="#171717"
                                         FontSize="16"
                                         BackgroundColor="Transparent"
                                         AutoSize="TextChanges"/>
                             </Border>
                         </VerticalStackLayout>
-
                     </VerticalStackLayout>
                 </ScrollView>
 
-                <!-- Separador footer -->
                 <BoxView Grid.Row="2"
                          HeightRequest="1"
                          BackgroundColor="#E5E5E5"/>
 
-                <!-- Footer: Cancelar + Criar/Salvar -->
                 <Grid Grid.Row="3"
                       Padding="20,17,20,20"
                       ColumnDefinitions="*,*"
                       ColumnSpacing="12">
 
-                    <!-- Botão Cancelar -->
                     <Border Grid.Column="0"
                             HeightRequest="50"
                             StrokeShape="RoundRectangle 10"
@@ -143,6 +109,7 @@
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
                         </Border.GestureRecognizers>
+
                         <Label Text="Cancelar"
                                FontSize="16"
                                TextColor="#404040"
@@ -150,28 +117,27 @@
                                VerticalOptions="Center"/>
                     </Border>
 
-                    <!-- Botão Criar / Salvar -->
                     <Border Grid.Column="1"
-                            HeightRequest="50"
                             StrokeShape="RoundRectangle 10"
                             Stroke="Transparent"
                             BackgroundColor="#171717">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SaveCommand}"/>
                         </Border.GestureRecognizers>
+
                         <HorizontalStackLayout Spacing="8"
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center">
                             <Image Source="add.svg"
                                    WidthRequest="16"
                                    HeightRequest="16"/>
+
                             <Label Text="{Binding ActionButtonText}"
                                    FontSize="16"
                                    TextColor="White"
                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
                     </Border>
-
                 </Grid>
             </Grid>
         </Border>

@@ -22,7 +22,6 @@ namespace LifeSyncApp.ViewModels.Financial
         public ICommand AddCategoryCommand { get; }
         public ICommand EditCategoryCommand { get; }
         public ICommand DeleteCategoryCommand { get; }
-        public ICommand RefreshCommand { get; }
 
         public CategoriesViewModel(CategoryService categoryService)
         {
@@ -34,7 +33,6 @@ namespace LifeSyncApp.ViewModels.Financial
             AddCategoryCommand = new Command(async () => await AddCategoryAsync());
             EditCategoryCommand = new Command<CategoryDTO>(async (category) => await EditCategoryAsync(category));
             DeleteCategoryCommand = new Command<CategoryDTO>(async (category) => await DeleteCategoryAsync(category));
-            RefreshCommand = new Command(async () => await LoadCategoriesAsync(forceRefresh: true));
         }
 
         public async Task InitializeAsync()

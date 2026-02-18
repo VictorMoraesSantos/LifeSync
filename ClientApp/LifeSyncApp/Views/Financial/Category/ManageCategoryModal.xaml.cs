@@ -7,6 +7,7 @@ namespace LifeSyncApp.Views.Financial;
 public partial class ManageCategoryModal : ContentPage
 {
     private readonly ManageCategoryViewModel _viewModel;
+    private readonly CategoriesViewModel _categoriesViewModel;
 
     public CategoryDTO? Category { get; set; }
 
@@ -14,24 +15,36 @@ public partial class ManageCategoryModal : ContentPage
     {
         InitializeComponent();
         _viewModel = viewModel;
+        _categoriesViewModel = categoriesViewModel;
         BindingContext = _viewModel;
-
-        // Subscribe to events
-        _viewModel.OnSaved += async (sender, args) =>
-        {
-            categoriesViewModel.InvalidateCategoriesCache();
-            await Shell.Current.GoToAsync("..");
-        };
-
-        _viewModel.OnCancelled += async (sender, args) =>
-        {
-            await Shell.Current.GoToAsync("..");
-        };
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        _viewModel.OnSaved += OnSaved;
+        _viewModel.OnCancelled += OnCancelled;
+
         _viewModel.Initialize(Category);
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        _viewModel.OnSaved -= OnSaved;
+        _viewModel.OnCancelled -= OnCancelled;
+    }
+
+    private async void OnSaved(object? sender, EventArgs e)
+    {
+        _categoriesViewModel.InvalidateCategoriesCache();
+        await Shell.Current.GoToAsync("..");
+    }
+
+    private async void OnCancelled(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
     }
 }
