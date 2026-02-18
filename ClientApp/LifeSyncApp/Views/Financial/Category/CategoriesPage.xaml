@@ -22,10 +22,12 @@
                 <HorizontalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
                 </HorizontalStackLayout.GestureRecognizers>
+
                 <Image Source="arrow_back.svg"
                        WidthRequest="16"
                        HeightRequest="16"
                        VerticalOptions="Center"/>
+
                 <Label Text="Voltar"
                        TextColor="#6B7280"
                        FontSize="14"
@@ -39,6 +41,7 @@
                        WidthRequest="16"
                        HeightRequest="16"
                        VerticalOptions="Center"/>
+
                 <Label Text="Categorias"
                        FontSize="16"
                        VerticalOptions="Center"/>
@@ -54,12 +57,14 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding AddCategoryCommand}"/>
             </Border.GestureRecognizers>
+
             <HorizontalStackLayout Spacing="8"
                                    VerticalOptions="Center"
                                    HorizontalOptions="Center">
                 <Image Source="add.svg"
                        WidthRequest="20"
                        HeightRequest="20"/>
+
                 <Label Text="Nova Categoria"
                        TextColor="White"
                        FontSize="16"
@@ -80,6 +85,7 @@
                            FontSize="16"
                            TextColor="#737373"
                            HorizontalOptions="Center"/>
+
                     <Label Text="Toque em 'Nova Categoria' para criar sua primeira categoria"
                            FontSize="14"
                            TextColor="#A1A1A1"
@@ -93,11 +99,9 @@
                     <Border BackgroundColor="White"
                             StrokeThickness="1"
                             Stroke="#E5E5E5"
+                            StrokeShape="RoundRectangle 10"
                             Padding="13"
                             Margin="0,0,0,8">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="10"/>
-                        </Border.StrokeShape>
 
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
 
@@ -108,10 +112,14 @@
                                    VerticalOptions="Start"
                                    Margin="0,4,0,0"/>
 
-                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="1" 
+                                                 Spacing="2" 
+                                                 VerticalOptions="Center">
+
                                 <Label Text="{Binding Name}"
                                        FontSize="16"
                                        TextColor="#171717"/>
+
                                 <Label Text="{Binding Description}"
                                        FontSize="14"
                                        TextColor="#737373"
@@ -133,6 +141,7 @@
                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=EditCategoryCommand}"
                                                               CommandParameter="{Binding .}"/>
                                     </Border.GestureRecognizers>
+
                                     <Image Source="edit.svg"
                                            WidthRequest="16"
                                            HeightRequest="16"
@@ -150,26 +159,18 @@
                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=DeleteCategoryCommand}"
                                                               CommandParameter="{Binding .}"/>
                                     </Border.GestureRecognizers>
+
                                     <Image Source="trash.svg"
                                            WidthRequest="16"
                                            HeightRequest="16"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
                                 </Border>
-
                             </HorizontalStackLayout>
                         </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
-        <ActivityIndicator Grid.Row="2"
-                           IsRunning="{Binding IsBusy}"
-                           IsVisible="{Binding IsBusy}"
-                           Color="#171717"
-                           VerticalOptions="Center"
-                           HorizontalOptions="Center"/>
-
     </Grid>
 </ContentPage>
