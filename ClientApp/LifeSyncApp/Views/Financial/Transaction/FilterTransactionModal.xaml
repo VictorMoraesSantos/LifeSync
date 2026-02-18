@@ -6,7 +6,7 @@
              x:Class="LifeSyncApp.Views.Financial.FilterTransactionModal"
              x:DataType="viewmodel:FilterTransactionViewModel"
              x:Name="page"
-             Shell.PresentationMode="ModalAnimated"
+             Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
     <Grid BackgroundColor="#80000000">
@@ -18,23 +18,20 @@
                 HorizontalOptions="Fill"
                 BackgroundColor="White"
                 StrokeThickness="0"
-                MaximumHeightRequest="650">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="16,16,0,0"/>
-            </Border.StrokeShape>
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer/>
-            </Border.GestureRecognizers>
+                MaximumHeightRequest="650"
+                StrokeShape="RoundRectangle 16,16,0,0">
 
             <Grid RowDefinitions="Auto,*,Auto">
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="*,Auto"
+                      Padding="16">
 
-                <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16">
                     <Label Text="Filtros"
                            FontSize="16"
                            FontAttributes="Bold"
                            TextColor="#111"
                            VerticalOptions="Center"/>
+
                     <Button Grid.Column="1"
                             Text="Limpar"
                             FontSize="14"
@@ -45,61 +42,74 @@
 
                 <BoxView Grid.Row="0" VerticalOptions="End" HeightRequest="1" BackgroundColor="#E5E5E5"/>
 
-                <!-- Content -->
                 <ScrollView Grid.Row="1" Padding="20">
                     <VerticalStackLayout Spacing="20">
-
-                        <!-- Tipo -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Tipo" FontSize="14" TextColor="#525252"/>
+                            <Label Text="Tipo" 
+                                   FontSize="14"
+                                   TextColor="#525252"/>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedType, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter=''}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedType, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter=''}"
+                                    StrokeShape="RoundRectangle 9">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectTypeCommand}" CommandParameter=""/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Todos os tipos" FontSize="16"
+
+                                <Label Text="Todos os tipos"
+                                       FontSize="16"
                                        TextColor="{Binding SelectedType, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter=''}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedType, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Income'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedType, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Income'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectTypeCommand}" CommandParameter="Income"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Receita" FontSize="16"
+
+                                <Label Text="Receita"
+                                       FontSize="16"
                                        TextColor="{Binding SelectedType, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='Income'}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedType, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Expense'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedType, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Expense'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectTypeCommand}" CommandParameter="Expense"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Despesa" FontSize="16"
+
+                                <Label Text="Despesa"
+                                       FontSize="16"
                                        TextColor="{Binding SelectedType, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='Expense'}"/>
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- Categoria -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Categoria" FontSize="14" TextColor="#525252"/>
+                            <Label Text="Categoria"
+                                   FontSize="14"
+                                   TextColor="#525252"/>
 
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding SelectableCategories}" Spacing="8">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding SelectableCategories}" 
+                                                 Spacing="8">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="models:SelectableCategoryItem">
-                                        <Border StrokeThickness="0" Padding="16,12"
-                                                BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodBackgroundConverter}}">
-                                            <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                                        <Border StrokeThickness="0"
+                                                Padding="16,12"
+                                                BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodBackgroundConverter}}"
+                                                StrokeShape="RoundRectangle 8">
                                             <Border.GestureRecognizers>
                                                 <TapGestureRecognizer
                                                     Command="{Binding BindingContext.SelectCategoryCommand, Source={x:Reference page}}"
                                                     CommandParameter="{Binding .}"/>
                                             </Border.GestureRecognizers>
-                                            <Label Text="{Binding Name}" FontSize="16"
+
+                                            <Label Text="{Binding Name}" 
+                                                   FontSize="16"
                                                    TextColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodTextColorConverter}}"/>
                                         </Border>
                                     </DataTemplate>
@@ -107,145 +117,185 @@
                             </VerticalStackLayout>
                         </VerticalStackLayout>
 
-                        <!-- Método de Pagamento -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Método de Pagamento" FontSize="14" TextColor="#525252"/>
+                            <Label Text="Método de Pagamento" 
+                                   FontSize="14" 
+                                   TextColor="#525252"/>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter=''}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0" 
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter=''}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectPaymentMethodCommand}" CommandParameter=""/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Todos os métodos" FontSize="16"
+
+                                <Label Text="Todos os métodos" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter=''}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Cash'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0" 
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Cash'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectPaymentMethodCommand}" CommandParameter="Cash"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Dinheiro" FontSize="16"
+
+                                <Label Text="Dinheiro" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='Cash'}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='CreditCard'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0" 
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='CreditCard'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectPaymentMethodCommand}" CommandParameter="CreditCard"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Cartão de Crédito" FontSize="16"
+
+                                <Label Text="Cartão de Crédito" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='CreditCard'}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='DebitCard'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='DebitCard'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectPaymentMethodCommand}" CommandParameter="DebitCard"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Cartão de Débito" FontSize="16"
+
+                                <Label Text="Cartão de Débito" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='DebitCard'}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='BankTransfer'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='BankTransfer'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectPaymentMethodCommand}" CommandParameter="BankTransfer"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Transferência" FontSize="16"
+
+                                <Label Text="Transferência" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='BankTransfer'}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Pix'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0" 
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Pix'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectPaymentMethodCommand}" CommandParameter="Pix"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="PIX" FontSize="16"
+
+                                <Label Text="PIX" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='Pix'}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Other'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Other'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectPaymentMethodCommand}" CommandParameter="Other"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Outro" FontSize="16"
+
+                                <Label Text="Outro" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedPaymentMethod, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='Other'}"/>
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- Período -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Período" FontSize="14" TextColor="#525252"/>
+                            <Label Text="Período" 
+                                   FontSize="14"
+                                   TextColor="#525252"/>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter=''}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter=''}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectDateFilterCommand}" CommandParameter=""/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Todas as datas" FontSize="16"
+
+                                <Label Text="Todas as datas" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter=''}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Today'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0" 
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='Today'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectDateFilterCommand}" CommandParameter="Today"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Hoje" FontSize="16"
+
+                                <Label Text="Hoje" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='Today'}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='ThisWeek'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='ThisWeek'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectDateFilterCommand}" CommandParameter="ThisWeek"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Esta semana" FontSize="16"
+
+                                <Label Text="Esta semana"
+                                       FontSize="16"
                                        TextColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='ThisWeek'}"/>
                             </Border>
 
-                            <Border StrokeThickness="0" Padding="16,12"
-                                    BackgroundColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='ThisMonth'}">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                            <Border StrokeThickness="0"
+                                    Padding="16,12"
+                                    BackgroundColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToBackgroundConverter}, ConverterParameter='ThisMonth'}"
+                                    StrokeShape="RoundRectangle 8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SelectDateFilterCommand}" CommandParameter="ThisMonth"/>
                                 </Border.GestureRecognizers>
-                                <Label Text="Este mês" FontSize="16"
+
+                                <Label Text="Este mês" 
+                                       FontSize="16"
                                        TextColor="{Binding SelectedDateFilter, Converter={StaticResource StringEqualToTextColorConverter}, ConverterParameter='ThisMonth'}"/>
                             </Border>
                         </VerticalStackLayout>
-
                     </VerticalStackLayout>
                 </ScrollView>
 
-                <!-- Footer -->
-                <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="0">
-                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
+                <Grid Grid.Row="2"
+                      RowDefinitions="Auto,Auto"
+                      Padding="0">
+                    <BoxView Grid.Row="0"
+                             HeightRequest="1"
+                             Color="#E5E5E5"/>
 
-                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
+                    <Grid Grid.Row="1"
+                          ColumnDefinitions="*,*"
+                          ColumnSpacing="12"
+                          Padding="20,16">
+
                         <Border Grid.Column="0"
                                 BackgroundColor="#F5F5F5"
                                 StrokeThickness="0"
                                 Padding="16"
-                                HeightRequest="48">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
+                                HeightRequest="48"
+                                StrokeShape="RoundRectangle 8">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding CancelCommand}"/>
                             </Border.GestureRecognizers>
+
                             <Label Text="Cancelar"
                                    FontSize="16"
                                    FontAttributes="Bold"
@@ -258,13 +308,12 @@
                                 BackgroundColor="#171717"
                                 StrokeThickness="0"
                                 Padding="16"
-                                HeightRequest="48">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
+                                HeightRequest="48"
+                                StrokeShape="RoundRectangle 8">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ApplyCommand}"/>
                             </Border.GestureRecognizers>
+
                             <Label Text="Aplicar filtros"
                                    FontSize="16"
                                    FontAttributes="Bold"
