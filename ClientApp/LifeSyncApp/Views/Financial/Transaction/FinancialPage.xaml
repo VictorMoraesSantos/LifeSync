@@ -11,18 +11,17 @@
 
     <Grid>
         <Grid RowDefinitions="Auto,*">
-            <!-- Header -->
             <Grid Grid.Row="0"
                   BackgroundColor="White"
                   Padding="16, 12"
                   ColumnDefinitions="*, auto ,auto">
 
                 <Label Grid.Column="0"
-                           Text="Financeiro"
-                           FontSize="16"
-                           FontAttributes="None"
-                           TextColor="#2C3E50"
-                           VerticalOptions="Center"/>
+                       Text="Financeiro"
+                       FontSize="16"
+                       FontAttributes="None"
+                       TextColor="#2C3E50"
+                       VerticalOptions="Center"/>
 
                 <Border Grid.Column="1"
                         WidthRequest="44"
@@ -34,6 +33,7 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoToCategoriesCommand}"/>
                     </Border.GestureRecognizers>
+
                     <Image Source="category.svg"
                            WidthRequest="20"
                            HeightRequest="20"
@@ -50,19 +50,21 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding OpenManageTransactionModalCommand}"/>
                     </Border.GestureRecognizers>
+
                     <HorizontalStackLayout Spacing="6"
-                                                           HorizontalOptions="Center"
-                                                           VerticalOptions="Center">
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center">
                         <Image Source="add.svg"
-                                               WidthRequest="20"
-                                               HeightRequest="20"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center"/>
+                               WidthRequest="20"
+                               HeightRequest="20"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+
                         <Label Text="Nova"
-                                               FontSize="14"
-                                               FontAttributes="Bold"
-                                               TextColor="White"
-                                               VerticalOptions="Center"/>
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                 </Border>
             </Grid>
@@ -71,23 +73,20 @@
                      Color="#E0E0E0"
                      VerticalOptions="End"/>
 
-            <!-- Content -->
             <ScrollView Grid.Row="1">
-                <VerticalStackLayout Padding="16" Spacing="24">
-
-                    <!-- Balance Card -->
+                <VerticalStackLayout Padding="16"
+                                     Spacing="24">
                     <Border BackgroundColor="#171717"
                             StrokeThickness="0"
-                            Padding="24,24,24,16">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="10"/>
-                        </Border.StrokeShape>
+                            Padding="24,24,24,16"
+                            StrokeShape="RoundRectangle 10">
 
                         <VerticalStackLayout Spacing="8">
                             <HorizontalStackLayout Spacing="8">
                                 <Image Source="wallet.svg"
                                        WidthRequest="16"
                                        HeightRequest="16"/>
+
                                 <Label Text="Saldo de fevereiro"
                                        FontSize="14"
                                        TextColor="#D4D4D4"/>
@@ -104,17 +103,14 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <!-- Income/Expense Cards -->
-                    <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">
-                        <!-- Income Card -->
+                    <Grid ColumnDefinitions="*,12,*" 
+                          ColumnSpacing="0">
                         <Border Grid.Column="0"
                                 BackgroundColor="White"
                                 StrokeThickness="1"
                                 Stroke="#E5E5E5"
-                                Padding="17">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10"/>
-                            </Border.StrokeShape>
+                                Padding="17"
+                                StrokeShape="RoundRectangle 10">
 
                             <VerticalStackLayout Spacing="12">
                                 <HorizontalStackLayout Spacing="8">
@@ -122,12 +118,12 @@
                                             StrokeThickness="0"
                                             Padding="8"
                                             WidthRequest="32"
-                                            HeightRequest="32">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="10"/>
-                                        </Border.StrokeShape>
+                                            HeightRequest="32"
+                                            StrokeShape="RoundRectangle 10">
+
                                         <Image Source="arrow_circle_up.svg"/>
                                     </Border>
+
                                     <Label Text="Receitas"
                                            FontSize="14"
                                            TextColor="#525252"
@@ -145,15 +141,12 @@
                             </VerticalStackLayout>
                         </Border>
 
-                        <!-- Expense Card -->
                         <Border Grid.Column="2"
                                 BackgroundColor="White"
                                 StrokeThickness="1"
                                 Stroke="#E5E5E5"
-                                Padding="17">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10"/>
-                            </Border.StrokeShape>
+                                Padding="17"
+                                StrokeShape="RoundRectangle 10">
 
                             <VerticalStackLayout Spacing="12">
                                 <HorizontalStackLayout Spacing="8">
@@ -161,12 +154,12 @@
                                             StrokeThickness="0"
                                             Padding="8"
                                             WidthRequest="32"
-                                            HeightRequest="32">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="10"/>
-                                        </Border.StrokeShape>
+                                            HeightRequest="32"
+                                            StrokeShape="RoundRectangle 10">
+
                                         <Image Source="arrow_circle_down.svg"/>
                                     </Border>
+
                                     <Label Text="Despesas"
                                            FontSize="14"
                                            TextColor="#525252"
@@ -185,11 +178,18 @@
                         </Border>
                     </Grid>
 
-                    <!-- Top Categories - Horizontal Slider -->
                     <VerticalStackLayout Spacing="12">
-                        <HorizontalStackLayout Spacing="8" Padding="0,0,0,0">
-                            <Image Source="data_graph.svg" WidthRequest="16" HeightRequest="16" VerticalOptions="Center"/>
-                            <Label Text="Top Categorias de Despesas" FontSize="16" FontAttributes="Bold" TextColor="#171717"/>
+                        <HorizontalStackLayout Spacing="8"
+                                               Padding="0,0,0,0">
+                            <Image Source="data_graph.svg"
+                                   WidthRequest="16"
+                                   HeightRequest="16"
+                                   VerticalOptions="Center"/>
+
+                            <Label Text="Top Categorias de Despesas"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#171717"/>
                         </HorizontalStackLayout>
 
                         <ScrollView Orientation="Horizontal"
@@ -202,10 +202,8 @@
                                                 StrokeThickness="1"
                                                 Stroke="#E5E5E5"
                                                 Padding="17"
-                                                WidthRequest="272">
-                                            <Border.StrokeShape>
-                                                <RoundRectangle CornerRadius="10"/>
-                                            </Border.StrokeShape>
+                                                WidthRequest="272"
+                                                StrokeShape="RoundRectangle 10">
                                             <Border.GestureRecognizers>
                                                 <TapGestureRecognizer
                                                     Command="{Binding BindingContext.OpenCategoryTransactionsCommand, Source={x:Reference page}}"
@@ -222,11 +220,13 @@
                                                        FontAttributes="Bold"
                                                        TextColor="#171717"/>
 
-                                                <Border BackgroundColor="#F5F5F5" StrokeThickness="0" HeightRequest="8">
-                                                    <Border.StrokeShape>
-                                                        <RoundRectangle CornerRadius="8"/>
-                                                    </Border.StrokeShape>
-                                                    <ProgressBar Progress="{Binding ProgressValue}" ProgressColor="#171717" BackgroundColor="Transparent"/>
+                                                <Border BackgroundColor="#F5F5F5"
+                                                        StrokeThickness="0"
+                                                        HeightRequest="8"
+                                                        StrokeShape="RoundRectangle 8">
+                                                    <ProgressBar Progress="{Binding ProgressValue}"
+                                                                 ProgressColor="#171717"
+                                                                 BackgroundColor="Transparent"/>
                                                 </Border>
 
                                                 <Label Text="{Binding Percentage, StringFormat='{0:F1}% do total de despesas'}"
@@ -240,24 +240,25 @@
                         </ScrollView>
                     </VerticalStackLayout>
 
-                    <!-- Highest Income/Expense -->
                     <Grid ColumnDefinitions="*, 12, *">
-                        <!-- Highest Income -->
                         <Border Grid.Column="0"
                                 BackgroundColor="White"
                                 StrokeThickness="1"
                                 Stroke="#E5E5E5"
-                                Padding="17">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10"/>
-                            </Border.StrokeShape>
+                                Padding="17"
+                                StrokeShape="RoundRectangle 10">
 
                             <VerticalStackLayout Spacing="8">
                                 <HorizontalStackLayout Spacing="8">
-                                    <Image Source="trending_up.svg" WidthRequest="16" HeightRequest="16"/>
-                                    <Label Text="Maior receita" FontSize="14" TextColor="#525252"/>
+                                    <Image Source="trending_up.svg"
+                                           WidthRequest="16"
+                                           HeightRequest="16"/>
+
+                                    <Label Text="Maior receita" 
+                                           FontSize="14"
+                                           TextColor="#525252"/>
                                 </HorizontalStackLayout>
-                                
+
                                 <Label Text="{Binding HighestIncome, StringFormat='R$ {0:N2}'}"
                                        FontSize="18"
                                        FontAttributes="Bold"
@@ -265,21 +266,24 @@
                             </VerticalStackLayout>
                         </Border>
 
-                        <!-- Highest Expense -->
                         <Border Grid.Column="2"
                                 BackgroundColor="White"
                                 StrokeThickness="1"
                                 Stroke="#E5E5E5"
-                                Padding="17">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10"/>
-                            </Border.StrokeShape>
+                                Padding="17"
+                                StrokeShape="RoundRectangle 10">
 
                             <VerticalStackLayout Spacing="8">
                                 <HorizontalStackLayout Spacing="8">
-                                    <Image Source="trending_down.svg" WidthRequest="16" HeightRequest="16"/>
-                                    <Label Text="Maior despesa" FontSize="14" TextColor="#525252"/>
+                                    <Image Source="trending_down.svg"
+                                           WidthRequest="16"
+                                           HeightRequest="16"/>
+
+                                    <Label Text="Maior despesa"
+                                           FontSize="14"
+                                           TextColor="#525252"/>
                                 </HorizontalStackLayout>
+
                                 <Label Text="{Binding HighestExpense, StringFormat='R$ {0:N2}'}"
                                        FontSize="18"
                                        FontAttributes="Bold"
@@ -288,7 +292,6 @@
                         </Border>
                     </Grid>
 
-                    <!-- Recent Transactions -->
                     <VerticalStackLayout Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Grid.Column="0"
@@ -296,6 +299,7 @@
                                    FontSize="16"
                                    FontAttributes="Bold"
                                    TextColor="#171717"/>
+
                             <Label Grid.Column="1"
                                    Text="Ver todas →"
                                    FontSize="14"
@@ -306,23 +310,23 @@
                             </Label>
                         </Grid>
 
-                        <CollectionView ItemsSource="{Binding RecentTransactions}" SelectionMode="None">
+                        <CollectionView ItemsSource="{Binding RecentTransactions}" 
+                                        SelectionMode="None">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="transaction:TransactionDTO">
                                     <Border BackgroundColor="White"
                                             StrokeThickness="1"
                                             Stroke="#E5E5E5"
                                             Padding="13"
-                                            Margin="0,0,0,8">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="10"/>
-                                        </Border.StrokeShape>
+                                            Margin="0,0,0,8"
+                                            StrokeShape="RoundRectangle 10">
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:FinancialViewModel}}, Path=OpenDetailCommand}"
                                                                   CommandParameter="{Binding .}"/>
                                         </Border.GestureRecognizers>
 
-                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Grid ColumnDefinitions="Auto,*,Auto"
+                                              ColumnSpacing="12">
                                             <Border Grid.Column="0"
                                                     StrokeThickness="0"
                                                     WidthRequest="32"

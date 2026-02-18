@@ -77,19 +77,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Views\TaskManager\TaskItem\ManageTaskItemPopup.xaml.cs">
-	    <DependentUpon>ManageTaskItemPopup.xaml</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Update="Views\TaskManager\TaskItem\ManageTaskItemPopup.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Views\TaskManager\TaskItem\FilterTaskItemPopup.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\TaskManager\TaskLabel\ManageTaskLabelPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TaskManager\TaskItem\TaskItemDetailPage.xaml">

@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:LifeSyncApp.Converters"
              x:Class="LifeSyncApp.Views.TaskManager.TaskItem.ManageTaskItemModal"
              x:DataType="viewmodels:TaskItemsViewModel"
-             Shell.PresentationMode="ModalAnimated"
+             Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
     <ContentPage.Resources>

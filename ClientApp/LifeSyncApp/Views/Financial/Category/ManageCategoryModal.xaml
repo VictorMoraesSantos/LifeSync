@@ -22,6 +22,10 @@
                 <Shadow Brush="Black" Offset="0,-25" Radius="50" Opacity="0.25"/>
             </Border.Shadow>
 
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer/>
+            </Border.GestureRecognizers>
+
             <Grid RowDefinitions="Auto,Auto,Auto,Auto">
                 <Grid Grid.Row="0"
                       ColumnDefinitions="*, Auto"

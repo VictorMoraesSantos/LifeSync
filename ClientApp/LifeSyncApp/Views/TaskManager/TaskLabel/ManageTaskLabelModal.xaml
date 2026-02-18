@@ -5,7 +5,7 @@
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
              x:Class="LifeSyncApp.Views.TaskManager.TaskLabel.ManageTaskLabelModal"
              x:DataType="viewmodels:TaskLabelViewModel"
-             Shell.PresentationMode="ModalAnimated"
+             Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
     <Grid BackgroundColor="#80000000">

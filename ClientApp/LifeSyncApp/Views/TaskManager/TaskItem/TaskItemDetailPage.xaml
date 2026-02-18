@@ -12,14 +12,23 @@
 
     <Grid>
 
-        <Grid RowDefinitions="Auto, Auto, *, Auto" RowSpacing="0">
-            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Padding="16,12" BackgroundColor="White">
-                <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+        <Grid RowDefinitions="Auto, Auto, *, Auto"
+              RowSpacing="0">
+            <Grid Grid.Row="0"
+                  ColumnDefinitions="Auto,*,Auto,Auto"
+                  Padding="16,12"
+                  BackgroundColor="White">
+                <HorizontalStackLayout Grid.Column="0"
+                                       Spacing="6"
+                                       VerticalOptions="Center">
                     <HorizontalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                     </HorizontalStackLayout.GestureRecognizers>
 
-                    <Image Source="arrow_back.svg" WidthRequest="16" HeightRequest="16" VerticalOptions="Center"/>
+                    <Image Source="arrow_back.svg"
+                           WidthRequest="16"
+                           HeightRequest="16"
+                           VerticalOptions="Center"/>
 
                     <Button Text="Voltar"
                             BackgroundColor="Transparent"
@@ -47,7 +56,10 @@
                              Command="{Binding DeleteTaskCommand}"/>
             </Grid>
 
-            <BoxView Grid.Row="1" HeightRequest="1" Color="#EEEEEE"/>
+            <BoxView Grid.Row="1"
+                     HeightRequest="1"
+                     Color="#E0E0E0"
+                     VerticalOptions="End"/>
 
             <ScrollView Grid.Row="2" Padding="16,20">
                 <VerticalStackLayout Spacing="18">

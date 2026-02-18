@@ -5,36 +5,33 @@
              xmlns:models="clr-namespace:LifeSyncApp.Models.Financial"
              x:Class="LifeSyncApp.Views.Financial.ManageTransactionModal"
              x:DataType="viewmodel:ManageTransactionViewModel"
-             Shell.PresentationMode="ModalAnimated"
+             Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
-    <!-- Fundo opaco semi-transparente -->
     <Grid BackgroundColor="#80000000">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
         </Grid.GestureRecognizers>
 
-        <!-- Card do modal centralizado -->
         <Border VerticalOptions="End"
                 HorizontalOptions="Fill"
                 BackgroundColor="White"
                 StrokeThickness="0"
-                MaximumHeightRequest="650">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="16"/>
-            </Border.StrokeShape>
+                MaximumHeightRequest="650"
+                StrokeShape="RoundRectangle 16">
             <Border.Shadow>
                 <Shadow Brush="Black"  Offset="0,10" Radius="30" Opacity="0.3"/>
             </Border.Shadow>
 
-            <!-- Previne que o tap no card feche o modal -->
             <Border.GestureRecognizers>
                 <TapGestureRecognizer/>
             </Border.GestureRecognizers>
 
             <Grid RowDefinitions="Auto,*,Auto">
-                <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,0">
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="*,Auto"
+                      Padding="16,0">
+
                     <Label Text="{Binding ModalTitle}"
                            FontSize="16"
                            FontAttributes="None"
@@ -48,30 +45,25 @@
                                  Margin="8" 
                                  Command="{Binding CancelCommand}" />
                 </Grid>
-                
-                <BoxView Grid.Row="1" HeightRequest="1" Color="#EEEEEE"/>
 
-                <!-- Divider -->
                 <BoxView Grid.Row="0"
                          VerticalOptions="End"
                          HeightRequest="1"
                          BackgroundColor="#E5E5E5"/>
 
-                <!-- Form Content -->
                 <ScrollView Grid.Row="1">
-                    <VerticalStackLayout Padding="20" Spacing="20">
+                    <VerticalStackLayout Padding="20"
+                                         Spacing="20">
 
-                        <!-- Valor -->
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Valor"
                                    FontSize="14"
                                    TextColor="#525252"/>
+
                             <Border BackgroundColor="#F5F5F5"
                                     StrokeThickness="0"
-                                    Padding="16,12">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="8"/>
-                                </Border.StrokeShape>
+                                    Padding="16,12"
+                                    StrokeShape="RoundRectangle 8">
                                 <Entry Text="{Binding Amount}"
                                        Placeholder="R$ 0,00"
                                        Keyboard="Numeric"
@@ -82,13 +74,14 @@
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- Descrição -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Descrição" FontSize="14" TextColor="#525252"/>
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="8"/>
-                                </Border.StrokeShape>
+                            <Label Text="Descrição"
+                                   FontSize="14"
+                                   TextColor="#525252"/>
+                            <Border BackgroundColor="#F5F5F5"
+                                    StrokeThickness="0"
+                                    Padding="16,12"
+                                    StrokeShape="RoundRectangle 8" >
                                 <Entry Text="{Binding Description}"
                                        Placeholder="Ex: Almoço no restaurante"
                                        PlaceholderColor="#A1A1A1"
@@ -98,13 +91,16 @@
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- Categoria -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Categoria (opcional)" FontSize="14" TextColor="#525252"/>
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="8"/>
-                                </Border.StrokeShape>
+                            <Label Text="Categoria (opcional)" 
+                                   FontSize="14"
+                                   TextColor="#525252"/>
+
+                            <Border BackgroundColor="#F5F5F5"
+                                    StrokeThickness="0"
+                                    Padding="16,12"
+                                    StrokeShape="RoundRectangle 8">
+
                                 <Picker ItemsSource="{Binding Categories}"
                                         ItemDisplayBinding="{Binding Name}"
                                         SelectedItem="{Binding SelectedCategory}"
@@ -115,7 +111,6 @@
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- Método de Pagamento -->
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Método de Pagamento"
                                    FontSize="14"
@@ -130,19 +125,23 @@
                                         <Border BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodBackgroundConverter}}"
                                                 StrokeThickness="1"
                                                 Stroke="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodBorderConverter}}"
+                                                StrokeShape="RoundRectangle 8"
                                                 Padding="12"
                                                 HeightRequest="80"
                                                 WidthRequest="110"
                                                 Margin="0,0,8,8">
-                                            <Border.StrokeShape>
-                                                <RoundRectangle CornerRadius="8"/>
-                                            </Border.StrokeShape>
                                             <Border.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ManageTransactionViewModel}}, Path=TogglePaymentMethodCommand}"
                                                                       CommandParameter="{Binding .}"/>
                                             </Border.GestureRecognizers>
-                                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                                <Image Source="{Binding IconSource}" WidthRequest="24" HeightRequest="24"/>
+
+                                            <VerticalStackLayout Spacing="8" 
+                                                                 HorizontalOptions="Center" 
+                                                                 VerticalOptions="Center">
+                                                <Image Source="{Binding IconSource}" 
+                                                       WidthRequest="24"
+                                                       HeightRequest="24"/>
+
                                                 <Label Text="{Binding DisplayName}"
                                                        FontSize="12"
                                                        TextColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodTextColorConverter}}"
@@ -157,17 +156,15 @@
                             </FlexLayout>
                         </VerticalStackLayout>
 
-                        <!-- Data da Transação -->
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Data da Transação"
                                    FontSize="14"
                                    TextColor="#525252"/>
+
                             <Border BackgroundColor="#F5F5F5"
                                     StrokeThickness="0"
-                                    Padding="16,12">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="8"/>
-                                </Border.StrokeShape>
+                                    Padding="16,12"
+                                    StrokeShape="RoundRectangle 8">
                                 <DatePicker Date="{Binding TransactionDate}"
                                             TextColor="#171717"
                                             FontSize="16"
@@ -176,22 +173,20 @@
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- Tipo -->
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Tipo"
                                    FontSize="14"
                                    TextColor="#525252"/>
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                                <!-- Receita -->
+
+                            <Grid ColumnDefinitions="*,*" 
+                                  ColumnSpacing="12">
                                 <Border Grid.Column="0"
                                         BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToBackgroundConverter}, ConverterParameter=Income}"
                                         StrokeThickness="2"
                                         Stroke="{Binding TransactionType, Converter={StaticResource TransactionTypeToBorderConverter}, ConverterParameter=Income}"
+                                        StrokeShape="RoundRectangle 8"
                                         Padding="16"
                                         HeightRequest="56">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="8"/>
-                                    </Border.StrokeShape>
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SetTransactionTypeCommand}"
                                                               CommandParameter="Income"/>
@@ -204,16 +199,13 @@
                                            VerticalOptions="Center"/>
                                 </Border>
 
-                                <!-- Despesa -->
                                 <Border Grid.Column="1"
                                         BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToBackgroundConverter}, ConverterParameter=Expense}"
                                         StrokeThickness="2"
                                         Stroke="{Binding TransactionType, Converter={StaticResource TransactionTypeToBorderConverter}, ConverterParameter=Expense}"
+                                        StrokeShape="RoundRectangle 8"
                                         Padding="16"
                                         HeightRequest="56">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="8"/>
-                                    </Border.StrokeShape>
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SetTransactionTypeCommand}"
                                                               CommandParameter="Expense"/>
@@ -227,25 +219,28 @@
                                 </Border>
                             </Grid>
                         </VerticalStackLayout>
-
                     </VerticalStackLayout>
                 </ScrollView>
 
-                <!-- Footer com Botões - Grid.Row="2" -->
-                <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="0" RowSpacing="0">
-                    <!-- Divider -->
-                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
+                <Grid Grid.Row="2" 
+                      RowDefinitions="Auto,Auto" 
+                      Padding="0" 
+                      RowSpacing="0">
 
-                    <!-- Botões -->
-                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
+                    <BoxView Grid.Row="0" 
+                             HeightRequest="1" 
+                             Color="#E5E5E5"/>
+
+                    <Grid Grid.Row="1" 
+                          ColumnDefinitions="*,*" 
+                          ColumnSpacing="12" 
+                          Padding="20,16">
                         <Border Grid.Column="0"
                                 BackgroundColor="#F5F5F5"
                                 StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
                                 Padding="16"
                                 HeightRequest="48">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding CancelCommand}"/>
                             </Border.GestureRecognizers>
@@ -260,11 +255,9 @@
                         <Border Grid.Column="1"
                                 BackgroundColor="#171717"
                                 StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
                                 Padding="16"
                                 HeightRequest="48">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SaveCommand}"/>
                             </Border.GestureRecognizers>

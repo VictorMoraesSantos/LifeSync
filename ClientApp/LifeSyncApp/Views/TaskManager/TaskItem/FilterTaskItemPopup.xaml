@@ -4,7 +4,7 @@
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.TaskManager"
              x:Class="LifeSyncApp.Views.TaskManager.TaskItem.FilterTaskItemPopup"
              x:DataType="viewmodels:TaskItemsViewModel"
-             Shell.PresentationMode="ModalAnimated"
+             Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
     <Grid BackgroundColor="#80000000">

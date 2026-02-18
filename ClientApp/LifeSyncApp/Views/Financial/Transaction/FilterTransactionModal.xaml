@@ -21,6 +21,10 @@
                 MaximumHeightRequest="650"
                 StrokeShape="RoundRectangle 16,16,0,0">
 
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer/>
+            </Border.GestureRecognizers>
+
             <Grid RowDefinitions="Auto,*,Auto">
                 <Grid Grid.Row="0"
                       ColumnDefinitions="*,Auto"
@@ -277,6 +281,7 @@
                 <Grid Grid.Row="2"
                       RowDefinitions="Auto,Auto"
                       Padding="0">
+                    
                     <BoxView Grid.Row="0"
                              HeightRequest="1"
                              Color="#E5E5E5"/>

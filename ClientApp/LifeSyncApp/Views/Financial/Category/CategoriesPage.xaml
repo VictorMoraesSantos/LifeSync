@@ -13,7 +13,7 @@
 
         <Grid Grid.Row="0"
               ColumnDefinitions="Auto,*,Auto"
-              Padding="16,16"
+              Padding="16, 12"
               BackgroundColor="White">
 
             <HorizontalStackLayout Grid.Column="0"
@@ -36,7 +36,8 @@
 
             <HorizontalStackLayout Grid.Column="2"
                                    Spacing="6"
-                                   VerticalOptions="Center">
+                                   VerticalOptions="Center"
+                                   HeightRequest="44">
                 <Image Source="label.svg"
                        WidthRequest="16"
                        HeightRequest="16"
@@ -46,11 +47,15 @@
                        FontSize="16"
                        VerticalOptions="Center"/>
             </HorizontalStackLayout>
-
         </Grid>
+        
+        <BoxView Grid.Row="0"
+                 HeightRequest="1"
+                 Color="#E0E0E0"
+                 VerticalOptions="End"/>
 
         <Border Grid.Row="1"
-                Margin="16,0,16,10"
+                Margin="16"
                 BackgroundColor="#171717"
                 StrokeShape="RoundRectangle 10"
                 Padding="8,14">
