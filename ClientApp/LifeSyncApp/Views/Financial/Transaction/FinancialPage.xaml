@@ -340,12 +340,14 @@
                                                     <DataTrigger TargetType="Border"
                                                                  Binding="{Binding TransactionType}"
                                                                  Value="Income">
-                                                        <Setter Property="BackgroundColor" Value="#F0FDF4"/>
+                                                        <Setter Property="BackgroundColor"
+                                                                Value="#F0FDF4"/>
                                                     </DataTrigger>
                                                     <DataTrigger TargetType="Border"
                                                                  Binding="{Binding TransactionType}"
                                                                  Value="Expense">
-                                                        <Setter Property="BackgroundColor" Value="#FEF2F2"/>
+                                                        <Setter Property="BackgroundColor"
+                                                                Value="#FEF2F2"/>
                                                     </DataTrigger>
                                                 </Border.Triggers>
                                                 <Image>
@@ -353,12 +355,14 @@
                                                         <DataTrigger TargetType="Image"
                                                                      Binding="{Binding TransactionType}"
                                                                      Value="Income">
-                                                            <Setter Property="Source" Value="arrow_circle_up.svg"/>
+                                                            <Setter Property="Source"
+                                                                    Value="arrow_circle_up.svg"/>
                                                         </DataTrigger>
                                                         <DataTrigger TargetType="Image"
                                                                      Binding="{Binding TransactionType}"
                                                                      Value="Expense">
-                                                            <Setter Property="Source" Value="arrow_circle_down.svg"/>
+                                                            <Setter Property="Source" 
+                                                                    Value="arrow_circle_down.svg"/>
                                                         </DataTrigger>
                                                     </Image.Triggers>
                                                 </Image>

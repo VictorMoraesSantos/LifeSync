@@ -24,7 +24,7 @@ namespace LifeSyncApp.ViewModels.Financial
     public class TransactionListViewModel : ViewModels.BaseViewModel
     {
         private readonly TransactionService _transactionService;
-        private int _userId = 1; // TODO: Obter do contexto de autenticação
+        private int _userId = 1;
         private TransactionFilterDTO _currentFilter = new();
         private bool _filterSetFromNavigation = false;
 
@@ -67,13 +67,13 @@ namespace LifeSyncApp.ViewModels.Financial
                 _currentFilter = new TransactionFilterDTO();
 
             _filterSetFromNavigation = false;
+
             await LoadTransactionsAsync();
         }
 
         private async Task LoadTransactionsAsync()
         {
-            if (IsBusy)
-                return;
+            if (IsBusy) return;
 
             IsBusy = true;
 
@@ -83,7 +83,6 @@ namespace LifeSyncApp.ViewModels.Financial
 
                 var filter = _currentFilter with { UserId = _userId };
                 var transactions = await _transactionService.SearchTransactionsAsync(filter, cts.Token);
-
                 var groups = transactions
                     .OrderByDescending(t => t.TransactionDate)
                     .GroupBy(t => t.TransactionDate.Date)
@@ -91,18 +90,16 @@ namespace LifeSyncApp.ViewModels.Financial
                     .ToList();
 
                 GroupedTransactions.Clear();
+
                 foreach (var group in groups)
-                {
                     GroupedTransactions.Add(group);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                System.Diagnostics.Debug.WriteLine("API call timeout loading transactions");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading transactions: {ex.Message}");
+                await Application.Current!.MainPage!.DisplayAlert(
+                    "Erro",
+                    "Ocorreu um erro ao carreagar as transações.",
+                    "OK");
             }
             finally
             {
@@ -144,7 +141,6 @@ namespace LifeSyncApp.ViewModels.Financial
 
                 var filter = _currentFilter with { UserId = _userId };
                 var transactions = await _transactionService.SearchTransactionsAsync(filter, cts.Token);
-
                 var groups = transactions
                     .OrderByDescending(t => t.TransactionDate)
                     .GroupBy(t => t.TransactionDate.Date)
@@ -152,18 +148,16 @@ namespace LifeSyncApp.ViewModels.Financial
                     .ToList();
 
                 GroupedTransactions.Clear();
+
                 foreach (var group in groups)
-                {
                     GroupedTransactions.Add(group);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                System.Diagnostics.Debug.WriteLine("API call timeout applying filter");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error applying filter: {ex.Message}");
+                await Application.Current!.MainPage!.DisplayAlert(
+                    "Erro",
+                    "Ocorreu um erro ao aplicar o filtro.",
+                    "OK");
             }
             finally
             {

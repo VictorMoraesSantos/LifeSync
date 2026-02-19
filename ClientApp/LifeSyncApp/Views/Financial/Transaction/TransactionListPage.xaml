@@ -8,7 +8,6 @@
              BackgroundColor="#FAFAFA">
 
     <Grid RowDefinitions="Auto,*">
-        <!-- Header -->
         <Grid Grid.Row="0"
               BackgroundColor="White"
               Padding="16,16,16,12"
@@ -51,25 +50,22 @@
                  Color="#E5E5E5"
                  VerticalOptions="End"/>
 
-        <!-- Content -->
         <RefreshView Grid.Row="1"
                      IsRefreshing="{Binding IsBusy}"
                      Command="{Binding RefreshCommand}">
             <ScrollView>
-                <VerticalStackLayout Padding="16" Spacing="16">
-
-                    <!-- Filtros Button -->
+                <VerticalStackLayout Padding="16" 
+                                     Spacing="16">
                     <Border BackgroundColor="White"
                             StrokeThickness="1"
                             Stroke="#E5E5E5"
                             Padding="13,9"
-                            HorizontalOptions="Start">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="10"/>
-                        </Border.StrokeShape>
+                            HorizontalOptions="Start"
+                            StrokeShape="RoundRectangle 10">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenFilterCommand}"/>
                         </Border.GestureRecognizers>
+
                         <HorizontalStackLayout Spacing="8">
                             <Image Source="filter.svg"
                                    WidthRequest="16"
@@ -81,13 +77,13 @@
                         </HorizontalStackLayout>
                     </Border>
 
-                    <!-- Transaction Groups -->
-                    <CollectionView ItemsSource="{Binding GroupedTransactions}" SelectionMode="None">
+                    <CollectionView ItemsSource="{Binding GroupedTransactions}"
+                                    SelectionMode="None">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="viewmodel:TransactionGroup">
                                 <VerticalStackLayout Spacing="12" Margin="0,0,0,24">
-                                    <!-- Date Header -->
-                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8">
+                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto"
+                                          ColumnSpacing="8">
                                         <Image Grid.Column="0"
                                                Source="calendar.svg"
                                                WidthRequest="16"
@@ -109,44 +105,41 @@
                                                VerticalOptions="Center"/>
                                     </Grid>
 
-                                    <!-- Transactions in this group -->
-                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding .}" Spacing="0">
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding .}"
+                                                         Spacing="0">
                                         <BindableLayout.ItemTemplate>
                                             <DataTemplate x:DataType="dto:TransactionDTO">
                                                 <Border BackgroundColor="White"
                                                         StrokeThickness="1"
                                                         Stroke="#E5E5E5"
                                                         Padding="13"
-                                                        Margin="0,0,0,0">
-                                                    <Border.StrokeShape>
-                                                        <RoundRectangle CornerRadius="10"/>
-                                                    </Border.StrokeShape>
+                                                        Margin="0,0,0,0"
+                                                        StrokeShape="RoundRectangle 10">
                                                     <Border.GestureRecognizers>
                                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:TransactionListViewModel}}, Path=OpenDetailCommand}"
                                                                               CommandParameter="{Binding .}"/>
                                                     </Border.GestureRecognizers>
 
                                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                                        <!-- Type Icon -->
                                                         <Border Grid.Column="0"
                                                                 StrokeThickness="0"
                                                                 WidthRequest="32"
                                                                 HeightRequest="32"
                                                                 Padding="6"
-                                                                VerticalOptions="Center">
-                                                            <Border.StrokeShape>
-                                                                <RoundRectangle CornerRadius="10"/>
-                                                            </Border.StrokeShape>
+                                                                VerticalOptions="Center"
+                                                                StrokeShape="RoundRectangle 10">
                                                             <Border.Triggers>
                                                                 <DataTrigger TargetType="Border"
                                                                              Binding="{Binding TransactionType}"
                                                                              Value="Income">
-                                                                    <Setter Property="BackgroundColor" Value="#F0FDF4"/>
+                                                                    <Setter Property="BackgroundColor"
+                                                                            Value="#F0FDF4"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger TargetType="Border"
                                                                              Binding="{Binding TransactionType}"
                                                                              Value="Expense">
-                                                                    <Setter Property="BackgroundColor" Value="#FEF2F2"/>
+                                                                    <Setter Property="BackgroundColor"
+                                                                            Value="#FEF2F2"/>
                                                                 </DataTrigger>
                                                             </Border.Triggers>
                                                             <Image>
@@ -154,19 +147,22 @@
                                                                     <DataTrigger TargetType="Image"
                                                                                  Binding="{Binding TransactionType}"
                                                                                  Value="Income">
-                                                                        <Setter Property="Source" Value="arrow_circle_up.svg"/>
+                                                                        <Setter Property="Source"
+                                                                                Value="arrow_circle_up.svg"/>
                                                                     </DataTrigger>
                                                                     <DataTrigger TargetType="Image"
                                                                                  Binding="{Binding TransactionType}"
                                                                                  Value="Expense">
-                                                                        <Setter Property="Source" Value="arrow_circle_down.svg"/>
+                                                                        <Setter Property="Source"
+                                                                                Value="arrow_circle_down.svg"/>
                                                                     </DataTrigger>
                                                                 </Image.Triggers>
                                                             </Image>
                                                         </Border>
 
-                                                        <!-- Description & Details -->
-                                                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                                        <VerticalStackLayout Grid.Column="1"
+                                                                             Spacing="4"
+                                                                             VerticalOptions="Center">
                                                             <Label Text="{Binding Description}"
                                                                    FontSize="14"
                                                                    FontAttributes="Bold"
@@ -185,7 +181,6 @@
                                                             </HorizontalStackLayout>
                                                         </VerticalStackLayout>
 
-                                                        <!-- Amount -->
                                                         <Label Grid.Column="2"
                                                                TextColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToColorConverter}}"
                                                                FontSize="14"
@@ -224,7 +219,6 @@
                             </VerticalStackLayout>
                         </CollectionView.EmptyView>
                     </CollectionView>
-
                 </VerticalStackLayout>
             </ScrollView>
         </RefreshView>

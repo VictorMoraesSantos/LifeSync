@@ -41,9 +41,7 @@ namespace LifeSyncApp.ViewModels.Financial
         private void OnEdit()
         {
             if (Transaction != null)
-            {
                 OnEditRequested?.Invoke(this, Transaction);
-            }
         }
 
         private async Task OnDeleteAsync()
@@ -59,6 +57,7 @@ namespace LifeSyncApp.ViewModels.Financial
             if (!confirm) return;
 
             IsBusy = true;
+
             try
             {
                 bool success = await _transactionService.DeleteTransactionAsync(Transaction.Id);
@@ -77,7 +76,6 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error deleting transaction: {ex.Message}");
                 await Application.Current!.MainPage!.DisplayAlert(
                     "Erro",
                     "Ocorreu um erro ao excluir a transação.",

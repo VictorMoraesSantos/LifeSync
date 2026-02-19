@@ -5,12 +5,11 @@ using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {
-    public class CategoriesViewModel : ViewModels.BaseViewModel
+    public class CategoriesViewModel : BaseViewModel
     {
         private readonly CategoryService _categoryService;
         private int _userId = 1; // TODO: Obter do contexto de autenticação
 
-        // Cache management
         private bool _isLoadingCategories;
         private DateTime? _lastCategoriesRefresh;
         private const int CacheExpirationMinutes = 5;
@@ -18,7 +17,6 @@ namespace LifeSyncApp.ViewModels.Financial
         public ObservableCollection<CategoryDTO> Categories { get; } = new();
 
         public ICommand GoBackCommand { get; }
-        public ICommand LoadCategoriesCommand { get; }
         public ICommand AddCategoryCommand { get; }
         public ICommand EditCategoryCommand { get; }
         public ICommand DeleteCategoryCommand { get; }
@@ -29,7 +27,6 @@ namespace LifeSyncApp.ViewModels.Financial
             Title = "Categorias";
 
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
-            LoadCategoriesCommand = new Command(async () => await LoadCategoriesAsync());
             AddCategoryCommand = new Command(async () => await AddCategoryAsync());
             EditCategoryCommand = new Command<CategoryDTO>(async (category) => await EditCategoryAsync(category));
             DeleteCategoryCommand = new Command<CategoryDTO>(async (category) => await DeleteCategoryAsync(category));
@@ -42,38 +39,28 @@ namespace LifeSyncApp.ViewModels.Financial
 
         public async Task LoadCategoriesAsync(bool forceRefresh = false)
         {
-            // Use cached data if still valid
-            if (!forceRefresh && !IsCategoriesCacheExpired() && Categories.Any())
-            {
-                System.Diagnostics.Debug.WriteLine("📦 Using cached categories (not expired)");
-                return;
-            }
+            if (!forceRefresh && !IsCategoriesCacheExpired() && Categories.Any()) return;
 
-            // Prevent concurrent loads
-            if (_isLoadingCategories)
-            {
-                System.Diagnostics.Debug.WriteLine("⏳ Categories already loading, skipping duplicate request");
-                return;
-            }
+            if (_isLoadingCategories) return;
 
             try
             {
                 _isLoadingCategories = true;
                 IsBusy = true;
 
-                System.Diagnostics.Debug.WriteLine($"🔄 Loading categories from API (forceRefresh: {forceRefresh})");
                 var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
 
                 Categories.Clear();
-                foreach (var category in categories)
-                    Categories.Add(category);
+                foreach (var category in categories) Categories.Add(category);
 
                 _lastCategoriesRefresh = DateTime.Now;
-                System.Diagnostics.Debug.WriteLine($"✅ Categories loaded ({categories.Count})");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading categories: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert(
+                    "Erro",
+                    "Não foi possível exibir as categorias.",
+                    "OK");
             }
             finally
             {
@@ -84,8 +71,7 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private bool IsCategoriesCacheExpired()
         {
-            if (_lastCategoriesRefresh == null)
-                return true;
+            if (_lastCategoriesRefresh == null) return true;
 
             return (DateTime.Now - _lastCategoriesRefresh.Value).TotalMinutes >= CacheExpirationMinutes;
         }
@@ -93,7 +79,6 @@ namespace LifeSyncApp.ViewModels.Financial
         public void InvalidateCategoriesCache()
         {
             _lastCategoriesRefresh = null;
-            System.Diagnostics.Debug.WriteLine("🗑️ Categories cache invalidated");
         }
 
         private async Task AddCategoryAsync()
@@ -107,13 +92,13 @@ namespace LifeSyncApp.ViewModels.Financial
             {
                 { "Category", category }
             };
+
             await Shell.Current.GoToAsync("ManageCategoryModal", parameters);
         }
 
         private async Task DeleteCategoryAsync(CategoryDTO category)
         {
-            if (category == null)
-                return;
+            if (category == null) return;
 
             bool confirm = await Application.Current.MainPage.DisplayAlert(
                 "Confirmar Exclusão",
@@ -121,8 +106,7 @@ namespace LifeSyncApp.ViewModels.Financial
                 "Sim",
                 "Não");
 
-            if (!confirm)
-                return;
+            if (!confirm) return;
 
             IsBusy = true;
 
@@ -137,7 +121,6 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error deleting category: {ex.Message}");
                 await Application.Current.MainPage.DisplayAlert(
                     "Erro",
                     "Não foi possível excluir a categoria.",

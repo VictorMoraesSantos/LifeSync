@@ -1,8 +1,10 @@
 ﻿using LifeSyncApp.Services.ApiService.Implementation;
 using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.Financial;
+using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.ViewModels.Financial;
+using LifeSyncApp.ViewModels.Nutrition;
 using LifeSyncApp.ViewModels.TaskManager;
 using LifeSyncApp.Views.Academic;
 using LifeSyncApp.Views.Financial;
@@ -87,12 +89,21 @@ namespace LifeSyncApp
             builder.Services.AddScoped<TransactionService>();
             builder.Services.AddScoped<CategoryService>();
 
+            // Nutrition Services
+            builder.Services.AddScoped<NutritionService>();
+
             // ViewModels - Singleton para manter estado entre navegações
             builder.Services.AddSingleton<TaskItemsViewModel>();
             builder.Services.AddSingleton<TaskLabelViewModel>();
             builder.Services.AddSingleton<FinancialViewModel>();
             builder.Services.AddSingleton<CategoriesViewModel>();
             builder.Services.AddSingleton<ManageTransactionViewModel>();
+            builder.Services.AddSingleton<NutritionViewModel>();
+            builder.Services.AddSingleton<ManageMealViewModel>();
+            builder.Services.AddSingleton<MealDetailViewModel>();
+            builder.Services.AddSingleton<ManageMealFoodViewModel>();
+            builder.Services.AddSingleton<ManageLiquidViewModel>();
+            builder.Services.AddSingleton<ManageGoalViewModel>();
             builder.Services.AddSingleton<ManageCategoryViewModel>();
             builder.Services.AddSingleton<TransactionListViewModel>();
             builder.Services.AddTransient<TransactionDetailViewModel>();
@@ -112,6 +123,11 @@ namespace LifeSyncApp
             builder.Services.AddTransient<FilterTransactionModal>();
             builder.Services.AddTransient<AcademicPage>();
             builder.Services.AddTransient<NutritionPage>();
+            builder.Services.AddTransient<ManageMealModal>();
+            builder.Services.AddTransient<MealDetailPage>();
+            builder.Services.AddTransient<ManageMealFoodModal>();
+            builder.Services.AddTransient<ManageLiquidModal>();
+            builder.Services.AddTransient<ManageGoalModal>();
 
 #if DEBUG
             builder.Logging.AddDebug();

@@ -11,9 +11,8 @@ namespace LifeSyncApp.ViewModels.Financial
     {
         private readonly TransactionService _transactionService;
         private readonly CategoryService _categoryService;
-        private int _userId = 1; // TODO: Obter do contexto de autenticação
+        private int _userId = 1;
 
-        // Cache management
         private bool _isLoadingData;
         private DateTime? _lastDataRefresh;
         private const int CacheExpirationMinutes = 5;
@@ -109,26 +108,15 @@ namespace LifeSyncApp.ViewModels.Financial
 
         public async Task LoadDataAsync(bool forceRefresh = false)
         {
-            // Use cached data if still valid
-            if (!forceRefresh && !IsDataCacheExpired() && RecentTransactions.Any())
-            {
-                System.Diagnostics.Debug.WriteLine("📦 Using cached financial data (not expired)");
-                return;
-            }
+            if (!forceRefresh && !IsDataCacheExpired() && RecentTransactions.Any()) return;
 
-            // Prevent concurrent loads
-            if (_isLoadingData)
-            {
-                System.Diagnostics.Debug.WriteLine("⏳ Financial data already loading, skipping duplicate request");
-                return;
-            }
+            if (_isLoadingData) return;
 
             try
             {
                 _isLoadingData = true;
-                IsBusy = true;
 
-                System.Diagnostics.Debug.WriteLine($"🔄 Loading financial data from API (forceRefresh: {forceRefresh})");
+                IsBusy = true;
 
                 var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
                 Categories.Clear();
@@ -149,11 +137,10 @@ namespace LifeSyncApp.ViewModels.Financial
                 CalculateTopCategories(transactions);
 
                 _lastDataRefresh = DateTime.Now;
-                System.Diagnostics.Debug.WriteLine("✅ Financial data loaded successfully");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading financial data: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Erro", "Ocorreu um erro inesperado", "OK");
             }
             finally
             {
@@ -164,8 +151,7 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private bool IsDataCacheExpired()
         {
-            if (_lastDataRefresh == null)
-                return true;
+            if (_lastDataRefresh == null) return true;
 
             return (DateTime.Now - _lastDataRefresh.Value).TotalMinutes >= CacheExpirationMinutes;
         }
@@ -173,7 +159,6 @@ namespace LifeSyncApp.ViewModels.Financial
         public void InvalidateDataCache()
         {
             _lastDataRefresh = null;
-            System.Diagnostics.Debug.WriteLine("🗑️ Financial data cache invalidated");
         }
 
         private void CalculateStatistics(List<TransactionDTO> transactions)
@@ -197,7 +182,6 @@ namespace LifeSyncApp.ViewModels.Financial
         {
             var expenses = transactions.Where(t => t.TransactionType == TransactionType.Expense && t.Category != null);
             var totalExpenses = TotalExpense;
-
             var categoryGroups = expenses
                 .GroupBy(t => t.Category!.Id)
                 .Select(g => new CategoryExpense
@@ -211,6 +195,7 @@ namespace LifeSyncApp.ViewModels.Financial
                 .Take(5);
 
             TopCategories.Clear();
+
             foreach (var category in categoryGroups)
                 TopCategories.Add(category);
         }
@@ -282,7 +267,7 @@ namespace LifeSyncApp.ViewModels.Financial
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public decimal Amount { get; set; }
-        public double Percentage { get; set; }  // 0–100 for display label
-        public double ProgressValue => Percentage / 100.0;  // 0–1 for ProgressBar
+        public double Percentage { get; set; }
+        public double ProgressValue => Percentage / 100.0;
     }
 }

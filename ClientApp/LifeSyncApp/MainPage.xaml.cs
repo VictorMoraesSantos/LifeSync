@@ -1,3 +1,4 @@
+using LifeSyncApp.ViewModels.Nutrition;
 using LifeSyncApp.Views.Academic;
 using LifeSyncApp.Views.Financial;
 using LifeSyncApp.Views.Nutrition;
@@ -171,6 +172,26 @@ public partial class MainPage : ContentPage
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar dados financeiros: {ex.Message}");
+                    }
+                });
+            }
+
+            // Carregar dados de nutrição se for Nutrition
+            if (tabIndex == 3 && page.BindingContext is NutritionViewModel nutritionVm)
+            {
+                System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de dados de nutrição");
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(async () =>
+                        {
+                            await nutritionVm.InitializeAsync();
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar dados de nutrição: {ex.Message}");
                     }
                 });
             }

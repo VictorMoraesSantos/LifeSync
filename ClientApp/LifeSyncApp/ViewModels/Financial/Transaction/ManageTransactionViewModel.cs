@@ -7,11 +7,11 @@ using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {
-    public class ManageTransactionViewModel : ViewModels.BaseViewModel
+    public class ManageTransactionViewModel : BaseViewModel
     {
         private readonly TransactionService _transactionService;
         private readonly CategoryService _categoryService;
-        private int _userId = 1; // TODO: Obter do contexto de autenticação
+        private int _userId = 1;
 
         private TransactionDTO? _transaction;
         private string _description = string.Empty;
@@ -104,7 +104,7 @@ namespace LifeSyncApp.ViewModels.Financial
                     Value = method,
                     DisplayName = method.ToDisplayString(),
                     IconSource = "wallet.svg",
-                    IsSelected = method == PaymentMethod.Cash // Default to Cash
+                    IsSelected = method == PaymentMethod.Cash
                 });
             }
         }
@@ -112,22 +112,18 @@ namespace LifeSyncApp.ViewModels.Financial
         private void SetTransactionType(string typeString)
         {
             if (Enum.TryParse<TransactionType>(typeString, out var type))
-            {
                 TransactionType = type;
-            }
         }
 
         private void TogglePaymentMethod(SelectablePaymentMethodItem? item)
         {
             if (item == null) return;
 
-            // Deselect all payment methods
             foreach (var method in PaymentMethods)
             {
                 method.IsSelected = false;
             }
 
-            // Select the clicked one
             item.IsSelected = true;
             PaymentMethod = item.Value;
         }
@@ -138,15 +134,12 @@ namespace LifeSyncApp.ViewModels.Financial
             IsEditing = transaction != null;
             Title = IsEditing ? "Editar Transação" : "Nova Transação";
 
-            // Carregar categorias
-            System.Diagnostics.Debug.WriteLine("Loading categories for transaction...");
             var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
             Categories.Clear();
             foreach (var category in categories)
             {
                 Categories.Add(category);
             }
-            System.Diagnostics.Debug.WriteLine($"Loaded {categories.Count} categories for transaction");
 
             if (IsEditing && _transaction != null)
             {
@@ -156,7 +149,6 @@ namespace LifeSyncApp.ViewModels.Financial
                 TransactionType = _transaction.TransactionType;
                 PaymentMethod = _transaction.PaymentMethod;
 
-                // Select the payment method
                 foreach (var method in PaymentMethods)
                 {
                     method.IsSelected = method.Value == _transaction.PaymentMethod;
@@ -166,7 +158,6 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             else
             {
-                // Clear all fields for new transaction
                 Description = string.Empty;
                 Amount = 0;
                 TransactionDate = DateTime.Now;
@@ -174,18 +165,14 @@ namespace LifeSyncApp.ViewModels.Financial
                 PaymentMethod = PaymentMethod.Cash;
                 SelectedCategory = null;
 
-                // Deselect all payment methods first
                 foreach (var method in PaymentMethods)
                 {
                     method.IsSelected = false;
                 }
 
-                // Ensure default payment method (Cash) is selected
                 var defaultMethod = PaymentMethods.FirstOrDefault(p => p.Value == PaymentMethod.Cash);
                 if (defaultMethod != null)
-                {
                     defaultMethod.IsSelected = true;
-                }
             }
         }
 
@@ -196,8 +183,7 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private async Task SaveAsync()
         {
-            if (IsBusy)
-                return;
+            if (IsBusy) return;
 
             IsBusy = true;
 
@@ -216,18 +202,10 @@ namespace LifeSyncApp.ViewModels.Financial
 
                     var success = await _transactionService.UpdateTransactionAsync(_transaction.Id, dto);
                     if (success)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Transaction updated successfully");
                         OnSaved?.Invoke(this, EventArgs.Empty);
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine("Failed to update transaction");
-                    }
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("Creating new transaction...");
                     var dto = new CreateTransactionDTO(
                         _userId,
                         SelectedCategory?.Id,
@@ -240,19 +218,17 @@ namespace LifeSyncApp.ViewModels.Financial
                     var id = await _transactionService.CreateTransactionAsync(dto);
                     if (id.HasValue)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Transaction created with ID: {id.Value}");
                         OnSaved?.Invoke(this, EventArgs.Empty);
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine("Failed to create transaction");
                         await Application.Current.MainPage.DisplayAlert("Erro", "Não foi possível criar a transação. Verifique sua conexão e tente novamente.", "OK");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving transaction: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Erro", "Não foi possível criar a transação. Verifique sua conexão e tente novamente.", "OK");
             }
             finally
             {

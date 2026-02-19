@@ -4,10 +4,10 @@ using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {
-    public class ManageCategoryViewModel : ViewModels.BaseViewModel
+    public class ManageCategoryViewModel : BaseViewModel
     {
         private readonly CategoryService _categoryService;
-        private int _userId = 1; // TODO: Obter do contexto de autenticação
+        private int _userId = 1;
         private CategoryDTO? _category;
 
         private string _name = string.Empty;
@@ -70,7 +70,6 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             else
             {
-                // Clear fields for new category
                 Name = string.Empty;
                 CategoryDescription = string.Empty;
             }
@@ -83,8 +82,7 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private async Task SaveAsync()
         {
-            if (IsBusy)
-                return;
+            if (IsBusy) return;
 
             IsBusy = true;
 
@@ -96,12 +94,10 @@ namespace LifeSyncApp.ViewModels.Financial
                     var success = await _categoryService.UpdateCategoryAsync(_category.Id, dto);
                     if (success)
                     {
-                        System.Diagnostics.Debug.WriteLine("Category updated successfully");
                         OnSaved?.Invoke(this, EventArgs.Empty);
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine("Failed to update category");
                         await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível atualizar a categoria.", "OK");
                     }
                 }
@@ -111,19 +107,16 @@ namespace LifeSyncApp.ViewModels.Financial
                     var id = await _categoryService.CreateCategoryAsync(dto);
                     if (id.HasValue)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Category created with ID: {id.Value}");
                         OnSaved?.Invoke(this, EventArgs.Empty);
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine("Failed to create category");
                         await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível criar a categoria.", "OK");
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error saving category: {ex.Message}");
                 await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível salvar a categoria. Verifique sua conexão e tente novamente.", "OK");
             }
             finally

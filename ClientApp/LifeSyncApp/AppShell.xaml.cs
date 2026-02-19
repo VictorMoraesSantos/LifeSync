@@ -1,4 +1,5 @@
 ﻿using LifeSyncApp.Views.Financial;
+using LifeSyncApp.Views.Nutrition;
 using LifeSyncApp.Views.TaskManager.TaskItem;
 using LifeSyncApp.Views.TaskManager.TaskLabel;
 
@@ -21,6 +22,11 @@ namespace LifeSyncApp
             Routing.RegisterRoute("ManageCategoryModal", typeof(ManageCategoryModal));
             Routing.RegisterRoute("TransactionDetailModal", typeof(TransactionDetailModal));
             Routing.RegisterRoute("FilterTransactionModal", typeof(FilterTransactionModal));
+            Routing.RegisterRoute("ManageMealModal", typeof(ManageMealModal));
+            Routing.RegisterRoute("MealDetailPage", typeof(MealDetailPage));
+            Routing.RegisterRoute("ManageMealFoodModal", typeof(ManageMealFoodModal));
+            Routing.RegisterRoute("ManageLiquidModal", typeof(ManageLiquidModal));
+            Routing.RegisterRoute("ManageGoalModal", typeof(ManageGoalModal));
         }
     }
 }

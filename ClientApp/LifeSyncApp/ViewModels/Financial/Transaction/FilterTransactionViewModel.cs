@@ -6,10 +6,10 @@ using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {
-    public class FilterTransactionViewModel : ViewModels.BaseViewModel
+    public class FilterTransactionViewModel : BaseViewModel
     {
         private readonly CategoryService _categoryService;
-        private int _userId = 1; // TODO: Obter do contexto de autenticação
+        private int _userId = 1;
 
         private string _selectedType = "";
         private string _selectedPaymentMethod = "";
@@ -116,8 +116,10 @@ namespace LifeSyncApp.ViewModels.Financial
         private void OnSelectCategory(SelectableCategoryItem? item)
         {
             if (item == null) return;
+
             foreach (var cat in SelectableCategories)
                 cat.IsSelected = false;
+
             item.IsSelected = true;
         }
 

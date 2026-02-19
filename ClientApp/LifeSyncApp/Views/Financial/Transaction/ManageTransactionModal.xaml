@@ -100,7 +100,6 @@
                                     StrokeThickness="0"
                                     Padding="16,12"
                                     StrokeShape="RoundRectangle 8">
-
                                 <Picker ItemsSource="{Binding Categories}"
                                         ItemDisplayBinding="{Binding Name}"
                                         SelectedItem="{Binding SelectedCategory}"
