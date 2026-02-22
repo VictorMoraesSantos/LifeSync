@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 
 namespace Financial.Application.Features.Transactions.Commands.Delete
 {

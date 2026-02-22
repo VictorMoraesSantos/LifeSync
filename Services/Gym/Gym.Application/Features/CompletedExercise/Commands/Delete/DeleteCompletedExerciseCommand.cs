@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 
 namespace Gym.Application.Features.CompletedExercise.Commands.Delete
 {

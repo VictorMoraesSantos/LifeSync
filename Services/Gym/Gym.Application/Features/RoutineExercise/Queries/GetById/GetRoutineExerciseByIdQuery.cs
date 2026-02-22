@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Queries;
+﻿using BuildingBlocks.CQRS.Requests.Queries;
 using Gym.Application.DTOs.RoutineExercise;
 
 namespace Gym.Application.Features.RoutineExercise.Queries.GetById

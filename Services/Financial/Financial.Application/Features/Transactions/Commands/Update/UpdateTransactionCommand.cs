@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
 

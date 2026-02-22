@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 using Nutrition.Application.DTOs.MealFood;
 
 namespace Nutrition.Application.Features.Meal.Commands.AddMealFood

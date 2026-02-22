@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Queries;
+﻿using BuildingBlocks.CQRS.Requests.Queries;
 using Users.Application.DTOs.User;
 
 namespace Users.Application.Features.Users.Queries.GetUser

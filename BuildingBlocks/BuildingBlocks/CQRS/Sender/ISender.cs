@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Requests.Request;
 
 namespace BuildingBlocks.CQRS.Sender
 {

@@ -1,4 +1,5 @@
 using BuildingBlocks.Authentication;
+using BuildingBlocks.Validation.Extensions;
 using Nutrition.Application;
 using Nutrition.Infrastructure;
 
@@ -31,6 +32,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseValidationExceptionHandling();
 
 app.UseAuthentication();
 app.UseAuthorization();

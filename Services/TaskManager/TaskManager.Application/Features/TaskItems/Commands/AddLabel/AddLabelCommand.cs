@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.AddLabel
 {

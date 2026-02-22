@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.CQRS.Notification;
 using BuildingBlocks.CQRS.Publisher;
-using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.CQRS.Requests.Request;
 using BuildingBlocks.CQRS.Sender;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;

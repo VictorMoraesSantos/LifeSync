@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Queries;
+﻿using BuildingBlocks.CQRS.Requests.Queries;
 using Gym.Application.DTOs.Routine;
 
 namespace Gym.Application.Features.Routine.Queries.GetAll

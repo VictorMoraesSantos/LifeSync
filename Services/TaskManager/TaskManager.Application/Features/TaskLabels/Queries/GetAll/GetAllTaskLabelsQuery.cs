@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Queries;
+﻿using BuildingBlocks.CQRS.Requests.Queries;
 using TaskManager.Application.DTOs.TaskLabel;
 
 namespace TaskManager.Application.Features.TaskLabels.Queries.GetAll

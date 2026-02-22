@@ -1,5 +1,5 @@
 ﻿using BuildingBlocks.CQRS.Pipeline;
-using BuildingBlocks.CQRS.Request;
+using BuildingBlocks.CQRS.Requests.Request;
 using FluentValidation;
 using ValidationException = BuildingBlocks.Exceptions.ValidationException;
 

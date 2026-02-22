@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 using Gym.Domain.Enums;
 
 namespace Gym.Application.Features.Exercise.Commands.Update

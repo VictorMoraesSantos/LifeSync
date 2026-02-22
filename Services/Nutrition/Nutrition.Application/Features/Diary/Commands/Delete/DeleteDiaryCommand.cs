@@ -1,5 +1,4 @@
-﻿
-using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 
 namespace Nutrition.Application.Features.Diary.Commands.Delete
 {

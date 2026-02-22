@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Queries;
+﻿using BuildingBlocks.CQRS.Requests.Queries;
 using Nutrition.Application.DTOs.MealFood;
 
 namespace Nutrition.Application.Features.MealFood.Queries.GetAll

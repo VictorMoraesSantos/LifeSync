@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 using Nutrition.Application.DTOs.DailyProgress;
 
 namespace Nutrition.Application.Features.DailyProgress.Commands.Update

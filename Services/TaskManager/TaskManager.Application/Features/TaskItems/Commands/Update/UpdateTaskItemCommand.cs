@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.Features.TaskItems.Commands.Update

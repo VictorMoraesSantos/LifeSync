@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Commands;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
 using Gym.Domain.ValueObjects;
 
 namespace Gym.Application.Features.RoutineExercise.Commands.Create

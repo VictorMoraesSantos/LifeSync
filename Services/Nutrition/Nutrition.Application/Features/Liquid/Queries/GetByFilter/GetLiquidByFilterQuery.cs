@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Queries;
+﻿using BuildingBlocks.CQRS.Requests.Queries;
 using BuildingBlocks.Results;
 using Nutrition.Application.DTOs.Liquid;
 

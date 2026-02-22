@@ -1,5 +1,5 @@
-﻿using BuildingBlocks.CQRS.Commands;
-using BuildingBlocks.CQRS.Request;
+﻿using BuildingBlocks.CQRS.Requests.Commands;
+using BuildingBlocks.CQRS.Requests.Request;
 using BuildingBlocks.Results;
 
 namespace BuildingBlocks.CQRS.Handlers

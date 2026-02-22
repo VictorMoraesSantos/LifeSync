@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.CQRS.Queries;
+﻿using BuildingBlocks.CQRS.Requests.Queries;
 using Financial.Application.DTOs.Transaction;
 
 namespace Financial.Application.Features.Transactions.Queries.GetByUserId

@@ -1,28 +1,19 @@
-﻿using Core.Domain.Filters;
+using Core.Domain.Filters;
 using Gym.Domain.Entities;
-using System.Linq.Expressions;
 
 namespace Gym.Domain.Filters.Specifications
 {
-    public class ExerciseSpecification : BaseFilterSpecification<Exercise, int>
+    public class ExerciseSpecification : Specification<Exercise, int>
     {
         public ExerciseSpecification(ExerciseQueryFilter filter)
-            : base(filter, BuildCriteria)
-        { }
-
-        private static Expression<Func<Exercise, bool>>? BuildCriteria(IDomainQueryFilter baseFilter)
         {
-            var filter = (ExerciseQueryFilter)baseFilter;
-            var builder = new FilterCriteriaBuilder<Exercise, int>(filter)
-                .AddCommonFilters()
-                .AddIf(filter.Id.HasValue, e => e.Id == filter.Id!.Value)
-                .AddIf(!string.IsNullOrWhiteSpace(filter.NameContains), e => e.Name.Contains(filter.NameContains!))
-                .AddIf(!string.IsNullOrWhiteSpace(filter.DescriptionContains), e => e.Description.Contains(filter.DescriptionContains!))
-                .AddIf(!string.IsNullOrWhiteSpace(filter.MuscleGroupContains), e => e.MuscleGroup.ToString().Contains(filter.MuscleGroupContains!))
-                .AddIf(!string.IsNullOrWhiteSpace(filter.ExerciseTypeContains), e => e.Type.ToString().Contains(filter.ExerciseTypeContains!))
-                .AddIf(!string.IsNullOrWhiteSpace(filter.EquipamentTypeContains), e => e.EquipmentType.ToString()!.Contains(filter.EquipamentTypeContains!));
-
-            return builder.Build();
+            ApplyBaseFilters(filter);
+            AddIf(filter.Id.HasValue, e => e.Id == filter.Id!.Value);
+            AddIf(!string.IsNullOrWhiteSpace(filter.NameContains), e => e.Name.Contains(filter.NameContains!));
+            AddIf(!string.IsNullOrWhiteSpace(filter.DescriptionContains), e => e.Description.Contains(filter.DescriptionContains!));
+            AddIf(!string.IsNullOrWhiteSpace(filter.MuscleGroupContains), e => e.MuscleGroup.ToString().Contains(filter.MuscleGroupContains!));
+            AddIf(!string.IsNullOrWhiteSpace(filter.ExerciseTypeContains), e => e.Type.ToString().Contains(filter.ExerciseTypeContains!));
+            AddIf(!string.IsNullOrWhiteSpace(filter.EquipamentTypeContains), e => e.EquipmentType.ToString()!.Contains(filter.EquipamentTypeContains!));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace BuildingBlocks.CQRS.Request
+﻿namespace BuildingBlocks.CQRS.Requests.Request
 {
     public interface IRequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
