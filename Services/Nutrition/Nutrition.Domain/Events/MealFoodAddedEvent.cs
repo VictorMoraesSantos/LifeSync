@@ -5,9 +5,9 @@ namespace Nutrition.Domain.Events
     public class MealFoodAddedEvent : DomainEvent
     {
         public int DiaryId { get; }
-        public int TotalCalories { get; }
+        public decimal TotalCalories { get; }
 
-        public MealFoodAddedEvent(int diaryId, int totalCalories)
+        public MealFoodAddedEvent(int diaryId, decimal totalCalories)
         {
             DiaryId = diaryId;
             TotalCalories = totalCalories;

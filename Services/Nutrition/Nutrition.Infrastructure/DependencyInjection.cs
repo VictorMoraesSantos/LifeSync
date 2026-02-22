@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nutrition.Application.Interfaces;
 using Nutrition.Domain.Repositories;
+using Nutrition.Infrastructure.DataSeeders;
 using Nutrition.Infrastructure.Persistence.Data;
 using Nutrition.Infrastructure.Persistence.Repositories;
 using Nutrition.Infrastructure.Services;
@@ -15,6 +16,7 @@ namespace Nutrition.Infrastructure
         {
             services.AddDbContext(configuration);
             services.AddServices();
+            services.AddSeeder();
 
             return services;
         }
@@ -45,6 +47,13 @@ namespace Nutrition.Infrastructure
             services.AddScoped<ILiquidService, LiquidService>();
             services.AddScoped<IDailyProgressService, DailyProgressService>();
 
+            return services;
+        }
+
+        private static IServiceCollection AddSeeder(this IServiceCollection services)
+        {
+            services.AddScoped<TablesCsvSeeder>();
+            services.AddHostedService<SeederHostedService>();
             return services;
         }
     }

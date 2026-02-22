@@ -4,12 +4,20 @@ namespace Nutrition.Application.DTOs.MealFood
 {
     public record MealFoodDTO(
         int Id,
-        int MealId,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
+        int Code,
         string Name,
-        int Quantity,
-        int CaloriesPerUnit,
-        int TotalCalories
+        int Calories,
+        decimal? Protein,
+        decimal? Lipids,
+        decimal? Carbohydrates,
+        decimal? Calcium,
+        decimal? Magnesium,
+        decimal? Iron,
+        decimal? Sodium,
+        decimal? Potassium,
+        int? Quantity,
+        decimal? TotalCalories
         ) : DTOBase(Id, CreatedAt, UpdatedAt);
 }

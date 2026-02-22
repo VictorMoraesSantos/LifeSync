@@ -18,9 +18,18 @@ namespace Nutrition.Application.Features.MealFood.Commands.Update
         {
             UpdateMealFoodDTO mealFood = new(
                 command.Id,
+                command.Code,
                 command.Name,
-                command.QuantityInGrams,
-                command.CaloriesPerUnit);
+                command.Calories,
+                command.Protein,
+                command.Lipids,
+                command.Carbohydrates,
+                command.Calcium,
+                command.Magnesium,
+                command.Iron,
+                command.Sodium,
+                command.Potassium,
+                command.Quantity);
 
             var result = await _mealFoodService.UpdateAsync(mealFood);
             if (!result.IsSuccess)

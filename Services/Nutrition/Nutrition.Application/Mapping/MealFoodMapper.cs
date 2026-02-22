@@ -7,14 +7,22 @@ namespace Nutrition.Application.Mapping
     {
         public static MealFoodDTO ToDTO(this MealFood entity)
         {
-            MealFoodDTO dto = new(
+            var dto = new MealFoodDTO(
                 entity.Id,
-                entity.MealId,
                 entity.CreatedAt,
                 entity.UpdatedAt,
+                entity.Code,
                 entity.Name,
+                entity.Calories,
+                entity.Protein,
+                entity.Lipids,
+                entity.Carbohydrates,
+                entity.Calcium,
+                entity.Magnesium,
+                entity.Iron,
+                entity.Sodium,
+                entity.Potassium,
                 entity.Quantity,
-                entity.CaloriesPerUnit,
                 entity.TotalCalories);
 
             return dto;
@@ -22,10 +30,21 @@ namespace Nutrition.Application.Mapping
 
         public static MealFood ToEntity(this CreateMealFoodDTO dto)
         {
-            return new MealFood(
+            var entity = new MealFood(
+                dto.Code,
                 dto.Name,
-                dto.QuantityInGrams,
-                dto.CaloriesPerUnit);
+                dto.Calories,
+                dto.Protein,
+                dto.Lipids,
+                dto.Carbohydrates,
+                dto.Calcium,
+                dto.Magnesium,
+                dto.Iron,
+                dto.Sodium,
+                dto.Potassium,
+                dto.Quantity);
+            
+            return entity;
         }
     }
 }

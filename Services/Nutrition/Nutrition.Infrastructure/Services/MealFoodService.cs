@@ -203,7 +203,19 @@ namespace Nutrition.Infrastructure.Services
                 if (entity == null)
                     return Result.Failure<bool>(MealFoodErrors.NotFound(dto.Id));
 
-                entity.Update(dto.Name, dto.QuantityInGrams, dto.CaloriesPerUnit);
+                entity.Update(
+                    dto.Code,
+                    dto.Name,
+                    dto.Calories,
+                    dto.Protein,
+                    dto.Lipids,
+                    dto.Carbohydrates,
+                    dto.Calcium,
+                    dto.Magnesium,
+                    dto.Iron,
+                    dto.Sodium,
+                    dto.Potassium,
+                    dto.Quantity);
 
                 await _mealFoodRepository.Update(entity, cancellationToken);
 

@@ -6,33 +6,76 @@ namespace Nutrition.Domain.Entities
 {
     public class MealFood : BaseEntity<int>
     {
+        public int Code { get; private set; }
         public string Name { get; private set; }
-        public int Quantity { get; private set; }
-        public int CaloriesPerUnit { get; private set; }
-        public int MealId { get; private set; }
-        public int TotalCalories => Quantity * CaloriesPerUnit;
+        public int Calories { get; private set; }
+        public decimal? Protein { get; set; }
+        public decimal? Lipids { get; set; }
+        public decimal? Carbohydrates { get; set; }
+        public decimal? Calcium { get; set; }
+        public decimal? Magnesium { get; set; }
+        public decimal? Iron { get; set; }
+        public decimal? Sodium { get; set; }
+        public decimal? Potassium { get; set; }
+        public int ?Quantity { get; private set; }
+        public decimal TotalCalories => (decimal)(Quantity * Calories);
 
-        public MealFood(string name, int quantity, int caloriesPerUnit)
+        public MealFood(
+            int code,
+            string name,
+            int calories,
+            decimal? protein,
+            decimal? lipids,
+            decimal? carbohydrates,
+            decimal? calcium,
+            decimal? magnesium,
+            decimal? iron,
+            decimal? sodium,
+            decimal? potassium,
+            int? quantity)
         {
             SetName(name);
-            SetQuantity(quantity);
-            SetCaloriesPerUnit(caloriesPerUnit);
+            Code = code;
+            Calories = calories;
+            Protein = protein;
+            Lipids = lipids;
+            Carbohydrates = carbohydrates;
+            Calcium = calcium;
+            Magnesium = magnesium;
+            Iron = iron;
+            Sodium = sodium;
+            Potassium = potassium;
+            Quantity = quantity;
         }
 
-        public void Update(string name, int quantity, int caloriesPerUnit)
+        public void Update(
+            int code,
+            string name,
+            int calories,
+            decimal? protein,
+            decimal? lipids,
+            decimal? carbohydrates,
+            decimal? calcium,
+            decimal? magnesium,
+            decimal? iron,
+            decimal? sodium,
+            decimal? potassium,
+            int? quantity)
         {
             SetName(name);
-            SetQuantity(quantity);
-            SetCaloriesPerUnit(caloriesPerUnit);
+            Code = code;
+            Calories = calories;
+            Protein = protein;
+            Lipids = lipids;
+            Carbohydrates = carbohydrates;
+            Calcium = calcium;
+            Magnesium = magnesium;
+            Iron = iron;
+            Sodium = sodium;
+            Potassium = potassium;
+            Quantity = quantity;
 
             MarkAsUpdated();
-        }
-
-        public void SetMeal(int mealId)
-        {
-            if (mealId <= 0)
-                throw new DomainException(MealFoodErrors.InvalidMealId);
-            MealId = mealId;
         }
 
         private void SetName(string name)
@@ -40,21 +83,7 @@ namespace Nutrition.Domain.Entities
             Validate(name);
             Name = name;
         }
-
-        private void SetQuantity(int quantity)
-        {
-            if (quantity <= 0)
-                throw new DomainException(MealFoodErrors.InvalidQuantity);
-            Quantity = quantity;
-        }
-
-        private void SetCaloriesPerUnit(int caloriesPerUnit)
-        {
-            if (caloriesPerUnit < 0)
-                throw new DomainException(MealFoodErrors.NegativeCalories);
-            CaloriesPerUnit = caloriesPerUnit;
-        }
-
+            
         private void Validate(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
