@@ -27,9 +27,9 @@ namespace Nutrition.Infrastructure.DataSeeders
 
         private async Task SeedMealFoodsAsync()
         {
-            if(await _context.MealFoods.AnyAsync()) return;
+            if(await _context.Foods.AnyAsync()) return;
 
-            var csvPath = Path.Combine(AppContext.BaseDirectory, "DataSeeders", "Csv", "CsvFiles", "MealFood.csv");
+            var csvPath = Path.Combine(AppContext.BaseDirectory, "DataSeeders", "Csv", "CsvFiles", "Food.csv");
 
             if(!File.Exists(csvPath)) return;
 
@@ -38,7 +38,6 @@ namespace Nutrition.Infrastructure.DataSeeders
                 Delimiter = ";",
                 HeaderValidated = null,
                 MissingFieldFound = null,
-                PrepareHeaderForMatch = args => args.Header.ToLower(),
                 TrimOptions = TrimOptions.Trim,           
                 WhiteSpaceChars = new[] { ' ' },
             };
@@ -46,26 +45,22 @@ namespace Nutrition.Infrastructure.DataSeeders
             using var reader = new StreamReader(csvPath);
             using var csv = new CsvReader(reader, config);
 
-            csv.Context.RegisterClassMap<MealFoodMap>();
+            csv.Context.RegisterClassMap<FoodMap>();
+            var rows = csv.GetRecords<FoodCsvRow>().ToList();
 
-            var dtos = csv.GetRecords<MealFoodCsvDTO>().ToList();
+            var foods = rows.Select(r => new Food(
+                r.Name,
+                r.Calories,
+                r.Protein,
+                r.Lipids,
+                r.Carbohydrates,
+                r.Calcium,
+                r.Magnesium,
+                r.Iron,
+                r.Sodium,
+                r.Potassium)).ToList();
 
-            var records = dtos.Select(dto => new MealFood(
-                code: dto.Code,
-                name: dto.Name,
-                calories: dto.Calories,
-                protein: dto.Protein,
-                lipids: dto.Lipids,
-                carbohydrates: dto.Carbohydrates,
-                calcium: dto.Calcium,
-                magnesium: dto.Magnesium,
-                iron: dto.Iron,
-                sodium: dto.Sodium,
-                potassium: dto.Potassium,
-                quantity: dto.Quantity
-            )).ToList();
-
-            await _context.MealFoods.AddRangeAsync(records);
+            await _context.Foods.AddRangeAsync(foods);
             await _context.SaveChangesAsync();
         }
     }

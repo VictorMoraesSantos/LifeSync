@@ -16,11 +16,10 @@ namespace Nutrition.Application.Features.Liquid.Commands.Create
 
         public async Task<Result<CreateLiquidResult>> Handle(CreateLiquidCommand command, CancellationToken cancellationToken)
         {
-            CreateLiquidDTO liquid = new(
+            var liquid = new CreateLiquidDTO(
                 command.DiaryId,
-                command.Name,
-                command.QuantityMl,
-                command.CaloriesPerMl);
+                command.LiquidTypeId,
+                command.Quantity);
 
             var result = await _liquidService.CreateAsync(liquid, cancellationToken);
             if (!result.IsSuccess)

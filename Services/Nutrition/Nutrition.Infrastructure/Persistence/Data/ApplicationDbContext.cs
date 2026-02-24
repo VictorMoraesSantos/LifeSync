@@ -13,6 +13,7 @@ namespace Nutrition.Infrastructure.Persistence.Data
         public DbSet<Liquid> Liquids { get; set; }
         public DbSet<Meal> Meals { get; set; }
         public DbSet<MealFood> MealFoods { get; set; }
+        public DbSet<Food> Foods { get; set; }
         public DbSet<DailyProgress> DailyProgresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

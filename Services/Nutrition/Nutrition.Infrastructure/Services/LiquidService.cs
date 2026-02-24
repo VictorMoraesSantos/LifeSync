@@ -159,7 +159,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<IEnumerable<int>>(Error.Failure("Lista de líquidos inválida ou vazia"));
 
                 var entities = new List<Liquid>();
-                var errors = new List<(string Name, string ErrorMessage)>();
+                var errors = new List<string>();
 
                 foreach (var dto in dtos)
                 {
@@ -170,13 +170,13 @@ namespace Nutrition.Infrastructure.Services
                     }
                     catch (ArgumentException ex)
                     {
-                        errors.Add((dto.Name ?? "Sem nome", ex.Message));
+                        errors.Add(ex.Message);
                     }
                 }
 
                 if (errors.Any())
                 {
-                    var errorDetails = string.Join("; ", errors.Select(e => $"'{e.Name}': {e.ErrorMessage}"));
+                    var errorDetails = string.Join("; ", errors);
                     return Result.Failure<IEnumerable<int>>(Error.Failure($"Alguns líquidos possuem dados inválidos: {errorDetails}"));
                 }
 
@@ -196,7 +196,7 @@ namespace Nutrition.Infrastructure.Services
         {
             try
             {
-                if (dto == null)
+                if (dto == null) 
                     return Result.Failure<bool>(Error.NullValue);
 
                 var entity = await _liquidRepository.GetById(dto.Id, cancellationToken);
@@ -204,7 +204,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<bool>(LiquidErrors.NotFound(dto.Id));
 
 
-                entity.Update(dto.Name, dto.QuantityMl, dto.CaloriesPerMl);
+                entity.Update(dto.LiquidTypeId, dto.Quantity);
 
                 await _liquidRepository.Update(entity, cancellationToken);
 
@@ -287,17 +287,11 @@ namespace Nutrition.Infrastructure.Services
             {
                 var domainFilter = new LiquidQueryFilter(
                     filter.Id,
-                    filter.NameContains,
-                    filter.QuantityMlEquals,
-                    filter.QuantityMlGreaterThan,
-                    filter.QuantityMlLessThan,
-                    filter.CaloriesPerMlEquals,
-                    filter.CaloriesPerMlGreaterThan,
-                    filter.CaloriesPerMlLessThan,
                     filter.DiaryId,
-                    filter.TotalCaloriesEquals,
-                    filter.TotalCaloriesGreaterThan,
-                    filter.TotalCaloriesLessThan,
+                    filter.NameContains,
+                    filter.QuantityEquals,
+                    filter.QuantityGreaterThan,
+                    filter.QuantityLessThan,
                     filter.CreatedAt,
                     filter.UpdatedAt,
                     filter.IsDeleted,
@@ -308,8 +302,7 @@ namespace Nutrition.Infrastructure.Services
 
                 var (entities, totalItems) = await _liquidRepository.FindByFilter(domainFilter, cancellationToken);
                 if (!entities.Any())
-                    return Result.Success<(IEnumerable<LiquidDTO> Items, PaginationData Pagination)>(
-                        (new List<LiquidDTO>(), new PaginationData(filter.Page, filter.PageSize)));
+                    return Result.Success<(IEnumerable<LiquidDTO> Items, PaginationData Pagination)>((new List<LiquidDTO>(), new PaginationData(filter.Page, filter.PageSize)));
 
                 var dtos = entities
                     .Where(e => e != null)

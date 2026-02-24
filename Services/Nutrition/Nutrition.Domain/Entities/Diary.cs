@@ -9,8 +9,8 @@ namespace Nutrition.Domain.Entities
     {
         public int UserId { get; private set; }
         public DateOnly Date { get; private set; }
-        public int TotalCalories => _liquids.Sum(l => l.TotalCalories) + _meals.Sum(m => m.TotalCalories);
-        public int TotalLiquidsMl => _liquids.Sum(l => l.QuantityMl);
+        public int TotalCalories => _meals.Sum(m => m.TotalCalories);
+        public int TotalLiquidsMl => _liquids.Sum(l => l.Quantity);
 
         private readonly List<Meal> _meals = new();
         public IReadOnlyCollection<Meal> Meals => _meals.AsReadOnly();

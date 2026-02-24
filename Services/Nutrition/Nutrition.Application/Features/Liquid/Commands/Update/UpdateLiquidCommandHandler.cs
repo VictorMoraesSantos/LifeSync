@@ -16,12 +16,10 @@ namespace Nutrition.Application.Features.Liquid.Commands.Update
 
         public async Task<Result<UpdateLiquidResult>> Handle(UpdateLiquidCommand command, CancellationToken cancellationToken)
         {
-            UpdateLiquidDTO dto = new(
+            var dto = new UpdateLiquidDTO(
                 command.Id,
-                command.Name,
-                command.QuantityMl,
-                command.CaloriesPerMl
-            );
+                command.LiquidTypeId,
+                command.Quantity);
 
             var result = await _liquidService.UpdateAsync(dto, cancellationToken);
             if (!result.IsSuccess)

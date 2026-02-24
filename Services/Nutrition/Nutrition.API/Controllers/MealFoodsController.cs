@@ -83,17 +83,7 @@ namespace Nutrition.API.Controllers
         {
             UpdateMealFoodCommand updateMealFoodCommand = new(
                 id,
-                command.Code,
-                command.Name,
-                command.Calories,
-                command.Protein,
-                command.Lipids,
-                command.Carbohydrates,
-                command.Calcium,
-                command.Magnesium,
-                command.Iron,
-                command.Sodium,
-                command.Potassium,
+                command.FoodId,
                 command.Quantity);
             var result = await _sender.Send(updateMealFoodCommand);
 

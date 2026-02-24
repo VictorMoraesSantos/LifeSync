@@ -22,18 +22,9 @@ namespace Nutrition.Application.Features.MealFood.Commands.Create
             if (!meal.IsSuccess)
                 return Result<CreateMealFoodResult>.Failure(meal.Error!);
 
-            CreateMealFoodDTO dto = new(
-                command.Code,
-                command.Name,
-                command.Calories,
-                command.Protein,
-                command.Lipids,
-                command.Carbohydrates,
-                command.Calcium,
-                command.Magnesium,
-                command.Iron,
-                command.Sodium,
-                command.Potassium,
+            var dto = new CreateMealFoodDTO(
+                command.MealId,
+                command.FoodId,
                 command.Quantity);
 
             var result = await _mealFoodService.CreateAsync(dto, cancellationToken);

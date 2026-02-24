@@ -6,47 +6,44 @@ namespace Nutrition.Domain.Entities
 {
     public class Liquid : BaseEntity<int>
     {
-        public string Name { get; private set; }
-        public int QuantityMl { get; private set; }
-        public int CaloriesPerMl { get; private set; } = 0;
         public int DiaryId { get; private set; }
-        public int TotalCalories => QuantityMl * CaloriesPerMl;
+        public int LiquidTypeId { get; set; }
+        public LiquidType LiquidType { get; set; }
+        public int Quantity { get; private set; }
 
-        public Liquid(int diaryId, string name, int quantityMl, int caloriesPerMl)
+        public Liquid(int diaryId, int liquidTypeId, int quantity)
         {
-            DiaryId = diaryId;
-            SetName(name);
-            SetQuantityMl(quantityMl);
-            SetCaloriesPerMl(caloriesPerMl);
+            SetDiaryId(diaryId);
+            SetLiquidTypeId(liquidTypeId);
+            SetQuantity(quantity);
         }
 
-        public void Update(string name, int quantityMl, int caloriesPerMl)
+        public void Update(int liquidTypeId, int quantity)
         {
-            SetName(name);
-            SetQuantityMl(quantityMl);
-            SetCaloriesPerMl(caloriesPerMl);
+            SetLiquidTypeId(liquidTypeId);
+            SetQuantity(quantity);
             MarkAsUpdated();
         }
 
-        public void SetName(string name)
+        public void SetDiaryId(int diaryId)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new DomainException(LiquidErrors.InvalidName);
-            Name = name.Trim();
+            if (diaryId <= 0)
+                throw new DomainException(LiquidErrors.InvalidDiaryId);
+            DiaryId = diaryId;
         }
 
-        public void SetQuantityMl(int quantityMl)
+        public void SetLiquidTypeId(int liquidTypeId)
         {
-            if (quantityMl <= 0)
+            if (liquidTypeId <= 0)
+                throw new DomainException(LiquidErrors.InvalidLiquidTypeId);
+            LiquidTypeId = liquidTypeId;
+        }
+
+        public void SetQuantity(int quantity)
+        {
+            if (quantity <= 0)
                 throw new DomainException(LiquidErrors.InvalidQuantity);
-            QuantityMl = quantityMl;
-        }
-
-        public void SetCaloriesPerMl(int caloriesPerMl)
-        {
-            if (caloriesPerMl < 0)
-                throw new DomainException(LiquidErrors.NegativeCalories);
-            CaloriesPerMl = caloriesPerMl;
+            Quantity = quantity;
         }
     }
 }

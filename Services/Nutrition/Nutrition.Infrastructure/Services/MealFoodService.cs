@@ -159,7 +159,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<IEnumerable<int>>(Error.Failure("Lista de alimentos de refeição inválida ou vazia"));
 
                 var entities = new List<MealFood>();
-                var errors = new List<(string Name, string ErrorMessage)>();
+                var errors = new List<string>();
 
                 foreach (var dto in dtos)
                 {
@@ -170,13 +170,13 @@ namespace Nutrition.Infrastructure.Services
                     }
                     catch (ArgumentException ex)
                     {
-                        errors.Add((dto.Name ?? "Sem nome", ex.Message));
+                        errors.Add(ex.Message);
                     }
                 }
 
                 if (errors.Any())
                 {
-                    var errorDetails = string.Join("; ", errors.Select(e => $"'{e.Name}': {e.ErrorMessage}"));
+                    var errorDetails = string.Join("; ", errors);
                     return Result.Failure<IEnumerable<int>>(Error.Failure($"Alguns alimentos de refeição possuem dados inválidos: {errorDetails}"));
                 }
 
@@ -204,17 +204,7 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<bool>(MealFoodErrors.NotFound(dto.Id));
 
                 entity.Update(
-                    dto.Code,
-                    dto.Name,
-                    dto.Calories,
-                    dto.Protein,
-                    dto.Lipids,
-                    dto.Carbohydrates,
-                    dto.Calcium,
-                    dto.Magnesium,
-                    dto.Iron,
-                    dto.Sodium,
-                    dto.Potassium,
+                    dto.FoodId,
                     dto.Quantity);
 
                 await _mealFoodRepository.Update(entity, cancellationToken);

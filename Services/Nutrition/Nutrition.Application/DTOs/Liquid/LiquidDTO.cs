@@ -4,12 +4,10 @@ namespace Nutrition.Application.DTOs.Liquid
 {
     public record LiquidDTO(
         int Id,
-        int DiaryId,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
+        int DiaryId,
         string Name,
-        int QuantityMl,
-        int CaloriesPerMl,
-        int TotalCalories
-        ) : DTOBase(Id, CreatedAt, UpdatedAt);
+        int Quantity)
+        : DTOBase(Id, CreatedAt, UpdatedAt);
 }

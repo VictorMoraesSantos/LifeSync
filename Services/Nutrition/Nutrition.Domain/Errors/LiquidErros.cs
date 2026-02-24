@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Results;
+using System.Net.NetworkInformation;
 
 namespace Nutrition.Domain.Errors
 {
@@ -10,6 +11,7 @@ namespace Nutrition.Domain.Errors
         public static Error InvalidQuantity => Error.Failure("A quantidade deve ser um valor positivo");
         public static Error NegativeCalories => Error.Failure("As calorias por ml não podem ser negativas");
         public static Error InvalidDiaryId => Error.Failure("DiaryId deve ser um valor positivo");
+        public static Error InvalidLiquidTypeId => Error.Failure("LiquidTypeId deve ser um valor positivo");
         // Erros de operação
         public static Error NotFound(int id) => Error.NotFound($"Líquido com ID {id} não encontrado");
         public static Error CreateError => Error.Problem("Erro ao criar líquido");

@@ -7,26 +7,23 @@ namespace Nutrition.Application.Mapping
     {
         public static LiquidDTO ToDTO(this Liquid entity)
         {
-            LiquidDTO dto = new(
+            var dto = new LiquidDTO(
                 entity.Id,
-                entity.DiaryId,
                 entity.CreatedAt,
                 entity.UpdatedAt,
-                entity.Name,
-                entity.QuantityMl,
-                entity.CaloriesPerMl,
-                entity.TotalCalories);
+                entity.DiaryId,
+                entity.LiquidType.Name,
+                entity.Quantity);
 
             return dto;
         }
 
         public static Liquid ToEntity(this CreateLiquidDTO dto)
         {
-            Liquid liquid = new(
+            var liquid = new Liquid(
                 dto.DiaryId,
-                dto.Name,
-                dto.QuantityMl,
-                dto.CaloriesPerMl);
+                dto.LiquidTypeId,
+                dto.Quantity);
 
             return liquid;
         }

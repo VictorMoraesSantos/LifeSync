@@ -80,12 +80,10 @@ namespace Nutrition.API.Controllers
         [HttpPut("{id:int}")]
         public async Task<HttpResult<object>> Update([FromBody] UpdateLiquidCommand command, int id)
         {
-            UpdateLiquidCommand updateLiquidCommand = new(
+            var updateLiquidCommand = new UpdateLiquidCommand(
                 id,
-                command.Name,
-                command.QuantityMl,
-                command.CaloriesPerMl
-            );
+                command.LiquidTypeId,
+                command.Quantity);
             var result = await _sender.Send(updateLiquidCommand);
 
             return result.IsSuccess

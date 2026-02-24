@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Results;
+using Microsoft.AspNetCore.Http;
 
 namespace Nutrition.Domain.Errors
 {
@@ -11,6 +12,7 @@ namespace Nutrition.Domain.Errors
         public static Error InvalidQuantity => Error.Failure("A quantidade deve ser um valor positivo");
         public static Error NegativeCalories => Error.Failure("As calorias por unidade não podem ser negativas");
         public static Error InvalidMealId => Error.Failure("MealId deve ser um valor positivo");
+        public static Error InvalidFoodId => Error.Failure("FoodId deve ser um valor positivo");
         // Erros de operação
         public static Error NotFound(int id) => Error.NotFound($"Alimento com ID {id} não encontrado");
         public static Error CreateError => Error.Problem("Erro ao criar alimento");

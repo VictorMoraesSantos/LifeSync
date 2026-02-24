@@ -11,17 +11,18 @@ namespace Nutrition.Application.Mapping
                 entity.Id,
                 entity.CreatedAt,
                 entity.UpdatedAt,
-                entity.Code,
-                entity.Name,
-                entity.Calories,
-                entity.Protein,
-                entity.Lipids,
-                entity.Carbohydrates,
-                entity.Calcium,
-                entity.Magnesium,
-                entity.Iron,
-                entity.Sodium,
-                entity.Potassium,
+                entity.MealId,
+                entity.Food.Id,
+                entity.Food.Name,
+                entity.Food.Calories,
+                entity.Food.Protein,
+                entity.Food.Lipids,
+                entity.Food.Carbohydrates,
+                entity.Food.Calcium,
+                entity.Food.Magnesium,
+                entity.Food.Iron,
+                entity.Food.Sodium,
+                entity.Food.Potassium,
                 entity.Quantity,
                 entity.TotalCalories);
 
@@ -31,17 +32,8 @@ namespace Nutrition.Application.Mapping
         public static MealFood ToEntity(this CreateMealFoodDTO dto)
         {
             var entity = new MealFood(
-                dto.Code,
-                dto.Name,
-                dto.Calories,
-                dto.Protein,
-                dto.Lipids,
-                dto.Carbohydrates,
-                dto.Calcium,
-                dto.Magnesium,
-                dto.Iron,
-                dto.Sodium,
-                dto.Potassium,
+                dto.MealId,
+                dto.FoodId,
                 dto.Quantity);
             
             return entity;
