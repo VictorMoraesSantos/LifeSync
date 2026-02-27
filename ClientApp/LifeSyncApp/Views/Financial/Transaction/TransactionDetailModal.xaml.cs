@@ -1,5 +1,6 @@
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.ViewModels.Financial;
+using LifeSyncApp.ViewModels.Financial.Transaction;
 
 namespace LifeSyncApp.Views.Financial
 {

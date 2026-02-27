@@ -1,15 +1,17 @@
 using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
+using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace LifeSyncApp.ViewModels.Financial
+namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
     public class FilterTransactionViewModel : BaseViewModel
     {
         private readonly CategoryService _categoryService;
-        private int _userId = 1;
+        private readonly IUserSession _userSession;
 
         private string _selectedType = "";
         private string _selectedPaymentMethod = "";
@@ -46,9 +48,10 @@ namespace LifeSyncApp.ViewModels.Financial
         public event EventHandler<TransactionFilterDTO>? OnFiltersApplied;
         public event EventHandler? OnCancelled;
 
-        public FilterTransactionViewModel(CategoryService categoryService)
+        public FilterTransactionViewModel(CategoryService categoryService, IUserSession userSession)
         {
             _categoryService = categoryService;
+            _userSession = userSession;
             Title = "Filtrar Transações";
 
             SelectTypeCommand = new Command<string>(t => SelectedType = t ?? "");
@@ -63,15 +66,14 @@ namespace LifeSyncApp.ViewModels.Financial
 
         public async Task InitializeAsync(TransactionFilterDTO? existingFilter = null)
         {
-            var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
-            SelectableCategories.Clear();
+            var categories = await _categoryService.GetCategoriesByUserIdAsync(_userSession.UserId);
 
-            SelectableCategories.Add(new SelectableCategoryItem { Id = -1, Name = "Todas as categorias", IsSelected = true });
-
-            foreach (var category in categories)
+            var allItems = new List<SelectableCategoryItem>
             {
-                SelectableCategories.Add(new SelectableCategoryItem { Id = category.Id, Name = category.Name });
-            }
+                new SelectableCategoryItem { Id = -1, Name = "Todas as categorias", IsSelected = true }
+            };
+            allItems.AddRange(categories.Select(c => new SelectableCategoryItem { Id = c.Id, Name = c.Name }));
+            SelectableCategories.ReplaceAll(allItems);
 
             if (existingFilter != null)
                 ApplyExistingFilter(existingFilter);
@@ -170,7 +172,7 @@ namespace LifeSyncApp.ViewModels.Financial
             }
 
             var filter = new TransactionFilterDTO(
-                UserId: _userId,
+                UserId: _userSession.UserId,
                 TransactionType: selectedType,
                 CategoryId: categoryId,
                 PaymentMethod: selectedPaymentMethod,

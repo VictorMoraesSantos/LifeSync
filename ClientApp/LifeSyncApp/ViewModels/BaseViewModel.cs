@@ -48,5 +48,10 @@ namespace LifeSyncApp.ViewModels
             OnPropertyChanged(propertyName);
             return true;
         }
+
+        protected const int DefaultCacheMinutes = 5;
+
+        protected static bool IsCacheExpired(DateTime? timestamp, int minutes = DefaultCacheMinutes)
+            => timestamp == null || (DateTime.Now - timestamp.Value).TotalMinutes >= minutes;
     }
 }

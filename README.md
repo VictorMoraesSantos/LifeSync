@@ -1,480 +1,296 @@
 # LifeSync
 
-Uma aplicação completa de gerenciamento de vida pessoal construída com arquitetura de microserviços, oferecendo funcionalidades para organização de tarefas, nutrição, finanças pessoais e treinos na academia.
-
-## 📋 Índice
-
-- [Visão Geral](#visão-geral)
-- [Arquitetura](#arquitetura)
-- [Tecnologias](#tecnologias)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Microserviços](#microserviços)
-- [Frontend](#frontend)
-- [API Gateway](#api-gateway)
-- [Como Executar com Docker](#como-executar-com-docker)
-- [Configuração](#configuração)
-- [Endpoints da API](#endpoints-da-api)
-- [Dashboards](#dashboards)
-- [Contribuindo](#contribuindo)
-- [Licença](#licença)
-
-## 🎯 Visão Geral
-
-LifeSync é uma plataforma integrada que ajuda os usuários a gerenciar diferentes aspectos de suas vidas em um único lugar:
-
-- **Gerenciamento de Tarefas**: Organize suas tarefas diárias com prioridades, status e labels personalizados
-- **Nutrição**: Registre refeições, líquidos e acompanhe seu progresso nutricional diário
-- **Financeiro**: Controle receitas, despesas e transações financeiras com categorias personalizadas
-- **Academia**: Registre treinos, crie rotinas e acompanhe seu progresso físico
-- **Dashboards**: Visualize estatísticas e métricas de cada área com gráficos e relatórios
-
-## 🏗️ Arquitetura
-
-O projeto segue uma arquitetura de **microserviços** baseada em **Clean Architecture** e **Domain-Driven Design (DDD)**, utilizando os seguintes padrões:
-
-- **Separation of Concerns**: Cada microserviço é independente e responsável por um domínio específico
-- **CQRS (Command Query Responsibility Segregation)**: Separação entre comandos e consultas
-- **API Gateway Pattern**: YARP como gateway único para todas as requisições
-- **Event-Driven Architecture**: Comunicação assíncrona via RabbitMQ
-- **Repository Pattern**: Abstração da camada de dados
-
-### Diagrama da Arquitetura
-
-```
-                        ┌─────────────────┐
-                        │  Blazor WebApp  │
-                        │  (Frontend)     │
-                        └────────┬────────┘
-                                 │
-                                 │ HTTP/HTTPS
-                                 │
-                     ┌───────────▼───────────┐
-                     │   YARP API Gateway    │
-                     │     (Porta 6006)      │
-                     └───────────┬───────────┘
-                                 │
-    ┌─────────────┬──────────────┴─────────────┬────────────┐
-    │             │              │             │            │
-┌───▼────┐ ┌──────▼──────┐ ┌─────▼─────┐ ┌─────▼─────┐ ┌────▼────┐
-│ Users  │ │ TaskManager │ │ Nutrition │ │ Financial │ │  Gym    │
-│ Service│ │   Service   │ │  Service  │ │  Service  │ │ Service │
-└────────┘ └─────────────┘ └───────────┘ └───────────┘ └─────────┘
-    │             │              │             │            │
-    │             │              │             │            │
-    └─────────────┴──────────────┴─────────────┴────────────┘
-                                 │
-                           ┌─────▼──────┐
-                           │ PostgreSQL │
-                           │  Database  │
-                           └────────────┘
-```
-
-## 🛠️ Tecnologias
-
-### Backend
-
-- **.NET 9.0**: Framework principal
-- **ASP.NET Core**: API RESTful
-- **Entity Framework Core**: ORM para acesso a dados
-- **PostgreSQL**: Banco de dados relacional
-- **RabbitMQ**: Message broker para comunicação assíncrona
-- **YARP (Yet Another Reverse Proxy)**: API Gateway
-- **JWT**: Autenticação e autorização
-- **Swagger/OpenAPI**: Documentação da API
-
-### Frontend
-
-- **Blazor WebAssembly**: Framework web interativo
-- **Bootstrap 5**: Framework CSS
-- **JavaScript/TypeScript**: Para funcionalidades do cliente
-
-### Infraestrutura
-
-- **Docker**: Containerização
-- **Docker Compose**: Orquestração de containers
-- **MailHog**: Servidor SMTP para desenvolvimento
-
-## 📁 Estrutura do Projeto
-
-```
-LifeSync/
-├── BuildingBlocks/          # Bibliotecas compartilhadas
-│   ├── BuildingBlocks/      # CQRS, Results, Validation
-│   └── BuildingBlocks.Messaging/  # RabbitMQ, Events
-├── Core/                    # Funcionalidades core compartilhadas
-│   ├── Core.API/
-│   ├── Core.Application/
-│   ├── Core.Domain/
-│   └── Core.Infrastructure/
-├── Services/                # Microserviços
-│   ├── Users/               # Gerenciamento de usuários e autenticação
-│   ├── TaskManager/         # Gerenciamento de tarefas
-│   ├── Nutrition/           # Gerenciamento nutricional
-│   ├── Financial/           # Gerenciamento financeiro
-│   ├── Gym/                 # Gerenciamento de treinos
-│   ├── Notification/        # Serviço de notificações por email
-│   ├── ApiGateways/         # YARP API Gateway
-│   └── WebApp/              # Frontend Blazor WebAssembly
-└── tests/                   # Testes unitários
-```
-
-Cada microserviço segue a estrutura **Clean Architecture**:
-
-```
-Service/
-├── Service.API/           # Camada de apresentação (Controllers)
-├── Service.Application/   # Lógica de negócio (Use Cases, DTOs)
-├── Service.Domain/        # Entidades e regras de domínio
-└── Service.Infrastructure/ # Implementações (Repositories, External Services)
-```
-
-## 🔧 Microserviços
-
-### 1. Users Service
-
-**Responsabilidade**: Gerenciamento de usuários e autenticação
-
-**Funcionalidades**:
-
-- Registro de novos usuários
-- Login/Logout
-- Recuperação de senha
-- Alteração de senha
-- Gerenciamento de perfil
-
-**Endpoints**:
-
-- `POST /users-service/api/auth/login`
-- `POST /users-service/api/auth/register`
-- `POST /users-service/api/auth/logout`
-- `POST /users-service/api/auth/forgot-password`
-- `POST /users-service/api/auth/reset-password`
-- `POST /users-service/api/auth/change-password`
-- `GET /users-service/api/users/{id}`
-- `PUT /users-service/api/users/{id}`
-
-### 2. TaskManager Service
-
-**Responsabilidade**: Gerenciamento de tarefas e labels
-
-**Funcionalidades**:
-
-- CRUD de tarefas (TaskItems)
-- CRUD de labels (TaskLabels)
-- Filtros e busca
-- Criação em lote
-- Prioridades (Baixa, Média, Alta, Urgente)
-- Status (Pendente, Em Progresso, Completada, Cancelada)
-
-**Endpoints**:
-
-- `GET /taskmanager-service/api/task-items`
-- `GET /taskmanager-service/api/task-items/{id}`
-- `GET /taskmanager-service/api/task-items/user/{userId}`
-- `POST /taskmanager-service/api/task-items`
-- `POST /taskmanager-service/api/task-items/batch`
-- `PUT /taskmanager-service/api/task-items/{id}`
-- `DELETE /taskmanager-service/api/task-items/{id}`
-- `GET /taskmanager-service/api/task-labels`
-- `GET /taskmanager-service/api/task-labels/{id}`
-- `POST /taskmanager-service/api/task-labels`
-- `PUT /taskmanager-service/api/task-labels/{id}`
-- `DELETE /taskmanager-service/api/task-labels/{id}`
-
-### 3. Nutrition Service
-
-**Responsabilidade**: Gerenciamento nutricional e acompanhamento alimentar
-
-**Funcionalidades**:
-
-- CRUD de diários nutricionais
-- CRUD de refeições (Meals)
-- CRUD de alimentos nas refeições (MealFoods)
-- CRUD de líquidos (Liquids)
-- Progresso diário (DailyProgress)
-- Metas diárias de calorias e líquidos
-
-**Endpoints**:
-
-- `GET /nutrition-service/api/diaries`
-- `POST /nutrition-service/api/diaries`
-- `GET /nutrition-service/api/diaries/{id}`
-- `PUT /nutrition-service/api/diaries/{id}`
-- `DELETE /nutrition-service/api/diaries/{id}`
-- `GET /nutrition-service/api/meals`
-- `POST /nutrition-service/api/meals`
-- `POST /nutrition-service/api/meals/{mealId}/foods`
-- `DELETE /nutrition-service/api/meals/{mealId}/foods/{foodId}`
-- `GET /nutrition-service/api/liquids`
-- `POST /nutrition-service/api/liquids`
-- `GET /nutrition-service/api/daily-progresses`
-- `POST /nutrition-service/api/daily-progresses`
-- `POST /nutrition-service/api/daily-progresses/{id}/set-goal`
-
-### 4. Financial Service
-
-**Responsabilidade**: Gerenciamento financeiro pessoal
-
-**Funcionalidades**:
-
-- CRUD de transações (Transactions)
-- CRUD de categorias (Categories)
-- Tipos: Receita e Despesa
-- Métodos de pagamento: Dinheiro, Cartão de Crédito/Débito, Transferência, Carteira Digital
-- Transações recorrentes
-- Relatórios financeiros
-
-**Endpoints**:
-
-- `GET /financial-service/api/transactions`
-- `GET /financial-service/api/transactions/{id}`
-- `GET /financial-service/api/transactions/user/{userId}`
-- `POST /financial-service/api/transactions`
-- `PUT /financial-service/api/transactions/{id}`
-- `DELETE /financial-service/api/transactions/{id}`
-- `GET /financial-service/api/categories`
-- `GET /financial-service/api/categories/{id}`
-- `POST /financial-service/api/categories`
-- `PUT /financial-service/api/categories/{id}`
-- `DELETE /financial-service/api/categories/{id}`
-
-### 5. Gym Service
-
-**Responsabilidade**: Gerenciamento de treinos e exercícios
-
-**Funcionalidades**:
-
-- CRUD de exercícios (Exercises)
-- CRUD de rotinas (Routines)
-- CRUD de sessões de treino (TrainingSessions)
-- Exercícios completados (CompletedExercises)
-- Exercícios por rotina (RoutineExercises)
-- Tipos de exercícios, grupos musculares e equipamentos
-
-**Endpoints**:
-
-- `GET /gym-service/api/exercises`
-- `POST /gym-service/api/exercises`
-- `GET /gym-service/api/exercises/{id}`
-- `PUT /gym-service/api/exercises/{id}`
-- `DELETE /gym-service/api/exercises/{id}`
-- `GET /gym-service/api/routines`
-- `POST /gym-service/api/routines`
-- `GET /gym-service/api/routines/{id}`
-- `PUT /gym-service/api/routines/{id}`
-- `DELETE /gym-service/api/routines/{id}`
-- `GET /gym-service/api/training-sessions`
-- `POST /gym-service/api/training-sessions`
-- `GET /gym-service/api/training-sessions/{id}`
-- `PUT /gym-service/api/training-sessions/{id}`
-- `DELETE /gym-service/api/training-sessions/{id}`
-
-### 6. Notification Service
-
-**Responsabilidade**: Envio de notificações e emails
-
-**Funcionalidades**:
-
-- Envio de emails
-- Processamento de eventos assíncronos
-- Templates de email
-
-**Tecnologias**:
-
-- SMTP para envio de emails
-- RabbitMQ para consumo de eventos
-
-## 🖥️ Frontend
-
-### Blazor WebAssembly
-
-Aplicação web interativa construída com Blazor WebAssembly que oferece:
-
-- **Interface Responsiva**: Design moderno com Bootstrap 5
-- **Autenticação**: Login, registro e gerenciamento de sessão
-- **CRUD Completo**: Para todos os módulos (Tarefas, Nutrição, Financeiro, Academia)
-- **Dashboards Interativos**: Visualizações de dados e estatísticas
-- **LocalStorage**: Persistência local de tokens e dados do usuário
-
-### Páginas Principais
-
-- `/` - Home/Dashboard principal
-- `/login` - Página de login
-- `/register` - Página de registro
-- `/tasks` - Gerenciamento de tarefas
-- `/nutrition` - Gerenciamento nutricional
-- `/financial` - Gerenciamento financeiro
-- `/gym` - Gerenciamento de treinos
-- `/dashboard/tasks` - Dashboard de tarefas
-- `/dashboard/nutrition` - Dashboard de nutrição
-- `/dashboard/financial` - Dashboard financeiro
-- `/dashboard/gym` - Dashboard de academia
-
-### Serviços do Frontend
-
-- **AuthService**: Autenticação e gerenciamento de usuários
-- **TaskManagerService**: Operações com tarefas
-- **NutritionService**: Operações nutricionais
-- **FinancialService**: Operações financeiras
-- **GymService**: Operações de treinos
-- **DashboardService**: Agregação de dados para dashboards
-
-## 🌐 API Gateway
-
-O **YARP (Yet Another Reverse Proxy)** atua como API Gateway único para todos os microserviços:
-
-- **Porta Docker**: `6006` (HTTP)
-- **Roteamento**: Baseado em prefixos de caminho
-- **Autenticação**: JWT Bearer Token
-- **Transformação**: Reescrita de rotas para serviços internos
-
-### Rotas Configuradas
-
-- `/taskmanager-service/*` → TaskManager API
-- `/nutrition-service/*` → Nutrition API
-- `/financial-service/*` → Financial API
-- `/users-service/*` → Users API
-- `/gym-service/*` → Gym API
-
-## 🚀 Como Executar com Docker
-
-Esta é a maneira recomendada de executar o projeto, pois configura automaticamente todos os serviços, bancos de dados e infraestrutura necessária.
-
-### Pré-requisitos
-
-- **Docker Desktop** instalado e rodando
-- **Git** (opcional, para clonar o repositório)
-
-### Passo a Passo
-
-1. **Clone o repositório** (se ainda não o fez):
-   ```bash
-   git clone https://github.com/VictorMoraesSantos/LifeSync.git
-   cd LifeSync
-   ```
-
-2. **Execute o Docker Compose**:
-   Este comando irá compilar as imagens e iniciar todos os containers.
-   ```bash
-   docker-compose up --build
-   ```
-   *Nota: A primeira execução pode levar alguns minutos enquanto as imagens são baixadas e compiladas.*
-
-3. **Aguarde a inicialização**:
-   Os serviços irão aguardar o banco de dados estar pronto e aplicarão as **migrations automaticamente** na inicialização.
-
-### Acessando a Aplicação
-
-Uma vez que os containers estejam rodando, você pode acessar os serviços através das seguintes portas mapeadas no Docker:
-
-| Aplicação / Serviço | URL de Acesso | Descrição |
-| ------------------- | ------------- | --------- |
-| **Blazor WebApp** | `http://localhost:6007` | Interface principal do usuário |
-| **API Gateway** | `http://localhost:6006` | Ponto de entrada para todas as APIs |
-| **MailHog** | `http://localhost:8025` | Interface para visualizar emails enviados (dev) |
-| **RabbitMQ** | `http://localhost:15672` | Painel de gerenciamento de filas (User/Pass: guest/guest) |
-| **pgAdmin** | `http://localhost:5050` | Gerenciamento do PostgreSQL (Email: admin@admin.com / Pass: admin) |
-
-### Notas sobre Portas
-
-- Os microserviços individuais (Users, TaskManager, etc.) rodam dentro da rede do Docker e **não são expostos diretamente** para a máquina host por padrão.
-- Todo o acesso às APIs deve ser feito através do **API Gateway** na porta `6006`.
-- Exemplo de chamada via Gateway: `http://localhost:6006/users-service/api/users/1`
-
-## ⚙️ Configuração
-
-### Connection Strings
-
-As strings de conexão são gerenciadas automaticamente via variáveis de ambiente no `docker-compose.override.yml`.
-
-### JWT Settings
-
-Configure no API Gateway (`Services/ApiGateways/YarpApiGateway/appsettings.json`) se necessário alterar chaves ou validade.
-
-### RabbitMQ Settings
-
-Configurado automaticamente para se conectar ao container `rabbitmq` dentro da rede Docker.
-
-## 📊 Dashboards
-
-O sistema inclui dashboards interativos para cada microserviço:
-
-### Dashboard de Tarefas (`/dashboard/tasks`)
-
-- Total de tarefas, completadas, pendentes, em progresso
-- Distribuição por status e prioridade
-- Atividade recente (últimos 7 dias)
-
-### Dashboard de Nutrição (`/dashboard/nutrition`)
-
-- Total de diários, refeições e líquidos
-- Média de calorias e líquidos por dia
-- Tendência de calorias (últimos 14 dias)
-- Top refeições por calorias
-
-### Dashboard Financeiro (`/dashboard/financial`)
-
-- Total de receitas, despesas e saldo líquido
-- Tendência mensal (últimos 6 meses)
-- Gastos por categoria
-- Distribuição por método de pagamento
-
-### Dashboard de Academia (`/dashboard/gym`)
-
-- Total de sessões, rotinas e exercícios
-- Sessões do mês e duração média
-- Tendência semanal (últimas 4 semanas)
-- Uso de rotinas e frequência de exercícios
-
-## 🧪 Testes
-
-Para executar os testes unitários (requer .NET SDK instalado):
-
-```bash
-cd tests/TaskManager.UnitTests
-dotnet test
-```
-
-## 📝 Padrões de Código
-
-### CQRS Pattern
-
-Cada serviço utiliza CQRS para separação de comandos e consultas:
-
-- **Commands**: Operações de escrita (Create, Update, Delete)
-- **Queries**: Operações de leitura (Get, GetAll, Search)
-- **Handlers**: Processamento de comandos e consultas
-
-### Result Pattern
-
-Todas as operações retornam um `Result<T>` ou `HttpResult<T>` para padronização de respostas.
-
-### Validation
-
-Validação automática usando FluentValidation integrado ao pipeline CQRS.
-
-## 🤝 Contribuindo
-
-1. Faça um Fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE.txt` para mais detalhes.
-
-## 👥 Autores
-
-- **Victor Moraes** - _Desenvolvimento Inicial_
-
-## 🙏 Agradecimentos
-
-- .NET Community
-- Blazor Community
-- Todos os contribuidores de open source que tornaram este projeto possível
+Plataforma de produtividade e bem-estar pessoal construída com arquitetura de microserviços. O LifeSync centraliza gerenciamento de tarefas, nutrição, finanças, treinos físicos e notificações em um único ecossistema integrado.
 
 ---
 
-**LifeSync** - Organize sua vida em um único lugar! 🚀
+## Sumário
+
+- [Visão Geral](#visão-geral)
+- [Arquitetura](#arquitetura)
+- [Microserviços](#microserviços)
+- [Bibliotecas Compartilhadas](#bibliotecas-compartilhadas)
+- [Infraestrutura](#infraestrutura)
+- [Documentação Detalhada](#documentação-detalhada)
+- [Como Executar](#como-executar)
+- [Testes](#testes)
+- [Dependências Principais](#dependências-principais)
+
+---
+
+## Visão Geral
+
+| Item | Detalhe |
+|---|---|
+| Plataforma | .NET 10 |
+| SDK | 10.0.100 (definido em `global.json`) |
+| Banco de Dados | PostgreSQL 18 |
+| Mensageria | RabbitMQ |
+| API Gateway | YARP 2.3.0 |
+| ORM | Entity Framework Core 10.0.1 + Npgsql 10.0.0 |
+| Autenticação | JWT Bearer + ASP.NET Core Identity |
+
+---
+
+## Arquitetura
+
+```
+Cliente (Blazor WebApp)
+        │
+        ▼
+YARP API Gateway (:6006)
+  ├── JWT Validation (centralizado)
+  ├── Roteamento por prefixo de rota
+  │
+  ├──► Users API         (autenticação, perfil)
+  ├──► TaskManager API   (tarefas, labels)
+  ├──► Nutrition API     (diários, refeições, alimentos)
+  ├──► Financial API     (transações, categorias, moedas)
+  └──► Gym API           (exercícios, rotinas, sessões)
+        │
+        ▼ (eventos de integração via RabbitMQ)
+  Notification API       (e-mails via SMTP/MailHog)
+        │
+        ▼
+  PostgreSQL (banco único compartilhado)
+```
+
+### Padrões Arquiteturais
+
+| Padrão | Aplicação |
+|---|---|
+| Clean Architecture | Separação em Domain / Application / Infrastructure / API |
+| Domain-Driven Design (DDD) | Entidades ricas, Value Objects, Eventos de Domínio |
+| CQRS | Commands e Queries com pipeline de behaviors customizado |
+| Result Pattern | `Result<T>` / `HttpResult<T>` — sem exceções no fluxo normal |
+| Repository + Specification | Acesso a dados com filtros compostos via `Specification<T>` |
+| Strategy | Seleção de templates de e-mail no Notification Service |
+| Pipeline Behaviors | `ValidationBehavior<TRequest, TResponse>` com FluentValidation |
+| Soft Delete | Flag `IsDeleted` em todas as entidades via `BaseEntity<T>` |
+
+---
+
+## Microserviços
+
+### Users Service
+Responsável por autenticação, registro e gerenciamento de perfis de usuário.
+
+- ASP.NET Core Identity + JWT Bearer
+- Value Objects: `Name` (FirstName, LastName), `Contact` (Email, Phone)
+- Publica `UserRegisteredIntegrationEvent` no RabbitMQ após registro
+- Endpoints: `AuthController` (register, login, refresh-token) e `UsersController` (perfil, update)
+
+### TaskManager Service
+Gerenciamento de tarefas com suporte a labels, prioridades e lembretes de vencimento.
+
+- Entidades: `TaskItem`, `TaskLabel` (relação many-to-many)
+- Background Service `DueDateReminderService` que publica `TaskDueReminderIntegrationEvent`
+- 7 enumerações com cores hex e nomes em português
+- Endpoints: CRUD de tarefas + gestão de labels
+
+### Nutrition Service
+Acompanhamento de nutrição com diários, refeições, alimentos e ingestão de líquidos.
+
+- 7 entidades de domínio: `DailyProgress`, `Diary`, `Meal`, `MealFood`, `Food`, `Liquid`, `LiquidType`
+- Value Object `DailyGoal` (calorias, proteína, carboidrato, gordura, líquido)
+- Seed de alimentos via CSV com CsvHelper 33.1.0
+- Endpoints: 5 controllers cobrindo todos os agregados
+
+### Financial Service
+Controle financeiro com transações, categorias e suporte a múltiplas moedas.
+
+- Entidades: `Transaction`, `Category`
+- Value Object `Money` (Amount + Currency) com suporte a 140+ moedas e símbolo via `ToSymbol()`
+- Enumerações: `TransactionType` (Income/Expense), `PaymentMethod` (6 métodos)
+- `ReportsController` (placeholder para futuras funcionalidades)
+
+### Gym Service
+Gerenciamento de treinos com exercícios, rotinas e sessões de treino.
+
+- 5 entidades: `Exercise`, `Routine`, `RoutineExercise`, `TrainingSession`, `CompletedExercise`
+- 6 Value Objects: `Weight`, `SetCount`, `RepetitionCount`, `RestTime`, `Duration`, `ExerciseIntensity`
+- 7 enumerações (MuscleGroup, ExerciseType, DifficultyLevel, etc.)
+- Endpoints: 5 controllers com operações completas de CRUD
+
+### Notification Service
+Envio de e-mails transacionais a partir de eventos do RabbitMQ.
+
+- Consome: `UserRegisteredIntegrationEvent` (user_exchange) e `TaskDueReminderIntegrationEvent` (task_exchange)
+- Strategy Pattern para seleção de template por tipo de evento
+- MailKit 4.14.1 + SMTP (MailHog em desenvolvimento)
+- Sem endpoints REST — processamento 100% por eventos
+
+### API Gateway (YARP)
+Ponto de entrada único para todos os microserviços.
+
+- YARP 2.3.0 como reverse proxy
+- Validação centralizada de JWT
+- Roteamento baseado em prefixo de rota por serviço
+- Porta exposta: `:6006`
+
+---
+
+## Bibliotecas Compartilhadas
+
+### BuildingBlocks
+Implementações do pipeline CQRS customizado:
+
+- `ISender` / `IPublisher` — despacho de commands, queries e eventos
+- `IPipelineBehavior<TRequest, TResponse>` — middleware do pipeline
+- `ValidationBehavior` — integração com FluentValidation
+- Extensions de JWT e autorização
+- `QueryFilterBuilder` — geração dinâmica de expressões LINQ
+- `OrderByHelper` — ordenação dinâmica por string
+
+### BuildingBlocks.Messaging
+Infraestrutura de mensageria com RabbitMQ:
+
+- `IEventBus` / `IEventConsumer` — publicação e consumo de eventos
+- `RabbitMqPersistentConnection` — reconexão automática
+- `IntegrationEvent` — base para eventos de integração
+- `IConsumerDefinition` — configuração de exchange/queue/routing key
+
+### Core.Domain
+Primitivos de domínio reutilizáveis:
+
+- `BaseEntity<TId>` — entidade base com `CreatedAt`, `UpdatedAt`, `IsDeleted` e eventos de domínio
+- `ValueObject` — base para comparação por valor
+- `Specification<T, TId>` — filtros compostos para repositórios
+- `IRepository<T, TId, TFilter>` — contrato genérico de repositório
+
+### Core.Application / Core.Infrastructure
+Abstrações e implementações comuns de serviço e acesso a dados compartilhadas entre todos os microserviços.
+
+---
+
+## Infraestrutura
+
+### Docker
+
+Todos os serviços são orquestrados via Docker Compose.
+
+```bash
+docker-compose up -d
+```
+
+#### Serviços e Portas
+
+| Serviço | Porta | Descrição |
+|---|---|---|
+| `lifesyncdb` | `5433:5432` | PostgreSQL 18 |
+| `pgadmin` | `5050:80` | pgAdmin 4 (admin@admin.com / admin) |
+| `rabbitmq` | `5672`, `15672` | RabbitMQ (guest/guest) + Management UI |
+| `mailhog` | `1025`, `8025` | SMTP fake + UI de e-mails |
+| `yarpapigateway` | `6006:8080` | API Gateway (YARP) |
+| `lifesyncapp.webapp` | `6007:8080` | Frontend Blazor |
+
+#### Variáveis de Ambiente (override)
+
+| Variável | Valor padrão |
+|---|---|
+| `POSTGRES_USER` | `postgres` |
+| `POSTGRES_PASSWORD` | `postgres` |
+| `POSTGRES_DB` | `LifeSyncDB` |
+| `RABBITMQ_DEFAULT_USER` | `guest` |
+| `RABBITMQ_DEFAULT_PASS` | `guest` |
+| `PGADMIN_DEFAULT_EMAIL` | `admin@admin.com` |
+| `PGADMIN_DEFAULT_PASSWORD` | `admin` |
+
+Cada API recebe sua string de conexão e configurações de RabbitMQ/SMTP via variáveis de ambiente no `docker-compose.override.yml`.
+
+### Banco de Dados
+
+Banco único compartilhado (`LifeSyncDB`) no PostgreSQL. Cada serviço gerencia suas próprias migrations via `MigrationHostedService` executado na inicialização.
+
+Soft delete habilitado em todas as entidades através do `IsDeleted` configurado no `BaseEntity<T>`.
+
+---
+
+## Documentação Detalhada
+
+A documentação técnica completa de cada microserviço — incluindo todas as entidades, endpoints, configurações e dependências — está disponível na pasta [`documentations/`](./documentations/):
+
+| Arquivo | Conteúdo |
+|---|---|
+| [users-service.md](./documentations/users-service.md) | Autenticação, JWT, Identity, perfil de usuário |
+| [taskmanager-service.md](./documentations/taskmanager-service.md) | Tarefas, labels, lembrete de vencimento |
+| [nutrition-service.md](./documentations/nutrition-service.md) | Diários, refeições, alimentos, líquidos, metas |
+| [financial-service.md](./documentations/financial-service.md) | Transações, categorias, moedas |
+| [gym-service.md](./documentations/gym-service.md) | Exercícios, rotinas, sessões de treino |
+| [notification-service.md](./documentations/notification-service.md) | E-mails via RabbitMQ + SMTP |
+| [building-blocks.md](./documentations/building-blocks.md) | Building Blocks & Core — CQRS, Result Pattern, Messaging, Domain |
+
+---
+
+## Como Executar
+
+### Pré-requisitos
+
+- [.NET SDK 10.0.100](https://dotnet.microsoft.com/download)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+### Ambiente Completo (Docker)
+
+```bash
+# Subir todos os serviços
+docker-compose up -d
+
+# Acompanhar logs de um serviço específico
+docker-compose logs -f taskmanager.api
+```
+
+### Desenvolvimento Local
+
+```bash
+# Subir apenas a infraestrutura (banco, fila, e-mail)
+docker-compose up -d lifesyncdb rabbitmq mailhog
+
+# Executar um serviço individualmente
+cd Services/TaskManager/TaskManager.API
+dotnet run
+```
+
+### Acessos após subida
+
+- **API Gateway:** http://localhost:6006
+- **Frontend:** http://localhost:6007
+- **pgAdmin:** http://localhost:5050
+- **RabbitMQ Management:** http://localhost:15672
+- **MailHog UI:** http://localhost:8025
+
+---
+
+## Testes
+
+Os testes estão localizados na pasta `tests/` e cobrem o TaskManager Service nos três níveis:
+
+| Projeto | Tipo | Descrição |
+|---|---|---|
+| `TaskManager.UnitTests` | Unitário | Domínio, handlers, validadores |
+| `TaskManager.IntegrationTests` | Integração | Repositórios com Testcontainers (PostgreSQL real) |
+| `TaskManager.E2ETests` | E2E | Fluxos completos de API com Testcontainers |
+
+```bash
+# Executar todos os testes
+dotnet test
+
+# Executar apenas unitários
+dotnet test tests/TaskManager.UnitTests
+```
+
+---
+
+## Dependências Principais
+
+| Pacote | Versão | Uso |
+|---|---|---|
+| `Microsoft.EntityFrameworkCore` | 10.0.1 | ORM |
+| `Npgsql.EntityFrameworkCore.PostgreSQL` | 10.0.0 | Provider PostgreSQL |
+| `FluentValidation` | 11.11.0 | Validação de commands/queries |
+| `Yarp.ReverseProxy` | 2.3.0 | API Gateway |
+| `RabbitMQ.Client` | 7.2.0 | Mensageria |
+| `MailKit` | 4.14.1 | Envio de e-mails SMTP |
+| `MimeKit` | 4.14.0 | Construção de mensagens MIME |
+| `CsvHelper` | 33.1.0 | Seed de alimentos (Nutrition) |
+| `Microsoft.AspNetCore.Identity` | 10.0.1 | Autenticação (Users) |
+| `Testcontainers.PostgreSql` | — | Testes de integração/E2E |

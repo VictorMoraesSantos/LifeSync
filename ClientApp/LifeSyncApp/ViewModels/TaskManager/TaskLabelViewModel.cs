@@ -1,7 +1,9 @@
-﻿using LifeSyncApp.DTOs.TaskManager.TaskLabel;
+using LifeSyncApp.DTOs.TaskManager.TaskLabel;
+using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Models.TaskManager.Enums;
 using LifeSyncApp.Services.TaskManager.Implementation;
+using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -10,110 +12,62 @@ namespace LifeSyncApp.ViewModels.TaskManager
     public class TaskLabelViewModel : BaseViewModel
     {
         private readonly TaskLabelService _taskLabelService;
+        private readonly IUserSession _userSession;
         private bool _isLoadingLabels;
 
         // Cache management
         private DateTime? _lastLabelsRefresh;
-        private const int CacheExpirationMinutes = 5;
 
         private ObservableCollection<TaskLabel> _taskLabels = new();
         public ObservableCollection<TaskLabel> TaskLabels
         {
             get => _taskLabels;
-            set
-            {
-                if (_taskLabels != value)
-                {
-                    _taskLabels = value;
-                    OnPropertyChanged(nameof(TaskLabels));
-                }
-            }
+            set => SetProperty(ref _taskLabels, value);
         }
 
         private TaskLabel? _selectedLabel;
         public TaskLabel? SelectedLabel
         {
             get => _selectedLabel;
-            set
-            {
-                if (_selectedLabel != value)
-                {
-                    _selectedLabel = value;
-                    OnPropertyChanged(nameof(SelectedLabel));
-                }
-            }
+            set => SetProperty(ref _selectedLabel, value);
         }
 
-        // Modal state properties
         private bool _isManageLabelModalOpen;
         public bool IsManageLabelModalOpen
         {
             get => _isManageLabelModalOpen;
-            set
-            {
-                if (_isManageLabelModalOpen != value)
-                {
-                    _isManageLabelModalOpen = value;
-                    OnPropertyChanged(nameof(IsManageLabelModalOpen));
-                }
-            }
+            set => SetProperty(ref _isManageLabelModalOpen, value);
         }
 
         private string _modalTitle = "Nova Etiqueta";
         public string ModalTitle
         {
             get => _modalTitle;
-            set
-            {
-                if (_modalTitle != value)
-                {
-                    _modalTitle = value;
-                    OnPropertyChanged(nameof(ModalTitle));
-                }
-            }
+            set => SetProperty(ref _modalTitle, value);
         }
 
         private bool _isEditMode;
         public bool IsEditMode
         {
             get => _isEditMode;
-            set
-            {
-                if (_isEditMode != value)
-                {
-                    _isEditMode = value;
-                    OnPropertyChanged(nameof(IsEditMode));
-                }
-            }
+            set => SetProperty(ref _isEditMode, value);
         }
 
         private int? _editingLabelId;
         public int? EditingLabelId
         {
             get => _editingLabelId;
-            set
-            {
-                if (_editingLabelId != value)
-                {
-                    _editingLabelId = value;
-                    OnPropertyChanged(nameof(EditingLabelId));
-                }
-            }
+            set => SetProperty(ref _editingLabelId, value);
         }
 
-        // Form properties
         private string _labelName = string.Empty;
         public string LabelName
         {
             get => _labelName;
             set
             {
-                if (_labelName != value)
-                {
-                    _labelName = value;
-                    OnPropertyChanged(nameof(LabelName));
+                if (SetProperty(ref _labelName, value))
                     OnPropertyChanged(nameof(CanSaveLabel));
-                }
             }
         }
 
@@ -121,21 +75,13 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public LabelColor SelectedLabelColor
         {
             get => _selectedLabelColor;
-            set
-            {
-                if (_selectedLabelColor != value)
-                {
-                    _selectedLabelColor = value;
-                    OnPropertyChanged(nameof(SelectedLabelColor));
-                }
-            }
+            set => SetProperty(ref _selectedLabelColor, value);
         }
 
         public bool CanSaveLabel => !string.IsNullOrWhiteSpace(LabelName);
 
         public string SaveButtonText => IsEditMode ? "Atualizar" : "Criar";
 
-        // Available colors for selection
         public List<LabelColor> AvailableColors { get; }
 
         public ICommand GoBackCommand { get; set; }
@@ -146,11 +92,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand SaveLabelCommand { get; set; }
         public ICommand SelectColorCommand { get; set; }
 
-        public TaskLabelViewModel(TaskLabelService taskLabelService)
+        public TaskLabelViewModel(TaskLabelService taskLabelService, IUserSession userSession)
         {
             _taskLabelService = taskLabelService;
+            _userSession = userSession;
 
-            // Initialize available colors list
             AvailableColors = Enum.GetValues<LabelColor>().ToList();
 
             GoBackCommand = new Command(async () => await GoBackAsync());
@@ -179,14 +125,12 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
         public async Task LoadLabelsAsync(bool forceRefresh = false)
         {
-            // Check cache validity - only refresh if cache is expired or forced
-            if (!forceRefresh && !IsLabelsCacheExpired() && TaskLabels.Any())
+            if (!forceRefresh && !IsCacheExpired(_lastLabelsRefresh) && TaskLabels.Any())
             {
                 System.Diagnostics.Debug.WriteLine("📦 Using cached labels (not expired)");
                 return;
             }
 
-            // Evitar múltiplas chamadas simultâneas
             if (_isLoadingLabels)
             {
                 System.Diagnostics.Debug.WriteLine("⏳ Labels already loading, skipping duplicate request");
@@ -200,21 +144,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                 System.Diagnostics.Debug.WriteLine($"🔄 Loading labels from API (forceRefresh: {forceRefresh})");
 
-                var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
+                var query = new TaskLabelFilterDTO(UserId: _userSession.UserId, SortBy: "name");
                 var labels = await _taskLabelService.SearchTaskLabelAsync(query).ConfigureAwait(false);
 
-                // Processar em background thread
-                var labelCollection = await Task.Run(() =>
-                    new ObservableCollection<TaskLabel>(labels)
-                ).ConfigureAwait(false);
+                await MainThread.InvokeOnMainThreadAsync(() => TaskLabels.ReplaceAll(labels));
 
-                // Atualizar UI na main thread
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    TaskLabels = labelCollection;
-                });
-
-                // Update cache timestamp
                 _lastLabelsRefresh = DateTime.Now;
                 System.Diagnostics.Debug.WriteLine($"✅ Labels loaded successfully ({labels.Count()} labels). Cache updated.");
             }
@@ -242,23 +176,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
         }
 
         /// <summary>
-        /// Check if labels cache has expired
-        /// </summary>
-        private bool IsLabelsCacheExpired()
-        {
-            if (_lastLabelsRefresh == null)
-                return true;
-
-            var timeSinceLastRefresh = DateTime.Now - _lastLabelsRefresh.Value;
-            bool expired = timeSinceLastRefresh.TotalMinutes >= CacheExpirationMinutes;
-
-            if (expired)
-                System.Diagnostics.Debug.WriteLine($"⏰ Labels cache expired (last refresh: {timeSinceLastRefresh.TotalMinutes:F1} minutes ago)");
-
-            return expired;
-        }
-
-        /// <summary>
         /// Invalidate labels cache (call after CREATE/UPDATE/DELETE)
         /// </summary>
         private void InvalidateLabelsCache()
@@ -271,7 +188,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             if (label != null)
             {
-                // Edit mode
                 IsEditMode = true;
                 ModalTitle = "Editar Etiqueta";
                 EditingLabelId = label.Id;
@@ -280,7 +196,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
             else
             {
-                // Create mode
                 IsEditMode = false;
                 ModalTitle = "Nova Etiqueta";
                 EditingLabelId = null;
@@ -307,7 +222,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                 if (IsEditMode && EditingLabelId.HasValue)
                 {
-                    // Update existing label
                     var updateDto = new UpdateTaskLabelDTO(
                         Name: LabelName,
                         LabelColor: SelectedLabelColor
@@ -315,7 +229,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskLabelService.EditTaskLabelAsync(EditingLabelId.Value, updateDto).ConfigureAwait(false);
 
-                    // Invalidate cache after update
                     InvalidateLabelsCache();
 
                     await MainThread.InvokeOnMainThreadAsync(async () =>
@@ -325,16 +238,14 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 }
                 else
                 {
-                    // Create new label
                     var createDto = new CreateTaskLabelDTO(
                         Name: LabelName,
                         LabelColor: SelectedLabelColor,
-                        UserId: 22 // TODO: Get from auth service
+                        UserId: _userSession.UserId
                     );
 
                     await _taskLabelService.CreateTaskLabelAsync(createDto).ConfigureAwait(false);
 
-                    // Invalidate cache after create
                     InvalidateLabelsCache();
 
                     await MainThread.InvokeOnMainThreadAsync(async () =>
@@ -343,10 +254,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     });
                 }
 
-                // Reload labels list (will fetch from API since cache was invalidated)
                 await LoadLabelsAsync();
 
-                // Close modal
                 await Shell.Current.GoToAsync("..");
             }
             catch (Exception ex)
@@ -382,7 +291,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
                 await _taskLabelService.DeleteTaskLabelAsync(label.Id).ConfigureAwait(false);
 
-                // Invalidate cache after delete
                 InvalidateLabelsCache();
 
                 await MainThread.InvokeOnMainThreadAsync(async () =>

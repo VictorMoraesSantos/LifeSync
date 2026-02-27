@@ -1,3 +1,4 @@
+using LifeSyncApp.DTOs.Common;
 using LifeSyncApp.DTOs.Financial.Category;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -29,7 +30,7 @@ namespace LifeSyncApp.Services.Financial
                     return new List<CategoryDTO>();
                 }
 
-                var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<CategoryDTO>>>(_jsonOptions, cancellationToken);
+                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<CategoryDTO>>>(_jsonOptions, cancellationToken);
                 return result?.Data ?? new List<CategoryDTO>();
             }
             catch (Exception ex)
@@ -52,7 +53,7 @@ namespace LifeSyncApp.Services.Financial
                     return null;
                 }
 
-                var result = await response.Content.ReadFromJsonAsync<ApiResponse<CategoryDTO>>(_jsonOptions, cancellationToken);
+                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<CategoryDTO>>(_jsonOptions, cancellationToken);
                 return result?.Data;
             }
             catch (Exception ex)
@@ -78,7 +79,7 @@ namespace LifeSyncApp.Services.Financial
                     return null;
                 }
 
-                var result = await response.Content.ReadFromJsonAsync<ApiResponse<int>>(_jsonOptions, cancellationToken);
+                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<int>>(_jsonOptions, cancellationToken);
                 System.Diagnostics.Debug.WriteLine($"Category created with ID: {result?.Data}");
                 return result?.Data;
             }
@@ -138,11 +139,5 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
-        private class ApiResponse<T>
-        {
-            public T? Data { get; set; }
-            public bool IsSuccess { get; set; }
-            public string? Message { get; set; }
-        }
     }
 }

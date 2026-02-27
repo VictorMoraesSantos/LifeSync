@@ -1,17 +1,19 @@
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
+using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace LifeSyncApp.ViewModels.Financial
+namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
     public class ManageTransactionViewModel : BaseViewModel
     {
         private readonly TransactionService _transactionService;
         private readonly CategoryService _categoryService;
-        private int _userId = 1;
+        private readonly IUserSession _userSession;
 
         private TransactionDTO? _transaction;
         private string _description = string.Empty;
@@ -76,10 +78,11 @@ namespace LifeSyncApp.ViewModels.Financial
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
-        public ManageTransactionViewModel(TransactionService transactionService, CategoryService categoryService)
+        public ManageTransactionViewModel(TransactionService transactionService, CategoryService categoryService, IUserSession userSession)
         {
             _transactionService = transactionService;
             _categoryService = categoryService;
+            _userSession = userSession;
             Title = "Nova Transação";
 
             SaveCommand = new Command(async () => await SaveAsync(), CanSave);
@@ -134,12 +137,8 @@ namespace LifeSyncApp.ViewModels.Financial
             IsEditing = transaction != null;
             Title = IsEditing ? "Editar Transação" : "Nova Transação";
 
-            var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
-            Categories.Clear();
-            foreach (var category in categories)
-            {
-                Categories.Add(category);
-            }
+            var categories = await _categoryService.GetCategoriesByUserIdAsync(_userSession.UserId);
+            Categories.ReplaceAll(categories);
 
             if (IsEditing && _transaction != null)
             {
@@ -207,7 +206,7 @@ namespace LifeSyncApp.ViewModels.Financial
                 else
                 {
                     var dto = new CreateTransactionDTO(
-                        _userId,
+                        _userSession.UserId,
                         SelectedCategory?.Id,
                         PaymentMethod,
                         TransactionType,
@@ -222,13 +221,13 @@ namespace LifeSyncApp.ViewModels.Financial
                     }
                     else
                     {
-                        await Application.Current.MainPage.DisplayAlert("Erro", "Não foi possível criar a transação. Verifique sua conexão e tente novamente.", "OK");
+                        await Shell.Current.DisplayAlert("Erro", "Não foi possível criar a transação. Verifique sua conexão e tente novamente.", "OK");
                     }
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", "Não foi possível criar a transação. Verifique sua conexão e tente novamente.", "OK");
+                await Shell.Current.DisplayAlert("Erro", "Não foi possível criar a transação. Verifique sua conexão e tente novamente.", "OK");
             }
             finally
             {
@@ -236,5 +235,4 @@ namespace LifeSyncApp.ViewModels.Financial
             }
         }
     }
-
 }

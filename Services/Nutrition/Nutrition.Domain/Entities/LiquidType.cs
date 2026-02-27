@@ -8,7 +8,7 @@ namespace Nutrition.Domain.Entities
 
         public LiquidType(string name)
         {
-            if(!string.IsNullOrEmpty(name)) 
+            if (!string.IsNullOrEmpty(name))
                 Name = name;
         }
     }

@@ -1,9 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Nutrition.Application.DTOs.MealFood;
 using Nutrition.Domain.Entities;
 using Nutrition.Infrastructure.DataSeeders.Csv;
 using Nutrition.Infrastructure.Persistence.Data;
@@ -27,18 +24,18 @@ namespace Nutrition.Infrastructure.DataSeeders
 
         private async Task SeedMealFoodsAsync()
         {
-            if(await _context.Foods.AnyAsync()) return;
+            if (await _context.Foods.AnyAsync()) return;
 
             var csvPath = Path.Combine(AppContext.BaseDirectory, "DataSeeders", "Csv", "CsvFiles", "Food.csv");
 
-            if(!File.Exists(csvPath)) return;
+            if (!File.Exists(csvPath)) return;
 
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 Delimiter = ";",
                 HeaderValidated = null,
                 MissingFieldFound = null,
-                TrimOptions = TrimOptions.Trim,           
+                TrimOptions = TrimOptions.Trim,
                 WhiteSpaceChars = new[] { ' ' },
             };
 

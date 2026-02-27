@@ -1,9 +1,12 @@
-﻿using LifeSyncApp.Services.ApiService.Implementation;
+using LifeSyncApp.Services.ApiService.Implementation;
 using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.TaskManager.Implementation;
+using LifeSyncApp.Services.UserSession;
 using LifeSyncApp.ViewModels.Financial;
+using LifeSyncApp.ViewModels.Financial.Category;
+using LifeSyncApp.ViewModels.Financial.Transaction;
 using LifeSyncApp.ViewModels.Nutrition;
 using LifeSyncApp.ViewModels.TaskManager;
 using LifeSyncApp.Views.Academic;
@@ -80,6 +83,9 @@ namespace LifeSyncApp
 
             // API Services
             builder.Services.AddScoped(typeof(IApiService<>), typeof(ApiService<>));
+
+            // User Session
+            builder.Services.AddSingleton<IUserSession, UserSession>();
 
             // Business Services
             builder.Services.AddScoped<TaskItemService>();

@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Results;
-using System.Net.NetworkInformation;
 
 namespace Nutrition.Domain.Errors
 {

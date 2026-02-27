@@ -1,4 +1,4 @@
-using LifeSyncApp.ViewModels.Financial;
+using LifeSyncApp.ViewModels.Financial.Category;
 using System.Windows.Input;
 
 namespace LifeSyncApp.Views.Financial;

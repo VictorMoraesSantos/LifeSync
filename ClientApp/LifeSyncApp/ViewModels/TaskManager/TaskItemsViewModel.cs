@@ -1,8 +1,10 @@
-﻿using LifeSyncApp.DTOs.TaskManager.TaskItem;
+using LifeSyncApp.DTOs.TaskManager.TaskItem;
 using LifeSyncApp.DTOs.TaskManager.TaskLabel;
+using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Models.TaskManager.Enums;
 using LifeSyncApp.Services.TaskManager.Implementation;
+using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using static LifeSyncApp.ViewModels.TaskManager.FilterTaskItemViewModel;
@@ -13,33 +15,25 @@ namespace LifeSyncApp.ViewModels.TaskManager
     {
         private readonly TaskItemService _taskItemService;
         private readonly TaskLabelService _taskLabelService;
+        private readonly IUserSession _userSession;
         private bool _isLoadingTasks;
 
         // Cache management
         private DateTime? _lastTasksRefresh;
         private DateTime? _lastLabelsRefresh;
-        private const int CacheExpirationMinutes = 5;
 
         private ObservableCollection<TaskItem> _taskItems = new();
         public ObservableCollection<TaskItem> TaskItems
         {
             get => _taskItems;
-            set
-            {
-                _taskItems = value;
-                OnPropertyChanged(nameof(TaskItems));
-            }
+            set => SetProperty(ref _taskItems, value);
         }
 
         private ObservableCollection<TaskGroup> _groupedTasks = new();
         public ObservableCollection<TaskGroup> GroupedTasks
         {
             get => _groupedTasks;
-            set
-            {
-                _groupedTasks = value;
-                OnPropertyChanged(nameof(GroupedTasks));
-            }
+            set => SetProperty(ref _groupedTasks, value);
         }
 
         public FilterTaskItemViewModel FilterViewModel { get; private set; }
@@ -81,22 +75,14 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public bool IsManageTaskModalOpen
         {
             get => _isManageTaskModalOpen;
-            set
-            {
-                _isManageTaskModalOpen = value;
-                OnPropertyChanged(nameof(IsManageTaskModalOpen));
-            }
+            set => SetProperty(ref _isManageTaskModalOpen, value);
         }
 
         private bool _isFilterTaskModalOpen;
         public bool IsFilterTaskModalOpen
         {
             get => _isFilterTaskModalOpen;
-            set
-            {
-                _isFilterTaskModalOpen = value;
-                OnPropertyChanged(nameof(IsFilterTaskModalOpen));
-            }
+            set => SetProperty(ref _isFilterTaskModalOpen, value);
         }
 
         private int? _editingTaskId;
@@ -105,10 +91,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _editingTaskId;
             set
             {
-                if (_editingTaskId != value)
+                if (SetProperty(ref _editingTaskId, value))
                 {
-                    _editingTaskId = value;
-                    OnPropertyChanged(nameof(EditingTaskId));
                     OnPropertyChanged(nameof(IsEditMode));
                     OnPropertyChanged(nameof(ModalTitle));
                     OnPropertyChanged(nameof(SaveButtonText));
@@ -127,12 +111,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
             get => _newTaskTitle;
             set
             {
-                if (_newTaskTitle != value)
-                {
-                    _newTaskTitle = value;
-                    OnPropertyChanged(nameof(NewTaskTitle));
+                if (SetProperty(ref _newTaskTitle, value))
                     OnPropertyChanged(nameof(CanManageTask));
-                }
             }
         }
 
@@ -140,76 +120,42 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public string? NewTaskDescription
         {
             get => _newTaskDescription;
-            set
-            {
-                if (_newTaskDescription != value)
-                {
-                    _newTaskDescription = value;
-                    OnPropertyChanged(nameof(NewTaskDescription));
-                }
-            }
+            set => SetProperty(ref _newTaskDescription, value);
         }
 
         private TaskItem? _selectedTask;
         public TaskItem? SelectedTask
         {
             get => _selectedTask;
-            set
-            {
-                if (_selectedTask != value)
-                {
-                    _selectedTask = value;
-                    OnPropertyChanged(nameof(SelectedTask));
-                }
-            }
+            set => SetProperty(ref _selectedTask, value);
         }
 
         private Priority _newTaskPriority = Priority.Medium;
         public Priority NewTaskPriority
         {
             get => _newTaskPriority;
-            set
-            {
-                if (_newTaskPriority != value)
-                {
-                    _newTaskPriority = value;
-                    OnPropertyChanged(nameof(NewTaskPriority));
-                }
-            }
+            set => SetProperty(ref _newTaskPriority, value);
         }
 
         private DateTime _newTaskDueDate = DateTime.Today;
         public DateTime NewTaskDueDate
         {
             get => _newTaskDueDate;
-            set
-            {
-                if (_newTaskDueDate != value)
-                {
-                    _newTaskDueDate = value;
-                    OnPropertyChanged(nameof(NewTaskDueDate));
-                }
-            }
+            set => SetProperty(ref _newTaskDueDate, value);
         }
 
         private ObservableCollection<SelectableLabelItem> _availableLabels = new();
         public ObservableCollection<SelectableLabelItem> AvailableLabels
         {
             get => _availableLabels;
-            set
-            {
-                if (_availableLabels != value)
-                {
-                    _availableLabels = value;
-                    OnPropertyChanged(nameof(AvailableLabels));
-                }
-            }
+            set => SetProperty(ref _availableLabels, value);
         }
 
-        public TaskItemsViewModel(TaskItemService taskItemService, TaskLabelService taskLabelService)
+        public TaskItemsViewModel(TaskItemService taskItemService, TaskLabelService taskLabelService, IUserSession userSession)
         {
             _taskItemService = taskItemService;
             _taskLabelService = taskLabelService;
+            _userSession = userSession;
 
             GoToLabelsCommand = new Command(async () => await NavigateToTaskLabelPage());
             ToggleStatusCommand = new Command<TaskItem>(async (task) => await ToggleStatusAsync(task));
@@ -224,25 +170,20 @@ namespace LifeSyncApp.ViewModels.TaskManager
             DeleteTaskCommand = new Command(async () => await DeleteTaskAsync());
             OpenFiltersCommand = new Command(async () => await OpenFiltersModalAsync());
             ToggleLabelCommand = new Command<SelectableLabelItem>(ToggleLabel);
-            FilterViewModel = new FilterTaskItemViewModel(
-                onApplyFilters: (status, priority, dateFilter) =>
-                {
-                    _ = ApplyFiltersAsync(status, priority, dateFilter);
-                },
-                onCloseModal: async () => await Shell.Current.GoToAsync("..")
-            );
+
+            FilterViewModel = new FilterTaskItemViewModel();
+            FilterViewModel.FiltersApplied += (s, e) => _ = ApplyFiltersAsync(e.Status, e.Priority, e.DateFilter);
+            FilterViewModel.Closed += async (s, e) => await Shell.Current.GoToAsync("..");
         }
 
         public async Task LoadTasksAsync(bool forceRefresh = false)
         {
-            // Check cache validity - only refresh if cache is expired or forced
-            if (!forceRefresh && !IsTasksCacheExpired() && TaskItems.Any())
+            if (!forceRefresh && !IsCacheExpired(_lastTasksRefresh) && TaskItems.Any())
             {
                 System.Diagnostics.Debug.WriteLine("📦 Using cached tasks (not expired)");
                 return;
             }
 
-            // Avoid concurrent loads
             if (_isLoadingTasks)
             {
                 System.Diagnostics.Debug.WriteLine("⏳ Tasks already loading, skipping duplicate request");
@@ -255,7 +196,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 System.Diagnostics.Debug.WriteLine($"🔄 Loading tasks from API (forceRefresh: {forceRefresh})");
 
                 var query = new TaskItemFilterDTO(
-                    UserId: 22,
+                    UserId: _userSession.UserId,
                     Status: _currentStatusFilter,
                     Priority: _currentPriorityFilter,
                     DueDate: GetDueDateFromFilter(_currentDateFilter));
@@ -268,10 +209,9 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     .Select(g => new TaskGroup(g.Key, g))
                     .ToList();
 
-                TaskItems = new ObservableCollection<TaskItem>(taskList);
-                GroupedTasks = new ObservableCollection<TaskGroup>(grouped);
+                _taskItems.ReplaceAll(taskList);
+                _groupedTasks.ReplaceAll(grouped);
 
-                // Update cache timestamp
                 _lastTasksRefresh = DateTime.Now;
                 System.Diagnostics.Debug.WriteLine($"✅ Tasks loaded successfully ({taskList.Count} tasks). Cache updated.");
             }
@@ -292,23 +232,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             System.Diagnostics.Debug.WriteLine("🔃 Force refreshing tasks...");
             await LoadTasksAsync(forceRefresh: true);
-        }
-
-        /// <summary>
-        /// Check if tasks cache has expired
-        /// </summary>
-        private bool IsTasksCacheExpired()
-        {
-            if (_lastTasksRefresh == null)
-                return true;
-
-            var timeSinceLastRefresh = DateTime.Now - _lastTasksRefresh.Value;
-            bool expired = timeSinceLastRefresh.TotalMinutes >= CacheExpirationMinutes;
-
-            if (expired)
-                System.Diagnostics.Debug.WriteLine($"⏰ Tasks cache expired (last refresh: {timeSinceLastRefresh.TotalMinutes:F1} minutes ago)");
-
-            return expired;
         }
 
         /// <summary>
@@ -340,7 +263,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
-                // Invalida o cache para que novas etiquetas apareçam ao retornar
                 _lastLabelsRefresh = null;
                 await Shell.Current.GoToAsync("tasklabels");
             }
@@ -387,7 +309,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                 await _taskItemService.UpdateTaskItemAsync(task.Id, updatedItem);
 
-                // Invalidate cache after update
                 InvalidateTasksCache();
             }
             catch (Exception ex)
@@ -456,7 +377,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
             else
             {
-                var query = new TaskItemFilterDTO(UserId: 22);
+                var query = new TaskItemFilterDTO(UserId: _userSession.UserId);
                 var tasks = await _taskItemService.SearchTaskItemAsync(query);
                 var foundTask = tasks.FirstOrDefault(t => t.Id == taskId);
                 SelectedTask = foundTask;
@@ -473,8 +394,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
-                const int userId = 22;
-
                 if (IsEditMode)
                 {
                     var existingTask = _taskItems.FirstOrDefault(t => t.Id == EditingTaskId);
@@ -498,7 +417,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                     await _taskItemService.UpdateTaskItemAsync(EditingTaskId!.Value, updateDto);
 
-                    // Mantém cache válido: o estado local já foi atualizado corretamente
                     _lastTasksRefresh = DateTime.Now;
 
                     if (existingTask != null)
@@ -525,7 +443,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
                         SelectedTask.Labels = selectedLabels;
                         OnPropertyChanged(nameof(SelectedTask));
                     }
-
                 }
                 else
                 {
@@ -541,11 +458,10 @@ namespace LifeSyncApp.ViewModels.TaskManager
                         Description: NewTaskDescription ?? string.Empty,
                         Priority: NewTaskPriority,
                         DueDate: DateOnly.FromDateTime(NewTaskDueDate),
-                        UserId: userId,
+                        UserId: _userSession.UserId,
                         TaskLabelsId: selectedLabelIds.Count > 0 ? selectedLabelIds : null);
                     var newId = await _taskItemService.CreateTaskItemAsync(dto);
 
-                    // Mantém cache válido: a tarefa já foi inserida localmente via InsertTaskIntoGroups
                     _lastTasksRefresh = DateTime.Now;
 
                     var created = new TaskItem
@@ -568,7 +484,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
             catch (Exception ex)
             {
-
                 await Shell.Current.DisplayAlert("Erro", $"Não foi possível salvar a tarefa: {ex.Message}", "OK");
             }
         }
@@ -589,7 +504,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             {
                 await _taskItemService.DeleteTaskItemAsync(SelectedTask.Id).ConfigureAwait(false);
 
-                // Invalidate cache after delete
                 InvalidateTasksCache();
 
                 await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
@@ -605,27 +519,23 @@ namespace LifeSyncApp.ViewModels.TaskManager
         {
             try
             {
-                // Check if labels cache is still valid
-                if (!IsLabelsCacheExpired() && AvailableLabels.Any())
+                if (!IsCacheExpired(_lastLabelsRefresh) && AvailableLabels.Any())
                 {
                     System.Diagnostics.Debug.WriteLine("📦 Using cached labels (not expired)");
 
-                    // Just update selection state
                     foreach (var label in AvailableLabels)
-                    {
                         label.IsSelected = preSelectedIds?.Contains(label.Label.Id) ?? false;
-                    }
+
                     return;
                 }
 
                 System.Diagnostics.Debug.WriteLine("🔄 Loading labels from API");
-                var query = new TaskLabelFilterDTO(UserId: 22, SortBy: "name");
+                var query = new TaskLabelFilterDTO(UserId: _userSession.UserId, SortBy: "name");
                 var labels = await _taskLabelService.SearchTaskLabelAsync(query);
-                var selectableLabels = labels.Select(label => new SelectableLabelItem(label, isSelected: preSelectedIds?.Contains(label.Id) ?? false)).ToList();
+                var selectableLabels = labels.Select(label => new SelectableLabelItem(label, isSelected: preSelectedIds?.Contains(label.Id) ?? false));
 
-                AvailableLabels = new ObservableCollection<SelectableLabelItem>(selectableLabels);
+                _availableLabels.ReplaceAll(selectableLabels);
 
-                // Update labels cache timestamp
                 _lastLabelsRefresh = DateTime.Now;
                 System.Diagnostics.Debug.WriteLine($"✅ Labels loaded successfully ({labels.Count()} labels). Cache updated.");
             }
@@ -633,18 +543,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
             {
                 await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar etiquetas: {ex.Message}", "OK");
             }
-        }
-
-        /// <summary>
-        /// Check if labels cache has expired
-        /// </summary>
-        private bool IsLabelsCacheExpired()
-        {
-            if (_lastLabelsRefresh == null)
-                return true;
-
-            var timeSinceLastRefresh = DateTime.Now - _lastLabelsRefresh.Value;
-            return timeSinceLastRefresh.TotalMinutes >= CacheExpirationMinutes;
         }
 
         private void ToggleLabel(SelectableLabelItem labelItem)

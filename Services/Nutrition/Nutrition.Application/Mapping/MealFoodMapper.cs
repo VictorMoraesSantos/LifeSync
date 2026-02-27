@@ -35,7 +35,7 @@ namespace Nutrition.Application.Mapping
                 dto.MealId,
                 dto.FoodId,
                 dto.Quantity);
-            
+
             return entity;
         }
     }

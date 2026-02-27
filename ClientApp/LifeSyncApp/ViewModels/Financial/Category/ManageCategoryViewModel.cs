@@ -1,13 +1,14 @@
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.Services.Financial;
+using LifeSyncApp.Services.UserSession;
 using System.Windows.Input;
 
-namespace LifeSyncApp.ViewModels.Financial
+namespace LifeSyncApp.ViewModels.Financial.Category
 {
     public class ManageCategoryViewModel : BaseViewModel
     {
         private readonly CategoryService _categoryService;
-        private int _userId = 1;
+        private readonly IUserSession _userSession;
         private CategoryDTO? _category;
 
         private string _name = string.Empty;
@@ -48,9 +49,10 @@ namespace LifeSyncApp.ViewModels.Financial
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
-        public ManageCategoryViewModel(CategoryService categoryService)
+        public ManageCategoryViewModel(CategoryService categoryService, IUserSession userSession)
         {
             _categoryService = categoryService;
+            _userSession = userSession;
             Title = "Nova Categoria";
 
             SaveCommand = new Command(async () => await SaveAsync(), CanSave);
@@ -98,12 +100,12 @@ namespace LifeSyncApp.ViewModels.Financial
                     }
                     else
                     {
-                        await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível atualizar a categoria.", "OK");
+                        await Shell.Current.DisplayAlert("Erro", "Não foi possível atualizar a categoria.", "OK");
                     }
                 }
                 else
                 {
-                    var dto = new CreateCategoryDTO(_userId, Name, CategoryDescription);
+                    var dto = new CreateCategoryDTO(_userSession.UserId, Name, CategoryDescription);
                     var id = await _categoryService.CreateCategoryAsync(dto);
                     if (id.HasValue)
                     {
@@ -111,13 +113,13 @@ namespace LifeSyncApp.ViewModels.Financial
                     }
                     else
                     {
-                        await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível criar a categoria.", "OK");
+                        await Shell.Current.DisplayAlert("Erro", "Não foi possível criar a categoria.", "OK");
                     }
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível salvar a categoria. Verifique sua conexão e tente novamente.", "OK");
+                await Shell.Current.DisplayAlert("Erro", "Não foi possível salvar a categoria. Verifique sua conexão e tente novamente.", "OK");
             }
             finally
             {

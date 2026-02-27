@@ -2,9 +2,9 @@ using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Services.Financial;
 using System.Windows.Input;
 
-namespace LifeSyncApp.ViewModels.Financial
+namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
-    public class TransactionDetailViewModel : ViewModels.BaseViewModel
+    public class TransactionDetailViewModel : BaseViewModel
     {
         private readonly TransactionService _transactionService;
         private TransactionDTO? _transaction;
@@ -48,7 +48,7 @@ namespace LifeSyncApp.ViewModels.Financial
         {
             if (Transaction == null) return;
 
-            bool confirm = await Application.Current!.MainPage!.DisplayAlert(
+            bool confirm = await Shell.Current.DisplayAlert(
                 "Confirmar Exclusão",
                 "Tem certeza que deseja excluir esta transação?",
                 "Sim",
@@ -68,7 +68,7 @@ namespace LifeSyncApp.ViewModels.Financial
                 }
                 else
                 {
-                    await Application.Current!.MainPage!.DisplayAlert(
+                    await Shell.Current.DisplayAlert(
                         "Erro",
                         "Não foi possível excluir a transação.",
                         "OK");
@@ -76,7 +76,7 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert(
+                await Shell.Current.DisplayAlert(
                     "Erro",
                     "Ocorreu um erro ao excluir a transação.",
                     "OK");

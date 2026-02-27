@@ -1,8 +1,22 @@
-﻿using LifeSyncApp.Models.TaskManager.Enums;
+using LifeSyncApp.Models.TaskManager.Enums;
 using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.TaskManager
 {
+    public class FilterAppliedEventArgs : EventArgs
+    {
+        public Status? Status { get; }
+        public Priority? Priority { get; }
+        public DateFilterOption? DateFilter { get; }
+
+        public FilterAppliedEventArgs(Status? status, Priority? priority, DateFilterOption? dateFilter)
+        {
+            Status = status;
+            Priority = priority;
+            DateFilter = dateFilter;
+        }
+    }
+
     public class FilterTaskItemViewModel : BaseViewModel
     {
         public enum DateFilterOption
@@ -53,19 +67,16 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand ClearFiltersCommand { get; set; }
         public ICommand ApplyFiltersCommand { get; set; }
 
-        private Action<Status?, Priority?, DateFilterOption?> _onApplyFilters;
-        private Action _onCloseModal;
+        public event EventHandler<FilterAppliedEventArgs>? FiltersApplied;
+        public event EventHandler? Closed;
 
-        public FilterTaskItemViewModel(Action<Status?, Priority?, DateFilterOption?> onApplyFilters, Action onCloseModal)
+        public FilterTaskItemViewModel()
         {
-            _onApplyFilters = onApplyFilters;
-            _onCloseModal = onCloseModal;
-
             SelectedStatus = "";
             SelectedPriority = "";
             SelectedDateFilter = "";
 
-            CloseModalCommand = new Command(() => _onCloseModal?.Invoke());
+            CloseModalCommand = new Command(() => Closed?.Invoke(this, EventArgs.Empty));
             SelectStatusCommand = new Command<string>(SelectStatus);
             SelectPriorityCommand = new Command<string>(SelectPriority);
             SelectDateFilterCommand = new Command<string>(SelectDateFilter);
@@ -123,8 +134,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 _ => DateFilterOption.All
             };
 
-            _onApplyFilters?.Invoke(statusEnum, priorityEnum, dateFilterEnum);
-            _onCloseModal?.Invoke();
+            FiltersApplied?.Invoke(this, new FilterAppliedEventArgs(statusEnum, priorityEnum, dateFilterEnum));
+            Closed?.Invoke(this, EventArgs.Empty);
         }
     }
 }

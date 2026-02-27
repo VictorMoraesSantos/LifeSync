@@ -1,7 +1,9 @@
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
+using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -11,11 +13,10 @@ namespace LifeSyncApp.ViewModels.Financial
     {
         private readonly TransactionService _transactionService;
         private readonly CategoryService _categoryService;
-        private int _userId = 1;
+        private readonly IUserSession _userSession;
 
         private bool _isLoadingData;
         private DateTime? _lastDataRefresh;
-        private const int CacheExpirationMinutes = 5;
 
         private decimal _balance;
         private decimal _totalIncome;
@@ -86,10 +87,11 @@ namespace LifeSyncApp.ViewModels.Financial
         public ICommand RefreshCommand { get; }
         public ICommand OpenCategoryTransactionsCommand { get; }
 
-        public FinancialViewModel(TransactionService transactionService, CategoryService categoryService)
+        public FinancialViewModel(TransactionService transactionService, CategoryService categoryService, IUserSession userSession)
         {
             _transactionService = transactionService;
             _categoryService = categoryService;
+            _userSession = userSession;
             Title = "Financeiro";
 
             LoadDataCommand = new Command(async () => await LoadDataAsync());
@@ -108,7 +110,7 @@ namespace LifeSyncApp.ViewModels.Financial
 
         public async Task LoadDataAsync(bool forceRefresh = false)
         {
-            if (!forceRefresh && !IsDataCacheExpired() && RecentTransactions.Any()) return;
+            if (!forceRefresh && !IsCacheExpired(_lastDataRefresh) && RecentTransactions.Any()) return;
 
             if (_isLoadingData) return;
 
@@ -118,21 +120,17 @@ namespace LifeSyncApp.ViewModels.Financial
 
                 IsBusy = true;
 
-                var categories = await _categoryService.GetCategoriesByUserIdAsync(_userId);
-                Categories.Clear();
-                foreach (var category in categories)
-                    Categories.Add(category);
+                var categories = await _categoryService.GetCategoriesByUserIdAsync(_userSession.UserId);
+                Categories.ReplaceAll(categories);
 
                 var startOfMonth = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
-                var filter = new TransactionFilterDTO(UserId: _userId, TransactionDateFrom: startOfMonth, TransactionDateTo: endOfMonth);
+                var filter = new TransactionFilterDTO(UserId: _userSession.UserId, TransactionDateFrom: startOfMonth, TransactionDateTo: endOfMonth);
                 var transactions = await _transactionService.SearchTransactionsAsync(filter);
 
                 CalculateStatistics(transactions);
 
-                RecentTransactions.Clear();
-                foreach (var transaction in transactions.OrderByDescending(t => t.TransactionDate).Take(5))
-                    RecentTransactions.Add(transaction);
+                RecentTransactions.ReplaceAll(transactions.OrderByDescending(t => t.TransactionDate).Take(5));
 
                 CalculateTopCategories(transactions);
 
@@ -140,20 +138,13 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", "Ocorreu um erro inesperado", "OK");
+                await Shell.Current.DisplayAlert("Erro", "Ocorreu um erro inesperado", "OK");
             }
             finally
             {
                 _isLoadingData = false;
                 IsBusy = false;
             }
-        }
-
-        private bool IsDataCacheExpired()
-        {
-            if (_lastDataRefresh == null) return true;
-
-            return (DateTime.Now - _lastDataRefresh.Value).TotalMinutes >= CacheExpirationMinutes;
         }
 
         public void InvalidateDataCache()
@@ -194,10 +185,7 @@ namespace LifeSyncApp.ViewModels.Financial
                 .OrderByDescending(c => c.Amount)
                 .Take(5);
 
-            TopCategories.Clear();
-
-            foreach (var category in categoryGroups)
-                TopCategories.Add(category);
+            TopCategories.ReplaceAll(categoryGroups);
         }
 
         private async Task OpenManageTransactionModalAsync()
@@ -208,7 +196,7 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
             }
         }
 
@@ -220,7 +208,7 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", $"Não foi possível abrir categorias: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir categorias: {ex.Message}", "OK");
             }
         }
 
@@ -248,7 +236,7 @@ namespace LifeSyncApp.ViewModels.Financial
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
 
             var filter = new TransactionFilterDTO(
-                UserId: _userId,
+                UserId: _userSession.UserId,
                 CategoryId: category.CategoryId,
                 TransactionType: TransactionType.Expense,
                 TransactionDateFrom: startOfMonth,
@@ -260,14 +248,5 @@ namespace LifeSyncApp.ViewModels.Financial
                 { "Filter", filter }
             });
         }
-    }
-
-    public class CategoryExpense
-    {
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public double Percentage { get; set; }
-        public double ProgressValue => Percentage / 100.0;
     }
 }

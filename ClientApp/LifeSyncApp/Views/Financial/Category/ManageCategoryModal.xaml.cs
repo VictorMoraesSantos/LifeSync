@@ -1,5 +1,5 @@
 using LifeSyncApp.DTOs.Financial.Category;
-using LifeSyncApp.ViewModels.Financial;
+using LifeSyncApp.ViewModels.Financial.Category;
 
 namespace LifeSyncApp.Views.Financial;
 

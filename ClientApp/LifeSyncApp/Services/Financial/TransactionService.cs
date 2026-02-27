@@ -1,3 +1,4 @@
+using LifeSyncApp.DTOs.Common;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -28,7 +29,7 @@ namespace LifeSyncApp.Services.Financial
                     return new List<TransactionDTO>();
 
                 var result =
-                    await response.Content.ReadFromJsonAsync<ApiResponse<List<TransactionDTO>>>(_jsonOptions,
+                    await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<TransactionDTO>>>(_jsonOptions,
                         cancellationToken);
                 return result?.Data ?? new List<TransactionDTO>();
             }
@@ -51,7 +52,7 @@ namespace LifeSyncApp.Services.Financial
                     return null;
 
                 var result =
-                    await response.Content.ReadFromJsonAsync<ApiResponse<TransactionDTO>>(_jsonOptions,
+                    await response.Content.ReadFromJsonAsync<ApiSingleResponse<TransactionDTO>>(_jsonOptions,
                         cancellationToken);
                 return result?.Data;
             }
@@ -75,7 +76,7 @@ namespace LifeSyncApp.Services.Financial
                     return new List<TransactionDTO>();
 
                 var result =
-                    await response.Content.ReadFromJsonAsync<ApiResponse<List<TransactionDTO>>>(_jsonOptions,
+                    await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<TransactionDTO>>>(_jsonOptions,
                         cancellationToken);
                 return result?.Data ?? new List<TransactionDTO>();
             }
@@ -103,7 +104,7 @@ namespace LifeSyncApp.Services.Financial
                 }
 
                 var result =
-                    await response.Content.ReadFromJsonAsync<ApiResponse<int>>(_jsonOptions, cancellationToken);
+                    await response.Content.ReadFromJsonAsync<ApiSingleResponse<int>>(_jsonOptions, cancellationToken);
                 return result?.Data;
             }
             catch (Exception ex)
@@ -182,11 +183,5 @@ namespace LifeSyncApp.Services.Financial
             return string.Join("&", parameters);
         }
 
-        private class ApiResponse<T>
-        {
-            public T? Data { get; set; }
-            public bool IsSuccess { get; set; }
-            public string? Message { get; set; }
-        }
     }
 }

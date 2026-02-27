@@ -11,7 +11,7 @@ namespace Nutrition.Application.Features.MealFood.Commands.Create
 
             RuleFor(command => command.FoodId)
                 .GreaterThan(0).WithMessage("O ID do alimento deve ser maior que zero.");
-            
+
             RuleFor(command => command.Quantity)
                 .GreaterThan(0).WithMessage("A quantidade em gramas deve ser maior que zero.");
         }

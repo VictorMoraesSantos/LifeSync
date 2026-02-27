@@ -196,7 +196,7 @@ namespace Nutrition.Infrastructure.Services
         {
             try
             {
-                if (dto == null) 
+                if (dto == null)
                     return Result.Failure<bool>(Error.NullValue);
 
                 var entity = await _liquidRepository.GetById(dto.Id, cancellationToken);

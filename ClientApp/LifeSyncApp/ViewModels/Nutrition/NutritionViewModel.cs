@@ -2,7 +2,9 @@ using LifeSyncApp.DTOs.Nutrition.DailyProgress;
 using LifeSyncApp.DTOs.Nutrition.Diary;
 using LifeSyncApp.DTOs.Nutrition.Liquid;
 using LifeSyncApp.DTOs.Nutrition.Meal;
+using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Nutrition;
+using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -11,11 +13,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
     public class NutritionViewModel : BaseViewModel
     {
         private readonly NutritionService _nutritionService;
-        private int _userId = 1; // TODO: Obter do contexto de autenticação
+        private readonly IUserSession _userSession;
 
         private Task? _loadingTask;
         private DateTime? _lastDataRefresh;
-        private const int CacheExpirationMinutes = 5;
 
         private DiaryDTO? _todayDiary;
         private DailyProgressDTO? _dailyProgress;
@@ -125,9 +126,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public ICommand AddQuickLiquidCommand { get; }
         public ICommand OpenManageGoalModalCommand { get; }
 
-        public NutritionViewModel(NutritionService nutritionService)
+        public NutritionViewModel(NutritionService nutritionService, IUserSession userSession)
         {
             _nutritionService = nutritionService;
+            _userSession = userSession;
             Title = "Nutrição";
             TodayDate = DateTime.Today.ToString("dd 'de' MMMM", new System.Globalization.CultureInfo("pt-BR"));
 
@@ -150,7 +152,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         public Task LoadDataAsync(bool forceRefresh = false)
         {
-            if (!forceRefresh && !IsDataCacheExpired() && (Meals.Any() || Liquids.Any()))
+            if (!forceRefresh && !IsCacheExpired(_lastDataRefresh) && (Meals.Any() || Liquids.Any()))
                 return Task.CompletedTask;
 
             // If a load is already in progress, await it instead of starting a new one
@@ -170,15 +172,15 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 var today = DateOnly.FromDateTime(DateTime.Today);
 
                 // Load diary, progress in parallel
-                var diariesTask = _nutritionService.GetDiariesByUserIdAsync(_userId);
-                var progressTask = _nutritionService.GetDailyProgressByUserIdAsync(_userId);
+                var diariesTask = _nutritionService.GetDiariesByUserIdAsync(_userSession.UserId);
+                var progressTask = _nutritionService.GetDailyProgressByUserIdAsync(_userSession.UserId);
                 await Task.WhenAll(diariesTask, progressTask);
 
                 // Handle diary
                 var todayDiary = diariesTask.Result.FirstOrDefault(d => d.Date == today);
                 if (todayDiary == null)
                 {
-                    var diaryId = await _nutritionService.CreateDiaryAsync(new CreateDiaryDTO(_userId, today));
+                    var diaryId = await _nutritionService.CreateDiaryAsync(new CreateDiaryDTO(_userSession.UserId, today));
                     if (diaryId.HasValue)
                         todayDiary = await _nutritionService.GetDiaryByIdAsync(diaryId.Value);
                 }
@@ -189,11 +191,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 if (todayProgress == null)
                 {
                     var progressId = await _nutritionService.CreateDailyProgressAsync(
-                        new CreateDailyProgressDTO(_userId, today));
+                        new CreateDailyProgressDTO(_userSession.UserId, today));
                     if (progressId.HasValue)
                     {
                         // Reload the list to get the new entry
-                        var updated = await _nutritionService.GetDailyProgressByUserIdAsync(_userId);
+                        var updated = await _nutritionService.GetDailyProgressByUserIdAsync(_userSession.UserId);
                         todayProgress = updated.FirstOrDefault(p => p.Date == today);
                     }
                 }
@@ -214,15 +216,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     await Task.WhenAll(mealsTask, liquidsTask);
 
                     var meals = mealsTask.Result;
-                    Meals.Clear();
-                    foreach (var meal in meals)
-                        Meals.Add(meal);
+                    Meals.ReplaceAll(meals);
                     CaloriesConsumed = meals.Sum(m => m.TotalCalories);
 
                     var liquids = liquidsTask.Result;
-                    Liquids.Clear();
-                    foreach (var liquid in liquids)
-                        Liquids.Add(liquid);
+                    Liquids.ReplaceAll(liquids);
                     LiquidsConsumedMl = liquids.Sum(l => l.QuantityMl);
                 }
 
@@ -238,12 +236,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        private bool IsDataCacheExpired()
-        {
-            if (_lastDataRefresh == null) return true;
-            return (DateTime.Now - _lastDataRefresh.Value).TotalMinutes >= CacheExpirationMinutes;
-        }
-
         public void InvalidateDataCache()
         {
             _lastDataRefresh = null;
@@ -257,7 +249,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             if (TodayDiary == null)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível carregar o diário. Verifique sua conexão.", "OK");
+                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o diário. Verifique sua conexão.", "OK");
                 return;
             }
 
@@ -270,7 +262,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
             }
         }
 
@@ -286,14 +278,14 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", $"Não foi possível abrir a refeição: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir a refeição: {ex.Message}", "OK");
             }
         }
 
         private async Task DeleteMealAsync(MealDTO? meal)
         {
             if (meal == null) return;
-            var confirm = await Application.Current!.MainPage!.DisplayAlert(
+            var confirm = await Shell.Current.DisplayAlert(
                 "Confirmar", $"Deseja remover a refeição '{meal.Name}'?", "Sim", "Não");
             if (!confirm) return;
 
@@ -309,7 +301,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             if (TodayDiary == null)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível carregar o diário. Verifique sua conexão.", "OK");
+                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o diário. Verifique sua conexão.", "OK");
                 return;
             }
 
@@ -326,7 +318,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
             }
         }
 
@@ -360,7 +352,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             if (DailyProgress == null)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível carregar o progresso diário. Verifique sua conexão.", "OK");
+                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o progresso diário. Verifique sua conexão.", "OK");
                 return;
             }
 
@@ -373,7 +365,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
             }
         }
     }

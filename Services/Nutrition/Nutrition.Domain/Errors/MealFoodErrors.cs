@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Results;
-using Microsoft.AspNetCore.Http;
 
 namespace Nutrition.Domain.Errors
 {

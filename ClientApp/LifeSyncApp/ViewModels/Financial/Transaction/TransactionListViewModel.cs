@@ -1,30 +1,18 @@
 using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Helpers;
+using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
+using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace LifeSyncApp.ViewModels.Financial
+namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
-    public class TransactionGroup : ObservableCollection<TransactionDTO>
-    {
-        public DateTime Date { get; }
-        public string DateDisplay { get; }
-        public string TransactionCountDisplay { get; }
-
-        public TransactionGroup(DateTime date, IEnumerable<TransactionDTO> transactions) : base(transactions)
-        {
-            Date = date;
-            DateDisplay = date.ToString("dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("pt-BR"));
-            var count = this.Count;
-            TransactionCountDisplay = count == 1 ? "1 transação" : $"{count} transações";
-        }
-    }
-
     [QueryProperty(nameof(Filter), "Filter")]
-    public class TransactionListViewModel : ViewModels.BaseViewModel
+    public class TransactionListViewModel : BaseViewModel
     {
         private readonly TransactionService _transactionService;
-        private int _userId = 1;
+        private readonly IUserSession _userSession;
         private TransactionFilterDTO _currentFilter = new();
         private bool _filterSetFromNavigation = false;
 
@@ -49,9 +37,10 @@ namespace LifeSyncApp.ViewModels.Financial
         public ICommand OpenDetailCommand { get; }
         public ICommand OpenFilterCommand { get; }
 
-        public TransactionListViewModel(TransactionService transactionService)
+        public TransactionListViewModel(TransactionService transactionService, IUserSession userSession)
         {
             _transactionService = transactionService;
+            _userSession = userSession;
             Title = "Transações";
 
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
@@ -73,6 +62,16 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private async Task LoadTransactionsAsync()
         {
+            await FetchAndGroupTransactionsAsync("Ocorreu um erro ao carreagar as transações.");
+        }
+
+        private async Task ApplyFilterAsync()
+        {
+            await FetchAndGroupTransactionsAsync("Ocorreu um erro ao aplicar o filtro.");
+        }
+
+        private async Task FetchAndGroupTransactionsAsync(string errorMsg)
+        {
             if (IsBusy) return;
 
             IsBusy = true;
@@ -81,7 +80,7 @@ namespace LifeSyncApp.ViewModels.Financial
             {
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-                var filter = _currentFilter with { UserId = _userId };
+                var filter = _currentFilter with { UserId = _userSession.UserId };
                 var transactions = await _transactionService.SearchTransactionsAsync(filter, cts.Token);
                 var groups = transactions
                     .OrderByDescending(t => t.TransactionDate)
@@ -89,17 +88,11 @@ namespace LifeSyncApp.ViewModels.Financial
                     .Select(g => new TransactionGroup(g.Key, g))
                     .ToList();
 
-                GroupedTransactions.Clear();
-
-                foreach (var group in groups)
-                    GroupedTransactions.Add(group);
+                GroupedTransactions.ReplaceAll(groups);
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert(
-                    "Erro",
-                    "Ocorreu um erro ao carreagar as transações.",
-                    "OK");
+                await Shell.Current.DisplayAlert("Erro", errorMsg, "OK");
             }
             finally
             {
@@ -128,41 +121,6 @@ namespace LifeSyncApp.ViewModels.Financial
             {
                 { "ExistingFilter", _currentFilter }
             });
-        }
-
-        private async Task ApplyFilterAsync()
-        {
-            if (IsBusy) return;
-
-            IsBusy = true;
-            try
-            {
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-
-                var filter = _currentFilter with { UserId = _userId };
-                var transactions = await _transactionService.SearchTransactionsAsync(filter, cts.Token);
-                var groups = transactions
-                    .OrderByDescending(t => t.TransactionDate)
-                    .GroupBy(t => t.TransactionDate.Date)
-                    .Select(g => new TransactionGroup(g.Key, g))
-                    .ToList();
-
-                GroupedTransactions.Clear();
-
-                foreach (var group in groups)
-                    GroupedTransactions.Add(group);
-            }
-            catch (Exception ex)
-            {
-                await Application.Current!.MainPage!.DisplayAlert(
-                    "Erro",
-                    "Ocorreu um erro ao aplicar o filtro.",
-                    "OK");
-            }
-            finally
-            {
-                IsBusy = false;
-            }
         }
     }
 }

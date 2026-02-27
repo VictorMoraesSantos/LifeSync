@@ -2,8 +2,8 @@
 
 **Projeto:** LifeSync
 **Serviço:** Nutrition
-**Versão:** 1.0
-**Data:** 2026-02-22
+**Versão:** 1.1
+**Data:** 2026-02-24
 **Arquitetura:** Clean Architecture + CQRS + Domain Events
 **Runtime:** .NET (ASP.NET Core)
 **Banco de Dados:** PostgreSQL
@@ -37,6 +37,8 @@
 11. [Tratamento de Erros](#11-tratamento-de-erros)
 12. [Padrões Arquiteturais](#12-padrões-arquiteturais)
 13. [Schema do Banco de Dados](#13-schema-do-banco-de-dados)
+14. [Catálogo de Alimentos — Data Seeder](#14-catálogo-de-alimentos--data-seeder)
+15. [Histórico de Alterações](#15-histórico-de-alterações)
 
 ---
 
@@ -46,8 +48,10 @@ O **Nutrition Microservice** é responsável por toda a gestão nutricional dos 
 
 - **Diários nutricionais** (`Diaries`) — registro diário de alimentação por usuário
 - **Refeições** (`Meals`) — agrupamento de alimentos consumidos em uma refeição
-- **Alimentos da refeição** (`MealFoods`) — itens individuais com dados nutricionais completos
-- **Líquidos** (`Liquids`) — controle de hidratação diária
+- **Alimentos da refeição** (`MealFoods`) — vínculo entre uma refeição e um alimento do catálogo, com quantidade consumida
+- **Catálogo de alimentos** (`Foods`) — tabela de alimentos com dados nutricionais completos, populada via CSV no startup
+- **Tipos de líquidos** (`LiquidType`) — catálogo de tipos de bebidas (água, suco, etc.)
+- **Líquidos** (`Liquids`) — controle de hidratação diária, associados a um tipo de líquido
 - **Progresso diário** (`DailyProgresses`) — acompanhamento de metas calóricas e de hidratação
 
 O serviço expõe uma API REST protegida por JWT e segue os princípios de Clean Architecture com CQRS (Command Query Responsibility Segregation) e Domain Events para manter a consistência entre agregados.
@@ -92,7 +96,9 @@ Services/Nutrition/
 │   │   ├── Diary.cs
 │   │   ├── Meal.cs
 │   │   ├── MealFood.cs
+│   │   ├── Food.cs                         # ← NOVO: catálogo de alimentos
 │   │   ├── Liquid.cs
+│   │   ├── LiquidType.cs                   # ← NOVO: tipos de líquidos
 │   │   └── DailyProgress.cs
 │   ├── ValueObjects/
 │   │   └── DailyGoal.cs
@@ -118,10 +124,13 @@ Services/Nutrition/
     │       ├── LiquidRepository.cs
     │       └── DailyProgressRepository.cs
     ├── DataSeeders/
-    │   ├── TablesCsvSeeder.cs
-    │   ├── MealFoodCsvDTO.cs
-    │   ├── MealFoodMap.cs
-    │   └── SeederHostedService.cs
+    │   ├── Csv/
+    │   │   ├── CsvFiles/
+    │   │   │   └── Food.csv               # Dados nutricionais do catálogo de alimentos
+    │   │   ├── FoodCsvRow.cs              # DTO de leitura do CSV
+    │   │   └── FoodMap.cs                 # Mapeamento de colunas CSV (CsvHelper ClassMap)
+    │   ├── TablesCsvSeeder.cs             # Semeia a tabela Foods a partir do CSV
+    │   └── SeederHostedService.cs         # IHostedService: executa o seeder no startup
     ├── Migrations/
     └── DependencyInjection.cs
 ```
@@ -173,7 +182,7 @@ app.MapControllers()
 
 ### Data Seeding
 
-Um `SeederHostedService` executa automaticamente na inicialização e popula a tabela de alimentos (`MealFoods`) a partir de um arquivo CSV usando `CsvHelper`.
+Um `SeederHostedService` executa automaticamente na inicialização e popula a tabela de alimentos (`Foods`) a partir de um arquivo CSV usando `CsvHelper`. O seeder só executa se a tabela estiver vazia (operação idempotente). O arquivo CSV está em `DataSeeders/Csv/CsvFiles/Food.csv` com delimitador `;` e contém os campos: `Name`, `Calories`, `Protein`, `Lipids`, `Carbohydrates`, `Calcium`, `Magnesium`, `Iron`, `Sodium`, `Potassium`.
 
 ### Injeção de Dependência — Infrastructure
 
@@ -538,67 +547,51 @@ record MealQueryFilterDTO : DomainQueryFilterDTO
 
 ### 6.3 MealFood DTOs
 
+> **Mudança arquitetural (v1.1):** `MealFood` não armazena mais dados nutricionais diretamente. Ele referencia um `Food` do catálogo centralizado via `FoodId`. Os dados nutricionais são retornados no DTO ao consultar, mas o cadastro só exige `MealId`, `FoodId` e `Quantity`.
+
 #### CreateMealFoodCommand (Requisição — POST /meal-foods)
 
 ```csharp
 record CreateMealFoodCommand
 {
-    int Code,                  // Código do alimento (tabela TACO/IBGE)
-    string Name,               // Nome do alimento
-    int Calories,              // Calorias por unidade (kcal)
-    decimal Protein,           // Proteínas (g)
-    decimal Lipids,            // Lipídios/Gorduras (g)
-    decimal Carbohydrates,     // Carboidratos (g)
-    decimal Calcium,           // Cálcio (mg)
-    decimal Magnesium,         // Magnésio (mg)
-    decimal Iron,              // Ferro (mg)
-    decimal Sodium,            // Sódio (mg)
-    decimal Potassium,         // Potássio (mg)
-    int Quantity               // Quantidade consumida
+    int MealId,    // ID da refeição à qual o alimento pertence
+    int FoodId,    // ID do alimento no catálogo (tabela Foods)
+    int Quantity   // Quantidade consumida (unidades)
 }
 ```
 
 **Exemplo JSON:**
 ```json
 {
-  "code": 101,
-  "name": "Arroz branco cozido",
-  "calories": 128,
-  "protein": 2.5,
-  "lipids": 0.2,
-  "carbohydrates": 28.1,
-  "calcium": 4.0,
-  "magnesium": 9.0,
-  "iron": 0.1,
-  "sodium": 1.0,
-  "potassium": 37.0,
+  "mealId": 3,
+  "foodId": 101,
   "quantity": 2
 }
 ```
 
-**Resposta:** `int` — ID do alimento criado
+**Resposta:** `int` — ID do MealFood criado
 
 ---
 
 #### CreateMealFoodDTO (Requisição — POST /meals/{mealId}/foods)
 
-Usado para adicionar um alimento diretamente a uma refeição:
+Usado para adicionar um alimento diretamente a uma refeição através do endpoint de Meals:
 
 ```csharp
 record CreateMealFoodDTO
 {
-    int Code,
-    string Name,
-    int Calories,
-    decimal Protein,
-    decimal Lipids,
-    decimal Carbohydrates,
-    decimal Calcium,
-    decimal Magnesium,
-    decimal Iron,
-    decimal Sodium,
-    decimal Potassium,
-    int Quantity
+    int MealId,    // ID da refeição
+    int FoodId,    // ID do alimento no catálogo
+    int Quantity   // Quantidade consumida
+}
+```
+
+**Exemplo JSON:**
+```json
+{
+  "mealId": 3,
+  "foodId": 101,
+  "quantity": 2
 }
 ```
 
@@ -611,19 +604,17 @@ record CreateMealFoodDTO
 ```csharp
 record UpdateMealFoodCommand
 {
-    int Id,
-    int Code,
-    string Name,
-    int Calories,
-    decimal Protein,
-    decimal Lipids,
-    decimal Carbohydrates,
-    decimal Calcium,
-    decimal Magnesium,
-    decimal Iron,
-    decimal Sodium,
-    decimal Potassium,
-    int Quantity
+    int Id,        // ID do MealFood a atualizar
+    int FoodId,    // Novo alimento do catálogo
+    int Quantity   // Nova quantidade consumida
+}
+```
+
+**Exemplo JSON:**
+```json
+{
+  "foodId": 205,
+  "quantity": 3
 }
 ```
 
@@ -633,25 +624,28 @@ record UpdateMealFoodCommand
 
 #### MealFoodDTO (Resposta)
 
+O DTO de resposta é enriquecido com todos os dados nutricionais do `Food` relacionado (via join na camada de mapeamento):
+
 ```csharp
 record MealFoodDTO : DTOBase
 {
     int Id,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
-    int Code,                      // Código do alimento
-    string Name,                   // Nome do alimento
-    int Calories,                  // Calorias por unidade
-    decimal? Protein,
-    decimal? Lipids,
-    decimal? Carbohydrates,
-    decimal? Calcium,
-    decimal? Magnesium,
-    decimal? Iron,
-    decimal? Sodium,
-    decimal? Potassium,
+    int MealId,                    // ID da refeição
+    int FoodId,                    // ID do alimento no catálogo
+    string Name,                   // Nome do alimento (de Food)
+    int Calories,                  // Calorias por unidade (de Food, kcal)
+    decimal? Protein,              // Proteínas (g) — de Food
+    decimal? Lipids,               // Lipídios/Gorduras (g) — de Food
+    decimal? Carbohydrates,        // Carboidratos (g) — de Food
+    decimal? Calcium,              // Cálcio (mg) — de Food
+    decimal? Magnesium,            // Magnésio (mg) — de Food
+    decimal? Iron,                 // Ferro (mg) — de Food
+    decimal? Sodium,               // Sódio (mg) — de Food
+    decimal? Potassium,            // Potássio (mg) — de Food
     int? Quantity,                 // Quantidade consumida
-    decimal? TotalCalories         // Calculado: Calories * Quantity
+    decimal? TotalCalories         // Calculado: Quantity * Food.Calories
 }
 ```
 
@@ -659,9 +653,10 @@ record MealFoodDTO : DTOBase
 ```json
 {
   "id": 10,
-  "createdAt": "2026-02-22T12:05:00Z",
+  "createdAt": "2026-02-24T12:05:00Z",
   "updatedAt": null,
-  "code": 101,
+  "mealId": 3,
+  "foodId": 101,
   "name": "Arroz branco cozido",
   "calories": 128,
   "protein": 2.5,
@@ -708,15 +703,16 @@ record MealFoodQueryFilterDTO : DomainQueryFilterDTO
 
 ### 6.4 Liquid DTOs
 
+> **Mudança arquitetural (v1.1):** `Liquid` não armazena mais o nome diretamente nem tem campo `CaloriesPerMl`. Ele agora referencia um `LiquidType` via `LiquidTypeId`. O campo `QuantityMl` foi renomeado para `Quantity`.
+
 #### CreateLiquidCommand (Requisição — POST /liquids)
 
 ```csharp
 record CreateLiquidCommand
 {
     int DiaryId,           // ID do diário ao qual o líquido pertence
-    string Name,           // Nome do líquido (ex: "Água", "Suco de laranja")
-    int QuantityMl,        // Quantidade em mililitros
-    int CaloriesPerMl      // Calorias por mililitro (0 para água)
+    int LiquidTypeId,      // ID do tipo de líquido (catálogo LiquidType)
+    int Quantity           // Quantidade consumida (ml)
 }
 ```
 
@@ -724,9 +720,8 @@ record CreateLiquidCommand
 ```json
 {
   "diaryId": 1,
-  "name": "Água",
-  "quantityMl": 500,
-  "caloriesPerMl": 0
+  "liquidTypeId": 1,
+  "quantity": 500
 }
 ```
 
@@ -740,9 +735,16 @@ record CreateLiquidCommand
 record UpdateLiquidCommand
 {
     int Id,
-    string Name,
-    int QuantityMl,
-    int CaloriesPerMl
+    int LiquidTypeId,      // Novo tipo de líquido
+    int Quantity           // Nova quantidade
+}
+```
+
+**Exemplo JSON:**
+```json
+{
+  "liquidTypeId": 2,
+  "quantity": 350
 }
 ```
 
@@ -759,10 +761,8 @@ record LiquidDTO : DTOBase
     int DiaryId,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
-    string Name,
-    int QuantityMl,
-    int CaloriesPerMl,
-    int TotalCalories          // Calculado: QuantityMl * CaloriesPerMl
+    string Name,           // Nome do tipo de líquido (de LiquidType)
+    int Quantity           // Quantidade consumida (ml)
 }
 ```
 
@@ -771,12 +771,10 @@ record LiquidDTO : DTOBase
 {
   "id": 7,
   "diaryId": 1,
-  "createdAt": "2026-02-22T09:00:00Z",
+  "createdAt": "2026-02-24T09:00:00Z",
   "updatedAt": null,
   "name": "Água",
-  "quantityMl": 500,
-  "caloriesPerMl": 0,
-  "totalCalories": 0
+  "quantity": 500
 }
 ```
 
@@ -1010,10 +1008,8 @@ public class Diary : BaseEntity<int>
     public DateOnly Date { get; private set; }
 
     // Propriedades calculadas
-    public int TotalCalories
-        => _liquids.Sum(l => l.TotalCalories) + _meals.Sum(m => m.TotalCalories)
-    public int TotalLiquidsMl
-        => _liquids.Sum(l => l.QuantityMl)
+    public int TotalCalories => _meals.Sum(m => m.TotalCalories)
+    public int TotalLiquidsMl => _liquids.Sum(l => l.Quantity)
 
     // Coleções privadas (encapsulamento do domínio)
     private readonly List<Meal> _meals = new();
@@ -1023,13 +1019,15 @@ public class Diary : BaseEntity<int>
     public IReadOnlyCollection<Liquid> Liquids => _liquids.AsReadOnly()
 
     // Métodos de domínio
-    void AddMeal(Meal meal)
+    void AddMeal(Meal meal)        // publica MealAddedToDiaryEvent
     void RemoveMeal(Meal meal)
     void AddLiquid(Liquid liquid)
     void RemoveLiquid(Liquid liquid)
     void UpdateDate(DateOnly newDate)
 }
 ```
+
+**Observação:** `TotalCalories` do `Diary` é calculado apenas a partir das refeições (`Meals`). Os líquidos não somam calorias ao total do diário (essa lógica foi removida com a refatoração de `Liquid`).
 
 ---
 
@@ -1042,9 +1040,8 @@ public class Meal : BaseEntity<int>
     public string Description { get; private set; }
     public int DiaryId { get; private set; }
 
-    // TotalCalories = soma de (Calories * Quantity) de cada MealFood
-    public int TotalCalories
-        => _mealFoods?.Sum(i => i.Calories * i.Quantity) ?? 0
+    // TotalCalories = soma de (Food.Calories * MealFood.Quantity) de cada MealFood
+    public int TotalCalories => _mealFoods?.Sum(i => i.Food.Calories * i.Quantity) ?? 0
 
     private readonly List<MealFood> _mealFoods = new();
     public IReadOnlyCollection<MealFood> MealFoods => _mealFoods.AsReadOnly()
@@ -1052,8 +1049,30 @@ public class Meal : BaseEntity<int>
     // Métodos de domínio
     void SetDiaryId(int diaryId)
     void Update(string name, string description)
-    void AddMealFood(MealFood mealFood)
-    void RemoveMealFood(int mealFoodId)
+    void AddMealFood(MealFood mealFood)    // publica MealFoodAddedEvent
+    void RemoveMealFood(int mealFoodId)    // publica MealFoodRemovedEvent
+}
+```
+
+---
+
+### Food (Entidade — Catálogo de Alimentos) ← NOVO
+
+Representa um alimento do catálogo nutricional. Populado automaticamente via CSV no startup. Não é modificado pela API diretamente.
+
+```csharp
+public class Food : BaseEntity<int>
+{
+    public string Name { get; set; }
+    public int Calories { get; set; }          // kcal por unidade
+    public decimal? Protein { get; set; }      // g
+    public decimal? Lipids { get; set; }       // g
+    public decimal? Carbohydrates { get; set; }// g
+    public decimal? Calcium { get; set; }      // mg
+    public decimal? Magnesium { get; set; }    // mg
+    public decimal? Iron { get; set; }         // mg
+    public decimal? Sodium { get; set; }       // mg
+    public decimal? Potassium { get; set; }    // mg
 }
 ```
 
@@ -1061,30 +1080,32 @@ public class Meal : BaseEntity<int>
 
 ### MealFood (Entidade)
 
+`MealFood` é a entidade de junção entre `Meal` e `Food`. Armazena apenas a quantidade consumida; os dados nutricionais vêm do `Food` relacionado via navigation property.
+
 ```csharp
 public class MealFood : BaseEntity<int>
 {
-    public int Code { get; private set; }              // Código da tabela nutricional
-    public string Name { get; private set; }
-    public int Calories { get; private set; }          // Calorias por unidade (kcal)
-    public decimal? Protein { get; set; }              // g
-    public decimal? Lipids { get; set; }               // g
-    public decimal? Carbohydrates { get; set; }        // g
-    public decimal? Calcium { get; set; }              // mg
-    public decimal? Magnesium { get; set; }            // mg
-    public decimal? Iron { get; set; }                 // mg
-    public decimal? Sodium { get; set; }               // mg
-    public decimal? Potassium { get; set; }            // mg
-    public int? Quantity { get; private set; }
+    public int MealId { get; private set; }
+    public int FoodId { get; private set; }        // FK para Food
+    public Food Food { get; private set; }          // Navigation property
+    public int Quantity { get; private set; }       // Quantidade consumida (unidades)
 
-    // TotalCalories = Quantity * Calories
-    public decimal TotalCalories => (decimal)(Quantity * Calories)
+    // TotalCalories = Quantity * Food.Calories (decimal)
+    public decimal TotalCalories => Quantity * Food.Calories
 
     // Métodos de domínio
-    void Update(int code, string name, int calories, decimal? protein,
-                decimal? lipids, decimal? carbohydrates, decimal? calcium,
-                decimal? magnesium, decimal? iron, decimal? sodium,
-                decimal? potassium, int quantity)
+    void Update(int foodId, int quantity)
+}
+```
+
+---
+
+### LiquidType (Entidade — Catálogo de Tipos de Líquidos) ← NOVO
+
+```csharp
+public class LiquidType : BaseEntity<int>
+{
+    public string Name { get; private set; }   // Ex: "Água", "Suco de laranja", "Leite"
 }
 ```
 
@@ -1095,19 +1116,16 @@ public class MealFood : BaseEntity<int>
 ```csharp
 public class Liquid : BaseEntity<int>
 {
-    public string Name { get; private set; }
-    public int QuantityMl { get; private set; }
-    public int CaloriesPerMl { get; private set; } = 0   // Padrão: 0 (água)
     public int DiaryId { get; private set; }
-
-    // TotalCalories = QuantityMl * CaloriesPerMl
-    public int TotalCalories => QuantityMl * CaloriesPerMl
+    public int LiquidTypeId { get; set; }          // FK para LiquidType
+    public LiquidType LiquidType { get; set; }      // Navigation property
+    public int Quantity { get; private set; }       // Quantidade em ml
 
     // Métodos de domínio
-    void Update(string name, int quantityMl, int caloriesPerMl)
-    void SetName(string name)
-    void SetQuantityMl(int quantityMl)
-    void SetCaloriesPerMl(int caloriesPerMl)
+    void Update(int liquidTypeId, int quantity)
+    void SetDiaryId(int diaryId)
+    void SetLiquidTypeId(int liquidTypeId)
+    void SetQuantity(int quantity)
 }
 ```
 
@@ -1183,15 +1201,15 @@ O microserviço implementa o padrão CQRS com MediatR. Todos os comandos e queri
 #### MealFood Commands
 | Command | Parâmetros | Retorno |
 |---------|------------|---------|
-| `CreateMealFoodCommand` | Todos os campos nutricionais + Quantity | `CreateMealFoodResult(int Id)` |
-| `UpdateMealFoodCommand` | Id + todos os campos nutricionais | `UpdateMealFoodResult(bool IsSuccess)` |
+| `CreateMealFoodCommand` | `MealId: int, FoodId: int, Quantity: int` | `CreateMealFoodResult(int Id)` |
+| `UpdateMealFoodCommand` | `Id: int, FoodId: int, Quantity: int` | `UpdateMealFoodResult(bool IsSuccess)` |
 | `DeleteMealFoodCommand` | `Id: int` | `DeleteMealFoodResult(bool IsSuccess)` |
 
 #### Liquid Commands
 | Command | Parâmetros | Retorno |
 |---------|------------|---------|
-| `CreateLiquidCommand` | `DiaryId: int, Name: string, QuantityMl: int, CaloriesPerMl: int` | `CreateLiquidResult(int Id)` |
-| `UpdateLiquidCommand` | `Id: int, Name: string, QuantityMl: int, CaloriesPerMl: int` | `UpdateLiquidResult(bool IsSuccess)` |
+| `CreateLiquidCommand` | `DiaryId: int, LiquidTypeId: int, Quantity: int` | `CreateLiquidResult(int Id)` |
+| `UpdateLiquidCommand` | `Id: int, LiquidTypeId: int, Quantity: int` | `UpdateLiquidResult(bool IsSuccess)` |
 | `DeleteLiquidCommand` | `Id: int` | `DeleteLiquidResult(bool IsSuccess)` |
 
 #### DailyProgress Commands
@@ -1316,13 +1334,16 @@ public class ApplicationDbContext : DbContext
     public DbSet<Liquid> Liquids { get; set; }
     public DbSet<Meal> Meals { get; set; }
     public DbSet<MealFood> MealFoods { get; set; }
+    public DbSet<Food> Foods { get; set; }           // ← NOVO: catálogo de alimentos
     public DbSet<DailyProgress> DailyProgresses { get; set; }
 }
 ```
 
 **Configurações especiais:**
 - `DailyProgress.Goal` (Value Object `DailyGoal`) mapeado como **Owned Entity**
-- Colunas: `CaloriesGoal` e `LiquidsGoalMl`
+  - `CaloriesGoal` → coluna da meta calórica
+  - `LiquidsGoalMl` → coluna da meta de hidratação
+- `LiquidType` é mapeado implicitamente como tabela via navigation property em `Liquid`
 
 ---
 
@@ -1354,12 +1375,17 @@ As migrations são aplicadas automaticamente via `MigrationHostedService` na ini
 |-----------|------|-----------|
 | `20250509212314_initialcreate2` | 2025-05-09 | Schema inicial |
 | `20250522054150_update` | 2025-05-22 | Atualizações de schema |
-| `20250523010414_update22` | 2025-05-23 | Atualizações complementares |
+| `20250522063142_update1` | 2025-05-22 | Atualizações complementares |
+| `20250523010414_update22` | 2025-05-23 | Atualizações adicionais |
+| `20250523010658_update222` | 2025-05-23 | Atualizações adicionais |
+| `20250523010818_update2222` | 2025-05-23 | Atualizações adicionais |
 | `20250523222623_updatedb` | 2025-05-23 | Atualizações de banco |
 | `20250524234610_update333` | 2025-05-24 | Ajustes adicionais |
-| `20260222035020_addFoodTable` | 2026-02-22 | Adição da tabela de alimentos |
-| `20260222052323_addFoodTable2` | 2026-02-22 | Refinamentos da tabela de alimentos |
-| `20260222052834_addFoodTable3` | 2026-02-22 | Ajustes finais da tabela de alimentos |
+| `20260222035020_addFoodTable` | 2026-02-22 | Adiciona campos nutricionais e `Code` em `MealFoods` |
+| `20260222052323_addFoodTable2` | 2026-02-22 | Refinamentos em `MealFoods` |
+| `20260222052834_addFoodTable3` | 2026-02-22 | Ajustes finais em `MealFoods` |
+| `20260224025721_addFood` | 2026-02-24 | **Refatoração:** cria tabela `Foods` e `LiquidType`; remove campos nutricionais de `MealFoods`; renomeia `Code` → `FoodId`; remove `Name`/`QuantityMl`/`CaloriesPerMl` de `Liquids`; renomeia para `LiquidTypeId`/`Quantity` |
+| `20260224034026_addFood1` | 2026-02-24 | Adiciona `CreatedAt`, `UpdatedAt`, `IsDeleted` na tabela `Foods` |
 
 ---
 
@@ -1466,6 +1492,31 @@ Nutrition.Infrastructure
 ### Tabelas
 
 ```sql
+-- Catálogo de alimentos (populado via CSV no startup)
+Foods
+  Id              SERIAL PRIMARY KEY
+  Name            TEXT NOT NULL
+  Calories        INT NOT NULL           -- kcal por unidade
+  Protein         DECIMAL                -- g (nullable)
+  Lipids          DECIMAL                -- g (nullable)
+  Carbohydrates   DECIMAL                -- g (nullable)
+  Calcium         DECIMAL                -- mg (nullable)
+  Magnesium       DECIMAL                -- mg (nullable)
+  Iron            DECIMAL                -- mg (nullable)
+  Sodium          DECIMAL                -- mg (nullable)
+  Potassium       DECIMAL                -- mg (nullable)
+  CreatedAt       TIMESTAMP NOT NULL
+  UpdatedAt       TIMESTAMP
+  IsDeleted       BOOLEAN DEFAULT FALSE
+
+-- Catálogo de tipos de líquidos
+LiquidType
+  Id          SERIAL PRIMARY KEY
+  Name        TEXT NOT NULL
+  CreatedAt   TIMESTAMP NOT NULL
+  UpdatedAt   TIMESTAMP
+  IsDeleted   BOOLEAN DEFAULT FALSE
+
 -- Diários nutricionais
 Diaries
   Id          SERIAL PRIMARY KEY
@@ -1485,33 +1536,22 @@ Meals
   UpdatedAt   TIMESTAMP
   IsDeleted   BOOLEAN DEFAULT FALSE
 
--- Alimentos de refeição (pertence a um Meal)
+-- Alimentos de refeição: vínculo Meal ↔ Food com quantidade
 MealFoods
-  Id              SERIAL PRIMARY KEY
-  MealId          INT REFERENCES Meals(Id)
-  Code            INT NOT NULL
-  Name            VARCHAR NOT NULL
-  Calories        INT NOT NULL
-  Protein         DECIMAL
-  Lipids          DECIMAL
-  Carbohydrates   DECIMAL
-  Calcium         DECIMAL
-  Magnesium       DECIMAL
-  Iron            DECIMAL
-  Sodium          DECIMAL
-  Potassium       DECIMAL
-  Quantity        INT
-  CreatedAt       TIMESTAMP NOT NULL
-  UpdatedAt       TIMESTAMP
-  IsDeleted       BOOLEAN DEFAULT FALSE
+  Id          SERIAL PRIMARY KEY
+  MealId      INT NOT NULL REFERENCES Meals(Id) ON DELETE CASCADE
+  FoodId      INT NOT NULL REFERENCES Foods(Id) ON DELETE CASCADE
+  Quantity    INT NOT NULL               -- Quantidade consumida (unidades)
+  CreatedAt   TIMESTAMP NOT NULL
+  UpdatedAt   TIMESTAMP
+  IsDeleted   BOOLEAN DEFAULT FALSE
 
--- Líquidos (pertence a um Diary)
+-- Líquidos (pertence a um Diary, referencia LiquidType)
 Liquids
   Id              SERIAL PRIMARY KEY
   DiaryId         INT NOT NULL REFERENCES Diaries(Id)
-  Name            VARCHAR NOT NULL
-  QuantityMl      INT NOT NULL
-  CaloriesPerMl   INT NOT NULL DEFAULT 0
+  LiquidTypeId    INT NOT NULL REFERENCES LiquidType(Id) ON DELETE CASCADE
+  Quantity        INT NOT NULL           -- Quantidade em ml
   CreatedAt       TIMESTAMP NOT NULL
   UpdatedAt       TIMESTAMP
   IsDeleted       BOOLEAN DEFAULT FALSE
@@ -1523,8 +1563,8 @@ DailyProgresses
   Date                DATE NOT NULL
   CaloriesConsumed    INT NOT NULL DEFAULT 0
   LiquidsConsumedMl   INT NOT NULL DEFAULT 0
-  CaloriesGoal        INT NOT NULL DEFAULT 0     -- DailyGoal.Calories (Owned)
-  LiquidsGoalMl       INT NOT NULL DEFAULT 0     -- DailyGoal.QuantityMl (Owned)
+  CaloriesGoal        INT NOT NULL DEFAULT 0     -- DailyGoal.Calories (Owned Entity)
+  LiquidsGoalMl       INT NOT NULL DEFAULT 0     -- DailyGoal.QuantityMl (Owned Entity)
   CreatedAt           TIMESTAMP NOT NULL
   UpdatedAt           TIMESTAMP
   IsDeleted           BOOLEAN DEFAULT FALSE
@@ -1533,20 +1573,126 @@ DailyProgresses
 ### Relacionamentos
 
 ```
-Diary 1 ──────── N Meal
-Diary 1 ──────── N Liquid
-Meal  1 ──────── N MealFood
-DailyProgress 1 ─ 1 DailyGoal (Owned, sem tabela própria)
+Foods    1 ──────── N MealFood
+Meals    1 ──────── N MealFood
+Diary    1 ──────── N Meal
+Diary    1 ──────── N Liquid
+LiquidType 1 ─────  N Liquid
+DailyProgress 1 ─── 1 DailyGoal (Owned Entity, sem tabela própria)
 ```
 
 ### Campos calculados (não persistidos)
 
 | Entidade | Campo | Cálculo |
 |----------|-------|---------|
-| `MealFood` | `TotalCalories` | `Quantity * Calories` |
-| `Meal` | `TotalCalories` | `SUM(MealFood.TotalCalories)` |
-| `Liquid` | `TotalCalories` | `QuantityMl * CaloriesPerMl` |
-| `Diary` | `TotalCalories` | `SUM(Meal.TotalCalories) + SUM(Liquid.TotalCalories)` |
-| `Diary` | `TotalLiquidsMl` | `SUM(Liquid.QuantityMl)` |
-| `DailyProgress` | `GetCaloriesProgressPercentage()` | `(CaloriesConsumed / Goal.Calories) * 100` |
-| `DailyProgress` | `GetLiquidsProgressPercentage()` | `(LiquidsConsumedMl / Goal.QuantityMl) * 100` |
+| `MealFood` | `TotalCalories` | `Quantity * Food.Calories` (decimal) |
+| `Meal` | `TotalCalories` | `SUM(MealFood.Food.Calories * MealFood.Quantity)` |
+| `Diary` | `TotalCalories` | `SUM(Meal.TotalCalories)` |
+| `Diary` | `TotalLiquidsMl` | `SUM(Liquid.Quantity)` |
+| `DailyProgress` | `GetCaloriesProgressPercentage()` | `Min((CaloriesConsumed / Goal.Calories) * 100, 100)` |
+| `DailyProgress` | `GetLiquidsProgressPercentage()` | `Min((LiquidsConsumedMl / Goal.QuantityMl) * 100, 100)` |
+| `DailyProgress` | `IsGoalMet()` | `IsCaloriesGoalMet() && IsLiquidsGoalMet()` |
+
+---
+
+## 14. Catálogo de Alimentos — Data Seeder
+
+### Visão Geral
+
+O serviço utiliza um catálogo centralizado de alimentos (`Foods`) que é populado automaticamente no startup a partir de um arquivo CSV. Esse catálogo é a fonte de verdade para os dados nutricionais usados nos `MealFoods`.
+
+### Fluxo de execução
+
+```
+Startup
+  └── SeederHostedService.StartAsync()
+        └── TablesCsvSeeder.SeedAsync()
+              ├── Verifica se Foods já tem registros (idempotente)
+              ├── Lê: DataSeeders/Csv/CsvFiles/Food.csv
+              ├── Processa com CsvHelper (delimitador: ";")
+              ├── Registra o ClassMap: FoodMap → FoodCsvRow
+              └── Insere todos os registros em Foods via SaveChangesAsync()
+```
+
+### Estrutura do CSV (`Food.csv`)
+
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `Name` | string | Nome do alimento |
+| `Calories` | int | Calorias por unidade (kcal) |
+| `Protein` | decimal? | Proteínas (g) |
+| `Lipids` | decimal? | Lipídios/Gorduras (g) |
+| `Carbohydrates` | decimal? | Carboidratos (g) |
+| `Calcium` | decimal? | Cálcio (mg) |
+| `Magnesium` | decimal? | Magnésio (mg) |
+| `Iron` | decimal? | Ferro (mg) |
+| `Sodium` | decimal? | Sódio (mg) |
+| `Potassium` | decimal? | Potássio (mg) |
+
+### Classes envolvidas
+
+| Classe | Localização | Responsabilidade |
+|--------|-------------|-----------------|
+| `FoodCsvRow` | `DataSeeders/Csv/FoodCsvRow.cs` | DTO que representa uma linha do CSV |
+| `FoodMap` | `DataSeeders/Csv/FoodMap.cs` | `ClassMap<FoodCsvRow>` — mapeia colunas CSV para propriedades |
+| `TablesCsvSeeder` | `DataSeeders/TablesCsvSeeder.cs` | Orquestra a leitura do CSV e persistência no banco |
+| `SeederHostedService` | `DataSeeders/SeederHostedService.cs` | `IHostedService` que executa o seeder no startup |
+
+### Registro no DI
+
+```csharp
+// Infrastructure/DependencyInjection.cs
+services.AddScoped<TablesCsvSeeder>();
+services.AddHostedService<SeederHostedService>();
+```
+
+---
+
+## 15. Histórico de Alterações
+
+### v1.1 — 2026-02-24
+
+#### Refatoração: Separação do catálogo de alimentos (`Food`)
+
+**Motivação:** Antes, cada `MealFood` armazenava todos os dados nutricionais diretamente (nome, calorias, proteínas, etc.), gerando duplicação massiva de dados. A refatoração centraliza esses dados em uma entidade `Food` separada.
+
+**Mudanças no domínio:**
+- **Nova entidade `Food`** — catálogo de alimentos com todos os atributos nutricionais
+- **`MealFood` simplificado** — agora armazena apenas `MealId`, `FoodId` e `Quantity`; obtém dados nutricionais via navigation property `Food`
+- **`TotalCalories` em `MealFood`** — mudou de `int` para `decimal` (resultado de `Quantity * Food.Calories`)
+
+**Mudanças no banco de dados:**
+- Tabela `MealFoods`: removidos campos `Name`, `Code`, `Calories`, `Protein`, `Lipids`, `Carbohydrates`, `Calcium`, `Magnesium`, `Iron`, `Sodium`, `Potassium`; adicionado `FoodId` (FK → `Foods`)
+- Nova tabela `Foods` com todos os campos nutricionais + `CreatedAt`, `UpdatedAt`, `IsDeleted`
+- Migrations: `20260224025721_addFood`, `20260224034026_addFood1`
+
+**Mudanças nos DTOs:**
+- `CreateMealFoodCommand`: era (dados nutricionais + Quantity) → agora `(MealId, FoodId, Quantity)`
+- `CreateMealFoodDTO`: mesma mudança
+- `UpdateMealFoodCommand`: era (Id + dados nutricionais) → agora `(Id, FoodId, Quantity)`
+- `MealFoodDTO`: adicionado `MealId`; dados nutricionais agora vêm do `Food` relacionado
+
+#### Refatoração: Tipos de líquidos (`LiquidType`)
+
+**Motivação:** `Liquid` armazenava o nome do líquido diretamente como string. A refatoração cria um catálogo de tipos de líquidos reutilizável.
+
+**Mudanças no domínio:**
+- **Nova entidade `LiquidType`** — catálogo de tipos de líquidos (`Id`, `Name`)
+- **`Liquid` refatorado** — campo `Name` removido; `CaloriesPerMl` renomeado para `LiquidTypeId` (FK); `QuantityMl` renomeado para `Quantity`
+
+**Mudanças no banco de dados:**
+- Tabela `Liquids`: removido `Name`; `CaloriesPerMl` → `LiquidTypeId` (FK → `LiquidType`); `QuantityMl` → `Quantity`
+- Nova tabela `LiquidType`
+
+**Mudanças nos DTOs:**
+- `CreateLiquidCommand`: era `(DiaryId, Name, QuantityMl, CaloriesPerMl)` → agora `(DiaryId, LiquidTypeId, Quantity)`
+- `UpdateLiquidCommand`: era `(Id, Name, QuantityMl, CaloriesPerMl)` → agora `(Id, LiquidTypeId, Quantity)`
+- `LiquidDTO`: removido `QuantityMl` e `CaloriesPerMl`; adicionado `Quantity`; `Name` agora vem do `LiquidType`
+
+#### Data Seeder refatorado
+
+- **Antes:** seeder tentava popular `MealFoods` diretamente
+- **Depois:** seeder popula a tabela `Foods` com dados do catálogo nutricional
+- Novo arquivo CSV: `DataSeeders/Csv/CsvFiles/Food.csv`
+- Novas classes: `FoodCsvRow`, `FoodMap` (em `DataSeeders/Csv/`)
+- Classes removidas: `MealFoodCsvDTO`, `MealFoodMap`
