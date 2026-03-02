@@ -1,149 +1,162 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial.Category"
              x:Class="LifeSyncApp.Views.Financial.ManageCategoryModal"
              x:DataType="viewmodel:ManageCategoryViewModel"
              Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
-    <Grid BackgroundColor="#66000000">
+    <Grid BackgroundColor="{StaticResource FinDimOverlay}">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
         </Grid.GestureRecognizers>
 
+        <!-- Bottom Sheet -->
         <Border VerticalOptions="End"
                 HorizontalOptions="Fill"
-                BackgroundColor="White"
+                BackgroundColor="{StaticResource FinCardBg}"
                 StrokeThickness="0"
-                StrokeShape="RoundRectangle 16,16,0,0" >
-
+                StrokeShape="RoundRectangle 24,24,0,0">
             <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,-25" Radius="50" Opacity="0.25"/>
+                <Shadow Brush="#1A1918" Offset="0,-4" Radius="24" Opacity="0.08"/>
             </Border.Shadow>
 
             <Border.GestureRecognizers>
                 <TapGestureRecognizer/>
             </Border.GestureRecognizers>
 
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto">
-                <Grid Grid.Row="0"
-                      ColumnDefinitions="*, Auto"
-                      Padding="16,12" >
+            <VerticalStackLayout Spacing="0">
 
-                    <Label Text="{Binding Title}"
-                           FontSize="16"
+                <!-- Drag Handle -->
+                <HorizontalStackLayout HorizontalOptions="Center"
+                                       Padding="0,12,0,4">
+                    <BoxView WidthRequest="40"
+                             HeightRequest="4"
+                             CornerRadius="100"
+                             Color="#D1D0CD"/>
+                </HorizontalStackLayout>
+
+                <!-- Sheet Header -->
+                <Grid ColumnDefinitions="*,Auto"
+                      Padding="24,0">
+                    <Label Grid.Column="0"
+                           Text="{Binding Title}"
+                           FontSize="22"
                            FontAttributes="Bold"
-                           TextColor="#111"
+                           TextColor="{StaticResource FinDark}"
                            VerticalOptions="Center"/>
 
-                    <ImageButton Grid.Column="1"
-                                 Source="close.svg"
-                                 BackgroundColor="Transparent"
-                                 Padding="8"
-                                 Command="{Binding CancelCommand}" />
-                </Grid>
-
-                <BoxView Grid.Row="0"
-                         VerticalOptions="End"
-                         HeightRequest="1"
-                         BackgroundColor="#E5E5E5"/>
-
-                <ScrollView Grid.Row="1">
-                    <VerticalStackLayout Padding="20" Spacing="20">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Nome da Categoria"
-                                   FontSize="14"
-                                   TextColor="#525252"/>
-
-                            <Border BackgroundColor="White"
-                                    Padding="12, 0"
-                                    StrokeThickness="1"
-                                    Stroke="#E5E7EB"
-                                    StrokeShape="RoundRectangle 10">
-
-                                <Entry Text="{Binding Name}"
-                                       Placeholder="Ex: Alimentação, Transporte, Saúde..."
-                                       PlaceholderColor="#9CA3AF"
-                                       TextColor="#171717"
-                                       FontSize="16"
-                                       BackgroundColor="Transparent"/>
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Descrição (opcional)"
-                                   FontSize="14"
-                                   TextColor="#525252"/>
-
-                            <Border BackgroundColor="White"
-                                    StrokeThickness="1"
-                                    Stroke="#E5E5E5"
-                                    Padding="12, 0"
-                                    StrokeShape="RoundRectangle 10"
-                                    HeightRequest="90">
-
-                                <Editor Text="{Binding CategoryDescription}"
-                                        Placeholder="Ex: Gastos com supermercado, restaurantes e delivery"
-                                        PlaceholderColor="#9CA3AF"
-                                        TextColor="#171717"
-                                        FontSize="16"
-                                        BackgroundColor="Transparent"
-                                        AutoSize="TextChanges"/>
-                            </Border>
-                        </VerticalStackLayout>
-                    </VerticalStackLayout>
-                </ScrollView>
-
-                <BoxView Grid.Row="2"
-                         HeightRequest="1"
-                         BackgroundColor="#E5E5E5"/>
-
-                <Grid Grid.Row="3"
-                      Padding="20,17,20,20"
-                      ColumnDefinitions="*,*"
-                      ColumnSpacing="12">
-
-                    <Border Grid.Column="0"
-                            HeightRequest="50"
-                            StrokeShape="RoundRectangle 10"
-                            Stroke="#E5E5E5"
-                            StrokeThickness="1"
-                            BackgroundColor="White">
+                    <Border Grid.Column="1"
+                            WidthRequest="32"
+                            HeightRequest="32"
+                            StrokeShape="RoundRectangle 100"
+                            Stroke="Transparent"
+                            BackgroundColor="{StaticResource FinSurface}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
                         </Border.GestureRecognizers>
-
-                        <Label Text="Cancelar"
-                               FontSize="16"
-                               TextColor="#404040"
+                        <Image Source="close.svg"
+                               WidthRequest="18"
+                               HeightRequest="18"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"/>
                     </Border>
-
-                    <Border Grid.Column="1"
-                            StrokeShape="RoundRectangle 10"
-                            Stroke="Transparent"
-                            BackgroundColor="#171717">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding SaveCommand}"/>
-                        </Border.GestureRecognizers>
-
-                        <HorizontalStackLayout Spacing="8"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center">
-                            <Image Source="add.svg"
-                                   WidthRequest="16"
-                                   HeightRequest="16"/>
-
-                            <Label Text="{Binding ActionButtonText}"
-                                   FontSize="16"
-                                   TextColor="White"
-                                   VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-                    </Border>
                 </Grid>
-            </Grid>
+
+                <!-- Form Area -->
+                <VerticalStackLayout Padding="24,20,24,24"
+                                     Spacing="20">
+
+                    <!-- Nome Field -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Nome da Categoria"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource FinDark}"/>
+
+                        <Border BackgroundColor="{StaticResource FinCardBg}"
+                                StrokeThickness="1"
+                                Stroke="{StaticResource FinBorder}"
+                                Padding="16,0"
+                                HeightRequest="48"
+                                StrokeShape="RoundRectangle 12">
+                            <Entry Text="{Binding Name}"
+                                   Placeholder="Ex: Alimentação, Transporte, Saúde..."
+                                   PlaceholderColor="#9C9B99"
+                                   TextColor="{StaticResource FinDark}"
+                                   FontSize="14"
+                                   BackgroundColor="Transparent"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Descrição Field -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Descrição (opcional)"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource FinDark}"/>
+
+                        <Border BackgroundColor="{StaticResource FinCardBg}"
+                                StrokeThickness="1"
+                                Stroke="{StaticResource FinBorder}"
+                                Padding="16,0"
+                                HeightRequest="48"
+                                StrokeShape="RoundRectangle 12">
+                            <Entry Text="{Binding CategoryDescription}"
+                                   Placeholder="Ex: Gastos com supermercado, restaurantes e..."
+                                   PlaceholderColor="#9C9B99"
+                                   TextColor="{StaticResource FinDark}"
+                                   FontSize="14"
+                                   BackgroundColor="Transparent"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Action Buttons -->
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12">
+
+                        <Border Grid.Column="0"
+                                HeightRequest="48"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="1"
+                                Stroke="{StaticResource FinBorder}"
+                                BackgroundColor="{StaticResource FinCardBg}"
+                                Padding="24,0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Cancelar"
+                                   FontSize="15"
+                                   TextColor="{StaticResource FinSecondaryText}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                HeightRequest="48"
+                                StrokeShape="RoundRectangle 12"
+                                Stroke="Transparent"
+                                BackgroundColor="{StaticResource FinGreen}"
+                                Padding="24,0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center">
+                                <Image Source="add.svg"
+                                       WidthRequest="18"
+                                       HeightRequest="18"/>
+                                <Label Text="{Binding ActionButtonText}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="White"/>
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
         </Border>
     </Grid>
 </ContentPage>

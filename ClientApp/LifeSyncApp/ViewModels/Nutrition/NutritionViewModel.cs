@@ -6,6 +6,7 @@ using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
@@ -14,17 +15,21 @@ namespace LifeSyncApp.ViewModels.Nutrition
     {
         private readonly NutritionService _nutritionService;
         private readonly IUserSession _userSession;
+        private static readonly CultureInfo PtBr = new("pt-BR");
 
         private Task? _loadingTask;
         private DateTime? _lastDataRefresh;
+        private DateOnly _selectedDate;
 
         private DiaryDTO? _todayDiary;
         private DailyProgressDTO? _dailyProgress;
         private int _caloriesConsumed;
         private int _caloriesGoal = 2000;
         private int _liquidsConsumedMl;
-        private int _liquidsGoalMl = 2000;
-        private string _todayDate = string.Empty;
+        private int _liquidsGoalMl = 2500;
+        private string _dateLabel = string.Empty;
+        private int _mealsCount;
+        private int _liquidsCount;
 
         public DiaryDTO? TodayDiary
         {
@@ -38,6 +43,25 @@ namespace LifeSyncApp.ViewModels.Nutrition
             set => SetProperty(ref _dailyProgress, value);
         }
 
+        public DateOnly SelectedDate
+        {
+            get => _selectedDate;
+            set
+            {
+                if (SetProperty(ref _selectedDate, value))
+                {
+                    UpdateDateLabel();
+                    _ = LoadDataAsync(forceRefresh: true);
+                }
+            }
+        }
+
+        public string DateLabel
+        {
+            get => _dateLabel;
+            set => SetProperty(ref _dateLabel, value);
+        }
+
         public int CaloriesConsumed
         {
             get => _caloriesConsumed;
@@ -46,7 +70,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 SetProperty(ref _caloriesConsumed, value);
                 OnPropertyChanged(nameof(CaloriesPercentage));
                 OnPropertyChanged(nameof(CaloriesProgressValue));
-                OnPropertyChanged(nameof(CaloriesDetail));
+                OnPropertyChanged(nameof(CaloriesDisplay));
             }
         }
 
@@ -58,7 +82,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 SetProperty(ref _caloriesGoal, value);
                 OnPropertyChanged(nameof(CaloriesPercentage));
                 OnPropertyChanged(nameof(CaloriesProgressValue));
-                OnPropertyChanged(nameof(CaloriesDetail));
+                OnPropertyChanged(nameof(CaloriesDisplay));
+                OnPropertyChanged(nameof(CaloriesGoalDisplay));
             }
         }
 
@@ -70,7 +95,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
             ? Math.Min(CaloriesConsumed / (double)CaloriesGoal, 1.0)
             : 0.0;
 
-        public string CaloriesDetail => $"{CaloriesConsumed} / {CaloriesGoal} kcal";
+        public string CaloriesDisplay => $"{CaloriesConsumed:N0}";
+        public string CaloriesGoalDisplay => $"de {CaloriesGoal:N0} kcal";
 
         public int LiquidsConsumedMl
         {
@@ -80,7 +106,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 SetProperty(ref _liquidsConsumedMl, value);
                 OnPropertyChanged(nameof(LiquidsPercentage));
                 OnPropertyChanged(nameof(LiquidsProgressValue));
-                OnPropertyChanged(nameof(LiquidsDetail));
+                OnPropertyChanged(nameof(LiquidsDisplay));
             }
         }
 
@@ -92,7 +118,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 SetProperty(ref _liquidsGoalMl, value);
                 OnPropertyChanged(nameof(LiquidsPercentage));
                 OnPropertyChanged(nameof(LiquidsProgressValue));
-                OnPropertyChanged(nameof(LiquidsDetail));
+                OnPropertyChanged(nameof(LiquidsDisplay));
+                OnPropertyChanged(nameof(LiquidsGoalDisplay));
             }
         }
 
@@ -104,45 +131,59 @@ namespace LifeSyncApp.ViewModels.Nutrition
             ? Math.Min(LiquidsConsumedMl / (double)LiquidsGoalMl, 1.0)
             : 0.0;
 
-        public string LiquidsDetail => $"{LiquidsConsumedMl}ml / {LiquidsGoalMl}ml";
+        public string LiquidsDisplay => $"{LiquidsConsumedMl:N0}";
+        public string LiquidsGoalDisplay => $"de {LiquidsGoalMl:N0} ml";
 
-        public string TodayDate
+        public int MealsCount
         {
-            get => _todayDate;
-            set => SetProperty(ref _todayDate, value);
+            get => _mealsCount;
+            set => SetProperty(ref _mealsCount, value);
+        }
+
+        public int LiquidsCount
+        {
+            get => _liquidsCount;
+            set => SetProperty(ref _liquidsCount, value);
         }
 
         public ObservableCollection<MealDTO> Meals { get; } = new();
-        public ObservableCollection<LiquidDTO> Liquids { get; } = new();
 
         public ICommand LoadDataCommand { get; }
         public ICommand RefreshCommand { get; }
+        public ICommand PreviousDayCommand { get; }
+        public ICommand NextDayCommand { get; }
         public ICommand OpenManageMealModalCommand { get; }
         public ICommand OpenMealDetailCommand { get; }
-        public ICommand DeleteMealCommand { get; }
-        public ICommand OpenManageLiquidModalCommand { get; }
-        public ICommand OpenEditLiquidModalCommand { get; }
-        public ICommand DeleteLiquidCommand { get; }
-        public ICommand AddQuickLiquidCommand { get; }
-        public ICommand OpenManageGoalModalCommand { get; }
+        public ICommand OpenDiaryDetailCommand { get; }
+        public ICommand OpenDailyProgressCommand { get; }
+        public ICommand OpenDiaryHistoryCommand { get; }
 
         public NutritionViewModel(NutritionService nutritionService, IUserSession userSession)
         {
             _nutritionService = nutritionService;
             _userSession = userSession;
             Title = "Nutrição";
-            TodayDate = DateTime.Today.ToString("dd 'de' MMMM", new System.Globalization.CultureInfo("pt-BR"));
+            _selectedDate = DateOnly.FromDateTime(DateTime.Today);
+            UpdateDateLabel();
 
             LoadDataCommand = new Command(async () => await LoadDataAsync());
             RefreshCommand = new Command(async () => await LoadDataAsync(forceRefresh: true));
+            PreviousDayCommand = new Command(() => SelectedDate = SelectedDate.AddDays(-1));
+            NextDayCommand = new Command(() => SelectedDate = SelectedDate.AddDays(1));
             OpenManageMealModalCommand = new Command(async () => await OpenManageMealModalAsync());
             OpenMealDetailCommand = new Command<MealDTO>(async (m) => await OpenMealDetailAsync(m));
-            DeleteMealCommand = new Command<MealDTO>(async (m) => await DeleteMealAsync(m));
-            OpenManageLiquidModalCommand = new Command(async () => await OpenManageLiquidModalAsync(null));
-            OpenEditLiquidModalCommand = new Command<LiquidDTO>(async (l) => await OpenManageLiquidModalAsync(l));
-            DeleteLiquidCommand = new Command<LiquidDTO>(async (l) => await DeleteLiquidAsync(l));
-            AddQuickLiquidCommand = new Command<string>(async (ml) => await AddQuickLiquidAsync(ml));
-            OpenManageGoalModalCommand = new Command(async () => await OpenManageGoalModalAsync());
+            OpenDiaryDetailCommand = new Command(async () => await OpenDiaryDetailAsync());
+            OpenDailyProgressCommand = new Command(async () => await OpenDailyProgressAsync());
+            OpenDiaryHistoryCommand = new Command(async () => await Shell.Current.GoToAsync("DiaryHistoryPage"));
+        }
+
+        private void UpdateDateLabel()
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            if (_selectedDate == today)
+                DateLabel = $"Hoje, {_selectedDate.ToString("dd MMM", PtBr)}";
+            else
+                DateLabel = _selectedDate.ToString("dd 'de' MMMM", PtBr);
         }
 
         public async Task InitializeAsync()
@@ -152,10 +193,9 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         public Task LoadDataAsync(bool forceRefresh = false)
         {
-            if (!forceRefresh && !IsCacheExpired(_lastDataRefresh) && (Meals.Any() || Liquids.Any()))
+            if (!forceRefresh && !IsCacheExpired(_lastDataRefresh) && (Meals.Any()))
                 return Task.CompletedTask;
 
-            // If a load is already in progress, await it instead of starting a new one
             if (_loadingTask != null && !_loadingTask.IsCompleted)
                 return _loadingTask;
 
@@ -169,70 +209,61 @@ namespace LifeSyncApp.ViewModels.Nutrition
             {
                 IsBusy = true;
 
-                var today = DateOnly.FromDateTime(DateTime.Today);
+                var date = _selectedDate;
 
-                // Load diary, progress in parallel
+                // Fetch diaries and progresses in parallel (off main thread for deserialization)
                 var diariesTask = _nutritionService.GetDiariesByUserIdAsync(_userSession.UserId);
                 var progressTask = _nutritionService.GetDailyProgressByUserIdAsync(_userSession.UserId);
-                await Task.WhenAll(diariesTask, progressTask);
+                await Task.WhenAll(diariesTask, progressTask).ConfigureAwait(false);
 
-                // Handle diary
-                var todayDiary = diariesTask.Result.FirstOrDefault(d => d.Date == today);
-                if (todayDiary == null)
+                var todayDiary = diariesTask.Result.FirstOrDefault(d => d.Date == date);
+                var todayProgress = progressTask.Result.FirstOrDefault(p => p.Date == date);
+
+                // Load meals and liquids in parallel if diary exists
+                List<MealDTO> meals = [];
+                List<LiquidDTO> liquids = [];
+
+                if (todayDiary != null)
                 {
-                    var diaryId = await _nutritionService.CreateDiaryAsync(new CreateDiaryDTO(_userSession.UserId, today));
-                    if (diaryId.HasValue)
-                        todayDiary = await _nutritionService.GetDiaryByIdAsync(diaryId.Value);
+                    var mealsTask = _nutritionService.GetMealsByDiaryIdAsync(todayDiary.Id);
+                    var liquidsTask = _nutritionService.GetLiquidsByDiaryIdAsync(todayDiary.Id);
+                    await Task.WhenAll(mealsTask, liquidsTask).ConfigureAwait(false);
+                    meals = mealsTask.Result;
+                    liquids = liquidsTask.Result;
                 }
-                TodayDiary = todayDiary;
 
-                // Handle daily progress (goals)
-                var todayProgress = progressTask.Result.FirstOrDefault(p => p.Date == today);
-                if (todayProgress == null)
+                // Update UI on main thread in a single batch
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    var progressId = await _nutritionService.CreateDailyProgressAsync(
-                        new CreateDailyProgressDTO(_userSession.UserId, today));
-                    if (progressId.HasValue)
+                    TodayDiary = todayDiary;
+                    DailyProgress = todayProgress;
+
+                    if (todayProgress?.Goal != null)
                     {
-                        // Reload the list to get the new entry
-                        var updated = await _nutritionService.GetDailyProgressByUserIdAsync(_userSession.UserId);
-                        todayProgress = updated.FirstOrDefault(p => p.Date == today);
+                        CaloriesGoal = todayProgress.Goal.Calories > 0 ? todayProgress.Goal.Calories : 2000;
+                        LiquidsGoalMl = todayProgress.Goal.QuantityMl > 0 ? todayProgress.Goal.QuantityMl : 2500;
                     }
-                }
-                DailyProgress = todayProgress;
+                    else
+                    {
+                        CaloriesGoal = 2000;
+                        LiquidsGoalMl = 2500;
+                    }
 
-                // Apply goals from backend (or keep defaults)
-                if (todayProgress?.Goal != null)
-                {
-                    CaloriesGoal = todayProgress.Goal.Calories > 0 ? todayProgress.Goal.Calories : 2000;
-                    LiquidsGoalMl = todayProgress.Goal.QuantityMl > 0 ? todayProgress.Goal.QuantityMl : 2000;
-                }
-
-                // Load meals and liquids
-                if (TodayDiary != null)
-                {
-                    var mealsTask = _nutritionService.GetMealsByDiaryIdAsync(TodayDiary.Id);
-                    var liquidsTask = _nutritionService.GetLiquidsByDiaryIdAsync(TodayDiary.Id);
-                    await Task.WhenAll(mealsTask, liquidsTask);
-
-                    var meals = mealsTask.Result;
                     Meals.ReplaceAll(meals);
                     CaloriesConsumed = meals.Sum(m => m.TotalCalories);
+                    MealsCount = meals.Count;
+                    LiquidsConsumedMl = liquids.Sum(l => l.Quantity);
+                    LiquidsCount = liquids.Count;
 
-                    var liquids = liquidsTask.Result;
-                    Liquids.ReplaceAll(liquids);
-                    LiquidsConsumedMl = liquids.Sum(l => l.QuantityMl);
-                }
+                    IsBusy = false;
+                });
 
                 _lastDataRefresh = DateTime.Now;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading nutrition data: {ex.Message}");
-            }
-            finally
-            {
-                IsBusy = false;
+                MainThread.BeginInvokeOnMainThread(() => IsBusy = false);
             }
         }
 
@@ -249,124 +280,49 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             if (TodayDiary == null)
             {
-                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o diário. Verifique sua conexão.", "OK");
+                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o diário.", "OK");
                 return;
             }
 
-            try
+            await Shell.Current.GoToAsync("ManageMealModal", new Dictionary<string, object>
             {
-                await Shell.Current.GoToAsync("ManageMealModal", new Dictionary<string, object>
-                {
-                    { "DiaryId", TodayDiary.Id }
-                });
-            }
-            catch (Exception ex)
-            {
-                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
-            }
+                { "DiaryId", TodayDiary.Id }
+            });
         }
 
         private async Task OpenMealDetailAsync(MealDTO? meal)
         {
             if (meal == null) return;
-            try
+            await Shell.Current.GoToAsync("MealDetailPage", new Dictionary<string, object>
             {
-                await Shell.Current.GoToAsync("MealDetailPage", new Dictionary<string, object>
-                {
-                    { "Meal", meal }
-                });
-            }
-            catch (Exception ex)
-            {
-                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir a refeição: {ex.Message}", "OK");
-            }
+                { "Meal", meal }
+            });
         }
 
-        private async Task DeleteMealAsync(MealDTO? meal)
+        private async Task OpenDiaryDetailAsync()
         {
-            if (meal == null) return;
-            var confirm = await Shell.Current.DisplayAlert(
-                "Confirmar", $"Deseja remover a refeição '{meal.Name}'?", "Sim", "Não");
-            if (!confirm) return;
-
-            var success = await _nutritionService.DeleteMealAsync(meal.Id);
-            if (success)
-                await LoadDataAsync(forceRefresh: true);
-        }
-
-        private async Task OpenManageLiquidModalAsync(LiquidDTO? liquid)
-        {
-            if (TodayDiary == null)
-                await LoadDataAsync(forceRefresh: true);
-
-            if (TodayDiary == null)
-            {
-                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o diário. Verifique sua conexão.", "OK");
-                return;
-            }
-
-            try
-            {
-                var parameters = new Dictionary<string, object>
-                {
-                    { "DiaryId", TodayDiary.Id }
-                };
-                if (liquid != null)
-                    parameters["Liquid"] = liquid;
-
-                await Shell.Current.GoToAsync("ManageLiquidModal", parameters);
-            }
-            catch (Exception ex)
-            {
-                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
-            }
-        }
-
-        private async Task DeleteLiquidAsync(LiquidDTO? liquid)
-        {
-            if (liquid == null) return;
-            var success = await _nutritionService.DeleteLiquidAsync(liquid.Id);
-            if (success)
-                await LoadDataAsync(forceRefresh: true);
-        }
-
-        private async Task AddQuickLiquidAsync(string? mlStr)
-        {
-            if (!int.TryParse(mlStr, out var ml)) return;
-
-            if (TodayDiary == null)
-                await LoadDataAsync(forceRefresh: true);
-
             if (TodayDiary == null) return;
-
-            var dto = new CreateLiquidDTO(TodayDiary.Id, "Água", ml, 0);
-            var success = await _nutritionService.CreateLiquidAsync(dto);
-            if (success)
-                await LoadDataAsync(forceRefresh: true);
+            await Shell.Current.GoToAsync("DiaryDetailPage", new Dictionary<string, object>
+            {
+                { "Diary", TodayDiary }
+            });
         }
 
-        private async Task OpenManageGoalModalAsync()
+        private async Task OpenDailyProgressAsync()
         {
             if (DailyProgress == null)
                 await LoadDataAsync(forceRefresh: true);
 
             if (DailyProgress == null)
             {
-                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o progresso diário. Verifique sua conexão.", "OK");
+                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o progresso diário.", "OK");
                 return;
             }
 
-            try
+            await Shell.Current.GoToAsync("DailyProgressPage", new Dictionary<string, object>
             {
-                await Shell.Current.GoToAsync("ManageGoalModal", new Dictionary<string, object>
-                {
-                    { "DailyProgress", DailyProgress }
-                });
-            }
-            catch (Exception ex)
-            {
-                await Shell.Current.DisplayAlert("Erro", $"Não foi possível abrir o modal: {ex.Message}", "OK");
-            }
+                { "DailyProgress", DailyProgress }
+            });
         }
     }
 }

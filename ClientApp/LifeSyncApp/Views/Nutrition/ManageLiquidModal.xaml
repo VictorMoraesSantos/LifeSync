@@ -2,135 +2,209 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             xmlns:lt="clr-namespace:LifeSyncApp.DTOs.Nutrition.LiquidType"
              x:Class="LifeSyncApp.Views.Nutrition.ManageLiquidModal"
              x:DataType="viewmodel:ManageLiquidViewModel"
-             Shell.PresentationMode="ModalNotAnimated"
-             BackgroundColor="Transparent">
+             BackgroundColor="#F5F4F1">
 
-    <Grid BackgroundColor="#80000000">
-        <Grid.GestureRecognizers>
-            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
-        </Grid.GestureRecognizers>
+    <Grid RowDefinitions="Auto,*">
 
-        <Border VerticalOptions="End"
-                HorizontalOptions="Fill"
-                BackgroundColor="White"
-                StrokeThickness="0"
-                MaximumHeightRequest="480"
-                StrokeShape="RoundRectangle 16">
-            <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.3"/>
-            </Border.Shadow>
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer/>
-            </Border.GestureRecognizers>
+        <!-- Header -->
+        <HorizontalStackLayout Grid.Row="0"
+                               Padding="24,16"
+                               Spacing="12">
+            <Label Text="‹"
+                   FontSize="22"
+                   FontFamily="OutfitSemiBold"
+                   TextColor="#1A1918"
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Text="{Binding Title}"
+                   FontSize="18"
+                   FontFamily="OutfitSemiBold"
+                   TextColor="#1A1918"
+                   VerticalOptions="Center"/>
+        </HorizontalStackLayout>
 
-            <Grid RowDefinitions="Auto,*,Auto">
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="24,0,24,24" Spacing="24">
 
-                <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,0">
-                    <Label Text="{Binding Title}"
-                           FontSize="16"
-                           TextColor="#111"
-                           VerticalOptions="Center"/>
-                    <ImageButton Grid.Column="1"
-                                 Source="close.svg"
-                                 BackgroundColor="Transparent"
-                                 Padding="8"
-                                 Margin="8"
-                                 Command="{Binding CancelCommand}"/>
-                </Grid>
-                <BoxView Grid.Row="0" VerticalOptions="End" HeightRequest="1" BackgroundColor="#E5E5E5"/>
+                <!-- Liquid Type Selection -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Tipo de líquido"
+                           FontSize="13"
+                           FontFamily="OutfitRegular"
+                           TextColor="#6D6C6A"/>
 
-                <!-- Body -->
-                <ScrollView Grid.Row="1">
-                    <VerticalStackLayout Padding="20" Spacing="20">
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Nome do líquido" FontSize="14" TextColor="#525252"/>
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12" StrokeShape="RoundRectangle 8">
-                                <Entry Text="{Binding Name}"
-                                       Placeholder="Ex: Água, Suco de laranja"
-                                       PlaceholderColor="#A1A1A1"
-                                       TextColor="#171717"
-                                       FontSize="16"
-                                       BackgroundColor="Transparent"/>
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">
-                            <VerticalStackLayout Grid.Column="0" Spacing="8">
-                                <Label Text="Quantidade (ml)" FontSize="14" TextColor="#525252"/>
-                                <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12" StrokeShape="RoundRectangle 8">
-                                    <Entry Text="{Binding QuantityMlText}"
-                                           Placeholder="250"
-                                           Keyboard="Numeric"
-                                           PlaceholderColor="#A1A1A1"
-                                           TextColor="#171717"
-                                           FontSize="16"
-                                           BackgroundColor="Transparent"/>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding LiquidTypes}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="lt:LiquidTypeDTO">
+                                <Border Padding="14,12"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E4E1"
+                                        StrokeShape="RoundRectangle 12">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding Id}"
+                                                     Value="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ManageLiquidViewModel}}, Path=SelectedLiquidTypeId}">
+                                            <Setter Property="BackgroundColor" Value="#3D8A5A"/>
+                                            <Setter Property="Stroke" Value="#3D8A5A"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ManageLiquidViewModel}}, Path=SelectLiquidTypeCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="10">
+                                        <Label Text="💧"
+                                               FontSize="16"
+                                               VerticalOptions="Center"/>
+                                        <Label Text="{Binding Name}"
+                                               FontSize="15"
+                                               FontFamily="OutfitRegular"
+                                               TextColor="#1A1918"
+                                               VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
                                 </Border>
-                            </VerticalStackLayout>
-
-                            <VerticalStackLayout Grid.Column="2" Spacing="8">
-                                <Label Text="Cal por ml" FontSize="14" TextColor="#525252"/>
-                                <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12" StrokeShape="RoundRectangle 8">
-                                    <Entry Text="{Binding CaloriesPerMlText}"
-                                           Placeholder="0"
-                                           Keyboard="Numeric"
-                                           PlaceholderColor="#A1A1A1"
-                                           TextColor="#171717"
-                                           FontSize="16"
-                                           BackgroundColor="Transparent"/>
-                                </Border>
-                            </VerticalStackLayout>
-                        </Grid>
-
-                        <!-- Total preview -->
-                        <Border BackgroundColor="#EFF6FF"
-                                StrokeThickness="0"
-                                Padding="16,12"
-                                StrokeShape="RoundRectangle 8">
-                            <HorizontalStackLayout Spacing="8">
-                                <Label Text="💧" FontSize="14" VerticalOptions="Center"/>
-                                <Label Text="Total:"
-                                       FontSize="14"
-                                       TextColor="#525252"
-                                       VerticalOptions="Center"/>
-                                <Label Text="{Binding TotalCalories, StringFormat='{0} cal'}"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       TextColor="#1D4ED8"
-                                       VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                        </Border>
-
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
                     </VerticalStackLayout>
-                </ScrollView>
+                </VerticalStackLayout>
 
-                <!-- Footer -->
-                <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="0" RowSpacing="0">
-                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
-                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
+                <!-- Quantity -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Quantidade (ml)"
+                           FontSize="13"
+                           FontFamily="OutfitRegular"
+                           TextColor="#6D6C6A"/>
+                    <Border BackgroundColor="White"
+                            StrokeThickness="1"
+                            Stroke="#E5E4E1"
+                            Padding="16,12"
+                            StrokeShape="RoundRectangle 12">
+                        <Entry Text="{Binding QuantityText}"
+                               Placeholder="250"
+                               Keyboard="Numeric"
+                               PlaceholderColor="#9C9B99"
+                               TextColor="#1A1918"
+                               FontSize="16"
+                               FontFamily="OutfitRegular"
+                               BackgroundColor="Transparent"/>
+                    </Border>
+                </VerticalStackLayout>
 
-                        <Border Grid.Column="0" BackgroundColor="#F5F5F5" StrokeThickness="0" StrokeShape="RoundRectangle 8" Padding="16" HeightRequest="48">
+                <!-- Quick Shortcuts -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Atalhos rápidos"
+                           FontSize="13"
+                           FontFamily="OutfitRegular"
+                           TextColor="#6D6C6A"/>
+                    <FlexLayout Wrap="Wrap" JustifyContent="Start" Direction="Row">
+                        <Border BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E4E1"
+                                Padding="14,10"
+                                Margin="0,0,8,8"
+                                StrokeShape="RoundRectangle 10">
                             <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                                <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="100"/>
                             </Border.GestureRecognizers>
-                            <Label Text="Cancelar" FontSize="16" FontAttributes="Bold" TextColor="#171717"
-                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Label Text="100ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
                         </Border>
-
-                        <Border Grid.Column="1" BackgroundColor="#171717" StrokeThickness="0" StrokeShape="RoundRectangle 8" Padding="16" HeightRequest="48">
+                        <Border BackgroundColor="#3D8A5A"
+                                StrokeThickness="0"
+                                Padding="14,10"
+                                Margin="0,0,8,8"
+                                StrokeShape="RoundRectangle 10">
                             <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                                <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="250"/>
                             </Border.GestureRecognizers>
-                            <Label Text="Salvar" FontSize="16" FontAttributes="Bold" TextColor="White"
-                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Label Text="250ml" FontSize="13" FontFamily="OutfitSemiBold" TextColor="White"/>
                         </Border>
-                    </Grid>
-                </Grid>
-            </Grid>
-        </Border>
+                        <Border BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E4E1"
+                                Padding="14,10"
+                                Margin="0,0,8,8"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="300"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="300ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                        </Border>
+                        <Border BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E4E1"
+                                Padding="14,10"
+                                Margin="0,0,8,8"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="500"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="500ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                        </Border>
+                        <Border BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E4E1"
+                                Padding="14,10"
+                                Margin="0,0,8,8"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="1000"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="1000ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                        </Border>
+                        <Border BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E5E4E1"
+                                Padding="14,10"
+                                Margin="0,0,8,8"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="200"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="200ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                        </Border>
+                    </FlexLayout>
+                </VerticalStackLayout>
+
+                <!-- Buttons -->
+                <VerticalStackLayout Spacing="12">
+                    <Border BackgroundColor="#3D8A5A"
+                            StrokeThickness="0"
+                            Padding="0,16"
+                            StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Salvar"
+                               FontSize="16"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="White"
+                               HorizontalOptions="Center"/>
+                    </Border>
+
+                    <Border BackgroundColor="White"
+                            StrokeThickness="1"
+                            Stroke="#E5E4E1"
+                            Padding="0,16"
+                            StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Cancelar"
+                               FontSize="16"
+                               FontFamily="OutfitRegular"
+                               TextColor="#6D6C6A"
+                               HorizontalOptions="Center"/>
+                    </Border>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 </ContentPage>

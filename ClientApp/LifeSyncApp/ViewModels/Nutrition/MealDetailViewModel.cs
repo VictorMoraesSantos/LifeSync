@@ -11,7 +11,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
         private readonly NutritionService _nutritionService;
 
         private MealDTO? _meal;
-        private int _diaryId;
 
         public MealDTO? Meal
         {
@@ -23,16 +22,24 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 {
                     SyncFoodsFromMeal(value);
                     Title = value.Name;
+                    OnPropertyChanged(nameof(TotalProtein));
+                    OnPropertyChanged(nameof(TotalLipids));
+                    OnPropertyChanged(nameof(TotalCarbs));
                 }
             }
         }
 
         public ObservableCollection<MealFoodDTO> Foods { get; } = new();
 
+        public decimal TotalProtein => Foods.Sum(f => f.Protein ?? 0);
+        public decimal TotalLipids => Foods.Sum(f => f.Lipids ?? 0);
+        public decimal TotalCarbs => Foods.Sum(f => f.Carbohydrates ?? 0);
+
         public ICommand GoBackCommand { get; }
         public ICommand OpenEditMealModalCommand { get; }
         public ICommand DeleteMealCommand { get; }
-        public ICommand OpenAddFoodModalCommand { get; }
+        public ICommand OpenAddFoodCommand { get; }
+        public ICommand OpenEditFoodCommand { get; }
         public ICommand DeleteFoodCommand { get; }
 
         public event EventHandler? MealDeleted;
@@ -44,7 +51,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             OpenEditMealModalCommand = new Command(async () => await OpenEditMealModalAsync());
             DeleteMealCommand = new Command(async () => await DeleteMealAsync());
-            OpenAddFoodModalCommand = new Command(async () => await OpenAddFoodModalAsync());
+            OpenAddFoodCommand = new Command(async () => await OpenAddFoodAsync());
+            OpenEditFoodCommand = new Command<MealFoodDTO>(async (f) => await OpenEditFoodAsync(f));
             DeleteFoodCommand = new Command<MealFoodDTO>(async (f) => await DeleteFoodAsync(f));
         }
 
@@ -116,14 +124,30 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        private async Task OpenAddFoodModalAsync()
+        private async Task OpenAddFoodAsync()
         {
             if (_meal == null) return;
             try
             {
-                await Shell.Current.GoToAsync("ManageMealFoodModal", new Dictionary<string, object>
+                await Shell.Current.GoToAsync("FoodSearchPage", new Dictionary<string, object>
                 {
                     { "MealId", _meal.Id }
+                });
+            }
+            catch (Exception ex)
+            {
+                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+            }
+        }
+
+        private async Task OpenEditFoodAsync(MealFoodDTO? food)
+        {
+            if (food == null || _meal == null) return;
+            try
+            {
+                await Shell.Current.GoToAsync("EditMealFoodModal", new Dictionary<string, object>
+                {
+                    { "MealFood", food }
                 });
             }
             catch (Exception ex)

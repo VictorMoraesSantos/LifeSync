@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             xmlns:diary="clr-namespace:LifeSyncApp.DTOs.Nutrition.Diary"
+             x:Class="LifeSyncApp.Views.Nutrition.DiaryHistoryPage"
+             x:DataType="viewmodel:DiaryHistoryViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F5F4F1">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="24,16" ColumnDefinitions="*,Auto">
+            <Label Grid.Column="0"
+                   Text="Histórico"
+                   FontSize="26"
+                   FontFamily="OutfitSemiBold"
+                   TextColor="#1A1918"
+                   VerticalOptions="Center"/>
+            <Border Grid.Column="1"
+                    BackgroundColor="#3D8A5A"
+                    StrokeThickness="0"
+                    Padding="14,10"
+                    StrokeShape="RoundRectangle 10">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenCreateDiaryCommand}"/>
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="+" FontSize="16" FontFamily="OutfitSemiBold" TextColor="White" VerticalOptions="Center"/>
+                    <Label Text="Novo Diário" FontSize="14" FontFamily="OutfitSemiBold" TextColor="White" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="24,0,24,24" Spacing="24">
+
+                <!-- Filters Card -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Filtros" FontSize="15" FontFamily="OutfitSemiBold" TextColor="#1A1918"/>
+
+                        <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">
+                            <Border Grid.Column="0" BackgroundColor="#F5F4F1" StrokeThickness="1" Stroke="#E5E4E1" Padding="12,10" StrokeShape="RoundRectangle 10">
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="📅" FontSize="12" VerticalOptions="Center"/>
+                                    <Entry Text="{Binding DateFromText}" Placeholder="01/02/2026" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918" BackgroundColor="Transparent" PlaceholderColor="#9C9B99"/>
+                                </HorizontalStackLayout>
+                            </Border>
+                            <Border Grid.Column="2" BackgroundColor="#F5F4F1" StrokeThickness="1" Stroke="#E5E4E1" Padding="12,10" StrokeShape="RoundRectangle 10">
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="📅" FontSize="12" VerticalOptions="Center"/>
+                                    <Entry Text="{Binding DateToText}" Placeholder="27/02/2026" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918" BackgroundColor="Transparent" PlaceholderColor="#9C9B99"/>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Border BackgroundColor="#3D8A5A" StrokeThickness="0" Padding="0,12" StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SearchCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Buscar" FontSize="14" FontFamily="OutfitSemiBold" TextColor="White" HorizontalOptions="Center"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Diary List -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Diaries}" Spacing="10">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="diary:DiaryDTO">
+                            <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#E5E4E1"
+                                    Padding="16"
+                                    StrokeShape="RoundRectangle 16">
+                                <Border.Shadow>
+                                    <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                                </Border.Shadow>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DiaryHistoryViewModel}}, Path=OpenDiaryDetailCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="{Binding Date, StringFormat='{0:dd} de {0:MMMM}'}"
+                                           FontSize="15"
+                                           FontFamily="OutfitSemiBold"
+                                           TextColor="#1A1918"/>
+                                    <HorizontalStackLayout Spacing="16">
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="🔥" FontSize="11"/>
+                                            <Label Text="{Binding TotalCalories, StringFormat='{0} kcal'}"
+                                                   FontSize="12"
+                                                   FontFamily="OutfitRegular"
+                                                   TextColor="#6D6C6A"/>
+                                        </HorizontalStackLayout>
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="🍽" FontSize="11"/>
+                                            <Label Text="{Binding Meals.Count, StringFormat='{0} refeições'}"
+                                                   FontSize="12"
+                                                   FontFamily="OutfitRegular"
+                                                   TextColor="#6D6C6A"/>
+                                        </HorizontalStackLayout>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Pagination -->
+                <Label Text="{Binding PageInfo}"
+                       FontSize="13"
+                       FontFamily="OutfitRegular"
+                       TextColor="#9C9B99"
+                       HorizontalOptions="Center"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

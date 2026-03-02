@@ -17,304 +17,307 @@
                 HorizontalOptions="Fill"
                 BackgroundColor="White"
                 StrokeThickness="0"
-                MaximumHeightRequest="520">
+                MaximumHeightRequest="580">
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="16"/>
+                <RoundRectangle CornerRadius="24,24,0,0"/>
             </Border.StrokeShape>
             <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.3"/>
+                <Shadow Brush="Black" Offset="0,-4" Radius="20" Opacity="0.15"/>
             </Border.Shadow>
 
             <Border.GestureRecognizers>
                 <TapGestureRecognizer/>
             </Border.GestureRecognizers>
 
-            <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="0">
+            <Grid RowDefinitions="Auto,*" RowSpacing="0">
 
-                <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,12">
-                    <Label Text="{Binding ModalTitle}"
-                           FontSize="16"
-                           FontAttributes="None"
-                           TextColor="#111"
-                           VerticalOptions="Center"/>
+                <!-- Handle + Header -->
+                <VerticalStackLayout Grid.Row="0">
+                    <Border HorizontalOptions="Center"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            StrokeShape="RoundRectangle 100"
+                            StrokeThickness="0"
+                            BackgroundColor="#D1D0CD"
+                            Margin="0,12,0,0"/>
 
-                    <ImageButton Grid.Column="1"
-                                 Source="close.svg"
-                                 BackgroundColor="Transparent"
-                                 Padding="8"
-                                 Command="{Binding CloseManageLabelModalCommand}" />
-                </Grid>
+                    <Grid ColumnDefinitions="*,Auto" Padding="20,16">
+                        <Label Text="{Binding ModalTitle}"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#1A1918"
+                               VerticalOptions="Center"/>
 
-                <!-- Divider -->
-                <BoxView Grid.Row="1" HeightRequest="1" Color="#E5E5E5"/>
+                        <ImageButton Grid.Column="1"
+                                     Source="close.svg"
+                                     BackgroundColor="Transparent"
+                                     Padding="8"
+                                     Command="{Binding CloseManageLabelModalCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
 
                 <!-- Form Content -->
-                <ScrollView Grid.Row="2" Padding="20,16">
-                    <VerticalStackLayout Spacing="16">
+                <ScrollView Grid.Row="1" Padding="20,0,20,20">
+                    <VerticalStackLayout Spacing="24">
 
                         <!-- Label Name -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Nome da Etiqueta" FontSize="14" TextColor="#525252"/>
-                            <Border Stroke="#E5E7EB" StrokeThickness="1" StrokeShape="RoundRectangle 10" BackgroundColor="White">
+                            <Label Text="Nome da Etiqueta" FontSize="14" FontAttributes="Bold" TextColor="#1A1918"/>
+                            <Border Stroke="#E5E4E1" StrokeThickness="1" StrokeShape="RoundRectangle 12" BackgroundColor="#FAFAF8"
+                                    HeightRequest="44">
                                 <Entry Placeholder="Ex: Trabalho, Pessoal, Urgente..."
-                                       PlaceholderColor="#9CA3AF"
+                                       PlaceholderColor="#9C9B99"
                                        Text="{Binding LabelName}"
                                        BackgroundColor="Transparent"
-                                       Margin="12,4"/>
+                                       Margin="16,0"/>
                             </Border>
                         </VerticalStackLayout>
 
                         <!-- Color Selection -->
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Escolha uma cor" FontSize="14" TextColor="#525252"/>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Escolha uma cor" FontSize="14" FontAttributes="Bold" TextColor="#1A1918"/>
 
-                            <Grid ColumnDefinitions="*,*,*,*,*"
+                            <!-- Row 1: Red, Blue, Green, Yellow -->
+                            <Grid ColumnDefinitions="*,*,*,*"
                                   RowDefinitions="Auto,Auto"
-                                  ColumnSpacing="12"
-                                  RowSpacing="12"
-                                  Margin="0,4">
+                                  ColumnSpacing="10"
+                                  RowSpacing="10">
 
-                                <!-- Row 1 -->
-                                <Border Grid.Column="0"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#9C27B0"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Purple}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Purple}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
+                                <!-- Red -->
+                                <VerticalStackLayout Grid.Column="0" Spacing="4" HorizontalOptions="Center">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#FF4444"
+                                            Stroke="Transparent"
+                                            StrokeThickness="3">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectColorCommand}"
+                                                                  CommandParameter="{x:Static enums:LabelColor.Red}"/>
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding SelectedLabelColor}"
+                                                         Value="{x:Static enums:LabelColor.Red}">
+                                                <Setter Property="Stroke" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+                                    <Label Text="Vermelho" FontSize="10" TextColor="#6D6C6A" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
 
-                                <Border Grid.Column="1"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#E91E63"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Pink}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Pink}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
+                                <!-- Blue -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#4A5FA8"
+                                            Stroke="Transparent"
+                                            StrokeThickness="3">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectColorCommand}"
+                                                                  CommandParameter="{x:Static enums:LabelColor.Blue}"/>
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding SelectedLabelColor}"
+                                                         Value="{x:Static enums:LabelColor.Blue}">
+                                                <Setter Property="Stroke" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+                                    <Label Text="Azul" FontSize="10" TextColor="#6D6C6A" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
 
-                                <Border Grid.Column="2"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#2196F3"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Blue}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Blue}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
+                                <!-- Green -->
+                                <VerticalStackLayout Grid.Column="2" Spacing="4" HorizontalOptions="Center">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#3D8A5A"
+                                            Stroke="Transparent"
+                                            StrokeThickness="3">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectColorCommand}"
+                                                                  CommandParameter="{x:Static enums:LabelColor.Green}"/>
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding SelectedLabelColor}"
+                                                         Value="{x:Static enums:LabelColor.Green}">
+                                                <Setter Property="Stroke" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+                                    <Label Text="Verde" FontSize="10" TextColor="#6D6C6A" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
 
-                                <Border Grid.Column="3"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#795548"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Brown}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Brown}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
+                                <!-- Yellow -->
+                                <VerticalStackLayout Grid.Column="3" Spacing="4" HorizontalOptions="Center">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#D4A64A"
+                                            Stroke="Transparent"
+                                            StrokeThickness="3">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectColorCommand}"
+                                                                  CommandParameter="{x:Static enums:LabelColor.Yellow}"/>
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding SelectedLabelColor}"
+                                                         Value="{x:Static enums:LabelColor.Yellow}">
+                                                <Setter Property="Stroke" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+                                    <Label Text="Amarelo" FontSize="10" TextColor="#6D6C6A" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
 
-                                <Border Grid.Column="4"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#F44336"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Red}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Red}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
+                                <!-- Row 2: Purple, Orange, Pink, Gray -->
+                                <!-- Purple -->
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4" HorizontalOptions="Center">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#8B5CF6"
+                                            Stroke="Transparent"
+                                            StrokeThickness="3">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectColorCommand}"
+                                                                  CommandParameter="{x:Static enums:LabelColor.Purple}"/>
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding SelectedLabelColor}"
+                                                         Value="{x:Static enums:LabelColor.Purple}">
+                                                <Setter Property="Stroke" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+                                    <Label Text="Roxo" FontSize="10" TextColor="#6D6C6A" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
 
-                                <!-- Row 2 -->
-                                <Border Grid.Row="1" Grid.Column="0"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#9E9E9E"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Gray}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Gray}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
+                                <!-- Orange -->
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4" HorizontalOptions="Center">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#D89575"
+                                            Stroke="Transparent"
+                                            StrokeThickness="3">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectColorCommand}"
+                                                                  CommandParameter="{x:Static enums:LabelColor.Orange}"/>
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding SelectedLabelColor}"
+                                                         Value="{x:Static enums:LabelColor.Orange}">
+                                                <Setter Property="Stroke" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+                                    <Label Text="Laranja" FontSize="10" TextColor="#6D6C6A" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
 
-                                <Border Grid.Row="1" Grid.Column="1"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#4CAF50"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Green}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Green}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
+                                <!-- Pink -->
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="2" Spacing="4" HorizontalOptions="Center">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#F472B6"
+                                            Stroke="Transparent"
+                                            StrokeThickness="3">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectColorCommand}"
+                                                                  CommandParameter="{x:Static enums:LabelColor.Pink}"/>
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding SelectedLabelColor}"
+                                                         Value="{x:Static enums:LabelColor.Pink}">
+                                                <Setter Property="Stroke" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+                                    <Label Text="Rosa" FontSize="10" TextColor="#6D6C6A" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
 
-                                <Border Grid.Row="1" Grid.Column="2"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#FF9800"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Orange}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Orange}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
-
-                                <Border Grid.Row="1" Grid.Column="3"
-                                        WidthRequest="56"
-                                        HeightRequest="56"
-                                        StrokeShape="RoundRectangle 28"
-                                        BackgroundColor="#FFC107"
-                                        Stroke="Transparent"
-                                        StrokeThickness="3">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SelectColorCommand}"
-                                                              CommandParameter="{x:Static enums:LabelColor.Yellow}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding SelectedLabelColor}"
-                                                     Value="{x:Static enums:LabelColor.Yellow}">
-                                            <Setter Property="Stroke" Value="#111"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                </Border>
-
+                                <!-- Gray -->
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="3" Spacing="4" HorizontalOptions="Center">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#9C9B99"
+                                            Stroke="Transparent"
+                                            StrokeThickness="3">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SelectColorCommand}"
+                                                                  CommandParameter="{x:Static enums:LabelColor.Gray}"/>
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border"
+                                                         Binding="{Binding SelectedLabelColor}"
+                                                         Value="{x:Static enums:LabelColor.Gray}">
+                                                <Setter Property="Stroke" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                    </Border>
+                                    <Label Text="Cinza" FontSize="10" TextColor="#6D6C6A" HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
                             </Grid>
                         </VerticalStackLayout>
 
+                        <!-- Action Buttons -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Border Grid.Column="0"
+                                    StrokeShape="RoundRectangle 100"
+                                    Stroke="#E5E4E1"
+                                    StrokeThickness="1"
+                                    BackgroundColor="White"
+                                    Padding="14,14"
+                                    HeightRequest="48">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CloseManageLabelModalCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Cancelar"
+                                       FontSize="14"
+                                       TextColor="#6D6C6A"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Border>
+
+                            <Border Grid.Column="1"
+                                    StrokeShape="RoundRectangle 100"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#3D8A5A"
+                                    Padding="14,14"
+                                    HeightRequest="48">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SaveLabelCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding CanSaveLabel}"
+                                                 Value="False">
+                                        <Setter Property="Opacity" Value="0.5"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <HorizontalStackLayout Spacing="6"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center">
+                                    <Label Text="{Binding SaveButtonText}"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="White"/>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </Grid>
+
                     </VerticalStackLayout>
                 </ScrollView>
-
-                <!-- Footer Buttons -->
-                <Grid Grid.Row="3" RowDefinitions="Auto,Auto" Padding="0" RowSpacing="0">
-                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
-
-                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
-                        <Border Grid.Column="0"
-                                BackgroundColor="#F5F5F5"
-                                StrokeThickness="0"
-                                Padding="16"
-                                HeightRequest="48">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding CloseManageLabelModalCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Cancelar"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="#171717"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-
-                        <Border Grid.Column="1"
-                                BackgroundColor="#171717"
-                                StrokeThickness="0"
-                                Padding="16"
-                                HeightRequest="48">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SaveLabelCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Border.Triggers>
-                                <DataTrigger TargetType="Border"
-                                             Binding="{Binding CanSaveLabel}"
-                                             Value="False">
-                                    <Setter Property="Opacity" Value="0.5"/>
-                                </DataTrigger>
-                            </Border.Triggers>
-                            <Label Text="{Binding SaveButtonText}"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="White"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
-                </Grid>
-
             </Grid>
         </Border>
     </Grid>

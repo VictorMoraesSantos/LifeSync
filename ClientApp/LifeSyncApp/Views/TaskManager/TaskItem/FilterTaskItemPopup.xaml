@@ -16,369 +16,342 @@
                 HorizontalOptions="Fill"
                 BackgroundColor="White"
                 StrokeThickness="0"
-                MaximumHeightRequest="600">
+                MaximumHeightRequest="680">
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="16,16,0,0"/>
+                <RoundRectangle CornerRadius="24,24,0,0"/>
             </Border.StrokeShape>
 
-            <!-- Previne que o tap no card feche o modal -->
             <Border.GestureRecognizers>
                 <TapGestureRecognizer/>
             </Border.GestureRecognizers>
 
             <Grid RowDefinitions="Auto,*,Auto">
 
-                <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16">
-                    <Label Text="Filtros"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="#111"
-                           VerticalOptions="Center"/>
-                    <Button Grid.Column="1"
-                            Text="Limpar"
-                            FontSize="14"
-                            TextColor="#525252"
-                            BackgroundColor="Transparent"
-                            Command="{Binding FilterViewModel.ClearFiltersCommand}"/>
-                </Grid>
+                <!-- Handle + Header -->
+                <VerticalStackLayout Grid.Row="0">
+                    <Border HorizontalOptions="Center"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            StrokeShape="RoundRectangle 100"
+                            StrokeThickness="0"
+                            BackgroundColor="#D1D0CD"
+                            Margin="0,12,0,0"/>
 
-                <BoxView Grid.Row="0" VerticalOptions="End" HeightRequest="1" BackgroundColor="#E5E5E5"/>
+                    <Grid ColumnDefinitions="*,Auto" Padding="20,16">
+                        <Label Text="Filtros"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#1A1918"
+                               VerticalOptions="Center"/>
+                        <ImageButton Grid.Column="1"
+                                     Source="close.svg"
+                                     BackgroundColor="Transparent"
+                                     Padding="8"
+                                     Command="{Binding FilterViewModel.CloseModalCommand}"/>
+                    </Grid>
+                </VerticalStackLayout>
 
                 <!-- Content -->
-                <ScrollView Grid.Row="1" Padding="20">
-                    <VerticalStackLayout Spacing="20">
+                <ScrollView Grid.Row="1" Padding="20,0,20,0">
+                    <VerticalStackLayout Spacing="24">
 
-                        <!-- Status -->
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Status" FontSize="14" TextColor="#525252"/>
+                        <!-- Status Section -->
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Status" FontSize="15" FontAttributes="Bold" TextColor="#1A1918"/>
 
-                            <Border StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="8"/>
-                                </Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="{x:Null}">
-                                        <Setter Property="BackgroundColor" Value="#F5F5F5"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectStatusCommand}" CommandParameter=""/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Todos os status" FontSize="16">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="{x:Null}">
-                                            <Setter Property="TextColor" Value="#171717"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
+                            <Border StrokeShape="RoundRectangle 12"
+                                    Stroke="#E5E4E1"
+                                    StrokeThickness="1"
+                                    BackgroundColor="#FAFAF8"
+                                    Padding="0">
+                                <VerticalStackLayout>
+                                    <!-- All -->
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="#FAFAF8"
+                                            StrokeShape="RoundRectangle 12,12,0,0">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectStatusCommand}" CommandParameter=""/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Todos os status" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                    <Setter Property="FontAttributes" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
 
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="Pending">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectStatusCommand}" CommandParameter="Pending"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Pendente" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="Pending">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
+                                    <!-- Pending -->
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="Pending">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectStatusCommand}" CommandParameter="Pending"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Pendente" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="Pending">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
 
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="InProgress">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectStatusCommand}" CommandParameter="InProgress"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Em andamento" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="InProgress">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
+                                    <!-- InProgress -->
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="InProgress">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectStatusCommand}" CommandParameter="InProgress"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Em andamento" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="InProgress">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
 
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="Completed">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectStatusCommand}" CommandParameter="Completed"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Concluída" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="Completed">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <!-- Prioridade -->
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Prioridade" FontSize="14" TextColor="#525252"/>
-
-                            <Border StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="{x:Null}">
-                                        <Setter Property="BackgroundColor" Value="#F5F5F5"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter=""/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Todas as prioridades" FontSize="16">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="{x:Null}">
-                                            <Setter Property="TextColor" Value="#171717"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
-
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Low">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter="Low"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Baixa" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Low">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
-
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Medium">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter="Medium"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Média" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Medium">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
-
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="High">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter="High"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Alta" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="High">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
-
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Urgent">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter="Urgent"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Urgente" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Urgent">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                    <!-- Completed -->
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent"
+                                            StrokeShape="RoundRectangle 0,0,12,12">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedStatus}" Value="Completed">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectStatusCommand}" CommandParameter="Completed"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Concluída" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedStatus}" Value="Completed">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </VerticalStackLayout>
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- Vencimento -->
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Vencimento" FontSize="14" TextColor="#525252"/>
+                        <!-- Priority Section -->
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Prioridade" FontSize="15" FontAttributes="Bold" TextColor="#1A1918"/>
 
-                            <Border StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="{x:Null}">
-                                        <Setter Property="BackgroundColor" Value="#F5F5F5"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectDateFilterCommand}" CommandParameter=""/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Todas as datas" FontSize="16">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="{x:Null}">
-                                            <Setter Property="TextColor" Value="#171717"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                            <Border StrokeShape="RoundRectangle 12"
+                                    Stroke="#E5E4E1"
+                                    StrokeThickness="1"
+                                    BackgroundColor="#FAFAF8"
+                                    Padding="0">
+                                <VerticalStackLayout>
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="#FAFAF8"
+                                            StrokeShape="RoundRectangle 12,12,0,0">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter=""/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Todas as prioridades" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                    <Setter Property="FontAttributes" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
+
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Low">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter="Low"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Baixa" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Low">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
+
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Medium">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter="Medium"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Média" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Medium">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
+
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent"
+                                            StrokeShape="RoundRectangle 0,0,12,12">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="High">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter="High"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Alta" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="High">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </VerticalStackLayout>
                             </Border>
+                        </VerticalStackLayout>
 
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="Today">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectDateFilterCommand}" CommandParameter="Today"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Hoje" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="Today">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
+                        <!-- Due Date Section -->
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Vencimento" FontSize="15" FontAttributes="Bold" TextColor="#1A1918"/>
 
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="ThisWeek">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectDateFilterCommand}" CommandParameter="ThisWeek"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Esta semana" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="ThisWeek">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
+                            <Border StrokeShape="RoundRectangle 12"
+                                    Stroke="#E5E4E1"
+                                    StrokeThickness="1"
+                                    BackgroundColor="#FAFAF8"
+                                    Padding="0">
+                                <VerticalStackLayout>
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="#FAFAF8"
+                                            StrokeShape="RoundRectangle 12,12,0,0">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectDateFilterCommand}" CommandParameter=""/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Todas as datas" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                    <Setter Property="FontAttributes" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
 
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="ThisMonth">
-                                        <Setter Property="BackgroundColor" Value="#171717"/>
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding FilterViewModel.SelectDateFilterCommand}" CommandParameter="ThisMonth"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="Este mês" FontSize="16" TextColor="#171717">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="ThisMonth">
-                                            <Setter Property="TextColor" Value="White"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="Today">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectDateFilterCommand}" CommandParameter="Today"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Hoje" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="Today">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
+
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent"
+                                            StrokeShape="RoundRectangle 0,0,12,12">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="ThisWeek">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectDateFilterCommand}" CommandParameter="ThisWeek"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Esta semana" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedDateFilter}" Value="ThisWeek">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </VerticalStackLayout>
                             </Border>
                         </VerticalStackLayout>
 
                     </VerticalStackLayout>
                 </ScrollView>
 
-                <!-- Footer -->
-                <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="0">
-                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
+                <!-- Fixed Footer Buttons -->
+                <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16,20,20">
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 100"
+                            Stroke="#E5E4E1"
+                            StrokeThickness="1"
+                            BackgroundColor="White"
+                            Padding="14,14"
+                            HeightRequest="48">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FilterViewModel.ClearFiltersCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Limpar"
+                               FontSize="14"
+                               TextColor="#6D6C6A"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
 
-                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
-                        <Border Grid.Column="0"
-                                BackgroundColor="#F5F5F5"
-                                StrokeThickness="0"
-                                Padding="16"
-                                HeightRequest="48">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding FilterViewModel.CloseModalCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Cancelar"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="#171717"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-
-                        <Border Grid.Column="1"
-                                BackgroundColor="#171717"
-                                StrokeThickness="0"
-                                Padding="16"
-                                HeightRequest="48">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8"/>
-                            </Border.StrokeShape>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding FilterViewModel.ApplyFiltersCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Aplicar filtros"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="White"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 100"
+                            StrokeThickness="0"
+                            BackgroundColor="#3D8A5A"
+                            Padding="14,14"
+                            HeightRequest="48">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FilterViewModel.ApplyFiltersCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Aplicar filtros"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
                 </Grid>
-
             </Grid>
         </Border>
     </Grid>

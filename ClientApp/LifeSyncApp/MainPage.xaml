@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              x:Class="LifeSyncApp.MainPage"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource FinBackground}">
 
     <Grid RowDefinitions="*,Auto">
         <!-- Content Area -->

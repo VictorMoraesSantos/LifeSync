@@ -1,5 +1,7 @@
 using LifeSyncApp.DTOs.Nutrition.Liquid;
+using LifeSyncApp.DTOs.Nutrition.LiquidType;
 using LifeSyncApp.Services.Nutrition;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
@@ -10,9 +12,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         private bool _isEditing;
         private int _liquidId;
-        private string _name = string.Empty;
-        private string _quantityMlText = string.Empty;
-        private string _caloriesPerMlText = "0";
+        private int _selectedLiquidTypeId;
+        private string _quantityText = string.Empty;
 
         public bool IsEditing
         {
@@ -24,46 +25,26 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        public string Name
+        public ObservableCollection<LiquidTypeDTO> LiquidTypes { get; } = new();
+
+        public int SelectedLiquidTypeId
         {
-            get => _name;
-            set => SetProperty(ref _name, value);
+            get => _selectedLiquidTypeId;
+            set => SetProperty(ref _selectedLiquidTypeId, value);
         }
 
-        public string QuantityMlText
+        public string QuantityText
         {
-            get => _quantityMlText;
-            set
-            {
-                SetProperty(ref _quantityMlText, value);
-                OnPropertyChanged(nameof(TotalCalories));
-            }
-        }
-
-        public string CaloriesPerMlText
-        {
-            get => _caloriesPerMlText;
-            set
-            {
-                SetProperty(ref _caloriesPerMlText, value);
-                OnPropertyChanged(nameof(TotalCalories));
-            }
-        }
-
-        public int TotalCalories
-        {
-            get
-            {
-                if (int.TryParse(_quantityMlText, out var qty) && int.TryParse(_caloriesPerMlText, out var cal))
-                    return qty * cal;
-                return 0;
-            }
+            get => _quantityText;
+            set => SetProperty(ref _quantityText, value);
         }
 
         public int DiaryId { get; private set; }
 
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
+        public ICommand SelectLiquidTypeCommand { get; }
+        public ICommand SetQuickQuantityCommand { get; }
 
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
@@ -75,42 +56,60 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             SaveCommand = new Command(async () => await SaveAsync());
             CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
+            SelectLiquidTypeCommand = new Command<LiquidTypeDTO>(lt => SelectedLiquidTypeId = lt.Id);
+            SetQuickQuantityCommand = new Command<string>(ml => QuantityText = ml);
         }
 
-        public void Initialize(int diaryId, LiquidDTO? liquid = null)
+        public async Task InitializeAsync(int diaryId, LiquidDTO? liquid = null)
         {
             DiaryId = diaryId;
+
+            // Load liquid types
+            var types = await _nutritionService.GetLiquidTypesAsync();
+            LiquidTypes.Clear();
+            if (!types.Any())
+            {
+                // Fallback defaults
+                LiquidTypes.Add(new LiquidTypeDTO(1, "Água"));
+                LiquidTypes.Add(new LiquidTypeDTO(2, "Suco"));
+                LiquidTypes.Add(new LiquidTypeDTO(3, "Café"));
+                LiquidTypes.Add(new LiquidTypeDTO(4, "Chá"));
+                LiquidTypes.Add(new LiquidTypeDTO(5, "Refrigerante"));
+            }
+            else
+            {
+                foreach (var lt in types)
+                    LiquidTypes.Add(lt);
+            }
+
             if (liquid != null)
             {
                 _liquidId = liquid.Id;
                 IsEditing = true;
-                Name = liquid.Name;
-                QuantityMlText = liquid.QuantityMl.ToString();
-                CaloriesPerMlText = liquid.CaloriesPerMl.ToString();
+                // Try to find the matching liquid type
+                var matchingType = LiquidTypes.FirstOrDefault(lt =>
+                    lt.Name.Equals(liquid.Name, StringComparison.OrdinalIgnoreCase));
+                SelectedLiquidTypeId = matchingType?.Id ?? LiquidTypes.First().Id;
+                QuantityText = liquid.Quantity.ToString();
             }
             else
             {
                 _liquidId = 0;
                 IsEditing = false;
-                Name = string.Empty;
-                QuantityMlText = string.Empty;
-                CaloriesPerMlText = "0";
+                SelectedLiquidTypeId = LiquidTypes.First().Id;
+                QuantityText = "250";
             }
         }
 
         private async Task SaveAsync()
         {
-            if (IsBusy || string.IsNullOrWhiteSpace(Name))
-                return;
+            if (IsBusy) return;
 
-            if (!int.TryParse(_quantityMlText, out var qty) || qty <= 0)
+            if (!int.TryParse(_quantityText, out var qty) || qty <= 0)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Atenção", "Informe uma quantidade válida em ml.", "OK");
+                await Shell.Current.DisplayAlert("Atenção", "Informe uma quantidade válida em ml.", "OK");
                 return;
             }
-
-            if (!int.TryParse(_caloriesPerMlText, out var cal) || cal < 0)
-                cal = 0;
 
             IsBusy = true;
             try
@@ -118,19 +117,19 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 bool success;
                 if (_isEditing)
                 {
-                    var dto = new UpdateLiquidDTO(_liquidId, Name, qty, cal);
+                    var dto = new UpdateLiquidDTO(_liquidId, SelectedLiquidTypeId, qty);
                     success = await _nutritionService.UpdateLiquidAsync(_liquidId, dto);
                 }
                 else
                 {
-                    var dto = new CreateLiquidDTO(DiaryId, Name, qty, cal);
+                    var dto = new CreateLiquidDTO(DiaryId, SelectedLiquidTypeId, qty);
                     success = await _nutritionService.CreateLiquidAsync(dto);
                 }
 
                 if (success)
                     OnSaved?.Invoke(this, EventArgs.Empty);
                 else
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível salvar o líquido.", "OK");
+                    await Shell.Current.DisplayAlert("Erro", "Não foi possível salvar o líquido.", "OK");
             }
             catch (Exception ex)
             {

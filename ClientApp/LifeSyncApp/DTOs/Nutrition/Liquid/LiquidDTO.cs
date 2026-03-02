@@ -6,7 +6,5 @@ namespace LifeSyncApp.DTOs.Nutrition.Liquid
         DateTime CreatedAt,
         DateTime? UpdatedAt,
         string Name,
-        int QuantityMl,
-        int CaloriesPerMl,
-        int TotalCalories);
+        int Quantity);
 }

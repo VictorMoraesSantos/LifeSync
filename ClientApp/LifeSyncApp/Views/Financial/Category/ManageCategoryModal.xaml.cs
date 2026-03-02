@@ -1,4 +1,5 @@
 using LifeSyncApp.DTOs.Financial.Category;
+using LifeSyncApp.ViewModels.Financial;
 using LifeSyncApp.ViewModels.Financial.Category;
 
 namespace LifeSyncApp.Views.Financial;
@@ -8,14 +9,16 @@ public partial class ManageCategoryModal : ContentPage
 {
     private readonly ManageCategoryViewModel _viewModel;
     private readonly CategoriesViewModel _categoriesViewModel;
+    private readonly FinancialViewModel _financialViewModel;
 
     public CategoryDTO? Category { get; set; }
 
-    public ManageCategoryModal(ManageCategoryViewModel viewModel, CategoriesViewModel categoriesViewModel)
+    public ManageCategoryModal(ManageCategoryViewModel viewModel, CategoriesViewModel categoriesViewModel, FinancialViewModel financialViewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
         _categoriesViewModel = categoriesViewModel;
+        _financialViewModel = financialViewModel;
         BindingContext = _viewModel;
     }
 
@@ -40,6 +43,7 @@ public partial class ManageCategoryModal : ContentPage
     private async void OnSaved(object? sender, EventArgs e)
     {
         _categoriesViewModel.InvalidateCategoriesCache();
+        _financialViewModel.InvalidateDataCache();
         await Shell.Current.GoToAsync("..");
     }
 

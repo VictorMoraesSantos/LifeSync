@@ -1,4 +1,4 @@
 namespace LifeSyncApp.DTOs.Nutrition.MealFood
 {
-    public record CreateMealFoodDTO(string Name, int QuantityInGrams, int CaloriesPerUnit);
+    public record CreateMealFoodDTO(int MealId, int FoodId, int Quantity);
 }

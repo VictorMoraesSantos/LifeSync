@@ -93,8 +93,7 @@ namespace Core.Domain.Filters
                 AddCriteria(x => DateOnly.FromDateTime(x.CreatedAt) == filter.CreatedAt.Value);
 
             if (filter.UpdatedAt.HasValue)
-                AddCriteria(x => x.UpdatedAt.HasValue
-                    && DateOnly.FromDateTime(x.UpdatedAt.Value) == filter.UpdatedAt.Value);
+                AddCriteria(x => x.UpdatedAt.HasValue && DateOnly.FromDateTime(x.UpdatedAt.Value) == filter.UpdatedAt.Value);
 
             if (filter.IsDeleted.HasValue)
                 AddCriteria(x => x.IsDeleted == filter.IsDeleted.Value);
@@ -113,7 +112,7 @@ namespace Core.Domain.Filters
         private void ApplyDynamicOrderBy(string sortBy, bool descending)
         {
             var entityType = typeof(T);
-            var property = entityType.GetProperty(sortBy, BindingFlags.Public | BindingFlags.Instance)
+            var property = entityType.GetProperty(sortBy, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
                 ?? throw new ArgumentException(
                     $"Property '{sortBy}' does not exist on entity '{entityType.Name}'. " +
                     $"Available properties: {string.Join(", ", entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name))}");

@@ -49,6 +49,8 @@ namespace LifeSyncApp
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("Outfit-Regular.ttf", "OutfitRegular");
+                    fonts.AddFont("Outfit-SemiBold.ttf", "OutfitSemiBold");
                 });
 
             // Configure a URL base baseado na plataforma
@@ -107,9 +109,13 @@ namespace LifeSyncApp
             builder.Services.AddSingleton<NutritionViewModel>();
             builder.Services.AddSingleton<ManageMealViewModel>();
             builder.Services.AddSingleton<MealDetailViewModel>();
-            builder.Services.AddSingleton<ManageMealFoodViewModel>();
             builder.Services.AddSingleton<ManageLiquidViewModel>();
-            builder.Services.AddSingleton<ManageGoalViewModel>();
+            builder.Services.AddSingleton<DiaryDetailViewModel>();
+            builder.Services.AddSingleton<FoodSearchViewModel>();
+            builder.Services.AddSingleton<EditMealFoodViewModel>();
+            builder.Services.AddSingleton<DailyProgressViewModel>();
+            builder.Services.AddSingleton<DiaryHistoryViewModel>();
+            builder.Services.AddSingleton<CreateDiaryViewModel>();
             builder.Services.AddSingleton<ManageCategoryViewModel>();
             builder.Services.AddSingleton<TransactionListViewModel>();
             builder.Services.AddTransient<TransactionDetailViewModel>();
@@ -131,9 +137,16 @@ namespace LifeSyncApp
             builder.Services.AddTransient<NutritionPage>();
             builder.Services.AddTransient<ManageMealModal>();
             builder.Services.AddTransient<MealDetailPage>();
-            builder.Services.AddTransient<ManageMealFoodModal>();
             builder.Services.AddTransient<ManageLiquidModal>();
-            builder.Services.AddTransient<ManageGoalModal>();
+            builder.Services.AddTransient<DiaryDetailPage>();
+            builder.Services.AddTransient<FoodSearchPage>();
+            builder.Services.AddTransient<EditMealFoodModal>();
+            builder.Services.AddTransient<DailyProgressPage>();
+            builder.Services.AddTransient<DiaryHistoryPage>();
+            builder.Services.AddTransient<CreateDiaryModal>();
+            builder.Services.AddTransient<FilterTaskItemPopup>();
+            builder.Services.AddTransient<ManageTaskItemModal>();
+            builder.Services.AddTransient<ManageTaskLabelModal>();
 
 #if DEBUG
             builder.Logging.AddDebug();

@@ -1,119 +1,209 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial.Transaction"
              xmlns:models="clr-namespace:LifeSyncApp.Models.Financial"
              x:Class="LifeSyncApp.Views.Financial.ManageTransactionModal"
              x:DataType="viewmodel:ManageTransactionViewModel"
              Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
-    <Grid BackgroundColor="#80000000">
+    <Grid BackgroundColor="{StaticResource FinDimOverlay}">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
         </Grid.GestureRecognizers>
 
+        <!-- Bottom Sheet -->
         <Border VerticalOptions="End"
                 HorizontalOptions="Fill"
-                BackgroundColor="White"
+                BackgroundColor="{StaticResource FinCardBg}"
                 StrokeThickness="0"
-                MaximumHeightRequest="650"
-                StrokeShape="RoundRectangle 16">
+                StrokeShape="RoundRectangle 24,24,0,0">
             <Border.Shadow>
-                <Shadow Brush="Black"  Offset="0,10" Radius="30" Opacity="0.3"/>
+                <Shadow Brush="#1A1918" Offset="0,-4" Radius="24" Opacity="0.08"/>
             </Border.Shadow>
 
             <Border.GestureRecognizers>
                 <TapGestureRecognizer/>
             </Border.GestureRecognizers>
 
-            <Grid RowDefinitions="Auto,*,Auto">
-                <Grid Grid.Row="0"
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+                <!-- Drag Handle -->
+                <HorizontalStackLayout Grid.Row="0"
+                                       HorizontalOptions="Center"
+                                       Padding="0,12,0,4">
+                    <BoxView WidthRequest="40"
+                             HeightRequest="4"
+                             CornerRadius="2"
+                             Color="#D9D9D9"/>
+                </HorizontalStackLayout>
+
+                <!-- Sheet Header -->
+                <Grid Grid.Row="1"
                       ColumnDefinitions="*,Auto"
-                      Padding="16,0">
-
-                    <Label Text="{Binding ModalTitle}"
-                           FontSize="16"
-                           FontAttributes="None"
-                           TextColor="#111"
+                      Padding="24,16">
+                    <Label Grid.Column="0"
+                           Text="{Binding ModalTitle}"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource FinDark}"
                            VerticalOptions="Center"/>
-
-                    <ImageButton Grid.Column="1" 
-                                 Source="close.svg" 
-                                 BackgroundColor="Transparent" 
-                                 Padding="8"  
-                                 Margin="8" 
-                                 Command="{Binding CancelCommand}" />
+                    <Image Grid.Column="1"
+                           Source="close.svg"
+                           WidthRequest="24"
+                           HeightRequest="24">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                        </Image.GestureRecognizers>
+                    </Image>
                 </Grid>
 
-                <BoxView Grid.Row="0"
-                         VerticalOptions="End"
-                         HeightRequest="1"
-                         BackgroundColor="#E5E5E5"/>
+                <!-- Scrollable Form -->
+                <ScrollView Grid.Row="2"
+                            MaximumHeightRequest="550">
+                    <VerticalStackLayout Padding="24,0,24,24"
+                                         Spacing="24">
 
-                <ScrollView Grid.Row="1">
-                    <VerticalStackLayout Padding="20"
-                                         Spacing="20">
+                        <!-- Transaction Type -->
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Tipo de Transação"
+                                   FontSize="14"
+                                   TextColor="{StaticResource FinSecondaryText}"/>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <Border Grid.Column="0"
+                                        HeightRequest="44"
+                                        StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="1"
+                                        Stroke="{Binding TransactionType, Converter={StaticResource TransactionTypeToBorderConverter}, ConverterParameter=Income}"
+                                        BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToBackgroundConverter}, ConverterParameter=Income}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SetTransactionTypeCommand}"
+                                                              CommandParameter="Income"/>
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="8"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center">
+                                        <Image Source="arrow_circle_up.svg"
+                                               WidthRequest="18"
+                                               HeightRequest="18"/>
+                                        <Label Text="Receita"
+                                               FontSize="14"
+                                               TextColor="{StaticResource FinSecondaryText}"
+                                               VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </Border>
 
-                        <VerticalStackLayout Spacing="8">
+                                <Border Grid.Column="1"
+                                        HeightRequest="44"
+                                        StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="1.5"
+                                        Stroke="{Binding TransactionType, Converter={StaticResource TransactionTypeToBorderConverter}, ConverterParameter=Expense}"
+                                        BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToBackgroundConverter}, ConverterParameter=Expense}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SetTransactionTypeCommand}"
+                                                              CommandParameter="Expense"/>
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="8"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center">
+                                        <Image Source="arrow_circle_down.svg"
+                                               WidthRequest="18"
+                                               HeightRequest="18"/>
+                                        <Label Text="Despesa"
+                                               FontSize="14"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource FinDestructive}"
+                                               VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- Value -->
+                        <VerticalStackLayout Spacing="10">
                             <Label Text="Valor"
                                    FontSize="14"
-                                   TextColor="#525252"/>
-
-                            <Border BackgroundColor="#F5F5F5"
-                                    StrokeThickness="0"
-                                    Padding="16,12"
-                                    StrokeShape="RoundRectangle 8">
-                                <Entry Text="{Binding Amount}"
-                                       Placeholder="R$ 0,00"
-                                       Keyboard="Numeric"
-                                       PlaceholderColor="#A1A1A1"
-                                       TextColor="#171717"
-                                       FontSize="16"
-                                       BackgroundColor="Transparent"/>
-                            </Border>
+                                   TextColor="{StaticResource FinSecondaryText}"/>
+                            <Grid ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="8">
+                                <Border Grid.Column="0"
+                                        HeightRequest="48"
+                                        StrokeShape="RoundRectangle 12"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{StaticResource FinBackground}"
+                                        Padding="14,0">
+                                    <Label Text="R$"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource FinDark}"
+                                           VerticalOptions="Center"/>
+                                </Border>
+                                <Border Grid.Column="1"
+                                        HeightRequest="48"
+                                        StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="1"
+                                        Stroke="{StaticResource FinBorder}"
+                                        BackgroundColor="Transparent"
+                                        Padding="14,0">
+                                    <Entry Text="{Binding Amount}"
+                                           Placeholder="0,00"
+                                           Keyboard="Numeric"
+                                           PlaceholderColor="{StaticResource FinMuted}"
+                                           TextColor="{StaticResource FinDark}"
+                                           FontSize="16"
+                                           BackgroundColor="Transparent"/>
+                                </Border>
+                            </Grid>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Spacing="8">
+                        <!-- Description -->
+                        <VerticalStackLayout Spacing="10">
                             <Label Text="Descrição"
                                    FontSize="14"
-                                   TextColor="#525252"/>
-                            <Border BackgroundColor="#F5F5F5"
-                                    StrokeThickness="0"
-                                    Padding="16,12"
-                                    StrokeShape="RoundRectangle 8" >
+                                   TextColor="{StaticResource FinSecondaryText}"/>
+                            <Border HeightRequest="48"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="1"
+                                    Stroke="{StaticResource FinBorder}"
+                                    BackgroundColor="Transparent"
+                                    Padding="14,0">
                                 <Entry Text="{Binding Description}"
                                        Placeholder="Ex: Almoço no restaurante"
-                                       PlaceholderColor="#A1A1A1"
-                                       TextColor="#171717"
-                                       FontSize="16"
+                                       PlaceholderColor="{StaticResource FinMuted}"
+                                       TextColor="{StaticResource FinDark}"
+                                       FontSize="14"
                                        BackgroundColor="Transparent"/>
                             </Border>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Categoria (opcional)" 
+                        <!-- Category -->
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Categoria (opcional)"
                                    FontSize="14"
-                                   TextColor="#525252"/>
-
-                            <Border BackgroundColor="#F5F5F5"
-                                    StrokeThickness="0"
-                                    Padding="16,12"
-                                    StrokeShape="RoundRectangle 8">
+                                   TextColor="{StaticResource FinSecondaryText}"/>
+                            <Border HeightRequest="48"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="1"
+                                    Stroke="{StaticResource FinBorder}"
+                                    BackgroundColor="Transparent"
+                                    Padding="14,0">
                                 <Picker ItemsSource="{Binding Categories}"
                                         ItemDisplayBinding="{Binding Name}"
                                         SelectedItem="{Binding SelectedCategory}"
-                                        Title="Selecione"
-                                        TextColor="#171717"
-                                        FontSize="16"
+                                        Title="Selecionar categoria"
+                                        TextColor="{StaticResource FinDark}"
+                                        FontSize="14"
                                         BackgroundColor="Transparent"/>
                             </Border>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Spacing="8">
+                        <!-- Payment Method -->
+                        <VerticalStackLayout Spacing="10">
                             <Label Text="Método de Pagamento"
                                    FontSize="14"
-                                   TextColor="#525252"/>
+                                   TextColor="{StaticResource FinSecondaryText}"/>
 
                             <FlexLayout BindableLayout.ItemsSource="{Binding PaymentMethods}"
                                         Wrap="Wrap"
@@ -124,25 +214,22 @@
                                         <Border BackgroundColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodBackgroundConverter}}"
                                                 StrokeThickness="1"
                                                 Stroke="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodBorderConverter}}"
-                                                StrokeShape="RoundRectangle 8"
-                                                Padding="12"
-                                                HeightRequest="80"
-                                                WidthRequest="110"
-                                                Margin="0,0,8,8">
+                                                StrokeShape="RoundRectangle 12"
+                                                HeightRequest="72"
+                                                WidthRequest="108"
+                                                Margin="0,0,10,10">
                                             <Border.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ManageTransactionViewModel}}, Path=TogglePaymentMethodCommand}"
                                                                       CommandParameter="{Binding .}"/>
                                             </Border.GestureRecognizers>
-
-                                            <VerticalStackLayout Spacing="8" 
-                                                                 HorizontalOptions="Center" 
+                                            <VerticalStackLayout Spacing="6"
+                                                                 HorizontalOptions="Center"
                                                                  VerticalOptions="Center">
-                                                <Image Source="{Binding IconSource}" 
-                                                       WidthRequest="24"
-                                                       HeightRequest="24"/>
-
+                                                <Image Source="{Binding IconSource}"
+                                                       WidthRequest="22"
+                                                       HeightRequest="22"/>
                                                 <Label Text="{Binding DisplayName}"
-                                                       FontSize="12"
+                                                       FontSize="11"
                                                        TextColor="{Binding IsSelected, Converter={StaticResource BoolToPaymentMethodTextColorConverter}}"
                                                        HorizontalOptions="Center"
                                                        HorizontalTextAlignment="Center"
@@ -155,119 +242,69 @@
                             </FlexLayout>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Spacing="8">
+                        <!-- Date -->
+                        <VerticalStackLayout Spacing="10">
                             <Label Text="Data da Transação"
                                    FontSize="14"
-                                   TextColor="#525252"/>
-
-                            <Border BackgroundColor="#F5F5F5"
-                                    StrokeThickness="0"
-                                    Padding="16,12"
-                                    StrokeShape="RoundRectangle 8">
+                                   TextColor="{StaticResource FinSecondaryText}"/>
+                            <Border HeightRequest="48"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="1"
+                                    Stroke="{StaticResource FinBorder}"
+                                    BackgroundColor="Transparent"
+                                    Padding="14,0">
                                 <DatePicker Date="{Binding TransactionDate}"
-                                            TextColor="#171717"
-                                            FontSize="16"
+                                            TextColor="{StaticResource FinDark}"
+                                            FontSize="14"
                                             BackgroundColor="Transparent"
                                             Format="dd/MM/yyyy"/>
                             </Border>
                         </VerticalStackLayout>
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Tipo"
-                                   FontSize="14"
-                                   TextColor="#525252"/>
-
-                            <Grid ColumnDefinitions="*,*" 
-                                  ColumnSpacing="12">
-                                <Border Grid.Column="0"
-                                        BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToBackgroundConverter}, ConverterParameter=Income}"
-                                        StrokeThickness="2"
-                                        Stroke="{Binding TransactionType, Converter={StaticResource TransactionTypeToBorderConverter}, ConverterParameter=Income}"
-                                        StrokeShape="RoundRectangle 8"
-                                        Padding="16"
-                                        HeightRequest="56">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SetTransactionTypeCommand}"
-                                                              CommandParameter="Income"/>
-                                    </Border.GestureRecognizers>
-                                    <Label Text="Receita"
-                                           FontSize="16"
-                                           FontAttributes="Bold"
-                                           TextColor="#00A63E"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center"/>
-                                </Border>
-
-                                <Border Grid.Column="1"
-                                        BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToBackgroundConverter}, ConverterParameter=Expense}"
-                                        StrokeThickness="2"
-                                        Stroke="{Binding TransactionType, Converter={StaticResource TransactionTypeToBorderConverter}, ConverterParameter=Expense}"
-                                        StrokeShape="RoundRectangle 8"
-                                        Padding="16"
-                                        HeightRequest="56">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding SetTransactionTypeCommand}"
-                                                              CommandParameter="Expense"/>
-                                    </Border.GestureRecognizers>
-                                    <Label Text="Despesa"
-                                           FontSize="16"
-                                           FontAttributes="Bold"
-                                           TextColor="#E7000B"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center"/>
-                                </Border>
-                            </Grid>
-                        </VerticalStackLayout>
                     </VerticalStackLayout>
                 </ScrollView>
 
-                <Grid Grid.Row="2" 
-                      RowDefinitions="Auto,Auto" 
-                      Padding="0" 
-                      RowSpacing="0">
+                <!-- Action Buttons -->
+                <Grid Grid.Row="3"
+                      ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      Padding="24,8,24,24">
 
-                    <BoxView Grid.Row="0" 
-                             HeightRequest="1" 
-                             Color="#E5E5E5"/>
+                    <Border Grid.Column="0"
+                            HeightRequest="50"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1"
+                            Stroke="{StaticResource FinBorder}"
+                            BackgroundColor="Transparent">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Cancelar"
+                               FontSize="15"
+                               TextColor="{StaticResource FinSecondaryText}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
 
-                    <Grid Grid.Row="1" 
-                          ColumnDefinitions="*,*" 
-                          ColumnSpacing="12" 
-                          Padding="20,16">
-                        <Border Grid.Column="0"
-                                BackgroundColor="#F5F5F5"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 8"
-                                Padding="16"
-                                HeightRequest="48">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding CancelCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Cancelar"
-                                   FontSize="16"
+                    <Border Grid.Column="1"
+                            HeightRequest="50"
+                            StrokeShape="RoundRectangle 14"
+                            Stroke="Transparent"
+                            BackgroundColor="{StaticResource FinGreen}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center">
+                            <Image Source="add.svg"
+                                   WidthRequest="18"
+                                   HeightRequest="18"/>
+                            <Label Text="Criar"
+                                   FontSize="15"
                                    FontAttributes="Bold"
-                                   TextColor="#171717"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-
-                        <Border Grid.Column="1"
-                                BackgroundColor="#171717"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 8"
-                                Padding="16"
-                                HeightRequest="48">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SaveCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Salvar"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="White"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
+                                   TextColor="White"/>
+                        </HorizontalStackLayout>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>

@@ -2,16 +2,20 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LifeSyncApp.Controls.CustomTabBar"
-             BackgroundColor="White">
+             BackgroundColor="{StaticResource FinBackground}">
 
-    <Border StrokeThickness="0" BackgroundColor="White">
+    <Border StrokeThickness="1"
+            Stroke="{StaticResource FinBorder}"
+            BackgroundColor="{StaticResource FinCardBg}"
+            Padding="4"
+            Margin="21,12,21,21"
+            StrokeShape="RoundRectangle 36">
         <Border.Shadow>
-            <Shadow Brush="Black" Offset="0,-2" Radius="8" Opacity="0.1"/>
+            <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
         </Border.Shadow>
 
         <Grid ColumnDefinitions="*,*,*,*"
-              Padding="8,8,8,20"
-              BackgroundColor="White">
+              BackgroundColor="Transparent">
 
             <!-- Financeiro Tab -->
             <Border Grid.Column="0"

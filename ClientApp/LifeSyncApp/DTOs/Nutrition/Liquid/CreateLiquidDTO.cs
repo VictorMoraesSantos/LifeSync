@@ -1,4 +1,4 @@
 namespace LifeSyncApp.DTOs.Nutrition.Liquid
 {
-    public record CreateLiquidDTO(int DiaryId, string Name, int QuantityMl, int CaloriesPerMl);
+    public record CreateLiquidDTO(int DiaryId, int LiquidTypeId, int Quantity);
 }

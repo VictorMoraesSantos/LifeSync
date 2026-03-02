@@ -50,6 +50,17 @@
     <Project Path="Services/Users/Users.Infrastructure/Users.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Financial.E2ETests/Financial.E2ETests.csproj" Id="74665242-29d9-44ad-a661-3076559222b7" />
+    <Project Path="tests/Financial.IntegrationTests/Financial.IntegrationTests.csproj" Id="826ba83a-6404-42d5-876c-cf5541288df0" />
+    <Project Path="tests/Financial.UnitTests/Financial.UnitTests.csproj" Id="dfbe9b10-0caf-4fb0-960e-19120db378c8" />
+    <Project Path="tests/Gym.E2ETests/Gym.E2ETests.csproj" Id="3aa983af-b238-403e-9177-e7dde6dc3a99" />
+    <Project Path="tests/Gym.IntegrationTests/Gym.IntegrationTests.csproj" Id="eefcd639-e0ae-487e-96fe-451cebbe3c75" />
+    <Project Path="tests/Gym.UnitTests/Gym.UnitTests.csproj" Id="d6ef9ada-3757-422d-ba96-c29b4ab522ba" />
+    <Project Path="tests/Nutrition.E2ETests/Nutrition.E2ETests.csproj" Id="bfa328a7-b384-4c8d-80ef-a027d55ff10c" />
+    <Project Path="tests/Nutrition.IntegrationTests/Nutrition.IntegrationTests.csproj" Id="179d1378-a326-4216-9211-cfca05a77470" />
+    <Project Path="tests/Nutrition.UnitTests/Nutrition.UnitTests.csproj" Id="0da034c7-3ae6-4c71-a594-d3a94379d251" />
+    <Project Path="tests/TaskManager.E2ETests/TaskManager.E2ETests.csproj" Id="e6c55f69-047c-463b-8bef-e0a725f4cafa" />
+    <Project Path="tests/TaskManager.IntegrationTests/TaskManager.IntegrationTests.csproj" Id="abe1b90a-2e03-43ac-ba88-66b4a418e45e" />
     <Project Path="tests/TaskManager.UnitTests/TaskManager.UnitTests.csproj" />
   </Folder>
   <Folder Name="/WebApp/">

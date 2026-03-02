@@ -70,19 +70,29 @@ namespace LifeSyncApp.Services.Financial
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var queryString = BuildQueryString(filter);
-                var response = await client.GetAsync($"{BaseUrl}/search?{queryString}", cancellationToken);
+                var url = $"{BaseUrl}/search?{queryString}";
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] GET {client.BaseAddress}{url}");
+                var response = await client.GetAsync(url, cancellationToken);
+
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] Status: {response.StatusCode}");
 
                 if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                    System.Diagnostics.Debug.WriteLine($"[TransactionService] Error body: {errorBody}");
                     return new List<TransactionDTO>();
+                }
 
-                var result =
-                    await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<TransactionDTO>>>(_jsonOptions,
-                        cancellationToken);
+                var rawJson = await response.Content.ReadAsStringAsync(cancellationToken);
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] Response JSON (first 500 chars): {rawJson[..Math.Min(500, rawJson.Length)]}");
+
+                var result = System.Text.Json.JsonSerializer.Deserialize<ApiSingleResponse<List<TransactionDTO>>>(rawJson, _jsonOptions);
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] Deserialized {result?.Data?.Count ?? 0} transactions");
                 return result?.Data ?? new List<TransactionDTO>();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error searching transactions: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] Error searching transactions: {ex.Message}\n{ex.StackTrace}");
                 return new List<TransactionDTO>();
             }
         }

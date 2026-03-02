@@ -15,6 +15,8 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         private readonly IUserSession _userSession;
         private TransactionFilterDTO _currentFilter = new();
         private bool _filterSetFromNavigation = false;
+        private DateTime? _lastTransactionsRefresh;
+        private TransactionFilterDTO? _cachedFilter;
 
         public ObservableCollection<TransactionGroup> GroupedTransactions { get; } = new();
 
@@ -26,6 +28,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
                 {
                     _currentFilter = value;
                     _filterSetFromNavigation = true;
+                    InvalidateTransactionsCache();
                     _ = ApplyFilterAsync();
                 }
             }
@@ -45,7 +48,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             OpenManageTransactionModalCommand = new Command(async () => await OpenManageTransactionModalAsync());
-            RefreshCommand = new Command(async () => await LoadTransactionsAsync());
+            RefreshCommand = new Command(async () => await LoadTransactionsAsync(forceRefresh: true));
             OpenDetailCommand = new Command<TransactionDTO>(async (transaction) => await OpenDetailAsync(transaction));
             OpenFilterCommand = new Command(async () => await OpenFilterAsync());
         }
@@ -60,9 +63,24 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             await LoadTransactionsAsync();
         }
 
-        private async Task LoadTransactionsAsync()
+        public void InvalidateTransactionsCache()
         {
-            await FetchAndGroupTransactionsAsync("Ocorreu um erro ao carreagar as transações.");
+            _lastTransactionsRefresh = null;
+            _cachedFilter = null;
+        }
+
+        private bool IsFilterChanged()
+        {
+            if (_cachedFilter == null) return true;
+            return _cachedFilter != _currentFilter;
+        }
+
+        private async Task LoadTransactionsAsync(bool forceRefresh = false)
+        {
+            if (!forceRefresh && !IsCacheExpired(_lastTransactionsRefresh) && !IsFilterChanged() && GroupedTransactions.Any())
+                return;
+
+            await FetchAndGroupTransactionsAsync("Ocorreu um erro ao carregar as transações.");
         }
 
         private async Task ApplyFilterAsync()
@@ -78,7 +96,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 
             try
             {
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
                 var filter = _currentFilter with { UserId = _userSession.UserId };
                 var transactions = await _transactionService.SearchTransactionsAsync(filter, cts.Token);
@@ -89,9 +107,12 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
                     .ToList();
 
                 GroupedTransactions.ReplaceAll(groups);
+                _lastTransactionsRefresh = DateTime.Now;
+                _cachedFilter = _currentFilter;
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[TransactionListVM] Error: {ex.Message}");
                 await Shell.Current.DisplayAlert("Erro", errorMsg, "OK");
             }
             finally

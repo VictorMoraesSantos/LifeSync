@@ -9,14 +9,16 @@ public partial class ManageTransactionModal : ContentPage
 {
     private readonly ManageTransactionViewModel _viewModel;
     private readonly FinancialViewModel _financialViewModel;
+    private readonly TransactionListViewModel _transactionListViewModel;
 
     public TransactionDTO? Transaction { get; set; }
 
-    public ManageTransactionModal(ManageTransactionViewModel viewModel, FinancialViewModel financialViewModel)
+    public ManageTransactionModal(ManageTransactionViewModel viewModel, FinancialViewModel financialViewModel, TransactionListViewModel transactionListViewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
         _financialViewModel = financialViewModel;
+        _transactionListViewModel = transactionListViewModel;
         BindingContext = _viewModel;
     }
 
@@ -40,8 +42,9 @@ public partial class ManageTransactionModal : ContentPage
 
     private async void OnSaved(object? sender, EventArgs e)
     {
+        _financialViewModel.InvalidateDataCache();
+        _transactionListViewModel.InvalidateTransactionsCache();
         await Shell.Current.GoToAsync("..");
-        await _financialViewModel.LoadDataAsync(forceRefresh: true);
     }
 
     private async void OnCancelled(object? sender, EventArgs e)

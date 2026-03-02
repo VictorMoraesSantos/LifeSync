@@ -144,7 +144,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                 System.Diagnostics.Debug.WriteLine($"🔄 Loading labels from API (forceRefresh: {forceRefresh})");
 
-                var query = new TaskLabelFilterDTO(UserId: _userSession.UserId, SortBy: "name");
+                var query = new TaskLabelFilterDTO(UserId: _userSession.UserId, SortBy: "Name");
                 var labels = await _taskLabelService.SearchTaskLabelAsync(query).ConfigureAwait(false);
 
                 await MainThread.InvokeOnMainThreadAsync(() => TaskLabels.ReplaceAll(labels));
@@ -254,9 +254,12 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     });
                 }
 
-                await LoadLabelsAsync();
+                await LoadLabelsAsync(forceRefresh: true);
 
-                await Shell.Current.GoToAsync("..");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.GoToAsync("..");
+                });
             }
             catch (Exception ex)
             {
@@ -293,10 +296,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
                 InvalidateLabelsCache();
 
+                await LoadLabelsAsync(forceRefresh: true);
+
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     await Shell.Current.DisplayAlert("Sucesso", "Etiqueta excluída com sucesso!", "OK");
-                    await Shell.Current.GoToAsync("..");
                 });
             }
             catch (Exception ex)

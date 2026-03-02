@@ -1,190 +1,293 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial.Transaction"
              x:Class="LifeSyncApp.Views.Financial.TransactionDetailModal"
              x:DataType="viewmodel:TransactionDetailViewModel"
              Shell.PresentationMode="ModalAnimated"
-             BackgroundColor="Transparent">
+             BackgroundColor="{StaticResource FinBackground}">
 
-    <Grid BackgroundColor="#80000000">
-        <Grid.GestureRecognizers>
-            <TapGestureRecognizer Command="{Binding CloseCommand}"/>
-        </Grid.GestureRecognizers>
+    <Grid RowDefinitions="Auto,*,Auto">
 
-        <Border VerticalOptions="End"
-                HorizontalOptions="Fill"
-                BackgroundColor="White"
-                StrokeThickness="0"
-                MaximumHeightRequest="600"
-                StrokeShape="RoundRectangle 16">
-            <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.3"/>
-            </Border.Shadow>
+        <!-- Nav Bar -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto,*,Auto"
+              Padding="20,8">
 
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer/>
-            </Border.GestureRecognizers>
+            <HorizontalStackLayout Grid.Column="0"
+                                   Spacing="4"
+                                   VerticalOptions="Center">
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseCommand}"/>
+                </HorizontalStackLayout.GestureRecognizers>
+                <Image Source="arrow_back.svg"
+                       WidthRequest="20"
+                       HeightRequest="20"
+                       VerticalOptions="Center"/>
+                <Label Text="Voltar"
+                       FontSize="15"
+                       TextColor="{StaticResource FinDark}"
+                       VerticalOptions="Center"/>
+            </HorizontalStackLayout>
 
-            <Grid RowDefinitions="Auto,*,Auto">
-                <Grid Grid.Row="0"
-                      ColumnDefinitions="*,Auto"
-                      Padding="16,16,16,12">
-                    <Label Text="Detalhes da Transação"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="#111"
-                           VerticalOptions="Center"/>
+            <HorizontalStackLayout Grid.Column="2"
+                                   Spacing="16"
+                                   VerticalOptions="Center">
+                <Image Source="edit.svg"
+                       WidthRequest="20"
+                       HeightRequest="20">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding EditCommand}"/>
+                    </Image.GestureRecognizers>
+                </Image>
+                <Image Source="trash.svg"
+                       WidthRequest="20"
+                       HeightRequest="20">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DeleteCommand}"/>
+                    </Image.GestureRecognizers>
+                </Image>
+            </HorizontalStackLayout>
+        </Grid>
 
-                    <ImageButton Grid.Column="1"
-                                 Source="close.svg"
-                                 BackgroundColor="Transparent"
-                                 Padding="8"
-                                 Command="{Binding CloseCommand}"/>
-                </Grid>
+        <!-- Content -->
+        <ScrollView Grid.Row="1"
+                    Padding="20,12,20,20">
+            <VerticalStackLayout Spacing="24">
 
-                <BoxView Grid.Row="0"
-                         VerticalOptions="End"
-                         HeightRequest="1"
-                         BackgroundColor="#E5E5E5"/>
+                <!-- Hero Card -->
+                <Border BackgroundColor="{StaticResource FinCardBg}"
+                        StrokeThickness="1"
+                        Stroke="{StaticResource FinBorder}"
+                        Padding="20"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
 
-                <ScrollView Grid.Row="1"
-                            Padding="20">
-                    <VerticalStackLayout Spacing="20">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Valor"
-                                   FontSize="14"
-                                   TextColor="#737373"/>
-                            <Label FontSize="32"
-                                   FontAttributes="Bold"
-                                   TextColor="{Binding Transaction.TransactionType, Converter={StaticResource TransactionTypeToColorConverter}}">
-                                <Label.FormattedText>
-                                    <FormattedString>
-                                        <Span Text="{Binding Transaction.TransactionType, Converter={StaticResource TransactionTypeToSignConverter}}"/>
-                                        <Span Text="{Binding Transaction.Amount, Converter={StaticResource MoneyToStringConverter}}"/>
-                                    </FormattedString>
-                                </Label.FormattedText>
-                            </Label>
-                        </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="12"
+                                         HorizontalOptions="Center">
 
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Descrição"
-                                   FontSize="14"
-                                   TextColor="#737373"/>
-                            <Label Text="{Binding Transaction.Description}"
-                                   FontSize="16"
-                                   TextColor="#171717"
-                                   LineBreakMode="WordWrap"/>
-                        </VerticalStackLayout>
+                        <!-- Type Icon Circle -->
+                        <Border WidthRequest="48"
+                                HeightRequest="48"
+                                StrokeShape="RoundRectangle 24"
+                                Stroke="Transparent"
+                                HorizontalOptions="Center">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding Transaction.TransactionType}"
+                                             Value="Income">
+                                    <Setter Property="BackgroundColor" Value="#E8F5E9"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding Transaction.TransactionType}"
+                                             Value="Expense">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource FinDestructiveBg}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Image WidthRequest="24"
+                                   HeightRequest="24"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center">
+                                <Image.Triggers>
+                                    <DataTrigger TargetType="Image"
+                                                 Binding="{Binding Transaction.TransactionType}"
+                                                 Value="Income">
+                                        <Setter Property="Source" Value="arrow_circle_up.svg"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Image"
+                                                 Binding="{Binding Transaction.TransactionType}"
+                                                 Value="Expense">
+                                        <Setter Property="Source" Value="arrow_circle_down.svg"/>
+                                    </DataTrigger>
+                                </Image.Triggers>
+                            </Image>
+                        </Border>
 
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Categoria"
-                                   FontSize="14"
-                                   TextColor="#737373"/>
-                            <Label Text="{Binding Transaction.Category.Name, TargetNullValue='Sem categoria'}"
-                                   FontSize="16"
-                                   TextColor="#171717"/>
-                        </VerticalStackLayout>
+                        <!-- Type Label -->
+                        <Label FontSize="13"
+                               TextColor="{StaticResource FinMuted}"
+                               HorizontalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label"
+                                             Binding="{Binding Transaction.TransactionType}"
+                                             Value="Income">
+                                    <Setter Property="Text" Value="Receita"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label"
+                                             Binding="{Binding Transaction.TransactionType}"
+                                             Value="Expense">
+                                    <Setter Property="Text" Value="Despesa"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
 
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Método de Pagamento" 
-                                   FontSize="14"
-                                   TextColor="#737373"/>
-                            <Label Text="{Binding Transaction.PaymentMethod, Converter={StaticResource PaymentMethodToDisplayConverter}}"
-                                   FontSize="16"
-                                   TextColor="#171717"/>
-                        </VerticalStackLayout>
+                        <!-- Amount -->
+                        <Label FontSize="32"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{Binding Transaction.TransactionType, Converter={StaticResource TransactionTypeToColorConverter}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding Transaction.TransactionType, Converter={StaticResource TransactionTypeToSignConverter}}"/>
+                                    <Span Text="{Binding Transaction.Amount, Converter={StaticResource MoneyToStringConverter}}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
 
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Data"
-                                   FontSize="14"
-                                   TextColor="#737373"/>
-                            <Label Text="{Binding Transaction.TransactionDate, StringFormat='{0:dd/MM/yyyy}'}"
-                                   FontSize="16"
-                                   TextColor="#171717"/>
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Tipo" 
-                                   FontSize="14"
-                                   TextColor="#737373"/>
-                            <Border BackgroundColor="{Binding Transaction.TransactionType, Converter={StaticResource TransactionTypeToBackgroundConverter}, ConverterParameter=Income}"
-                                    StrokeThickness="2"
-                                    Stroke="{Binding Transaction.TransactionType, Converter={StaticResource TransactionTypeToBorderConverter}, ConverterParameter=Income}"
-                                    Padding="12"
-                                    HorizontalOptions="Start"
-                                    StrokeShape="RoundRectangle 8">
-                                <Label FontSize="14"
-                                       FontAttributes="Bold"
-                                       TextColor="{Binding Transaction.TransactionType, Converter={StaticResource TransactionTypeToColorConverter}}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding Transaction.TransactionType}"
-                                                     Value="1">
-                                            <Setter Property="Text"
-                                                    Value="Receita"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding Transaction.TransactionType}"
-                                                     Value="2">
-                                            <Setter Property="Text"
-                                                    Value="Despesa"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
-                        </VerticalStackLayout>
+                        <!-- Description -->
+                        <Label Text="{Binding Transaction.Description}"
+                               FontSize="16"
+                               TextColor="{StaticResource FinDark}"
+                               HorizontalOptions="Center"/>
                     </VerticalStackLayout>
-                </ScrollView>
+                </Border>
 
-                <Grid Grid.Row="2"
-                      RowDefinitions="Auto,Auto"
-                      Padding="0">
-                    <BoxView Grid.Row="0"
-                             HeightRequest="1" 
-                             Color="#E5E5E5"/>
+                <!-- Details Card -->
+                <Border BackgroundColor="{StaticResource FinCardBg}"
+                        StrokeThickness="1"
+                        Stroke="{StaticResource FinBorder}"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
 
-                    <Grid Grid.Row="1" 
-                          ColumnDefinitions="*,*" 
-                          ColumnSpacing="12" 
-                          Padding="20,16">
-                        <Border Grid.Column="0"
-                                BackgroundColor="White"
-                                StrokeThickness="1"
-                                Stroke="#E5E5E5"
-                                Padding="16"
-                                HeightRequest="48"
-                                StrokeShape="RoundRectangle ">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding DeleteCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Excluir"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="#E7000B"
-                                   HorizontalOptions="Center"
+                    <VerticalStackLayout>
+
+                        <!-- Payment Method Row -->
+                        <Grid ColumnDefinitions="*,Auto"
+                              Padding="20,16">
+                            <Label Grid.Column="0"
+                                   Text="Método de Pagamento"
+                                   FontSize="13"
+                                   TextColor="{StaticResource FinMuted}"
                                    VerticalOptions="Center"/>
-                        </Border>
+                            <HorizontalStackLayout Grid.Column="1"
+                                                   Spacing="6">
+                                <Image Source="money_black.svg"
+                                       WidthRequest="16"
+                                       HeightRequest="16"
+                                       VerticalOptions="Center"/>
+                                <Label Text="{Binding Transaction.PaymentMethod, Converter={StaticResource PaymentMethodToDisplayConverter}}"
+                                       FontSize="14"
+                                       TextColor="{StaticResource FinDark}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource FinBorder}"/>
 
-                        <Border Grid.Column="1"
-                                BackgroundColor="#171717"
-                                StrokeThickness="0"
-                                Padding="16"
-                                HeightRequest="48"
-                                StrokeShape="RoundRectangle 8">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EditCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Editar"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="White"
-                                   HorizontalOptions="Center"
+                        <!-- Date Row -->
+                        <Grid ColumnDefinitions="*,Auto"
+                              Padding="20,16">
+                            <Label Grid.Column="0"
+                                   Text="Data da Transação"
+                                   FontSize="13"
+                                   TextColor="{StaticResource FinMuted}"
                                    VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
-                </Grid>
-            </Grid>
-        </Border>
+                            <HorizontalStackLayout Grid.Column="1"
+                                                   Spacing="6">
+                                <Image Source="calendar.svg"
+                                       WidthRequest="16"
+                                       HeightRequest="16"
+                                       VerticalOptions="Center"/>
+                                <Label Text="{Binding Transaction.TransactionDate, StringFormat='{0:dd} de {0:MMM}. de {0:yyyy}'}"
+                                       FontSize="14"
+                                       TextColor="{StaticResource FinDark}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource FinBorder}"/>
+
+                        <!-- Category Row -->
+                        <Grid ColumnDefinitions="*,Auto"
+                              Padding="20,16">
+                            <Label Grid.Column="0"
+                                   Text="Categoria"
+                                   FontSize="13"
+                                   TextColor="{StaticResource FinMuted}"
+                                   VerticalOptions="Center"/>
+                            <HorizontalStackLayout Grid.Column="1"
+                                                   Spacing="6">
+                                <Ellipse WidthRequest="10"
+                                         HeightRequest="10"
+                                         Fill="{StaticResource FinGreen}"
+                                         VerticalOptions="Center"/>
+                                <Label Text="{Binding Transaction.Category.Name, TargetNullValue='Sem categoria'}"
+                                       FontSize="14"
+                                       TextColor="{StaticResource FinDark}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource FinBorder}"/>
+
+                        <!-- Created Row -->
+                        <Grid ColumnDefinitions="*,Auto"
+                              Padding="20,16">
+                            <Label Grid.Column="0"
+                                   Text="Criada em"
+                                   FontSize="13"
+                                   TextColor="{StaticResource FinMuted}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1"
+                                   Text="{Binding Transaction.TransactionDate, StringFormat='{0:dd} de {0:MMM}. de {0:yyyy}'}"
+                                   FontSize="14"
+                                   TextColor="{StaticResource FinDark}"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Action Buttons -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,*"
+              ColumnSpacing="12"
+              Padding="20,12,20,20">
+
+            <Border Grid.Column="0"
+                    HeightRequest="50"
+                    StrokeShape="RoundRectangle 14"
+                    StrokeThickness="1.5"
+                    Stroke="{StaticResource FinDestructiveBorder}"
+                    BackgroundColor="Transparent">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding DeleteCommand}"/>
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="8"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center">
+                    <Image Source="trash.svg"
+                           WidthRequest="18"
+                           HeightRequest="18"/>
+                    <Label Text="Excluir"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource FinDestructive}"/>
+                </HorizontalStackLayout>
+            </Border>
+
+            <Border Grid.Column="1"
+                    HeightRequest="50"
+                    StrokeShape="RoundRectangle 14"
+                    Stroke="Transparent"
+                    BackgroundColor="{StaticResource FinDark}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding EditCommand}"/>
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="8"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center">
+                    <Image Source="edit.svg"
+                           WidthRequest="18"
+                           HeightRequest="18"/>
+                    <Label Text="Editar"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="White"/>
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>

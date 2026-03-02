@@ -2,9 +2,9 @@ namespace LifeSyncApp.Models.Financial
 {
     public enum Currency
     {
-        BRL = 1,
-        USD = 2,
-        EUR = 3
+        USD = 0,
+        EUR = 1,
+        BRL = 2
     }
 
     public static class CurrencyExtensions

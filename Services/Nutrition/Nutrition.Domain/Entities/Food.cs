@@ -15,7 +15,17 @@ namespace Nutrition.Domain.Entities
         public decimal? Sodium { get; set; }
         public decimal? Potassium { get; set; }
 
-        public Food(string name, int calories, decimal? protein, decimal? lipids, decimal? carbohydrates, decimal? calcium, decimal? magnesium, decimal? iron, decimal? sodium, decimal? potassium)
+        public Food(
+            string name,
+            int calories,
+            decimal? protein,
+            decimal? lipids,
+            decimal? carbohydrates,
+            decimal? calcium,
+            decimal? magnesium,
+            decimal? iron,
+            decimal? sodium,
+            decimal? potassium)
         {
             Name = name;
             Calories = calories;

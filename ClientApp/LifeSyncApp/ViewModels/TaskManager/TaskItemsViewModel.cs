@@ -7,7 +7,7 @@ using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using static LifeSyncApp.ViewModels.TaskManager.FilterTaskItemViewModel;
+using LifeSyncApp.ViewModels.TaskManager;
 
 namespace LifeSyncApp.ViewModels.TaskManager
 {
@@ -172,7 +172,13 @@ namespace LifeSyncApp.ViewModels.TaskManager
             ToggleLabelCommand = new Command<SelectableLabelItem>(ToggleLabel);
 
             FilterViewModel = new FilterTaskItemViewModel();
-            FilterViewModel.FiltersApplied += (s, e) => _ = ApplyFiltersAsync(e.Status, e.Priority, e.DateFilter);
+            FilterViewModel.FiltersApplied += (s, e) =>
+            {
+                _currentStatusFilter = e.Status;
+                _currentPriorityFilter = e.Priority;
+                _currentDateFilter = e.DateFilter ?? DateFilterOption.All;
+                InvalidateTasksCache();
+            };
             FilterViewModel.Closed += async (s, e) => await Shell.Current.GoToAsync("..");
         }
 
@@ -209,15 +215,19 @@ namespace LifeSyncApp.ViewModels.TaskManager
                     .Select(g => new TaskGroup(g.Key, g))
                     .ToList();
 
-                _taskItems.ReplaceAll(taskList);
-                _groupedTasks.ReplaceAll(grouped);
+                // Batch UI updates on main thread
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    _taskItems.ReplaceAll(taskList);
+                    _groupedTasks.ReplaceAll(grouped);
+                });
 
                 _lastTasksRefresh = DateTime.Now;
                 System.Diagnostics.Debug.WriteLine($"✅ Tasks loaded successfully ({taskList.Count} tasks). Cache updated.");
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Erro", $"Erro ao carregar tarefas: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"Error loading tasks: {ex.Message}");
             }
             finally
             {
@@ -243,20 +253,12 @@ namespace LifeSyncApp.ViewModels.TaskManager
             System.Diagnostics.Debug.WriteLine("🗑️ Tasks cache invalidated");
         }
 
-        private async Task ApplyFiltersAsync(Status? status, Priority? priority, DateFilterOption? dateFilter)
+        private void ApplyFilters(Status? status, Priority? priority, DateFilterOption? dateFilter)
         {
-            try
-            {
-                _currentStatusFilter = status;
-                _currentPriorityFilter = priority;
-                _currentDateFilter = dateFilter ?? DateFilterOption.All;
-
-                await LoadTasksAsync();
-            }
-            catch (Exception ex)
-            {
-                await Shell.Current.DisplayAlert("Erro", $"Erro ao aplicar filtros: {ex.Message}", "OK");
-            }
+            _currentStatusFilter = status;
+            _currentPriorityFilter = priority;
+            _currentDateFilter = dateFilter ?? DateFilterOption.All;
+            InvalidateTasksCache();
         }
 
         private async Task NavigateToTaskLabelPage()
@@ -340,7 +342,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 NewTaskDueDate = DateTime.Today;
             }
 
-            LoadLabels(selectedIds);
+            await LoadLabelsAsync(selectedIds);
 
             await Shell.Current.GoToAsync("ManageTaskItemModal");
         }
@@ -515,7 +517,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
         }
 
-        private async void LoadLabels(List<int>? preSelectedIds = null)
+        private async Task LoadLabelsAsync(List<int>? preSelectedIds = null)
         {
             try
             {
@@ -530,11 +532,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 }
 
                 System.Diagnostics.Debug.WriteLine("🔄 Loading labels from API");
-                var query = new TaskLabelFilterDTO(UserId: _userSession.UserId, SortBy: "name");
+                var query = new TaskLabelFilterDTO(UserId: _userSession.UserId, SortBy: "Name");
                 var labels = await _taskLabelService.SearchTaskLabelAsync(query);
-                var selectableLabels = labels.Select(label => new SelectableLabelItem(label, isSelected: preSelectedIds?.Contains(label.Id) ?? false));
+                var selectableLabels = labels.Select(label => new SelectableLabelItem(label, isSelected: preSelectedIds?.Contains(label.Id) ?? false)).ToList();
 
-                _availableLabels.ReplaceAll(selectableLabels);
+                await MainThread.InvokeOnMainThreadAsync(() => _availableLabels.ReplaceAll(selectableLabels));
 
                 _lastLabelsRefresh = DateTime.Now;
                 System.Diagnostics.Debug.WriteLine($"✅ Labels loaded successfully ({labels.Count()} labels). Cache updated.");

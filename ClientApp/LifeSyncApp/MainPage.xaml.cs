@@ -38,9 +38,20 @@ public partial class MainPage : ContentPage
         }
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        // Reload current tab data when returning from a modal (e.g., filters, create/edit)
+        // Cache invalidation is handled by the modals themselves, so just call load (cache-aware)
+        if (_currentTabIndex == 0 && _currentPage?.BindingContext is ViewModels.Financial.FinancialViewModel financialVm)
+        {
+            await financialVm.LoadDataAsync();
+        }
+        else if (_currentTabIndex == 2 && _currentPage?.BindingContext is ViewModels.TaskManager.TaskItemsViewModel taskVm)
+        {
+            await taskVm.LoadTasksAsync();
+        }
     }
 
     private void OnTabSelected(object sender, int tabIndex)
@@ -120,7 +131,7 @@ public partial class MainPage : ContentPage
                 return;
             }
 
-            // Extrair conteúdo
+            // Extrair conteúdo - detach from source page first to prevent ObjectDisposedException
             var content = page.Content;
             if (content == null)
             {
@@ -138,15 +149,19 @@ public partial class MainPage : ContentPage
             System.Diagnostics.Debug.WriteLine($"✅ Content extraído: {content.GetType().Name}");
 
             // Transferir BindingContext
-            if (page.BindingContext != null)
+            var bindingContext = page.BindingContext;
+            if (bindingContext != null)
             {
-                content.BindingContext = page.BindingContext;
-                System.Diagnostics.Debug.WriteLine($"✅ BindingContext transferido: {page.BindingContext.GetType().Name}");
+                content.BindingContext = bindingContext;
+                System.Diagnostics.Debug.WriteLine($"✅ BindingContext transferido: {bindingContext.GetType().Name}");
             }
             else
             {
                 System.Diagnostics.Debug.WriteLine($"⚠️ WARNING: BindingContext é null para tab {tabIndex}");
             }
+
+            // Detach content from source page to prevent disposal issues
+            page.Content = null;
 
             // Exibir conteúdo
             ContentArea.Content = content;
@@ -156,65 +171,8 @@ public partial class MainPage : ContentPage
 
             System.Diagnostics.Debug.WriteLine($"✅ Tab {tabIndex} carregada com sucesso");
 
-            // Carregar dados financeiros se for Financial
-            if (tabIndex == 0 && page.BindingContext is ViewModels.Financial.FinancialViewModel financialVm)
-            {
-                System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de dados financeiros");
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await MainThread.InvokeOnMainThreadAsync(async () =>
-                        {
-                            await financialVm.InitializeAsync();
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar dados financeiros: {ex.Message}");
-                    }
-                });
-            }
-
-            // Carregar dados de nutrição se for Nutrition
-            if (tabIndex == 3 && page.BindingContext is NutritionViewModel nutritionVm)
-            {
-                System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de dados de nutrição");
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await MainThread.InvokeOnMainThreadAsync(async () =>
-                        {
-                            await nutritionVm.InitializeAsync();
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar dados de nutrição: {ex.Message}");
-                    }
-                });
-            }
-
-            // Carregar tasks se for TaskManager
-            if (tabIndex == 2 && page.BindingContext is ViewModels.TaskManager.TaskItemsViewModel taskVm)
-            {
-                System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de tasks");
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await MainThread.InvokeOnMainThreadAsync(async () =>
-                        {
-                            await taskVm.LoadTasksAsync();
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"❌ Erro ao carregar tasks: {ex.Message}");
-                    }
-                });
-            }
+            // Carregar dados da tab selecionada (fire-and-forget com tratamento de erro)
+            _ = InitializeTabDataAsync(tabIndex, page.BindingContext);
         }
         catch (Exception ex)
         {
@@ -254,6 +212,32 @@ public partial class MainPage : ContentPage
             {
                 System.Diagnostics.Debug.WriteLine($"❌ Erro até para mostrar erro: {displayEx.Message}");
             }
+        }
+    }
+
+    private async Task InitializeTabDataAsync(int tabIndex, object? bindingContext)
+    {
+        try
+        {
+            switch (tabIndex)
+            {
+                case 0 when bindingContext is ViewModels.Financial.FinancialViewModel financialVm:
+                    System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de dados financeiros");
+                    await financialVm.InitializeAsync();
+                    break;
+                case 2 when bindingContext is ViewModels.TaskManager.TaskItemsViewModel taskVm:
+                    System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de tasks");
+                    await taskVm.LoadTasksAsync();
+                    break;
+                case 3 when bindingContext is NutritionViewModel nutritionVm:
+                    System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de dados de nutrição");
+                    await nutritionVm.InitializeAsync();
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ Erro ao inicializar dados da tab {tabIndex}: {ex.Message}");
         }
     }
 }

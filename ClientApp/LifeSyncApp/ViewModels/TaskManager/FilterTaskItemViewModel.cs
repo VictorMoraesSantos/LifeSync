@@ -3,6 +3,11 @@ using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.TaskManager
 {
+    public enum DateFilterOption
+    {
+        All, Today, ThisWeek, ThisMonth
+    }
+
     public class FilterAppliedEventArgs : EventArgs
     {
         public Status? Status { get; }
@@ -19,10 +24,6 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
     public class FilterTaskItemViewModel : BaseViewModel
     {
-        public enum DateFilterOption
-        {
-            All, Today, ThisWeek, ThisMonth
-        }
 
         private string _selectedStatus;
         public string SelectedStatus

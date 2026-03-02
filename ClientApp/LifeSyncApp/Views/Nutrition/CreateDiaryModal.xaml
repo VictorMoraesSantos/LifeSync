@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             x:Class="LifeSyncApp.Views.Nutrition.CreateDiaryModal"
+             x:DataType="viewmodel:CreateDiaryViewModel"
+             Shell.PresentationMode="ModalNotAnimated"
+             BackgroundColor="Transparent">
+
+    <Grid BackgroundColor="#AA000000">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+        </Grid.GestureRecognizers>
+
+        <!-- Bottom Sheet -->
+        <Border VerticalOptions="End"
+                HorizontalOptions="Fill"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 24,24,0,0">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,-4" Radius="24" Opacity="0.08"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer/>
+            </Border.GestureRecognizers>
+
+            <VerticalStackLayout Padding="24,16,24,32" Spacing="24">
+
+                <!-- Handle -->
+                <Border BackgroundColor="#E5E4E1"
+                        StrokeThickness="0"
+                        WidthRequest="40"
+                        HeightRequest="4"
+                        StrokeShape="RoundRectangle 2"
+                        HorizontalOptions="Center"/>
+
+                <!-- Header -->
+                <HorizontalStackLayout Spacing="12">
+                    <Label Text="✕"
+                           FontSize="18"
+                           TextColor="#6D6C6A"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Novo Diário"
+                           FontSize="18"
+                           FontFamily="OutfitSemiBold"
+                           TextColor="#1A1918"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <!-- Info Card -->
+                <Border BackgroundColor="#C8F0D8"
+                        StrokeThickness="0"
+                        Padding="20"
+                        StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="📖"
+                               FontSize="28"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Como funciona?"
+                               FontSize="15"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="#1A1918"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Cada diário corresponde a um dia. Após criar, você pode adicionar refeições e registros de líquidos para acompanhar sua nutrição."
+                               FontSize="13"
+                               FontFamily="OutfitRegular"
+                               TextColor="#3D6B4E"
+                               HorizontalTextAlignment="Center"
+                               LineHeight="1.4"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Form -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        Padding="24,20"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="Selecione a data para criar um novo diário alimentar."
+                               FontSize="13"
+                               FontFamily="OutfitRegular"
+                               TextColor="#6D6C6A"
+                               LineHeight="1.4"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Data"
+                                   FontSize="13"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="#1A1918"/>
+                            <Border BackgroundColor="#F5F4F1"
+                                    StrokeThickness="1"
+                                    Stroke="#E5E4E1"
+                                    Padding="12,4"
+                                    StrokeShape="RoundRectangle 12">
+                                <DatePicker Date="{Binding SelectedDate}"
+                                            Format="dd/MM/yyyy"
+                                            TextColor="#1A1918"
+                                            FontSize="15"
+                                            HorizontalOptions="Fill"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Create Button -->
+                <Border BackgroundColor="#3D8A5A"
+                        StrokeThickness="0"
+                        Padding="0,16"
+                        StrokeShape="RoundRectangle 12">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CreateCommand}"/>
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="+"
+                               FontSize="16"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="White"
+                               VerticalOptions="Center"/>
+                        <Label Text="Criar Diário"
+                               FontSize="16"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="White"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

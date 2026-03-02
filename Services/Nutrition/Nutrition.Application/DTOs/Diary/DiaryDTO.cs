@@ -12,6 +12,6 @@ namespace Nutrition.Application.DTOs.Diary
         DateTime? UpdatedAt,
         int TotalCalories,
         IList<MealDTO> Meals,
-        IList<LiquidDTO> Liquids
-        ) : DTOBase(Id, CreatedAt, UpdatedAt);
+        IList<LiquidDTO> Liquids)
+        : DTOBase(Id, CreatedAt, UpdatedAt);
 }

@@ -31,7 +31,6 @@ public partial class MealDetailPage : ContentPage
     {
         base.OnDisappearing();
         _viewModel.MealDeleted -= OnMealDeleted;
-        // Invalidate cache so dashboard refreshes when navigating back
         _nutritionViewModel.InvalidateDataCache();
     }
 

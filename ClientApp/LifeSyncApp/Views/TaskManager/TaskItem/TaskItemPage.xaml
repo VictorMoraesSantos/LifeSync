@@ -6,53 +6,56 @@
              xmlns:models="clr-namespace:LifeSyncApp.Models.TaskManager"
              xmlns:enums="clr-namespace:LifeSyncApp.Models.TaskManager.Enums"
              x:DataType="viewmodels:TaskItemsViewModel"
-             Title="">
+             Title=""
+             BackgroundColor="#F5F4F1">
 
     <Grid>
         <Grid RowDefinitions="Auto,*">
-            <Grid Grid.Row="0" 
-                  Padding="16,12"
-                  BackgroundColor="White"
+
+            <!-- Header -->
+            <Grid Grid.Row="0"
+                  Padding="20,12"
+                  BackgroundColor="#F5F4F1"
                   ColumnDefinitions="*,Auto,Auto">
 
                 <Label Text="Tarefas"
-                       FontSize="16"
-                       FontAttributes="None"
-                       TextColor="#2C3E50"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#1A1918"
                        VerticalOptions="Center"/>
 
                 <Border Grid.Column="1"
                         WidthRequest="44"
                         HeightRequest="44"
-                        StrokeShape="RoundRectangle 8"
+                        StrokeShape="RoundRectangle 22"
                         Stroke="Transparent"
-                        BackgroundColor="#F5F5F5"
-                        Margin="0,0,8,0">
+                        BackgroundColor="Transparent"
+                        Margin="0,0,12,0">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding GoToLabelsCommand}"/>
                     </Border.GestureRecognizers>
                     <Image Source="label.svg"
-                           WidthRequest="20"
-                           HeightRequest="20"
+                           WidthRequest="22"
+                           HeightRequest="22"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
                 </Border>
 
                 <Border Grid.Column="2"
-                        WidthRequest="88"
-                        HeightRequest="44"
-                        StrokeShape="RoundRectangle 8"
+                        HeightRequest="40"
+                        StrokeShape="RoundRectangle 20"
                         Stroke="Transparent"
-                        BackgroundColor="#171717">
+                        BackgroundColor="#3D8A5A">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding OpenManageTaskModalCommand}"/>
                     </Border.GestureRecognizers>
                     <HorizontalStackLayout Spacing="6"
                                            HorizontalOptions="Center"
-                                           VerticalOptions="Center">
+                                           VerticalOptions="Center"
+                                           Padding="16,0">
                         <Image Source="add.svg"
-                               WidthRequest="20"
-                               HeightRequest="20"
+                               WidthRequest="16"
+                               HeightRequest="16"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"/>
                         <Label Text="Nova"
@@ -63,22 +66,18 @@
                     </HorizontalStackLayout>
                 </Border>
             </Grid>
-            <BoxView Grid.Row="0"
-                     HeightRequest="1"
-                     Color="#E0E0E0"
-                     VerticalOptions="End"/>
 
+            <!-- Task List -->
             <CollectionView Grid.Row="1"
-                            Margin="10"
                             ItemsSource="{Binding GroupedTasks}"
                             IsGrouped="True"
                             SelectionMode="None">
 
-                    <CollectionView.Header>
-                        <Border Padding="14,10"
-                                Margin="0, 16, 0, 0"
-                                StrokeShape="RoundRectangle 10"
-                                Stroke="#E6E6E6"
+                <CollectionView.Header>
+                    <VerticalStackLayout Padding="20,16,20,0">
+                        <Border Padding="14,8"
+                                StrokeShape="RoundRectangle 100"
+                                Stroke="#E5E4E1"
                                 StrokeThickness="1"
                                 BackgroundColor="White"
                                 HorizontalOptions="Start">
@@ -86,201 +85,207 @@
                                 <TapGestureRecognizer Command="{Binding OpenFiltersCommand}" />
                             </Border.GestureRecognizers>
 
-                            <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                                 <Image Source="filter.svg"
-                                       WidthRequest="18"
-                                       HeightRequest="18"
+                                       WidthRequest="16"
+                                       HeightRequest="16"
                                        VerticalOptions="Center" />
                                 <Label Text="Filtros"
                                        FontSize="14"
-                                       TextColor="#2C3E50"
+                                       TextColor="#6D6C6A"
                                        VerticalOptions="Center" />
                             </HorizontalStackLayout>
                         </Border>
-                    </CollectionView.Header>
+                    </VerticalStackLayout>
+                </CollectionView.Header>
 
-                    <CollectionView.EmptyView>
-                        <StackLayout Padding="20" 
-                                     VerticalOptions="Center"
-                                     HorizontalOptions="Center">
-                            <Label Text="Nenhuma tarefa encontrada"
-                                   FontSize="18"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="Gray" />
-                        </StackLayout>
-                    </CollectionView.EmptyView>
+                <CollectionView.EmptyView>
+                    <StackLayout Padding="20"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Center">
+                        <Label Text="Nenhuma tarefa encontrada"
+                               FontSize="16"
+                               HorizontalTextAlignment="Center"
+                               TextColor="#9C9B99" />
+                    </StackLayout>
+                </CollectionView.EmptyView>
 
-                    <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate x:DataType="models:TaskGroup">
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate x:DataType="models:TaskGroup">
+                        <Grid ColumnDefinitions="*,Auto"
+                              Padding="20,24,20,8">
+                            <Label Text="{Binding DisplayDate}"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsOverdue}"
+                                                 Value="True">
+                                        <Setter Property="TextColor" Value="#D08068"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsOverdue}"
+                                                 Value="False">
+                                        <Setter Property="TextColor" Value="#1A1918"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
 
-                            <FlexLayout Direction="Row" 
-                                        AlignItems="Center" 
-                                        Padding="8,0,8,12" 
-                                        Margin="0, 24, 0, 0" 
-                                        BackgroundColor="Transparent">
-                                <Image Source="calendar.svg" 
-                                       WidthRequest="16"
-                                       HeightRequest="16"
-                                       VerticalOptions="Center">
-                                    <Image.Triggers>
-                                        <DataTrigger TargetType="Image"
-                                                     Binding="{Binding IsOverdue}"
-                                                     Value="True">
-                                            <Setter Property="Source" Value="calendar_alert.svg"/>
+                            <Label Grid.Column="1"
+                                   Text="{Binding TaskCountText}"
+                                   FontSize="12"
+                                   TextColor="#9C9B99"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:TaskItem">
+
+                        <Border Margin="20,0,20,8"
+                                Padding="16"
+                                StrokeShape="RoundRectangle 16"
+                                Stroke="#E5E4E1"
+                                StrokeThickness="1"
+                                BackgroundColor="White">
+                            <Border.Shadow>
+                                <Shadow Brush="#1A191808"
+                                        Offset="0,2"
+                                        Radius="12"
+                                        Opacity="1"/>
+                            </Border.Shadow>
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=ViewTaskDetailCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <!-- Checkbox -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="22"
+                                        HeightRequest="22"
+                                        StrokeShape="RoundRectangle 11"
+                                        Stroke="#D1D0CD"
+                                        StrokeThickness="2"
+                                        BackgroundColor="White"
+                                        VerticalOptions="Start"
+                                        Margin="0,2,0,0">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=ToggleStatusCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding Status}"
+                                                     Value="{x:Static enums:Status.Completed}">
+                                            <Setter Property="BackgroundColor" Value="#3D8A5A"/>
+                                            <Setter Property="Stroke" Value="#3D8A5A"/>
                                         </DataTrigger>
-                                    </Image.Triggers>
-                                </Image>
-
-                                <Label Text="{Binding DisplayDate}"
-                                       FontSize="14"
-                                       FontAttributes="Bold"
-                                       Margin="4, 0, 8, 0"
-                                       VerticalOptions="Center">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsOverdue}"
-                                                     Value="True">
-                                            <Setter Property="TextColor" Value="#E74C3C"/>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding Status}"
+                                                     Value="{x:Static enums:Status.InProgress}">
+                                            <Setter Property="Stroke" Value="#D4A64A"/>
+                                            <Setter Property="BackgroundColor" Value="#FFF8E8"/>
                                         </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding IsOverdue}"
-                                                     Value="False">
-                                            <Setter Property="TextColor" Value="#2C3E50"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-
-                                <Line X1="0" Y1="0"
-                                      X2="1" Y2="0"
-                                      Stroke="#E0E0E0"
-                                      StrokeThickness="1"
-                                      VerticalOptions="Center"
-                                      FlexLayout.Grow="1"
-                                      Margin="0,0,8,0"/>
-
-                                <Label Text="{Binding TaskCountText}"
-                                       FontSize="12"
-                                       TextColor="#95A5A6"
-                                       VerticalOptions="Center"/>
-                            </FlexLayout>
-
-                        </DataTemplate>
-                    </CollectionView.GroupHeaderTemplate>
-
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:TaskItem">
-
-                            <Border Margin="0, 0, 0, 4" 
-                                    Padding="12, 12, 4, 0"
-                                    StrokeShape="RoundRectangle 10,10,10,10"
-                                    BackgroundColor="White">
-
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer 
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=ViewTaskDetailCommand}"
-                                        CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
-
-                                <Grid RowDefinitions="Auto,Auto,Auto,Auto" 
-                                      Padding="0"
-                                      ColumnDefinitions="*,Auto"
-                                      RowSpacing="8">
-
-                                    <FlexLayout Direction="Row"
-                                                AlignItems="Center"
-                                                Padding="0, 8">
-                                        <Border WidthRequest="32"
-                                                HeightRequest="32"
-                                                StrokeShape="Ellipse"
-                                                Stroke="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                                StrokeThickness="2"
-                                                BackgroundColor="{Binding Status, Converter={StaticResource StatusToLightColorConverter}}">
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=ToggleStatusCommand}"
-                                                                      CommandParameter="{Binding .}"/>
-                                            </Border.GestureRecognizers>
-
-                                            <Label Text="{Binding Status, Converter={StaticResource StatusToIconConverter}}"
-                                                   FontSize="16"
-                                                   Padding="0"
-                                                   Margin="0"
-                                                   FlexLayout.AlignSelf="Center"
-                                                   HorizontalOptions="Center"
-                                                   VerticalOptions="Center"
-                                                   HorizontalTextAlignment="Center"
-                                                   VerticalTextAlignment="Center"
-                                                   TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
-                                        </Border>
-
-                                        <Label Text="{Binding Title}"
-                                               FontSize="14"
-                                               FontAttributes="Bold"
-                                               TextColor="#2C3E50"
-                                               VerticalTextAlignment="Center"
-                                               FlexLayout.AlignSelf="Center"
-                                               Margin="4, 0"
-                                               LineBreakMode="TailTruncation">
-                                            <Label.Triggers>
-                                                <DataTrigger TargetType="Label"
-                                                             Binding="{Binding Status}"
-                                                             Value="{x:Static enums:Status.Completed}">
-                                                    <Setter Property="TextDecorations" Value="Strikethrough"/>
-                                                    <Setter Property="TextColor" Value="#95A5A6"/>
-                                                </DataTrigger>
-                                            </Label.Triggers>
-                                        </Label>
-                                    </FlexLayout>
-
-                                    <Label Text="{Binding Priority}"
-                                           Grid.Row="0" 
-                                           Grid.Column="1"
+                                    </Border.Triggers>
+                                    <Label Text="{Binding Status, Converter={StaticResource StatusToIconConverter}}"
                                            FontSize="12"
-                                           Margin="4, 0"
-                                           TextColor="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"
-                                           FontAttributes="Bold"/>
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center"
+                                           TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
+                                </Border>
 
-                                    <Label Grid.Row="1" 
-                                           Grid.Column="0"
-                                           Grid.ColumnSpan="2"
-                                           Text="{Binding Description}"
-                                           FontSize="14"
-                                           TextColor="#7F8C8D"
-                                           LineBreakMode="TailTruncation"
-                                           MaxLines="2"/>
+                                <!-- Card Body -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="8">
+                                    <!-- Title -->
+                                    <Label Text="{Binding Title}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#1A1918"
+                                           VerticalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label"
+                                                         Binding="{Binding Status}"
+                                                         Value="{x:Static enums:Status.Completed}">
+                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                <Setter Property="TextColor" Value="#9C9B99"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
 
-                                    <FlexLayout Grid.Row="2"
-                                                Grid.Column="0"
-                                                Grid.ColumnSpan="2"
-                                                Wrap="Wrap"
+                                    <!-- Labels -->
+                                    <FlexLayout Wrap="Wrap"
                                                 JustifyContent="Start"
-                                                AlignItems="Start"
+                                                AlignItems="Center"
                                                 BindableLayout.ItemsSource="{Binding Labels}">
-                                    <BindableLayout.ItemTemplate>
-                                        <DataTemplate x:DataType="models:TaskLabel">
-                                            <Border Padding="8,4"
-                                                        StrokeShape="RoundRectangle 8"
-                                                        Stroke="#E5E7EB"
-                                                        StrokeThickness="1"
-                                                        BackgroundColor="White"
-                                                        Margin="0,0,2,0">
-                                                <HorizontalStackLayout Spacing="6">
-                                                    <Ellipse WidthRequest="8"
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="models:TaskLabel">
+                                                <Border Padding="8,4"
+                                                        StrokeShape="RoundRectangle 6"
+                                                        StrokeThickness="0"
+                                                        BackgroundColor="{Binding LabelColor, Converter={StaticResource LabelColorToLightColorConverter}}"
+                                                        Margin="0,0,6,0">
+                                                    <HorizontalStackLayout Spacing="4">
+                                                        <Ellipse WidthRequest="8"
                                                                  HeightRequest="8"
                                                                  Fill="{Binding LabelColor, Converter={StaticResource LabelColorToConverter}}"
                                                                  VerticalOptions="Center"/>
-                                                    <Label Text="{Binding Name}"
+                                                        <Label Text="{Binding Name}"
                                                                FontSize="12"
-                                                               TextColor="#111"
+                                                               TextColor="#1A1918"
                                                                VerticalOptions="Center"/>
-                                                </HorizontalStackLayout>
-                                            </Border>
-                                        </DataTemplate>
-                                    </BindableLayout.ItemTemplate>
-                                </FlexLayout>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
+                                                    </HorizontalStackLayout>
+                                                </Border>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </FlexLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Priority -->
+                                <Border Grid.Column="2"
+                                        StrokeShape="RoundRectangle 100"
+                                        StrokeThickness="0"
+                                        Padding="10,4"
+                                        VerticalOptions="Start"
+                                        Margin="0,2,0,0">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding Priority}"
+                                                     Value="{x:Static enums:Priority.Low}">
+                                            <Setter Property="BackgroundColor" Value="#E8F5E9"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding Priority}"
+                                                     Value="{x:Static enums:Priority.Medium}">
+                                            <Setter Property="BackgroundColor" Value="#FFF3E0"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding Priority}"
+                                                     Value="{x:Static enums:Priority.High}">
+                                            <Setter Property="BackgroundColor" Value="#FFEBEE"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding Priority}"
+                                                     Value="{x:Static enums:Priority.Urgent}">
+                                            <Setter Property="BackgroundColor" Value="#FFEBEE"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="{Binding Priority}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="{Binding Priority, Converter={StaticResource PriorityToColorConverter}}"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
             </CollectionView>
         </Grid>
     </Grid>

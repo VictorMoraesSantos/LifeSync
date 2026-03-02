@@ -117,33 +117,81 @@ namespace LifeSyncApp.ViewModels.Financial
             try
             {
                 _isLoadingData = true;
-
                 IsBusy = true;
 
-                var categories = await _categoryService.GetCategoriesByUserIdAsync(_userSession.UserId);
-                Categories.ReplaceAll(categories);
+                // Fetch categories and transactions in parallel, off the main thread
+                var categoriesTask = _categoryService.GetCategoriesByUserIdAsync(_userSession.UserId);
 
                 var startOfMonth = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1);
                 var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
                 var filter = new TransactionFilterDTO(UserId: _userSession.UserId, TransactionDateFrom: startOfMonth, TransactionDateTo: endOfMonth);
-                var transactions = await _transactionService.SearchTransactionsAsync(filter);
+                var transactionsTask = _transactionService.SearchTransactionsAsync(filter);
 
-                CalculateStatistics(transactions);
+                await Task.WhenAll(categoriesTask, transactionsTask).ConfigureAwait(false);
 
-                RecentTransactions.ReplaceAll(transactions.OrderByDescending(t => t.TransactionDate).Take(5));
+                var categories = categoriesTask.Result;
+                var transactions = transactionsTask.Result;
 
-                CalculateTopCategories(transactions);
+                // Calculate statistics off main thread
+                var incomes = transactions.Where(t => t.TransactionType == TransactionType.Income).ToList();
+                var expenses = transactions.Where(t => t.TransactionType == TransactionType.Expense).ToList();
+
+                var totalIncome = incomes.Sum(t => t.Amount.ToDecimal());
+                var totalExpense = expenses.Sum(t => t.Amount.ToDecimal());
+                var balance = totalIncome - totalExpense;
+                var transactionCount = transactions.Count;
+                var incomeCount = incomes.Count;
+                var expenseCount = expenses.Count;
+                var highestIncome = incomes.Any() ? incomes.Max(t => t.Amount.ToDecimal()) : 0;
+                var highestExpense = expenses.Any() ? expenses.Max(t => t.Amount.ToDecimal()) : 0;
+
+                var recentTransactions = transactions.OrderByDescending(t => t.TransactionDate).Take(5).ToList();
+
+                var topCategories = expenses
+                    .Where(t => t.Category != null)
+                    .GroupBy(t => t.Category!.Id)
+                    .Select(g => new CategoryExpense
+                    {
+                        CategoryId = g.Key,
+                        CategoryName = g.First().Category!.Name,
+                        Amount = g.Sum(t => t.Amount.ToDecimal()),
+                        Percentage = totalExpense > 0 ? (double)((g.Sum(t => t.Amount.ToDecimal()) / totalExpense) * 100) : 0
+                    })
+                    .OrderByDescending(c => c.Amount)
+                    .Take(5)
+                    .ToList();
+
+                // Batch all UI updates on main thread
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Categories.ReplaceAll(categories);
+                    TotalIncome = totalIncome;
+                    TotalExpense = totalExpense;
+                    Balance = balance;
+                    TransactionCount = transactionCount;
+                    IncomeCount = incomeCount;
+                    ExpenseCount = expenseCount;
+                    HighestIncome = highestIncome;
+                    HighestExpense = highestExpense;
+                    RecentTransactions.ReplaceAll(recentTransactions);
+                    TopCategories.ReplaceAll(topCategories);
+                    IsBusy = false;
+                });
 
                 _lastDataRefresh = DateTime.Now;
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Erro", "Ocorreu um erro inesperado", "OK");
+                System.Diagnostics.Debug.WriteLine($"Error loading financial data: {ex.Message}");
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    IsBusy = false;
+                    await Shell.Current.DisplayAlert("Erro", $"Não foi possível carregar os dados financeiros: {ex.Message}", "OK");
+                });
             }
             finally
             {
                 _isLoadingData = false;
-                IsBusy = false;
             }
         }
 

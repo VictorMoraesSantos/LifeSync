@@ -21,12 +21,12 @@ public partial class ManageLiquidModal : ContentPage
         BindingContext = _viewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
         _viewModel.OnSaved += OnSaved;
         _viewModel.OnCancelled += OnCancelled;
-        _viewModel.Initialize(DiaryId, Liquid);
+        await _viewModel.InitializeAsync(DiaryId, Liquid);
     }
 
     protected override void OnDisappearing()

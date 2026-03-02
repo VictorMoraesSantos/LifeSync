@@ -9,14 +9,16 @@ namespace LifeSyncApp.Views.Financial
     {
         private readonly TransactionDetailViewModel _viewModel;
         private readonly FinancialViewModel _financialViewModel;
+        private readonly TransactionListViewModel _transactionListViewModel;
 
         public TransactionDTO? Transaction { get; set; }
 
-        public TransactionDetailModal(TransactionDetailViewModel viewModel, FinancialViewModel financialViewModel)
+        public TransactionDetailModal(TransactionDetailViewModel viewModel, FinancialViewModel financialViewModel, TransactionListViewModel transactionListViewModel)
         {
             InitializeComponent();
             _viewModel = viewModel;
             _financialViewModel = financialViewModel;
+            _transactionListViewModel = transactionListViewModel;
             BindingContext = _viewModel;
         }
 
@@ -57,7 +59,9 @@ namespace LifeSyncApp.Views.Financial
 
         private async void OnDeleted(object? sender, int transactionId)
         {
-            await _financialViewModel.LoadDataAsync(forceRefresh: true);
+            _financialViewModel.InvalidateDataCache();
+            _transactionListViewModel.InvalidateTransactionsCache();
+            await Shell.Current.GoToAsync("..");
         }
     }
 }

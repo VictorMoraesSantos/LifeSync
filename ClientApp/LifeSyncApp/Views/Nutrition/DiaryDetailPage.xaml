@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             xmlns:meal="clr-namespace:LifeSyncApp.DTOs.Nutrition.Meal"
+             xmlns:liquid="clr-namespace:LifeSyncApp.DTOs.Nutrition.Liquid"
+             x:Class="LifeSyncApp.Views.Nutrition.DiaryDetailPage"
+             x:DataType="viewmodel:DiaryDetailViewModel"
+             x:Name="page"
+             BackgroundColor="#F5F4F1"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0"
+              BackgroundColor="White"
+              Padding="16,12"
+              ColumnDefinitions="Auto,*">
+
+            <HorizontalStackLayout Grid.Column="0" Spacing="12" VerticalOptions="Center">
+                <Label Text="←"
+                       FontSize="20"
+                       FontFamily="OutfitRegular"
+                       TextColor="#1A1918"
+                       VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <Label Text="{Binding DateTitle}"
+                       FontSize="18"
+                       FontFamily="OutfitRegular"
+                       FontAttributes="Bold"
+                       TextColor="#1A1918"
+                       VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+        <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E4E1" VerticalOptions="End"/>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="20">
+
+                <!-- Summary Row -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 10">
+                    <HorizontalStackLayout Spacing="24" HorizontalOptions="Center">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="🔥" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="{Binding CaloriesTotal}"
+                                   FontSize="16"
+                                   FontFamily="OutfitRegular"
+                                   FontAttributes="Bold"
+                                   TextColor="#3D8A5A"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <BoxView WidthRequest="1" HeightRequest="20" Color="#E5E4E1" VerticalOptions="Center"/>
+
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="💧" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="{Binding LiquidsTotal}"
+                                   FontSize="16"
+                                   FontFamily="OutfitRegular"
+                                   FontAttributes="Bold"
+                                   TextColor="#3D8A5A"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Meals Section -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Refeições"
+                           FontSize="18"
+                           FontFamily="OutfitRegular"
+                           FontAttributes="Bold"
+                           TextColor="#1A1918"/>
+
+                    <!-- Meals List -->
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Meals}" Spacing="10">
+                        <BindableLayout.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center" Spacing="4" Padding="0,16">
+                                <Label Text="Nenhuma refeição adicionada"
+                                       FontSize="14"
+                                       FontFamily="OutfitRegular"
+                                       TextColor="#6D6C6A"
+                                       HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </BindableLayout.EmptyView>
+
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="meal:MealDTO">
+                                <Border BackgroundColor="White"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E4E1"
+                                        Padding="14"
+                                        StrokeShape="RoundRectangle 10">
+
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                        <!-- Meal Info -->
+                                        <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="16"
+                                                   FontFamily="OutfitRegular"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#1A1918"/>
+
+                                            <Label Text="{Binding Description}"
+                                                   FontSize="13"
+                                                   FontFamily="OutfitRegular"
+                                                   TextColor="#6D6C6A"
+                                                   LineBreakMode="TailTruncation">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding Description}" Value="">
+                                                        <Setter Property="IsVisible" Value="False"/>
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+
+                                            <HorizontalStackLayout Spacing="12" Margin="0,4,0,0">
+                                                <!-- Calories badge -->
+                                                <Border BackgroundColor="#ECFDF5"
+                                                        StrokeThickness="0"
+                                                        Padding="8,4"
+                                                        StrokeShape="RoundRectangle 6">
+                                                    <Label Text="{Binding TotalCalories, StringFormat='{0} kcal'}"
+                                                           FontSize="12"
+                                                           FontFamily="OutfitRegular"
+                                                           FontAttributes="Bold"
+                                                           TextColor="#3D8A5A"/>
+                                                </Border>
+
+                                                <!-- Food count -->
+                                                <Label Text="{Binding MealFoods.Count, StringFormat='{0} alimentos'}"
+                                                       FontSize="12"
+                                                       FontFamily="OutfitRegular"
+                                                       TextColor="#6D6C6A"
+                                                       VerticalOptions="Center"/>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+
+                                        <!-- Action Buttons -->
+                                        <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                            <Border BackgroundColor="#F5F4F1"
+                                                    StrokeThickness="0"
+                                                    WidthRequest="34"
+                                                    HeightRequest="34"
+                                                    Padding="7"
+                                                    StrokeShape="RoundRectangle 8">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DiaryDetailViewModel}}, Path=OpenEditMealCommand}"
+                                                        CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <Image Source="edit.svg" WidthRequest="18" HeightRequest="18"/>
+                                            </Border>
+
+                                            <Border BackgroundColor="#FEF2F2"
+                                                    StrokeThickness="0"
+                                                    WidthRequest="34"
+                                                    HeightRequest="34"
+                                                    Padding="7"
+                                                    StrokeShape="RoundRectangle 8">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DiaryDetailViewModel}}, Path=DeleteMealCommand}"
+                                                        CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <Image Source="trash.svg" WidthRequest="18" HeightRequest="18"/>
+                                            </Border>
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <!-- Add Meal Button -->
+                    <Border BackgroundColor="Transparent"
+                            StrokeThickness="1.5"
+                            Stroke="#3D8A5A"
+                            Padding="14,12"
+                            StrokeShape="RoundRectangle 10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenAddMealCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="+ Adicionar Refeição"
+                               FontSize="15"
+                               FontFamily="OutfitRegular"
+                               FontAttributes="Bold"
+                               TextColor="#3D8A5A"
+                               HorizontalOptions="Center"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Liquids Section -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Líquidos"
+                           FontSize="18"
+                           FontFamily="OutfitRegular"
+                           FontAttributes="Bold"
+                           TextColor="#1A1918"/>
+
+                    <!-- Liquids List -->
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Liquids}" Spacing="10">
+                        <BindableLayout.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center" Spacing="4" Padding="0,16">
+                                <Label Text="Nenhum líquido adicionado"
+                                       FontSize="14"
+                                       FontFamily="OutfitRegular"
+                                       TextColor="#6D6C6A"
+                                       HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </BindableLayout.EmptyView>
+
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="liquid:LiquidDTO">
+                                <Border BackgroundColor="White"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E4E1"
+                                        Padding="14"
+                                        StrokeShape="RoundRectangle 10">
+
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <!-- Liquid Icon -->
+                                        <Border Grid.Column="0"
+                                                BackgroundColor="#EFF6FF"
+                                                StrokeThickness="0"
+                                                WidthRequest="40"
+                                                HeightRequest="40"
+                                                Padding="8"
+                                                StrokeShape="RoundRectangle 10"
+                                                VerticalOptions="Center">
+                                            <Label Text="💧"
+                                                   FontSize="18"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+
+                                        <!-- Liquid Info -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="15"
+                                                   FontFamily="OutfitRegular"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#1A1918"/>
+                                            <Label Text="{Binding Quantity, StringFormat='{0} ml'}"
+                                                   FontSize="13"
+                                                   FontFamily="OutfitRegular"
+                                                   TextColor="#6D6C6A"/>
+                                        </VerticalStackLayout>
+
+                                        <!-- Action Buttons -->
+                                        <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                                            <Border BackgroundColor="#F5F4F1"
+                                                    StrokeThickness="0"
+                                                    WidthRequest="34"
+                                                    HeightRequest="34"
+                                                    Padding="7"
+                                                    StrokeShape="RoundRectangle 8">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DiaryDetailViewModel}}, Path=EditLiquidCommand}"
+                                                        CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <Image Source="edit.svg" WidthRequest="18" HeightRequest="18"/>
+                                            </Border>
+
+                                            <Border BackgroundColor="#FEF2F2"
+                                                    StrokeThickness="0"
+                                                    WidthRequest="34"
+                                                    HeightRequest="34"
+                                                    Padding="7"
+                                                    StrokeShape="RoundRectangle 8">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DiaryDetailViewModel}}, Path=DeleteLiquidCommand}"
+                                                        CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <Image Source="trash.svg" WidthRequest="18" HeightRequest="18"/>
+                                            </Border>
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <!-- Add Liquid Button -->
+                    <Border BackgroundColor="Transparent"
+                            StrokeThickness="1.5"
+                            Stroke="#3D8A5A"
+                            Padding="14,12"
+                            StrokeShape="RoundRectangle 10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenAddLiquidCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="+ Adicionar Líquido"
+                               FontSize="15"
+                               FontFamily="OutfitRegular"
+                               FontAttributes="Bold"
+                               TextColor="#3D8A5A"
+                               HorizontalOptions="Center"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Footer Actions -->
+                <VerticalStackLayout Spacing="10" Margin="0,12,0,24">
+                    <!-- Edit Date Button -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="1"
+                            Stroke="#E5E4E1"
+                            Padding="14,12"
+                            StrokeShape="RoundRectangle 10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding EditDateCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Editar data"
+                               FontSize="15"
+                               FontFamily="OutfitRegular"
+                               FontAttributes="Bold"
+                               TextColor="#1A1918"
+                               HorizontalOptions="Center"/>
+                    </Border>
+
+                    <!-- Delete Diary Button -->
+                    <Border BackgroundColor="#FEF2F2"
+                            StrokeThickness="1"
+                            Stroke="#FECACA"
+                            Padding="14,12"
+                            StrokeShape="RoundRectangle 10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding DeleteDiaryCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Excluir diário"
+                               FontSize="15"
+                               FontFamily="OutfitRegular"
+                               FontAttributes="Bold"
+                               TextColor="#DC2626"
+                               HorizontalOptions="Center"/>
+                    </Border>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

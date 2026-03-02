@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             xmlns:dp="clr-namespace:LifeSyncApp.DTOs.Nutrition.DailyProgress"
+             x:Class="LifeSyncApp.Views.Nutrition.DailyProgressPage"
+             x:DataType="viewmodel:DailyProgressViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F5F4F1">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <HorizontalStackLayout Grid.Row="0" Padding="24,16" Spacing="8">
+            <Label Text="Progresso Diário"
+                   FontSize="22"
+                   FontFamily="OutfitSemiBold"
+                   TextColor="#1A1918"
+                   VerticalOptions="Center"/>
+            <Label Text="🔒"
+                   FontSize="16"
+                   VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="24,0,24,24" Spacing="24">
+
+                <!-- Date Selector -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        Padding="12,10"
+                        StrokeShape="RoundRectangle 12">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Label Grid.Column="0" Text="‹" FontSize="20" FontFamily="OutfitSemiBold" TextColor="#1A1918" VerticalOptions="Center" Padding="8,0">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PreviousDayCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label Grid.Column="1" Text="{Binding DateLabel}" FontSize="14" FontFamily="OutfitRegular" TextColor="#1A1918" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Text="›" FontSize="20" FontFamily="OutfitSemiBold" TextColor="#1A1918" VerticalOptions="Center" Padding="8,0">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding NextDayCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </Border>
+
+                <!-- Progress Cards -->
+                <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">
+                    <!-- Calories Card -->
+                    <Border Grid.Column="0" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="16" StrokeShape="RoundRectangle 16">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Grid WidthRequest="90" HeightRequest="90" HorizontalOptions="Center">
+                                <Border BackgroundColor="Transparent" StrokeThickness="6" Stroke="#E5E4E1" WidthRequest="90" HeightRequest="90" StrokeShape="RoundRectangle 45"/>
+                                <Label Text="{Binding CaloriesPercentage, StringFormat='{0}%'}" FontSize="20" FontFamily="OutfitSemiBold" TextColor="#3D8A5A" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Grid>
+                            <Label Text="Calorias" FontSize="13" FontFamily="OutfitSemiBold" TextColor="#1A1918" HorizontalOptions="Center"/>
+                            <Label Text="{Binding CaloriesInfo}" FontSize="12" FontFamily="OutfitRegular" TextColor="#6D6C6A" HorizontalOptions="Center"/>
+                            <Label Text="kcal" FontSize="11" FontFamily="OutfitRegular" TextColor="#9C9B99" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Hydration Card -->
+                    <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="16" StrokeShape="RoundRectangle 16">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Grid WidthRequest="90" HeightRequest="90" HorizontalOptions="Center">
+                                <Border BackgroundColor="Transparent" StrokeThickness="6" Stroke="#E5E4E1" WidthRequest="90" HeightRequest="90" StrokeShape="RoundRectangle 45"/>
+                                <Label Text="{Binding LiquidsPercentage, StringFormat='{0}%'}" FontSize="20" FontFamily="OutfitSemiBold" TextColor="#D4A64A" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Grid>
+                            <Label Text="Hidratação" FontSize="13" FontFamily="OutfitSemiBold" TextColor="#1A1918" HorizontalOptions="Center"/>
+                            <Label Text="{Binding LiquidsInfo}" FontSize="12" FontFamily="OutfitRegular" TextColor="#6D6C6A" HorizontalOptions="Center"/>
+                            <Label Text="ml" FontSize="11" FontFamily="OutfitRegular" TextColor="#9C9B99" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Goal Section -->
+                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="18" StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="Definir Meta" FontSize="16" FontFamily="OutfitSemiBold" TextColor="#1A1918"/>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Meta de Calorias (kcal)" FontSize="13" FontFamily="OutfitRegular" TextColor="#6D6C6A"/>
+                            <Border BackgroundColor="#F5F4F1" StrokeThickness="1" Stroke="#E5E4E1" Padding="16,12" StrokeShape="RoundRectangle 12">
+                                <Entry Text="{Binding CaloriesGoalText}" Keyboard="Numeric" PlaceholderColor="#9C9B99" TextColor="#1A1918" FontSize="16" FontFamily="OutfitRegular" BackgroundColor="Transparent"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Meta de Líquidos (ml)" FontSize="13" FontFamily="OutfitRegular" TextColor="#6D6C6A"/>
+                            <Border BackgroundColor="#F5F4F1" StrokeThickness="1" Stroke="#E5E4E1" Padding="16,12" StrokeShape="RoundRectangle 12">
+                                <Entry Text="{Binding LiquidsGoalText}" Keyboard="Numeric" PlaceholderColor="#9C9B99" TextColor="#1A1918" FontSize="16" FontFamily="OutfitRegular" BackgroundColor="Transparent"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">
+                            <Border Grid.Column="0" BackgroundColor="#3D8A5A" StrokeThickness="0" Padding="0,14" StrokeShape="RoundRectangle 12">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SaveGoalCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Salvar Meta" FontSize="14" FontFamily="OutfitSemiBold" TextColor="White" HorizontalOptions="Center"/>
+                            </Border>
+                            <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="0,14" StrokeShape="RoundRectangle 12">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ResetGoalCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Resetar" FontSize="14" FontFamily="OutfitRegular" TextColor="#6D6C6A" HorizontalOptions="Center"/>
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- History Section -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Últimos 7 Dias" FontSize="16" FontFamily="OutfitSemiBold" TextColor="#1A1918"/>
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding RecentHistory}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="dp:DailyProgressDTO">
+                                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="14" StrokeShape="RoundRectangle 12">
+                                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                        <Label Grid.Column="0" Text="{Binding Date, StringFormat='{0:dd/MM}'}" FontSize="14" FontFamily="OutfitSemiBold" TextColor="#1A1918" VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" Text="{Binding CaloriesConsumed, StringFormat='{0} kcal'}" FontSize="12" FontFamily="OutfitRegular" TextColor="#3D8A5A" VerticalOptions="Center"/>
+                                        <Label Grid.Column="2" Text="{Binding LiquidsConsumedMl, StringFormat='{0} ml'}" FontSize="12" FontFamily="OutfitRegular" TextColor="#D4A64A" VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

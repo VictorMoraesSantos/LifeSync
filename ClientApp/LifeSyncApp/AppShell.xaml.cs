@@ -24,9 +24,13 @@ namespace LifeSyncApp
             Routing.RegisterRoute("FilterTransactionModal", typeof(FilterTransactionModal));
             Routing.RegisterRoute("ManageMealModal", typeof(ManageMealModal));
             Routing.RegisterRoute("MealDetailPage", typeof(MealDetailPage));
-            Routing.RegisterRoute("ManageMealFoodModal", typeof(ManageMealFoodModal));
             Routing.RegisterRoute("ManageLiquidModal", typeof(ManageLiquidModal));
-            Routing.RegisterRoute("ManageGoalModal", typeof(ManageGoalModal));
+            Routing.RegisterRoute("DiaryDetailPage", typeof(DiaryDetailPage));
+            Routing.RegisterRoute("FoodSearchPage", typeof(FoodSearchPage));
+            Routing.RegisterRoute("EditMealFoodModal", typeof(EditMealFoodModal));
+            Routing.RegisterRoute("DailyProgressPage", typeof(DailyProgressPage));
+            Routing.RegisterRoute("DiaryHistoryPage", typeof(DiaryHistoryPage));
+            Routing.RegisterRoute("CreateDiaryModal", typeof(CreateDiaryModal));
         }
     }
 }

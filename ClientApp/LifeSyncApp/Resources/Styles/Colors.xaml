@@ -28,6 +28,21 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <!-- Financial Design System Colors -->
+    <Color x:Key="FinBackground">#F5F4F1</Color>
+    <Color x:Key="FinDark">#1A1918</Color>
+    <Color x:Key="FinGreen">#3D8A5A</Color>
+    <Color x:Key="FinExpense">#D08068</Color>
+    <Color x:Key="FinDestructive">#C62828</Color>
+    <Color x:Key="FinDestructiveBg">#FFEBEE</Color>
+    <Color x:Key="FinDestructiveBorder">#EF5350</Color>
+    <Color x:Key="FinMuted">#9A9996</Color>
+    <Color x:Key="FinSecondaryText">#6D6C6A</Color>
+    <Color x:Key="FinBorder">#E5E4E1</Color>
+    <Color x:Key="FinCardBg">#FFFFFF</Color>
+    <Color x:Key="FinSurface">#EDECEA</Color>
+    <Color x:Key="FinDimOverlay">#66000000</Color>
+
     <!-- Bottom Navigation Colors (from Figma) -->
     <Color x:Key="TabBarSelected">#171717</Color>
     <Color x:Key="TabBarUnselected">#525252</Color>

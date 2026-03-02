@@ -1,14 +1,15 @@
-﻿using LifeSyncApp.Models.TaskManager.Enums;
+using LifeSyncApp.Models.TaskManager.Enums;
 using System.Globalization;
 
 namespace LifeSyncApp.Converters
 {
     public class PriorityToColorConverter : IValueConverter
     {
-        private static readonly Color Low = Color.FromArgb("#2ECC71");
-        private static readonly Color Medium = Color.FromArgb("#F39C12");
-        private static readonly Color High = Color.FromArgb("#E74C3C");
-        private static readonly Color Default = Color.FromArgb("#95A5A6");
+        private static readonly Color Low = Color.FromArgb("#3D8A5A");
+        private static readonly Color Medium = Color.FromArgb("#D89575");
+        private static readonly Color High = Color.FromArgb("#D08068");
+        private static readonly Color Urgent = Color.FromArgb("#FF4444");
+        private static readonly Color Default = Color.FromArgb("#9C9B99");
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -19,6 +20,7 @@ namespace LifeSyncApp.Converters
                     Priority.Low => Low,
                     Priority.Medium => Medium,
                     Priority.High => High,
+                    Priority.Urgent => Urgent,
                     _ => Default
                 };
             }

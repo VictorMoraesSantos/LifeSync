@@ -2,11 +2,20 @@ namespace LifeSyncApp.DTOs.Nutrition.MealFood
 {
     public record MealFoodDTO(
         int Id,
-        int MealId,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
+        int MealId,
+        int FoodId,
         string Name,
+        int Calories,
+        decimal? Protein,
+        decimal? Lipids,
+        decimal? Carbohydrates,
+        decimal? Calcium,
+        decimal? Magnesium,
+        decimal? Iron,
+        decimal? Sodium,
+        decimal? Potassium,
         int Quantity,
-        int CaloriesPerUnit,
-        int TotalCalories);
+        decimal TotalCalories);
 }

@@ -1,19 +1,19 @@
-﻿using LifeSyncApp.Models.TaskManager.Enums;
+using LifeSyncApp.Models.TaskManager.Enums;
 using System.Globalization;
 
 namespace LifeSyncApp.Converters
 {
     public class LabelColorToConverter : IValueConverter
     {
-        private static readonly Color Purple = Color.FromArgb("#9C27B0");
-        private static readonly Color Pink = Color.FromArgb("#E91E63");
-        private static readonly Color Blue = Color.FromArgb("#2196F3");
-        private static readonly Color Brown = Color.FromArgb("#795548");
-        private static readonly Color Red = Color.FromArgb("#F44336");
-        private static readonly Color Gray = Color.FromArgb("#9E9E9E");
-        private static readonly Color Green = Color.FromArgb("#4CAF50");
-        private static readonly Color Orange = Color.FromArgb("#FF9800");
-        private static readonly Color Yellow = Color.FromArgb("#FFC107");
+        private static readonly Color Purple = Color.FromArgb("#8B5CF6");
+        private static readonly Color Pink = Color.FromArgb("#F472B6");
+        private static readonly Color Blue = Color.FromArgb("#4A5FA8");
+        private static readonly Color Brown = Color.FromArgb("#D89575");
+        private static readonly Color Red = Color.FromArgb("#FF4444");
+        private static readonly Color Gray = Color.FromArgb("#9C9B99");
+        private static readonly Color Green = Color.FromArgb("#3D8A5A");
+        private static readonly Color Orange = Color.FromArgb("#D89575");
+        private static readonly Color Yellow = Color.FromArgb("#D4A64A");
 
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {

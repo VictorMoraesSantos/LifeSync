@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             xmlns:food="clr-namespace:LifeSyncApp.DTOs.Nutrition.Food"
+             x:Class="LifeSyncApp.Views.Nutrition.FoodSearchPage"
+             x:DataType="viewmodel:FoodSearchViewModel"
+             x:Name="page"
+             BackgroundColor="#F5F4F1"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0"
+              BackgroundColor="#F5F4F1"
+              Padding="16,12"
+              ColumnDefinitions="Auto,*">
+
+            <Label Grid.Column="0"
+                   Text="&#x2190; Voltar"
+                   FontFamily="OutfitRegular"
+                   FontSize="16"
+                   TextColor="#6D6C6A"
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                </Label.GestureRecognizers>
+            </Label>
+
+            <Label Grid.Column="1"
+                   Text="Buscar Alimento"
+                   FontFamily="OutfitRegular"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#1A1918"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Grid>
+
+        <!-- Search Bar -->
+        <Border Grid.Row="1"
+                BackgroundColor="White"
+                StrokeThickness="1"
+                Stroke="#E5E3DF"
+                Margin="16,4,16,12"
+                Padding="14,10"
+                StrokeShape="RoundRectangle 12">
+            <Grid ColumnDefinitions="Auto,*">
+                <Label Grid.Column="0"
+                       Text="&#x1F50D;"
+                       FontSize="16"
+                       VerticalOptions="Center"
+                       Margin="0,0,10,0"/>
+                <Entry Grid.Column="1"
+                       Text="{Binding SearchText}"
+                       Placeholder="Buscar alimento..."
+                       PlaceholderColor="#A8A7A5"
+                       TextColor="#1A1918"
+                       FontFamily="OutfitRegular"
+                       FontSize="15"
+                       BackgroundColor="Transparent"
+                       ReturnCommand="{Binding SearchCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- Results Section -->
+        <Grid Grid.Row="2">
+            <Grid RowDefinitions="Auto,*">
+
+                <!-- Results Header -->
+                <Grid Grid.Row="0"
+                      Padding="16,0,16,8"
+                      ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="Resultados"
+                           FontFamily="OutfitRegular"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#1A1918"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Column="1"
+                           Text="{Binding ResultCount, StringFormat='{0} itens'}"
+                           FontFamily="OutfitRegular"
+                           FontSize="13"
+                           TextColor="#6D6C6A"
+                           VerticalOptions="Center"/>
+                </Grid>
+
+                <!-- Food Results List -->
+                <CollectionView Grid.Row="1"
+                                ItemsSource="{Binding SearchResults}"
+                                SelectionMode="None"
+                                Margin="16,0">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="food:FoodDTO">
+                            <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#E5E3DF"
+                                    Padding="14"
+                                    Margin="0,0,0,8"
+                                    StrokeShape="RoundRectangle 12">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:FoodSearchViewModel}}, Path=SelectFoodCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                                        <!-- Food Name -->
+                                        <Label Text="{Binding Name}"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               TextColor="#1A1918"
+                                               LineBreakMode="TailTruncation"/>
+
+                                        <!-- Calories per 100g -->
+                                        <Label Text="{Binding Calories, StringFormat='{0} kcal / 100g'}"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               TextColor="#6D6C6A"/>
+
+                                        <!-- Macro Info -->
+                                        <HorizontalStackLayout Spacing="10" Margin="0,2,0,0">
+                                            <!-- Protein -->
+                                            <HorizontalStackLayout Spacing="3">
+                                                <BoxView WidthRequest="8"
+                                                         HeightRequest="8"
+                                                         CornerRadius="4"
+                                                         Color="#D4A64A"
+                                                         VerticalOptions="Center"/>
+                                                <Label FontFamily="OutfitRegular"
+                                                       FontSize="12"
+                                                       TextColor="#D4A64A"
+                                                       VerticalOptions="Center">
+                                                    <Label.FormattedText>
+                                                        <FormattedString>
+                                                            <Span Text="Prot " FontAttributes="Bold"/>
+                                                            <Span Text="{Binding Protein, StringFormat='{0:0.#}g'}"/>
+                                                        </FormattedString>
+                                                    </Label.FormattedText>
+                                                </Label>
+                                            </HorizontalStackLayout>
+
+                                            <!-- Lipids -->
+                                            <HorizontalStackLayout Spacing="3">
+                                                <BoxView WidthRequest="8"
+                                                         HeightRequest="8"
+                                                         CornerRadius="4"
+                                                         Color="#D08068"
+                                                         VerticalOptions="Center"/>
+                                                <Label FontFamily="OutfitRegular"
+                                                       FontSize="12"
+                                                       TextColor="#D08068"
+                                                       VerticalOptions="Center">
+                                                    <Label.FormattedText>
+                                                        <FormattedString>
+                                                            <Span Text="Lip " FontAttributes="Bold"/>
+                                                            <Span Text="{Binding Lipids, StringFormat='{0:0.#}g'}"/>
+                                                        </FormattedString>
+                                                    </Label.FormattedText>
+                                                </Label>
+                                            </HorizontalStackLayout>
+
+                                            <!-- Carbs -->
+                                            <HorizontalStackLayout Spacing="3">
+                                                <BoxView WidthRequest="8"
+                                                         HeightRequest="8"
+                                                         CornerRadius="4"
+                                                         Color="#3D8A5A"
+                                                         VerticalOptions="Center"/>
+                                                <Label FontFamily="OutfitRegular"
+                                                       FontSize="12"
+                                                       TextColor="#3D8A5A"
+                                                       VerticalOptions="Center">
+                                                    <Label.FormattedText>
+                                                        <FormattedString>
+                                                            <Span Text="Carb " FontAttributes="Bold"/>
+                                                            <Span Text="{Binding Carbohydrates, StringFormat='{0:0.#}g'}"/>
+                                                        </FormattedString>
+                                                    </Label.FormattedText>
+                                                </Label>
+                                            </HorizontalStackLayout>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+
+                                    <!-- Chevron -->
+                                    <Label Grid.Column="1"
+                                           Text="&#x203A;"
+                                           FontSize="22"
+                                           TextColor="#A8A7A5"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="8" Padding="0,40">
+                            <Label Text="Nenhum alimento encontrado"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="15"
+                                   TextColor="#A8A7A5"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Tente buscar por outro termo"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="13"
+                                   TextColor="#C8C7C5"
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+            </Grid>
+
+            <!-- Bottom Sheet Overlay -->
+            <Grid IsVisible="{Binding IsBottomSheetVisible}"
+                  BackgroundColor="#80000000"
+                  x:DataType="viewmodel:FoodSearchViewModel">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseBottomSheetCommand}"/>
+                </Grid.GestureRecognizers>
+
+                <Border VerticalOptions="End"
+                        HorizontalOptions="Fill"
+                        BackgroundColor="#F5F4F1"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 20,20,0,0">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,-4" Radius="20" Opacity="0.15"/>
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer/>
+                    </Border.GestureRecognizers>
+
+                    <VerticalStackLayout Padding="20,16,20,24" Spacing="16">
+
+                        <!-- Drag Handle -->
+                        <BoxView WidthRequest="40"
+                                 HeightRequest="4"
+                                 CornerRadius="2"
+                                 Color="#C8C7C5"
+                                 HorizontalOptions="Center"
+                                 Margin="0,0,0,4"/>
+
+                        <!-- Selected Food Info -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{Binding SelectedFood.Name}"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#1A1918"/>
+
+                            <Label Text="{Binding SelectedFoodCaloriesText}"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="14"
+                                   TextColor="#6D6C6A"/>
+
+                            <!-- Macro Badges -->
+                            <HorizontalStackLayout Spacing="10" Margin="0,4,0,0">
+                                <!-- Protein -->
+                                <Border BackgroundColor="#FDF6E7"
+                                        StrokeThickness="0"
+                                        Padding="10,6"
+                                        StrokeShape="RoundRectangle 8">
+                                    <HorizontalStackLayout Spacing="4">
+                                        <BoxView WidthRequest="8"
+                                                 HeightRequest="8"
+                                                 CornerRadius="4"
+                                                 Color="#D4A64A"
+                                                 VerticalOptions="Center"/>
+                                        <Label FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               TextColor="#D4A64A"
+                                               VerticalOptions="Center">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Prot " FontAttributes="Bold"/>
+                                                    <Span Text="{Binding SelectedFoodProtein}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <!-- Lipids -->
+                                <Border BackgroundColor="#FCEEE9"
+                                        StrokeThickness="0"
+                                        Padding="10,6"
+                                        StrokeShape="RoundRectangle 8">
+                                    <HorizontalStackLayout Spacing="4">
+                                        <BoxView WidthRequest="8"
+                                                 HeightRequest="8"
+                                                 CornerRadius="4"
+                                                 Color="#D08068"
+                                                 VerticalOptions="Center"/>
+                                        <Label FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               TextColor="#D08068"
+                                               VerticalOptions="Center">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Lip " FontAttributes="Bold"/>
+                                                    <Span Text="{Binding SelectedFoodLipids}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <!-- Carbs -->
+                                <Border BackgroundColor="#E8F5EC"
+                                        StrokeThickness="0"
+                                        Padding="10,6"
+                                        StrokeShape="RoundRectangle 8">
+                                    <HorizontalStackLayout Spacing="4">
+                                        <BoxView WidthRequest="8"
+                                                 HeightRequest="8"
+                                                 CornerRadius="4"
+                                                 Color="#3D8A5A"
+                                                 VerticalOptions="Center"/>
+                                        <Label FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               TextColor="#3D8A5A"
+                                               VerticalOptions="Center">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Carb " FontAttributes="Bold"/>
+                                                    <Span Text="{Binding SelectedFoodCarbs}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <!-- Separator -->
+                        <BoxView HeightRequest="1" Color="#E5E3DF"/>
+
+                        <!-- Quantity Input -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Quantidade (g)"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="14"
+                                   TextColor="#6D6C6A"/>
+                            <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#E5E3DF"
+                                    Padding="14,12"
+                                    StrokeShape="RoundRectangle 10">
+                                <Entry Text="{Binding QuantityText}"
+                                       Placeholder="100"
+                                       Keyboard="Numeric"
+                                       PlaceholderColor="#A8A7A5"
+                                       TextColor="#1A1918"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="16"
+                                       BackgroundColor="Transparent"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Total Preview Badge -->
+                        <Border BackgroundColor="#E8F5EC"
+                                StrokeThickness="0"
+                                Padding="16,12"
+                                StrokeShape="RoundRectangle 10">
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <Label Text="Total estimado:"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="14"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                                <Label Text="{Binding TotalCalories, StringFormat='{0} kcal'}"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
+
+                        <!-- Add Button -->
+                        <Border BackgroundColor="#3D8A5A"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="16"
+                                HeightRequest="52">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddFoodCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Adicionar"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</ContentPage>

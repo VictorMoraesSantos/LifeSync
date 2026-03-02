@@ -7,95 +7,164 @@
              Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
-    <Grid BackgroundColor="#80000000">
+    <Grid BackgroundColor="#AA000000">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
         </Grid.GestureRecognizers>
 
+        <!-- Bottom Sheet -->
         <Border VerticalOptions="End"
                 HorizontalOptions="Fill"
                 BackgroundColor="White"
                 StrokeThickness="0"
-                MaximumHeightRequest="420"
-                StrokeShape="RoundRectangle 16">
+                StrokeShape="RoundRectangle 24,24,0,0">
             <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.3"/>
+                <Shadow Brush="Black" Offset="0,-4" Radius="24" Opacity="0.08"/>
             </Border.Shadow>
             <Border.GestureRecognizers>
                 <TapGestureRecognizer/>
             </Border.GestureRecognizers>
 
-            <Grid RowDefinitions="Auto,*,Auto">
+            <VerticalStackLayout Padding="24,16,24,32" Spacing="24">
+
+                <!-- Drag Handle -->
+                <Border BackgroundColor="#E5E4E1"
+                        StrokeThickness="0"
+                        WidthRequest="40"
+                        HeightRequest="4"
+                        StrokeShape="RoundRectangle 2"
+                        HorizontalOptions="Center"/>
 
                 <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,0">
+                <HorizontalStackLayout Spacing="12">
+                    <Label Text="✕"
+                           FontSize="18"
+                           TextColor="#6D6C6A"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
                     <Label Text="{Binding Title}"
-                           FontSize="16"
-                           TextColor="#111"
+                           FontSize="18"
+                           FontFamily="OutfitSemiBold"
+                           TextColor="#1A1918"
                            VerticalOptions="Center"/>
-                    <ImageButton Grid.Column="1"
-                                 Source="close.svg"
-                                 BackgroundColor="Transparent"
-                                 Padding="8"
-                                 Margin="8"
-                                 Command="{Binding CancelCommand}"/>
-                </Grid>
-                <BoxView Grid.Row="0" VerticalOptions="End" HeightRequest="1" BackgroundColor="#E5E5E5"/>
+                </HorizontalStackLayout>
 
-                <!-- Body -->
-                <ScrollView Grid.Row="1">
-                    <VerticalStackLayout Padding="20" Spacing="20">
+                <!-- Form Card -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        Padding="20"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="20">
 
+                        <!-- Name Field -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Nome da refeição" FontSize="14" TextColor="#525252"/>
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12" StrokeShape="RoundRectangle 8">
+                            <Label Text="Nome *"
+                                   FontSize="13"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="#1A1918"/>
+                            <Border BackgroundColor="#F5F4F1"
+                                    StrokeThickness="1"
+                                    Stroke="#E5E4E1"
+                                    Padding="16,12"
+                                    StrokeShape="RoundRectangle 12">
                                 <Entry Text="{Binding Name}"
                                        Placeholder="Ex: Café da manhã"
-                                       PlaceholderColor="#A1A1A1"
-                                       TextColor="#171717"
-                                       FontSize="16"
+                                       MaxLength="100"
+                                       PlaceholderColor="#9C9B99"
+                                       TextColor="#1A1918"
+                                       FontSize="15"
+                                       FontFamily="OutfitRegular"
                                        BackgroundColor="Transparent"/>
                             </Border>
+                            <Label Text="Máximo 100 caracteres"
+                                   FontSize="11"
+                                   FontFamily="OutfitRegular"
+                                   TextColor="#9C9B99"/>
                         </VerticalStackLayout>
 
+                        <!-- Description Field -->
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Descrição (opcional)" FontSize="14" TextColor="#525252"/>
-                            <Border BackgroundColor="#F5F5F5" StrokeThickness="0" Padding="16,12" StrokeShape="RoundRectangle 8">
-                                <Entry Text="{Binding Description}"
-                                       Placeholder="Ex: Refeição matinal"
-                                       PlaceholderColor="#A1A1A1"
-                                       TextColor="#171717"
-                                       FontSize="16"
-                                       BackgroundColor="Transparent"/>
+                            <Label Text="Descrição *"
+                                   FontSize="13"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="#1A1918"/>
+                            <Border BackgroundColor="#F5F4F1"
+                                    StrokeThickness="1"
+                                    Stroke="#E5E4E1"
+                                    Padding="16,12"
+                                    HeightRequest="100"
+                                    StrokeShape="RoundRectangle 12">
+                                <Editor Text="{Binding Description}"
+                                        Placeholder="Descreva sua refeição..."
+                                        MaxLength="500"
+                                        PlaceholderColor="#9C9B99"
+                                        TextColor="#1A1918"
+                                        FontSize="15"
+                                        FontFamily="OutfitRegular"
+                                        BackgroundColor="Transparent"
+                                        AutoSize="TextChanges"/>
                             </Border>
+                            <Label Text="Máximo 500 caracteres"
+                                   FontSize="11"
+                                   FontFamily="OutfitRegular"
+                                   TextColor="#9C9B99"/>
                         </VerticalStackLayout>
-
                     </VerticalStackLayout>
-                </ScrollView>
+                </Border>
 
-                <!-- Footer -->
-                <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="0" RowSpacing="0">
-                    <BoxView Grid.Row="0" HeightRequest="1" Color="#E5E5E5"/>
-                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="20,16">
+                <!-- Buttons -->
+                <VerticalStackLayout Spacing="12">
+                    <Border BackgroundColor="#3D8A5A"
+                            StrokeThickness="0"
+                            Padding="0,16"
+                            StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="✓"
+                                   FontSize="16"
+                                   TextColor="White"
+                                   VerticalOptions="Center"/>
+                            <Label Text="{Binding IsEditing, StringFormat='{}{0}'}"
+                                   FontSize="16"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="White"
+                                   VerticalOptions="Center"
+                                   IsVisible="False"/>
+                            <Label Text="Criar Refeição"
+                                   FontSize="16"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="White"
+                                   VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsEditing}" Value="True">
+                                        <Setter Property="Text" Value="Salvar Refeição"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Border>
 
-                        <Border Grid.Column="0" BackgroundColor="#F5F5F5" StrokeThickness="0" StrokeShape="RoundRectangle 8" Padding="16" HeightRequest="48">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding CancelCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Cancelar" FontSize="16" FontAttributes="Bold" TextColor="#171717"
-                                   HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Border>
-
-                        <Border Grid.Column="1" BackgroundColor="#171717" StrokeThickness="0" StrokeShape="RoundRectangle 8" Padding="16" HeightRequest="48">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SaveCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Salvar" FontSize="16" FontAttributes="Bold" TextColor="White"
-                                   HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
-                </Grid>
-            </Grid>
+                    <Label Text="Cancelar"
+                           FontSize="15"
+                           FontFamily="OutfitRegular"
+                           TextColor="#6D6C6A"
+                           HorizontalOptions="Center"
+                           Padding="0,8">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
         </Border>
     </Grid>
 </ContentPage>

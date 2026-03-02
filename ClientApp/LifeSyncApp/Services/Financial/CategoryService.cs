@@ -22,20 +22,29 @@ namespace LifeSyncApp.Services.Financial
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
-                var response = await client.GetAsync($"{BaseUrl}/user/{userId}", cancellationToken);
+                var url = $"{BaseUrl}/user/{userId}";
+                System.Diagnostics.Debug.WriteLine($"[CategoryService] GET {client.BaseAddress}{url}");
+                var response = await client.GetAsync(url, cancellationToken);
+
+                System.Diagnostics.Debug.WriteLine($"[CategoryService] Status: {response.StatusCode}");
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error getting categories. Status: {response.StatusCode}");
+                    var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                    System.Diagnostics.Debug.WriteLine($"[CategoryService] Error body: {errorBody}");
                     return new List<CategoryDTO>();
                 }
 
-                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<CategoryDTO>>>(_jsonOptions, cancellationToken);
+                var rawJson = await response.Content.ReadAsStringAsync(cancellationToken);
+                System.Diagnostics.Debug.WriteLine($"[CategoryService] Response JSON: {rawJson[..Math.Min(500, rawJson.Length)]}");
+
+                var result = System.Text.Json.JsonSerializer.Deserialize<ApiSingleResponse<List<CategoryDTO>>>(rawJson, _jsonOptions);
+                System.Diagnostics.Debug.WriteLine($"[CategoryService] Deserialized {result?.Data?.Count ?? 0} categories");
                 return result?.Data ?? new List<CategoryDTO>();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error getting categories: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[CategoryService] Error getting categories: {ex.Message}\n{ex.StackTrace}");
                 return new List<CategoryDTO>();
             }
         }

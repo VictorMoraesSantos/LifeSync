@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             x:Class="LifeSyncApp.Views.Nutrition.EditMealFoodModal"
+             x:DataType="viewmodel:EditMealFoodViewModel"
+             Shell.PresentationMode="ModalNotAnimated"
+             BackgroundColor="Transparent">
+
+    <Grid BackgroundColor="#AA000000">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+        </Grid.GestureRecognizers>
+
+        <!-- Bottom Sheet -->
+        <Border VerticalOptions="End"
+                HorizontalOptions="Fill"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 24,24,0,0">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,-4" Radius="24" Opacity="0.08"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer/>
+            </Border.GestureRecognizers>
+
+            <VerticalStackLayout Padding="24,16,24,32" Spacing="20">
+
+                <!-- Handle + Header -->
+                <Border BackgroundColor="#E5E4E1"
+                        StrokeThickness="0"
+                        WidthRequest="40"
+                        HeightRequest="4"
+                        StrokeShape="RoundRectangle 2"
+                        HorizontalOptions="Center"/>
+
+                <HorizontalStackLayout Spacing="12">
+                    <Label Text="✕"
+                           FontSize="18"
+                           TextColor="#6D6C6A"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Editar Alimento"
+                           FontSize="18"
+                           FontFamily="OutfitSemiBold"
+                           TextColor="#1A1918"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <!-- Food Info Card -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        Padding="18"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding FoodName}"
+                               FontSize="16"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="#1A1918"/>
+                        <Label Text="{Binding CaloriesInfo}"
+                               FontSize="13"
+                               FontFamily="OutfitRegular"
+                               TextColor="#6D6C6A"/>
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="{Binding ProteinInfo}"
+                                   FontSize="12"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="#D4A64A"/>
+                            <Label Text="{Binding LipidsInfo}"
+                                   FontSize="12"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="#D08068"/>
+                            <Label Text="{Binding CarbsInfo}"
+                                   FontSize="12"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="#3D8A5A"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Quantity -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Quantidade (g)"
+                           FontSize="13"
+                           FontFamily="OutfitRegular"
+                           TextColor="#6D6C6A"/>
+                    <Border BackgroundColor="#F5F4F1"
+                            StrokeThickness="1"
+                            Stroke="#E5E4E1"
+                            Padding="16,12"
+                            StrokeShape="RoundRectangle 12">
+                        <Entry Text="{Binding QuantityText}"
+                               Placeholder="150"
+                               Keyboard="Numeric"
+                               PlaceholderColor="#9C9B99"
+                               TextColor="#1A1918"
+                               FontSize="16"
+                               FontFamily="OutfitRegular"
+                               BackgroundColor="Transparent"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Total Estimated -->
+                <Border BackgroundColor="#C8F0D8"
+                        StrokeThickness="0"
+                        Padding="16,14"
+                        StrokeShape="RoundRectangle 12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="Total estimado"
+                               FontSize="14"
+                               FontFamily="OutfitRegular"
+                               TextColor="#1A1918"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="1"
+                               Text="{Binding TotalEstimated}"
+                               FontSize="18"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="#3D8A5A"
+                               VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Swap Food Button -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        Padding="0,14"
+                        StrokeShape="RoundRectangle 12">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SwapFoodCommand}"/>
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="⇄"
+                               FontSize="16"
+                               TextColor="#6D6C6A"
+                               VerticalOptions="Center"/>
+                        <Label Text="Trocar Alimento"
+                               FontSize="14"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="#1A1918"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Buttons -->
+                <VerticalStackLayout Spacing="12">
+                    <Border BackgroundColor="#3D8A5A"
+                            StrokeThickness="0"
+                            Padding="0,16"
+                            StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Salvar"
+                               FontSize="16"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="White"
+                               HorizontalOptions="Center"/>
+                    </Border>
+
+                    <Border BackgroundColor="White"
+                            StrokeThickness="1"
+                            Stroke="#E5E4E1"
+                            Padding="0,16"
+                            StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Cancelar"
+                               FontSize="16"
+                               FontFamily="OutfitRegular"
+                               TextColor="#6D6C6A"
+                               HorizontalOptions="Center"/>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>
