@@ -147,12 +147,14 @@ namespace LifeSyncApp.ViewModels.Nutrition
         }
 
         public ObservableCollection<MealDTO> Meals { get; } = new();
+        public ObservableCollection<LiquidDTO> Liquids { get; } = new();
 
         public ICommand LoadDataCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand PreviousDayCommand { get; }
         public ICommand NextDayCommand { get; }
         public ICommand OpenManageMealModalCommand { get; }
+        public ICommand OpenManageLiquidModalCommand { get; }
         public ICommand OpenMealDetailCommand { get; }
         public ICommand OpenDiaryDetailCommand { get; }
         public ICommand OpenDailyProgressCommand { get; }
@@ -171,6 +173,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             PreviousDayCommand = new Command(() => SelectedDate = SelectedDate.AddDays(-1));
             NextDayCommand = new Command(() => SelectedDate = SelectedDate.AddDays(1));
             OpenManageMealModalCommand = new Command(async () => await OpenManageMealModalAsync());
+            OpenManageLiquidModalCommand = new Command(async () => await OpenManageLiquidModalAsync());
             OpenMealDetailCommand = new Command<MealDTO>(async (m) => await OpenMealDetailAsync(m));
             OpenDiaryDetailCommand = new Command(async () => await OpenDiaryDetailAsync());
             OpenDailyProgressCommand = new Command(async () => await OpenDailyProgressAsync());
@@ -196,9 +199,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (!forceRefresh && !IsCacheExpired(_lastDataRefresh) && (Meals.Any()))
                 return Task.CompletedTask;
 
-            if (_loadingTask != null && !_loadingTask.IsCompleted)
+            if (!forceRefresh && _loadingTask != null && !_loadingTask.IsCompleted)
                 return _loadingTask;
 
+            _nutritionService.InvalidateAllCache();
             _loadingTask = LoadDataInternalAsync();
             return _loadingTask;
         }
@@ -216,7 +220,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 var progressTask = _nutritionService.GetDailyProgressByUserIdAsync(_userSession.UserId);
                 await Task.WhenAll(diariesTask, progressTask).ConfigureAwait(false);
 
-                var todayDiary = diariesTask.Result.FirstOrDefault(d => d.Date == date);
+                var allDiaries = diariesTask.Result;
+                var todayDiary = allDiaries.FirstOrDefault(d => d.Date == date);
                 var todayProgress = progressTask.Result.FirstOrDefault(p => p.Date == date);
 
                 // Load meals and liquids in parallel if diary exists
@@ -250,6 +255,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     }
 
                     Meals.ReplaceAll(meals);
+                    Liquids.ReplaceAll(liquids);
                     CaloriesConsumed = meals.Sum(m => m.TotalCalories);
                     MealsCount = meals.Count;
                     LiquidsConsumedMl = liquids.Sum(l => l.Quantity);
@@ -271,20 +277,58 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             _lastDataRefresh = null;
             _loadingTask = null;
+            _nutritionService.InvalidateAllCache();
+        }
+
+
+        private async Task EnsureDiaryExistsAsync()
+        {
+            if (TodayDiary != null) return;
+
+            // Force reload from API (skip cache)
+            InvalidateDataCache();
+            await LoadDataAsync(forceRefresh: true);
+            if (TodayDiary != null) return;
+
+            // Diary doesn't exist, create it
+            var dto = new CreateDiaryDTO(_userSession.UserId, _selectedDate);
+            var (diaryId, error) = await _nutritionService.CreateDiaryAsync(dto);
+
+            if (diaryId == null && error != null && error.Contains("Já existe"))
+            {
+                // Diary exists but cache was stale - just reload
+                InvalidateDataCache();
+                await LoadDataAsync(forceRefresh: true);
+                return;
+            }
+
+            if (diaryId == null)
+            {
+                await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível criar o diário.", "OK");
+                return;
+            }
+
+            InvalidateDataCache();
+            await LoadDataAsync(forceRefresh: true);
         }
 
         private async Task OpenManageMealModalAsync()
         {
-            if (TodayDiary == null)
-                await LoadDataAsync(forceRefresh: true);
-
-            if (TodayDiary == null)
-            {
-                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o diário.", "OK");
-                return;
-            }
+            await EnsureDiaryExistsAsync();
+            if (TodayDiary == null) return;
 
             await Shell.Current.GoToAsync("ManageMealModal", new Dictionary<string, object>
+            {
+                { "DiaryId", TodayDiary.Id }
+            });
+        }
+
+        private async Task OpenManageLiquidModalAsync()
+        {
+            await EnsureDiaryExistsAsync();
+            if (TodayDiary == null) return;
+
+            await Shell.Current.GoToAsync("ManageLiquidModal", new Dictionary<string, object>
             {
                 { "DiaryId", TodayDiary.Id }
             });

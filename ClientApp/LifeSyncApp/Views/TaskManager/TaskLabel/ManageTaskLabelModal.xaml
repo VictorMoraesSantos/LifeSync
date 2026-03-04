@@ -17,7 +17,7 @@
                 HorizontalOptions="Fill"
                 BackgroundColor="White"
                 StrokeThickness="0"
-                MaximumHeightRequest="580">
+                MaximumHeightRequest="500">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="24,24,0,0"/>
             </Border.StrokeShape>

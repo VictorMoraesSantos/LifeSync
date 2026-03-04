@@ -21,7 +21,6 @@ namespace TaskManager.Infrastructure.Persistence.Repositories
         public async Task<TaskLabel?> GetById(int id, CancellationToken cancellationToken = default)
         {
             TaskLabel? entity = await _context.TaskLabels
-                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
             return entity;

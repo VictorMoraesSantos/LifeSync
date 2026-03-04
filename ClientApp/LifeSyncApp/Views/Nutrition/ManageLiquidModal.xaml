@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
-             xmlns:lt="clr-namespace:LifeSyncApp.DTOs.Nutrition.LiquidType"
              x:Class="LifeSyncApp.Views.Nutrition.ManageLiquidModal"
              x:DataType="viewmodel:ManageLiquidViewModel"
              BackgroundColor="#F5F4F1">
@@ -13,15 +12,14 @@
         <HorizontalStackLayout Grid.Row="0"
                                Padding="24,16"
                                Spacing="12">
-            <Label Text="‹"
-                   FontSize="22"
-                   FontFamily="OutfitSemiBold"
-                   TextColor="#1A1918"
+            <Image Source="arrow_back.svg"
+                   WidthRequest="22"
+                   HeightRequest="22"
                    VerticalOptions="Center">
-                <Label.GestureRecognizers>
+                <Image.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CancelCommand}"/>
-                </Label.GestureRecognizers>
-            </Label>
+                </Image.GestureRecognizers>
+            </Image>
             <Label Text="{Binding Title}"
                    FontSize="18"
                    FontFamily="OutfitSemiBold"
@@ -32,47 +30,28 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="24,0,24,24" Spacing="24">
 
-                <!-- Liquid Type Selection -->
+                <!-- Liquid Type: Água (only option) -->
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Tipo de líquido"
                            FontSize="13"
                            FontFamily="OutfitRegular"
                            TextColor="#6D6C6A"/>
 
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding LiquidTypes}" Spacing="8">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="lt:LiquidTypeDTO">
-                                <Border Padding="14,12"
-                                        StrokeThickness="1"
-                                        Stroke="#E5E4E1"
-                                        StrokeShape="RoundRectangle 12">
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding Id}"
-                                                     Value="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ManageLiquidViewModel}}, Path=SelectedLiquidTypeId}">
-                                            <Setter Property="BackgroundColor" Value="#3D8A5A"/>
-                                            <Setter Property="Stroke" Value="#3D8A5A"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ManageLiquidViewModel}}, Path=SelectLiquidTypeCommand}"
-                                            CommandParameter="{Binding .}"/>
-                                    </Border.GestureRecognizers>
-                                    <HorizontalStackLayout Spacing="10">
-                                        <Label Text="💧"
-                                               FontSize="16"
-                                               VerticalOptions="Center"/>
-                                        <Label Text="{Binding Name}"
-                                               FontSize="15"
-                                               FontFamily="OutfitRegular"
-                                               TextColor="#1A1918"
-                                               VerticalOptions="Center"/>
-                                    </HorizontalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
+                    <Border Padding="14,12"
+                            StrokeThickness="0"
+                            BackgroundColor="#3D8A5A"
+                            StrokeShape="RoundRectangle 12">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="💧"
+                                   FontSize="16"
+                                   VerticalOptions="Center"/>
+                            <Label Text="Água"
+                                   FontSize="15"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="White"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
                 </VerticalStackLayout>
 
                 <!-- Quantity -->
@@ -173,36 +152,44 @@
                 </VerticalStackLayout>
 
                 <!-- Buttons -->
-                <VerticalStackLayout Spacing="12">
-                    <Border BackgroundColor="#3D8A5A"
-                            StrokeThickness="0"
-                            Padding="0,16"
-                            StrokeShape="RoundRectangle 12">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding SaveCommand}"/>
-                        </Border.GestureRecognizers>
-                        <Label Text="Salvar"
-                               FontSize="16"
-                               FontFamily="OutfitSemiBold"
-                               TextColor="White"
-                               HorizontalOptions="Center"/>
-                    </Border>
-
-                    <Border BackgroundColor="White"
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border Grid.Column="0"
+                            BackgroundColor="White"
                             StrokeThickness="1"
                             Stroke="#E5E4E1"
-                            Padding="0,16"
+                            Padding="0,14"
                             StrokeShape="RoundRectangle 12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
                         </Border.GestureRecognizers>
                         <Label Text="Cancelar"
-                               FontSize="16"
+                               FontSize="15"
                                FontFamily="OutfitRegular"
                                TextColor="#6D6C6A"
                                HorizontalOptions="Center"/>
                     </Border>
-                </VerticalStackLayout>
+
+                    <Border Grid.Column="1"
+                            BackgroundColor="#3D8A5A"
+                            StrokeThickness="0"
+                            Padding="0,14"
+                            StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="✓"
+                                   FontSize="14"
+                                   TextColor="White"
+                                   VerticalOptions="Center"/>
+                            <Label Text="Salvar"
+                                   FontSize="15"
+                                   FontFamily="OutfitSemiBold"
+                                   TextColor="White"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </Grid>
 
             </VerticalStackLayout>
         </ScrollView>

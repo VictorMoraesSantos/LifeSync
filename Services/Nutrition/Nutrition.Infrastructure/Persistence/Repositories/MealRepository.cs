@@ -22,6 +22,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
         {
             Meal? meal = await _context.Meals
                 .Include(m => m.MealFoods)
+                    .ThenInclude(mf => mf.Food)
                 .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
 
             return meal;
@@ -32,6 +33,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
             IEnumerable<Meal?> meals = await _context.Meals
                 .AsNoTracking()
                 .Include(m => m.MealFoods)
+                    .ThenInclude(mf => mf.Food)
                 .ToListAsync(cancellationToken);
 
             return meals;
@@ -43,6 +45,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Where(predicate)
                 .Include(m => m.MealFoods)
+                    .ThenInclude(mf => mf.Food)
                 .ToListAsync(cancellationToken);
 
             return meals;

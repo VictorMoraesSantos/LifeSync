@@ -62,6 +62,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             try
             {
                 IsBusy = true;
+                _nutritionService.InvalidateAllCache();
                 var updated = await _nutritionService.GetMealByIdAsync(_meal.Id);
                 if (updated != null)
                     Meal = updated;

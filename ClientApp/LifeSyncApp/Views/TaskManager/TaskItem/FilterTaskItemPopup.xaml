@@ -219,8 +219,7 @@
                                     </Border>
                                     <BoxView HeightRequest="1" Color="#E5E4E1"/>
 
-                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent"
-                                            StrokeShape="RoundRectangle 0,0,12,12">
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent">
                                         <Border.Triggers>
                                             <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="High">
                                                 <Setter Property="BackgroundColor" Value="#1A1918"/>
@@ -232,6 +231,26 @@
                                         <Label Text="Alta" FontSize="14" TextColor="#6D6C6A">
                                             <Label.Triggers>
                                                 <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="High">
+                                                    <Setter Property="TextColor" Value="White"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <BoxView HeightRequest="1" Color="#E5E4E1"/>
+
+                                    <Border StrokeThickness="0" Padding="12,16" BackgroundColor="Transparent"
+                                            StrokeShape="RoundRectangle 0,0,12,12">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Urgent">
+                                                <Setter Property="BackgroundColor" Value="#1A1918"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding FilterViewModel.SelectPriorityCommand}" CommandParameter="Urgent"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Urgente" FontSize="14" TextColor="#6D6C6A">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding FilterViewModel.SelectedPriority}" Value="Urgent">
                                                     <Setter Property="TextColor" Value="White"/>
                                                 </DataTrigger>
                                             </Label.Triggers>

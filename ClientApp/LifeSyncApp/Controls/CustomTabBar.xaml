@@ -14,18 +14,18 @@
             <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
         </Border.Shadow>
 
-        <Grid ColumnDefinitions="*,*,*,*"
-              BackgroundColor="Transparent">
+        <FlexLayout JustifyContent="SpaceAround"
+                    AlignItems="Center"
+                    BackgroundColor="Transparent"
+                    HeightRequest="54">
 
             <!-- Financeiro Tab -->
-            <Border Grid.Column="0"
-                    x:Name="FinanceiroTab"
-                    BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=0}"
+            <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=0}"
                     StrokeThickness="0"
-                    Padding="12,8"
-                    HeightRequest="56">
+                    Padding="8,16"
+                    MinimumHeightRequest="46">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
+                    <RoundRectangle CornerRadius="100"/>
                 </Border.StrokeShape>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="0"/>
@@ -33,25 +33,25 @@
 
                 <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
                     <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=financeiro}"
-                           WidthRequest="24"
-                           HeightRequest="24"
+                           WidthRequest="22"
+                           HeightRequest="22"
                            HorizontalOptions="Center"/>
-                    <Label Text="Financeiro"
-                           FontSize="11"
+                    <Label Text="FINANCEIRO"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="0.5"
                            TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=0}"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Acadêmico Tab -->
-            <Border Grid.Column="1"
-                    x:Name="AcademicoTab"
-                    BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=1}"
+            <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=1}"
                     StrokeThickness="0"
-                    Padding="12,8"
-                    HeightRequest="56">
+                    Padding="8,16"
+                    MinimumHeightRequest="46">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
+                    <RoundRectangle CornerRadius="100"/>
                 </Border.StrokeShape>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="1"/>
@@ -59,25 +59,25 @@
 
                 <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
                     <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=academico}"
-                           WidthRequest="24"
-                           HeightRequest="24"
+                           WidthRequest="22"
+                           HeightRequest="22"
                            HorizontalOptions="Center"/>
-                    <Label Text="Acadêmico"
-                           FontSize="11"
+                    <Label Text="ACADEMIA"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="0.5"
                            TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=1}"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Tarefas Tab -->
-            <Border Grid.Column="2"
-                    x:Name="TarefasTab"
-                    BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=2}"
+            <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=2}"
                     StrokeThickness="0"
-                    Padding="12,8"
-                    HeightRequest="56">
+                    Padding="8,16"
+                    MinimumHeightRequest="46">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
+                    <RoundRectangle CornerRadius="100"/>
                 </Border.StrokeShape>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="2"/>
@@ -85,25 +85,25 @@
 
                 <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
                     <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=tarefas}"
-                           WidthRequest="24"
-                           HeightRequest="24"
+                           WidthRequest="22"
+                           HeightRequest="22"
                            HorizontalOptions="Center"/>
-                    <Label Text="Tarefas"
-                           FontSize="11"
+                    <Label Text="TAREFAS"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="0.5"
                            TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=2}"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Nutrição Tab -->
-            <Border Grid.Column="3"
-                    x:Name="NutricaoTab"
-                    BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=3}"
+            <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=3}"
                     StrokeThickness="0"
-                    Padding="12,8"
-                    HeightRequest="56">
+                    Padding="8,16"
+                    MinimumHeightRequest="46">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
+                    <RoundRectangle CornerRadius="100"/>
                 </Border.StrokeShape>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="3"/>
@@ -111,16 +111,18 @@
 
                 <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
                     <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=nutricao}"
-                           WidthRequest="24"
-                           HeightRequest="24"
+                           WidthRequest="22"
+                           HeightRequest="22"
                            HorizontalOptions="Center"/>
-                    <Label Text="Nutrição"
-                           FontSize="11"
+                    <Label Text="NUTRIÇÃO"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="0.5"
                            TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=3}"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Border>
 
-        </Grid>
+        </FlexLayout>
     </Border>
 </ContentView>

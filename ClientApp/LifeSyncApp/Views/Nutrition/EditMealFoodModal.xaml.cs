@@ -1,6 +1,7 @@
 using LifeSyncApp.DTOs.Nutrition.MealFood;
 using LifeSyncApp.ViewModels.Nutrition;
 
+
 namespace LifeSyncApp.Views.Nutrition;
 
 [QueryProperty(nameof(MealId), "MealId")]
@@ -8,16 +9,14 @@ namespace LifeSyncApp.Views.Nutrition;
 public partial class EditMealFoodModal : ContentPage
 {
     private readonly EditMealFoodViewModel _viewModel;
-    private readonly MealDetailViewModel _mealDetailViewModel;
 
     public int MealId { get; set; }
     public MealFoodDTO? MealFood { get; set; }
 
-    public EditMealFoodModal(EditMealFoodViewModel viewModel, MealDetailViewModel mealDetailViewModel)
+    public EditMealFoodModal(EditMealFoodViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
-        _mealDetailViewModel = mealDetailViewModel;
         BindingContext = _viewModel;
     }
 
@@ -39,7 +38,6 @@ public partial class EditMealFoodModal : ContentPage
     private async void OnSaved(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("..");
-        await _mealDetailViewModel.RefreshMealAsync();
     }
 
     private async void OnCancelled(object? sender, EventArgs e)

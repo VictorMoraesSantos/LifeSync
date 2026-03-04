@@ -8,7 +8,7 @@ namespace LifeSyncApp.Converters
         {
             if (value is int selectedTab && parameter is string tabIndexStr && int.TryParse(tabIndexStr, out int tabIndex))
             {
-                return selectedTab == tabIndex ? Color.FromArgb("#171717") : Colors.White;
+                return selectedTab == tabIndex ? Color.FromArgb("#1A1918") : Colors.Transparent;
             }
             return Colors.White;
         }

@@ -38,9 +38,8 @@ public partial class ManageLiquidModal : ContentPage
 
     private async void OnSaved(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("..");
         _nutritionViewModel.InvalidateDataCache();
-        await _nutritionViewModel.LoadDataAsync(forceRefresh: true);
+        await Shell.Current.GoToAsync("..");
     }
 
     private async void OnCancelled(object? sender, EventArgs e)

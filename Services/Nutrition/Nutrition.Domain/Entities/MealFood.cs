@@ -10,7 +10,7 @@ namespace Nutrition.Domain.Entities
         public int FoodId { get; private set; }
         public Food Food { get; private set; }
         public int Quantity { get; private set; }
-        public decimal TotalCalories => Quantity * Food.Calories;
+        public decimal TotalCalories => Food != null ? Math.Round(Quantity * Food.Calories / 100m, 2) : 0;
 
         public MealFood(
             int mealId,

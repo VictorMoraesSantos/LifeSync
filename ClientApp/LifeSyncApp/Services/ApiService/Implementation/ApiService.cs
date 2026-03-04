@@ -58,12 +58,26 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.PostAsJsonAsync(endpoint, data, _jsonOptions);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("POST {Endpoint} retornou {StatusCode}: {Body}", endpoint, response.StatusCode, errorBody);
+
+                    var friendlyMessage = TryExtractValidationErrors(errorBody)
+                        ?? $"Erro {(int)response.StatusCode}: {response.ReasonPhrase}";
+                    throw new HttpRequestException(friendlyMessage);
+                }
+
                 var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<TResult>>(_jsonOptions);
                 var resultData = apiResponse.Data;
                 return resultData;
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao fazer POST em {Endpoint}", endpoint);
                 throw;
@@ -75,12 +89,22 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.PutAsJsonAsync(endpoint, data, _jsonOptions);
-                if (response.IsSuccessStatusCode)
-                    return;
 
-                return;
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("PUT {Endpoint} retornou {StatusCode}: {Body}", endpoint, response.StatusCode, errorBody);
+
+                    var friendlyMessage = TryExtractValidationErrors(errorBody)
+                        ?? $"Erro {(int)response.StatusCode}: {response.ReasonPhrase}";
+                    throw new HttpRequestException(friendlyMessage);
+                }
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao fazer PUT em {Endpoint}", endpoint);
                 throw;
@@ -91,13 +115,60 @@ namespace LifeSyncApp.Services.ApiService.Implementation
         {
             try
             {
-                await _httpClient.DeleteAsync(endpoint);
+                var response = await _httpClient.DeleteAsync(endpoint);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("DELETE {Endpoint} retornou {StatusCode}: {Body}", endpoint, response.StatusCode, errorBody);
+
+                    var friendlyMessage = TryExtractValidationErrors(errorBody)
+                        ?? $"Erro {(int)response.StatusCode}: {response.ReasonPhrase}";
+                    throw new HttpRequestException(friendlyMessage);
+                }
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao fazer DELETE em {Endpoint}", endpoint);
                 throw;
             }
+        }
+
+        private static string? TryExtractValidationErrors(string responseBody)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(responseBody);
+                var root = doc.RootElement;
+
+                if (root.TryGetProperty("errors", out var errors))
+                {
+                    var messages = new List<string>();
+                    foreach (var prop in errors.EnumerateObject())
+                    {
+                        foreach (var msg in prop.Value.EnumerateArray())
+                            messages.Add(msg.GetString() ?? prop.Name);
+                    }
+                    if (messages.Count > 0)
+                        return string.Join("\n", messages);
+                }
+
+                if (root.TryGetProperty("description", out var description))
+                    return description.GetString();
+
+                if (root.TryGetProperty("title", out var title))
+                    return title.GetString();
+            }
+            catch
+            {
+                // Not a JSON response or unexpected format
+            }
+
+            return null;
         }
     }
 }

@@ -6,6 +6,7 @@ using LifeSyncApp.DTOs.Nutrition.Liquid;
 using LifeSyncApp.DTOs.Nutrition.LiquidType;
 using LifeSyncApp.DTOs.Nutrition.Meal;
 using LifeSyncApp.DTOs.Nutrition.MealFood;
+using System.Collections.Concurrent;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -23,10 +24,56 @@ namespace LifeSyncApp.Services.Nutrition
         private const string LiquidTypesBase = "/nutrition-service/api/liquid-types";
         private const string ProgressBase = "/nutrition-service/api/daily-progresses";
 
+        private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+        private readonly ConcurrentDictionary<string, CacheEntry> _cache = new();
+
         public NutritionService(IHttpClientFactory httpClientFactory, JsonSerializerOptions jsonOptions)
         {
             _httpClientFactory = httpClientFactory;
             _jsonOptions = jsonOptions;
+        }
+
+        // ── Cache ───────────────────────────────────────────────────────────────
+
+        private sealed record CacheEntry(object Data, DateTime CachedAt);
+
+        private T? GetFromCache<T>(string key)
+        {
+            if (_cache.TryGetValue(key, out var entry) && entry.Data is T data
+                && (DateTime.Now - entry.CachedAt) < CacheDuration)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NutritionService] Cache hit: {key}");
+                return data;
+            }
+            return default;
+        }
+
+        private T? GetStaleFromCache<T>(string key)
+        {
+            if (_cache.TryGetValue(key, out var entry) && entry.Data is T data)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NutritionService] Using stale cache (fallback): {key}");
+                return data;
+            }
+            return default;
+        }
+
+        private void SetCache<T>(string key, T data) where T : notnull
+        {
+            _cache[key] = new CacheEntry(data, DateTime.Now);
+        }
+
+        private void InvalidateCache(string prefix)
+        {
+            var keysToRemove = _cache.Keys.Where(k => k.StartsWith(prefix)).ToList();
+            foreach (var key in keysToRemove)
+                _cache.TryRemove(key, out _);
+        }
+
+        public void InvalidateAllCache()
+        {
+            _cache.Clear();
+            System.Diagnostics.Debug.WriteLine("[NutritionService] All cache invalidated");
         }
 
         private static async Task LogErrorAsync(HttpResponseMessage response, string context)
@@ -35,64 +82,141 @@ namespace LifeSyncApp.Services.Nutrition
             System.Diagnostics.Debug.WriteLine($"[NutritionService] {context} failed. Status: {(int)response.StatusCode} {response.StatusCode}. Body: {body}");
         }
 
+        /// <summary>
+        /// Checks if the response indicates success by reading the body's success flag.
+        /// The backend always returns HTTP 200; the real status is in the JSON body.
+        /// </summary>
+        private async Task<bool> IsResponseSuccessAsync(HttpResponseMessage response, string context, CancellationToken ct = default)
+        {
+            var body = await response.Content.ReadAsStringAsync(ct);
+            var result = JsonSerializer.Deserialize<ApiSingleResponse<object>>(body, _jsonOptions);
+            if (result?.Success == true) return true;
+
+            System.Diagnostics.Debug.WriteLine($"[NutritionService] {context} failed. Body: {body}");
+            return false;
+        }
+
         // ── Diaries ──────────────────────────────────────────────────────────
 
         public async Task<List<DiaryDTO>> GetDiariesByUserIdAsync(int userId, CancellationToken ct = default)
         {
+            var cacheKey = $"diaries_user_{userId}";
+            var cached = GetFromCache<List<DiaryDTO>>(cacheKey);
+            if (cached != null) return cached;
+
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.GetAsync($"{DiariesBase}/user/{userId}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetDiaries"); return []; }
-                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<DiaryDTO>>>(_jsonOptions, ct);
-                return result?.Data ?? [];
+                if (!response.IsSuccessStatusCode) { return GetStaleFromCache<List<DiaryDTO>>(cacheKey) ?? []; }
+                var rawBody = await response.Content.ReadAsStringAsync(ct);
+                var result = JsonSerializer.Deserialize<ApiSingleResponse<List<DiaryDTO>>>(rawBody, _jsonOptions);
+                var data = result?.Data ?? [];
+                SetCache(cacheKey, data);
+                return data;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] GetDiaries exception: {ex.Message}");
-                return [];
+                return GetStaleFromCache<List<DiaryDTO>>(cacheKey) ?? [];
             }
         }
 
         public async Task<DiaryDTO?> GetDiaryByIdAsync(int id, CancellationToken ct = default)
         {
+            var cacheKey = $"diary_{id}";
+            var cached = GetFromCache<DiaryDTO>(cacheKey);
+            if (cached != null) return cached;
+
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.GetAsync($"{DiariesBase}/{id}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetDiaryById"); return null; }
+                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetDiaryById"); return GetStaleFromCache<DiaryDTO>(cacheKey); }
                 var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<DiaryDTO>>(_jsonOptions, ct);
+                if (result?.Data != null) SetCache(cacheKey, result.Data);
                 return result?.Data;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] GetDiaryById exception: {ex.Message}");
-                return null;
+                return GetStaleFromCache<DiaryDTO>(cacheKey);
             }
         }
 
-        public async Task<int?> CreateDiaryAsync(CreateDiaryDTO dto, CancellationToken ct = default)
+        public async Task<(int? Id, string? Error)> CreateDiaryAsync(CreateDiaryDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync(DiariesBase, dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "CreateDiary"); return null; }
-                var json = await response.Content.ReadFromJsonAsync<JsonElement>(_jsonOptions, ct);
-                if (json.TryGetProperty("data", out var data))
+                var body = await response.Content.ReadAsStringAsync(ct);
+                var result = JsonSerializer.Deserialize<ApiSingleResponse<JsonElement?>>(body, _jsonOptions);
+
+                // Check both HTTP status and body success flag
+                if (!response.IsSuccessStatusCode || result?.Success == false)
                 {
-                    if (data.ValueKind == JsonValueKind.Number)
-                        return data.GetInt32();
-                    if (data.ValueKind == JsonValueKind.Object && data.TryGetProperty("id", out var idProp))
-                        return idProp.GetInt32();
+                    var errorMsg = result?.Errors?.FirstOrDefault()
+                        ?? ExtractErrorMessage(body)
+                        ?? $"Erro do servidor ({(int)response.StatusCode})";
+                    return (null, errorMsg);
                 }
-                return null;
+
+                if (result?.Data != null)
+                {
+                    var data = result.Data.Value;
+                    InvalidateCache("diaries_");
+                    if (data.ValueKind == JsonValueKind.Number)
+                        return (data.GetInt32(), null);
+                    if (data.ValueKind == JsonValueKind.Object &&
+                        (data.TryGetProperty("id", out var idProp) || data.TryGetProperty("Id", out idProp)))
+                        return (idProp.GetInt32(), null);
+                }
+
+                InvalidateCache("diaries_");
+                return (null, "Resposta inesperada do servidor.");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] CreateDiary exception: {ex.Message}");
-                return null;
+                return (null, ex.Message);
             }
+        }
+
+        private static string? ExtractErrorMessage(string responseBody)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(responseBody);
+                var root = doc.RootElement;
+                if (root.TryGetProperty("errors", out var errors))
+                {
+                    if (errors.ValueKind == JsonValueKind.Array)
+                    {
+                        var messages = new List<string>();
+                        foreach (var item in errors.EnumerateArray())
+                            if (item.GetString() is string msg)
+                                messages.Add(msg);
+                        if (messages.Count > 0)
+                            return string.Join("\n", messages);
+                    }
+                    else if (errors.ValueKind == JsonValueKind.Object)
+                    {
+                        var messages = new List<string>();
+                        foreach (var prop in errors.EnumerateObject())
+                            foreach (var msg in prop.Value.EnumerateArray())
+                                messages.Add(msg.GetString() ?? prop.Name);
+                        if (messages.Count > 0)
+                            return string.Join("\n", messages);
+                    }
+                }
+                if (root.TryGetProperty("description", out var desc) && desc.GetString() is string d)
+                    return d;
+                if (root.TryGetProperty("title", out var title) && title.GetString() is string t)
+                    return t;
+            }
+            catch { }
+            return null;
         }
 
         public async Task<bool> UpdateDiaryAsync(int id, UpdateDiaryDTO dto, CancellationToken ct = default)
@@ -102,6 +226,8 @@ namespace LifeSyncApp.Services.Nutrition
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{DiariesBase}/{id}", dto, _jsonOptions, ct);
                 if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "UpdateDiary"); return false; }
+                InvalidateCache("diaries_");
+                InvalidateCache($"diary_{id}");
                 return true;
             }
             catch (Exception ex)
@@ -118,6 +244,8 @@ namespace LifeSyncApp.Services.Nutrition
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.DeleteAsync($"{DiariesBase}/{id}", ct);
                 if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "DeleteDiary"); return false; }
+                InvalidateCache("diaries_");
+                InvalidateCache($"diary_{id}");
                 return true;
             }
             catch (Exception ex)
@@ -159,21 +287,15 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var query = "?";
-                if (!string.IsNullOrWhiteSpace(nameContains)) query += $"nameContains={Uri.EscapeDataString(nameContains)}&";
+                if (!string.IsNullOrWhiteSpace(nameContains)) query += $"name={Uri.EscapeDataString(nameContains)}&";
                 if (page.HasValue) query += $"page={page.Value}&";
                 if (pageSize.HasValue) query += $"pageSize={pageSize.Value}&";
                 query = query.TrimEnd('&', '?');
 
-                var response = await client.GetAsync($"{MealFoodsBase}/search{query}", ct);
+                var response = await client.GetAsync($"{FoodsBase}/search{query}", ct);
                 if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "SearchFoods"); return []; }
-                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<MealFoodDTO>>>(_jsonOptions, ct);
-                var mealFoods = result?.Data ?? [];
-
-                return mealFoods
-                    .GroupBy(mf => mf.FoodId)
-                    .Select(g => g.First())
-                    .Select(mf => new FoodDTO(mf.FoodId, mf.Name, mf.Calories, mf.Protein, mf.Lipids, mf.Carbohydrates, mf.Calcium, mf.Magnesium, mf.Iron, mf.Sodium, mf.Potassium))
-                    .ToList();
+                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<FoodDTO>>>(_jsonOptions, ct);
+                return result?.Data ?? [];
             }
             catch (Exception ex)
             {
@@ -186,35 +308,46 @@ namespace LifeSyncApp.Services.Nutrition
 
         public async Task<List<MealDTO>> GetMealsByDiaryIdAsync(int diaryId, CancellationToken ct = default)
         {
+            var cacheKey = $"meals_diary_{diaryId}";
+            var cached = GetFromCache<List<MealDTO>>(cacheKey);
+            if (cached != null) return cached;
+
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.GetAsync($"{MealsBase}/diary/{diaryId}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetMeals"); return []; }
+                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetMeals"); return GetStaleFromCache<List<MealDTO>>(cacheKey) ?? []; }
                 var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<MealDTO>>>(_jsonOptions, ct);
-                return result?.Data ?? [];
+                var data = result?.Data ?? [];
+                SetCache(cacheKey, data);
+                return data;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] GetMeals exception: {ex.Message}");
-                return [];
+                return GetStaleFromCache<List<MealDTO>>(cacheKey) ?? [];
             }
         }
 
         public async Task<MealDTO?> GetMealByIdAsync(int id, CancellationToken ct = default)
         {
+            var cacheKey = $"meal_{id}";
+            var cached = GetFromCache<MealDTO>(cacheKey);
+            if (cached != null) return cached;
+
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.GetAsync($"{MealsBase}/{id}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetMealById"); return null; }
+                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetMealById"); return GetStaleFromCache<MealDTO>(cacheKey); }
                 var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<MealDTO>>(_jsonOptions, ct);
+                if (result?.Data != null) SetCache(cacheKey, result.Data);
                 return result?.Data;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] GetMealById exception: {ex.Message}");
-                return null;
+                return GetStaleFromCache<MealDTO>(cacheKey);
             }
         }
 
@@ -224,7 +357,8 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync(MealsBase, dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "CreateMeal"); return false; }
+                if (!await IsResponseSuccessAsync(response, "CreateMeal", ct)) return false;
+                InvalidateCache("meals_diary_");
                 return true;
             }
             catch (Exception ex)
@@ -240,7 +374,9 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{MealsBase}/{mealId}", dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "UpdateMeal"); return false; }
+                if (!await IsResponseSuccessAsync(response, "UpdateMeal", ct)) return false;
+                InvalidateCache("meals_diary_");
+                InvalidateCache($"meal_{mealId}");
                 return true;
             }
             catch (Exception ex)
@@ -256,7 +392,9 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.DeleteAsync($"{MealsBase}/{mealId}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "DeleteMeal"); return false; }
+                if (!await IsResponseSuccessAsync(response, "DeleteMeal", ct)) return false;
+                InvalidateCache("meals_diary_");
+                InvalidateCache($"meal_{mealId}");
                 return true;
             }
             catch (Exception ex)
@@ -273,8 +411,12 @@ namespace LifeSyncApp.Services.Nutrition
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
-                var response = await client.PostAsJsonAsync($"{MealsBase}/{mealId}/foods", dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "AddFoodToMeal"); return false; }
+                var url = $"{MealsBase}/{mealId}/foods";
+                var response = await client.PostAsJsonAsync(url, dto, _jsonOptions, ct);
+                if (!await IsResponseSuccessAsync(response, "AddFoodToMeal", ct)) return false;
+
+                InvalidateCache("meals_diary_");
+                InvalidateCache($"meal_{mealId}");
                 return true;
             }
             catch (Exception ex)
@@ -290,7 +432,9 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.DeleteAsync($"{MealsBase}/{mealId}/foods/{foodId}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "RemoveFoodFromMeal"); return false; }
+                if (!await IsResponseSuccessAsync(response, "RemoveFoodFromMeal", ct)) return false;
+                InvalidateCache("meals_diary_");
+                InvalidateCache($"meal_{mealId}");
                 return true;
             }
             catch (Exception ex)
@@ -306,7 +450,9 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{MealFoodsBase}/{id}", dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "UpdateMealFood"); return false; }
+                if (!await IsResponseSuccessAsync(response, "UpdateMealFood", ct)) return false;
+                InvalidateCache("meals_diary_");
+                InvalidateCache("meal_");
                 return true;
             }
             catch (Exception ex)
@@ -320,18 +466,24 @@ namespace LifeSyncApp.Services.Nutrition
 
         public async Task<List<LiquidTypeDTO>> GetLiquidTypesAsync(CancellationToken ct = default)
         {
+            var cacheKey = "liquid_types";
+            var cached = GetFromCache<List<LiquidTypeDTO>>(cacheKey);
+            if (cached != null) return cached;
+
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.GetAsync(LiquidTypesBase, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetLiquidTypes"); return []; }
+                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetLiquidTypes"); return GetStaleFromCache<List<LiquidTypeDTO>>(cacheKey) ?? []; }
                 var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<LiquidTypeDTO>>>(_jsonOptions, ct);
-                return result?.Data ?? [];
+                var data = result?.Data ?? [];
+                SetCache(cacheKey, data);
+                return data;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] GetLiquidTypes exception: {ex.Message}");
-                return [];
+                return GetStaleFromCache<List<LiquidTypeDTO>>(cacheKey) ?? [];
             }
         }
 
@@ -339,18 +491,24 @@ namespace LifeSyncApp.Services.Nutrition
 
         public async Task<List<LiquidDTO>> GetLiquidsByDiaryIdAsync(int diaryId, CancellationToken ct = default)
         {
+            var cacheKey = $"liquids_diary_{diaryId}";
+            var cached = GetFromCache<List<LiquidDTO>>(cacheKey);
+            if (cached != null) return cached;
+
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.GetAsync($"{LiquidsBase}/diary/{diaryId}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetLiquids"); return []; }
+                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetLiquids"); return GetStaleFromCache<List<LiquidDTO>>(cacheKey) ?? []; }
                 var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<LiquidDTO>>>(_jsonOptions, ct);
-                return result?.Data ?? [];
+                var data = result?.Data ?? [];
+                SetCache(cacheKey, data);
+                return data;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] GetLiquids exception: {ex.Message}");
-                return [];
+                return GetStaleFromCache<List<LiquidDTO>>(cacheKey) ?? [];
             }
         }
 
@@ -360,7 +518,8 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync(LiquidsBase, dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "CreateLiquid"); return false; }
+                if (!await IsResponseSuccessAsync(response, "CreateLiquid", ct)) return false;
+                InvalidateCache("liquids_diary_");
                 return true;
             }
             catch (Exception ex)
@@ -376,7 +535,8 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{LiquidsBase}/{liquidId}", dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "UpdateLiquid"); return false; }
+                if (!await IsResponseSuccessAsync(response, "UpdateLiquid", ct)) return false;
+                InvalidateCache("liquids_diary_");
                 return true;
             }
             catch (Exception ex)
@@ -392,7 +552,8 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.DeleteAsync($"{LiquidsBase}/{liquidId}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "DeleteLiquid"); return false; }
+                if (!await IsResponseSuccessAsync(response, "DeleteLiquid", ct)) return false;
+                InvalidateCache("liquids_diary_");
                 return true;
             }
             catch (Exception ex)
@@ -406,18 +567,24 @@ namespace LifeSyncApp.Services.Nutrition
 
         public async Task<List<DailyProgressDTO>> GetDailyProgressByUserIdAsync(int userId, CancellationToken ct = default)
         {
+            var cacheKey = $"progress_user_{userId}";
+            var cached = GetFromCache<List<DailyProgressDTO>>(cacheKey);
+            if (cached != null) return cached;
+
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.GetAsync($"{ProgressBase}/user/{userId}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetDailyProgress"); return []; }
+                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetDailyProgress"); return GetStaleFromCache<List<DailyProgressDTO>>(cacheKey) ?? []; }
                 var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<List<DailyProgressDTO>>>(_jsonOptions, ct);
-                return result?.Data ?? [];
+                var data = result?.Data ?? [];
+                SetCache(cacheKey, data);
+                return data;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] GetDailyProgress exception: {ex.Message}");
-                return [];
+                return GetStaleFromCache<List<DailyProgressDTO>>(cacheKey) ?? [];
             }
         }
 
@@ -428,13 +595,19 @@ namespace LifeSyncApp.Services.Nutrition
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync(ProgressBase, dto, _jsonOptions, ct);
                 if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "CreateDailyProgress"); return null; }
-                var json = await response.Content.ReadFromJsonAsync<JsonElement>(_jsonOptions, ct);
-                if (json.TryGetProperty("data", out var data))
+                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<object>>(_jsonOptions, ct);
+                if (result?.Data != null)
                 {
-                    if (data.ValueKind == JsonValueKind.Number)
-                        return data.GetInt32();
-                    if (data.ValueKind == JsonValueKind.Object && data.TryGetProperty("id", out var idProp))
-                        return idProp.GetInt32();
+                    InvalidateCache("progress_");
+                    if (result.Data is JsonElement je)
+                    {
+                        if (je.ValueKind == JsonValueKind.Number)
+                            return je.GetInt32();
+                        if (je.ValueKind == JsonValueKind.Object && je.TryGetProperty("id", out var idProp))
+                            return idProp.GetInt32();
+                    }
+                    if (int.TryParse(result.Data.ToString(), out var id))
+                        return id;
                 }
                 return null;
             }
@@ -451,7 +624,8 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync($"{ProgressBase}/{dailyProgressId}/set-goal", dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "SetGoal"); return false; }
+                if (!await IsResponseSuccessAsync(response, "SetGoal", ct)) return false;
+                InvalidateCache("progress_");
                 return true;
             }
             catch (Exception ex)
@@ -467,7 +641,8 @@ namespace LifeSyncApp.Services.Nutrition
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{ProgressBase}/{id}", dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "UpdateDailyProgress"); return false; }
+                if (!await IsResponseSuccessAsync(response, "UpdateDailyProgress", ct)) return false;
+                InvalidateCache("progress_");
                 return true;
             }
             catch (Exception ex)

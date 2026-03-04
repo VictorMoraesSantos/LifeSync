@@ -98,7 +98,7 @@
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Prioridade" FontSize="14" FontAttributes="Bold" TextColor="#1A1918"/>
 
-                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
 
                                 <Border Stroke="#E5E4E1"
                                         StrokeThickness="1"
@@ -112,7 +112,7 @@
                                     <Label Text="Baixa"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"
-                                           FontSize="14"
+                                           FontSize="13"
                                            TextColor="#1A1918">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label"
@@ -146,7 +146,7 @@
                                     <Label Text="Média"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"
-                                           FontSize="14"
+                                           FontSize="13"
                                            TextColor="#1A1918">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label"
@@ -180,7 +180,7 @@
                                     <Label Text="Alta"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"
-                                           FontSize="14"
+                                           FontSize="13"
                                            TextColor="#1A1918">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label"
@@ -197,6 +197,40 @@
                                                      Value="{x:Static enums:Priority.High}">
                                             <Setter Property="BackgroundColor" Value="#1A1918"/>
                                             <Setter Property="Stroke" Value="#1A1918"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                </Border>
+
+                                <Border Grid.Column="3"
+                                        Stroke="#E5E4E1"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 100"
+                                        BackgroundColor="#FAFAF8"
+                                        HeightRequest="40">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SetPriorityCommand}"
+                                                              CommandParameter="{x:Static enums:Priority.Urgent}"/>
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Urgente"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           FontSize="13"
+                                           TextColor="#1A1918">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label"
+                                                         Binding="{Binding NewTaskPriority}"
+                                                         Value="{x:Static enums:Priority.Urgent}">
+                                                <Setter Property="TextColor" Value="White"/>
+                                                <Setter Property="FontAttributes" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding NewTaskPriority}"
+                                                     Value="{x:Static enums:Priority.Urgent}">
+                                            <Setter Property="BackgroundColor" Value="#FF4444"/>
+                                            <Setter Property="Stroke" Value="#FF4444"/>
                                         </DataTrigger>
                                     </Border.Triggers>
                                 </Border>

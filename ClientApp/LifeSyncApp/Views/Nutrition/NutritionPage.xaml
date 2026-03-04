@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
              xmlns:meal="clr-namespace:LifeSyncApp.DTOs.Nutrition.Meal"
+             xmlns:liquid="clr-namespace:LifeSyncApp.DTOs.Nutrition.Liquid"
              x:Class="LifeSyncApp.Views.Nutrition.NutritionPage"
              x:DataType="viewmodel:NutritionViewModel"
              x:Name="page"
@@ -216,11 +217,11 @@
                     <!-- Meals Section -->
                     <VerticalStackLayout Spacing="12">
                         <Label Text="Refeições de Hoje"
-                               FontSize="16"
+                               FontSize="18"
                                FontFamily="OutfitSemiBold"
                                TextColor="#1A1918"/>
 
-                        <Label Text="Nenhuma refeição ainda. Toque em '+' para adicionar."
+                        <Label Text="Nenhuma refeição registrada ainda."
                                FontSize="13"
                                FontFamily="OutfitRegular"
                                TextColor="#9C9B99"
@@ -238,12 +239,11 @@
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="meal:MealDTO">
                                     <Border BackgroundColor="White"
-                                            StrokeThickness="1"
-                                            Stroke="#E5E4E1"
-                                            Padding="16"
-                                            StrokeShape="RoundRectangle 16">
+                                            StrokeThickness="0"
+                                            Padding="14,16"
+                                            StrokeShape="RoundRectangle 12">
                                         <Border.Shadow>
-                                            <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
+                                            <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
                                         </Border.Shadow>
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer
@@ -251,17 +251,17 @@
                                                 CommandParameter="{Binding .}"/>
                                         </Border.GestureRecognizers>
 
-                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                             <!-- Meal Icon -->
                                             <Border Grid.Column="0"
                                                     BackgroundColor="#C8F0D8"
                                                     StrokeThickness="0"
-                                                    WidthRequest="44"
-                                                    HeightRequest="44"
+                                                    WidthRequest="40"
+                                                    HeightRequest="40"
                                                     VerticalOptions="Center"
-                                                    StrokeShape="RoundRectangle 22">
+                                                    StrokeShape="RoundRectangle 20">
                                                 <Label Text="🍽"
-                                                       FontSize="20"
+                                                       FontSize="18"
                                                        HorizontalOptions="Center"
                                                        VerticalOptions="Center"/>
                                             </Border>
@@ -271,12 +271,12 @@
                                                                  Spacing="2"
                                                                  VerticalOptions="Center">
                                                 <Label Text="{Binding Name}"
-                                                       FontSize="15"
+                                                       FontSize="14"
                                                        FontFamily="OutfitSemiBold"
                                                        TextColor="#1A1918"
                                                        LineBreakMode="TailTruncation"/>
                                                 <Label Text="{Binding TotalCalories, StringFormat='{0} kcal'}"
-                                                       FontSize="13"
+                                                       FontSize="12"
                                                        FontFamily="OutfitRegular"
                                                        TextColor="#6D6C6A"/>
                                             </VerticalStackLayout>
@@ -284,7 +284,7 @@
                                             <!-- Arrow -->
                                             <Label Grid.Column="2"
                                                    Text="›"
-                                                   FontSize="22"
+                                                   FontSize="20"
                                                    TextColor="#9C9B99"
                                                    VerticalOptions="Center"/>
                                         </Grid>
@@ -292,33 +292,124 @@
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
+
+                        <!-- Add Meal Button -->
+                        <Border BackgroundColor="Transparent"
+                                StrokeThickness="1"
+                                Stroke="#3D8A5A"
+                                HeightRequest="44"
+                                StrokeShape="RoundRectangle 12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenManageMealModalCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="+"
+                                       FontSize="16"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Adicionar Refeição"
+                                       FontSize="14"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Liquids Section -->
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Líquidos"
+                               FontSize="18"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="#1A1918"/>
+
+                        <Label Text="Nenhum líquido registrado ainda."
+                               FontSize="13"
+                               FontFamily="OutfitRegular"
+                               TextColor="#9C9B99"
+                               HorizontalOptions="Center"
+                               Padding="0,12"
+                               IsVisible="False">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding Liquids.Count}" Value="0">
+                                    <Setter Property="IsVisible" Value="True"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Liquids}" Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="liquid:LiquidDTO">
+                                    <Border BackgroundColor="White"
+                                            StrokeThickness="0"
+                                            Padding="12,16"
+                                            StrokeShape="RoundRectangle 12">
+                                        <Border.Shadow>
+                                            <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
+                                        </Border.Shadow>
+
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                            <!-- Liquid Icon -->
+                                            <Border Grid.Column="0"
+                                                    BackgroundColor="#C8F0D8"
+                                                    StrokeThickness="0"
+                                                    WidthRequest="36"
+                                                    HeightRequest="36"
+                                                    VerticalOptions="Center"
+                                                    StrokeShape="RoundRectangle 100">
+                                                <Label Text="💧"
+                                                       FontSize="16"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"/>
+                                            </Border>
+
+                                            <!-- Liquid Info -->
+                                            <VerticalStackLayout Grid.Column="1"
+                                                                 Spacing="2"
+                                                                 VerticalOptions="Center">
+                                                <Label Text="{Binding Name}"
+                                                       FontSize="14"
+                                                       FontFamily="OutfitSemiBold"
+                                                       TextColor="#1A1918"/>
+                                                <Label Text="{Binding Quantity, StringFormat='{0} ml'}"
+                                                       FontSize="12"
+                                                       FontFamily="OutfitRegular"
+                                                       TextColor="#6D6C6A"/>
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+
+                        <!-- Add Liquid Button -->
+                        <Border BackgroundColor="Transparent"
+                                StrokeThickness="1"
+                                Stroke="#3D8A5A"
+                                HeightRequest="44"
+                                StrokeShape="RoundRectangle 12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenManageLiquidModalCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="+"
+                                       FontSize="16"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Adicionar Líquido"
+                                       FontSize="14"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
                     </VerticalStackLayout>
 
                 </VerticalStackLayout>
             </ScrollView>
         </Grid>
-
-        <!-- FAB Button -->
-        <Border BackgroundColor="#3D8A5A"
-                StrokeThickness="0"
-                WidthRequest="56"
-                HeightRequest="56"
-                StrokeShape="RoundRectangle 28"
-                HorizontalOptions="End"
-                VerticalOptions="End"
-                Margin="0,0,24,24">
-            <Border.Shadow>
-                <Shadow Brush="#3D8A5A" Offset="0,4" Radius="12" Opacity="0.25"/>
-            </Border.Shadow>
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding OpenManageMealModalCommand}"/>
-            </Border.GestureRecognizers>
-            <Image Source="add.svg"
-                   WidthRequest="24"
-                   HeightRequest="24"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"/>
-        </Border>
 
         <!-- Loading overlay -->
         <Grid IsVisible="{Binding IsBusy}" BackgroundColor="#40000000">

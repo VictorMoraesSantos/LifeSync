@@ -19,12 +19,22 @@ public partial class MealDetailPage : ContentPage
         BindingContext = _viewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
         _viewModel.MealDeleted += OnMealDeleted;
+
         if (Meal != null)
+        {
+            // New navigation — set the meal from query parameter
             _viewModel.Meal = Meal;
+            Meal = null; // Clear so back-navigation doesn't re-set stale data
+        }
+        else if (_viewModel.Meal != null)
+        {
+            // Returning from sub-page — refresh current meal from API
+            await _viewModel.RefreshMealAsync();
+        }
     }
 
     protected override void OnDisappearing()

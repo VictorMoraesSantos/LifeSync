@@ -504,16 +504,22 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             try
             {
-                await _taskItemService.DeleteTaskItemAsync(SelectedTask.Id).ConfigureAwait(false);
+                await _taskItemService.DeleteTaskItemAsync(SelectedTask.Id);
 
                 InvalidateTasksCache();
 
-                await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
-                await Shell.Current.GoToAsync("..");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Sucesso", "Tarefa excluída com sucesso!", "OK");
+                    await Shell.Current.GoToAsync("..");
+                });
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Erro", $"Não foi possível excluir a tarefa: {ex.Message}", "OK");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Erro", $"Não foi possível excluir a tarefa: {ex.Message}", "OK");
+                });
             }
         }
 

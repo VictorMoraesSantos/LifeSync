@@ -24,6 +24,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Include(d => d.Meals)
                     .ThenInclude(m => m.MealFoods)
+                        .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
                 .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
 
@@ -36,6 +37,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Include(d => d.Meals)
                     .ThenInclude(m => m.MealFoods)
+                        .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
                 .ToListAsync(cancellationToken);
 
@@ -49,6 +51,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                 .Where(d => d.UserId == userId)
                 .Include(d => d.Meals)
                     .ThenInclude(m => m.MealFoods)
+                        .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
                 .ToListAsync(cancellationToken);
 
@@ -62,6 +65,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                 .Where(d => d.UserId == userId && d.Date == date)
                 .Include(d => d.Meals)
                     .ThenInclude(m => m.MealFoods)
+                        .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
                 .FirstOrDefaultAsync(d => d.Date == date);
 
@@ -75,6 +79,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                 .Where(predicate)
                 .Include(d => d.Meals)
                     .ThenInclude(m => m.MealFoods)
+                        .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
                 .ToListAsync(cancellationToken);
 

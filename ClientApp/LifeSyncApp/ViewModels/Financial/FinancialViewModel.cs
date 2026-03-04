@@ -5,6 +5,7 @@ using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
@@ -17,6 +18,13 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private bool _isLoadingData;
         private DateTime? _lastDataRefresh;
+
+        private string _currentMonthLabel = string.Empty;
+        public string CurrentMonthLabel
+        {
+            get => _currentMonthLabel;
+            set => SetProperty(ref _currentMonthLabel, value);
+        }
 
         private decimal _balance;
         private decimal _totalIncome;
@@ -79,6 +87,9 @@ namespace LifeSyncApp.ViewModels.Financial
         public ObservableCollection<CategoryExpense> TopCategories { get; } = new();
         public ObservableCollection<CategoryDTO> Categories { get; } = new();
 
+        public bool HasTopCategories => TopCategories.Count > 0;
+        public bool HasNoTopCategories => TopCategories.Count == 0;
+
         public ICommand LoadDataCommand { get; }
         public ICommand OpenManageTransactionModalCommand { get; }
         public ICommand OpenDetailCommand { get; }
@@ -122,7 +133,11 @@ namespace LifeSyncApp.ViewModels.Financial
                 // Fetch categories and transactions in parallel, off the main thread
                 var categoriesTask = _categoryService.GetCategoriesByUserIdAsync(_userSession.UserId);
 
-                var startOfMonth = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1);
+                var now = DateTime.Now;
+                var monthName = now.ToString("MMMM", new CultureInfo("pt-BR"));
+                CurrentMonthLabel = $"Saldo de {monthName}";
+
+                var startOfMonth = new DateOnly(now.Year, now.Month, 1);
                 var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
                 var filter = new TransactionFilterDTO(UserId: _userSession.UserId, TransactionDateFrom: startOfMonth, TransactionDateTo: endOfMonth);
                 var transactionsTask = _transactionService.SearchTransactionsAsync(filter);
@@ -147,6 +162,11 @@ namespace LifeSyncApp.ViewModels.Financial
 
                 var recentTransactions = transactions.OrderByDescending(t => t.TransactionDate).Take(5).ToList();
 
+                System.Diagnostics.Debug.WriteLine($"[FinancialVM] Total transactions: {transactions.Count}, Expenses: {expenses.Count}");
+                System.Diagnostics.Debug.WriteLine($"[FinancialVM] Expenses with Category != null: {expenses.Count(t => t.Category != null)}");
+                foreach (var exp in expenses.Take(3))
+                    System.Diagnostics.Debug.WriteLine($"[FinancialVM] Expense sample: Id={exp.Id}, Category={exp.Category?.Name ?? "NULL"}, Amount={exp.Amount?.ToDecimal()}");
+
                 var topCategories = expenses
                     .Where(t => t.Category != null)
                     .GroupBy(t => t.Category!.Id)
@@ -161,8 +181,12 @@ namespace LifeSyncApp.ViewModels.Financial
                     .Take(5)
                     .ToList();
 
+                System.Diagnostics.Debug.WriteLine($"[FinancialVM] TopCategories count: {topCategories.Count}");
+                foreach (var cat in topCategories)
+                    System.Diagnostics.Debug.WriteLine($"[FinancialVM] TopCategory: {cat.CategoryName} = R${cat.Amount:N2} ({cat.Percentage:F1}%)");
+
                 // Batch all UI updates on main thread
-                MainThread.BeginInvokeOnMainThread(() =>
+                await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     Categories.ReplaceAll(categories);
                     TotalIncome = totalIncome;
@@ -175,6 +199,9 @@ namespace LifeSyncApp.ViewModels.Financial
                     HighestExpense = highestExpense;
                     RecentTransactions.ReplaceAll(recentTransactions);
                     TopCategories.ReplaceAll(topCategories);
+                    OnPropertyChanged(nameof(HasTopCategories));
+                    OnPropertyChanged(nameof(HasNoTopCategories));
+                    System.Diagnostics.Debug.WriteLine($"[FinancialVM] UI updated - TopCategories.Count: {TopCategories.Count}, HasTopCategories: {HasTopCategories}");
                     IsBusy = false;
                 });
 
@@ -182,8 +209,8 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading financial data: {ex.Message}");
-                MainThread.BeginInvokeOnMainThread(async () =>
+                System.Diagnostics.Debug.WriteLine($"[FinancialVM] Error loading financial data: {ex.Message}\n{ex.StackTrace}");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     IsBusy = false;
                     await Shell.Current.DisplayAlert("Erro", $"Não foi possível carregar os dados financeiros: {ex.Message}", "OK");

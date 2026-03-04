@@ -9,7 +9,7 @@ namespace Nutrition.Domain.Filters.Specifications
         {
             ApplyBaseFilters(filter);
             AddIf(filter.Id.HasValue, f => f.Id == filter.Id!.Value);
-            AddIf(filter.Name is not null, f => f.Name.Contains(filter.Name!.ToLower()!));
+            AddIf(filter.Name is not null, f => f.Name.ToLower().Contains(filter.Name!.ToLower()));
             AddIf(filter.CaloriesEquals.HasValue, f => f.Calories == filter.CaloriesEquals!.Value);
             AddIf(filter.CaloriesGreaterThan.HasValue, f => f.Calories > filter.CaloriesGreaterThan!.Value);
             AddIf(filter.CaloriesLessThan.HasValue, f => f.Calories < filter.CaloriesLessThan!.Value);

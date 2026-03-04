@@ -9,12 +9,12 @@
              Title=""
              Shell.NavBarIsVisible="False">
 
-    <VerticalStackLayout Spacing="20"
-                         Padding="20,0,20,24">
+    <Grid RowDefinitions="Auto,*">
 
         <!-- Header -->
-        <Grid ColumnDefinitions="Auto,*,Auto"
-              Padding="0,12,0,0">
+        <Grid Grid.Row="0"
+              Padding="20,12"
+              ColumnDefinitions="Auto,*,Auto">
 
             <HorizontalStackLayout Grid.Column="0"
                                    Spacing="6"
@@ -56,26 +56,10 @@
             </Border>
         </Grid>
 
-        <!-- Nova Categoria Button -->
-        <Border BackgroundColor="{StaticResource FinGreen}"
-                StrokeThickness="0"
-                HeightRequest="48"
-                StrokeShape="RoundRectangle 12">
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding AddCategoryCommand}"/>
-            </Border.GestureRecognizers>
-            <HorizontalStackLayout Spacing="8"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center">
-                <Image Source="add.svg"
-                       WidthRequest="18"
-                       HeightRequest="18"/>
-                <Label Text="Nova Categoria"
-                       FontSize="15"
-                       FontAttributes="Bold"
-                       TextColor="White"/>
-            </HorizontalStackLayout>
-        </Border>
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,0,20,24"
+                                 Spacing="20">
 
         <!-- Category List Card -->
         <Border BackgroundColor="{StaticResource FinCardBg}"
@@ -107,60 +91,57 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="dto:CategoryDTO">
-                        <VerticalStackLayout>
-                            <Grid ColumnDefinitions="Auto,*,Auto"
-                                  ColumnSpacing="12"
-                                  Padding="18,16">
+                        <Grid ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="12"
+                              Padding="18,16">
 
-                                <Ellipse Grid.Column="0"
-                                         WidthRequest="10"
-                                         HeightRequest="10"
-                                         Fill="{StaticResource FinExpense}"
-                                         VerticalOptions="Center"/>
+                            <Ellipse Grid.Column="0"
+                                     WidthRequest="10"
+                                     HeightRequest="10"
+                                     Fill="{StaticResource FinExpense}"
+                                     VerticalOptions="Center"/>
 
-                                <VerticalStackLayout Grid.Column="1"
-                                                     Spacing="2"
-                                                     VerticalOptions="Center">
-                                    <Label Text="{Binding Name}"
-                                           FontSize="15"
-                                           FontAttributes="Bold"
-                                           TextColor="{StaticResource FinDark}"/>
-                                    <Label Text="{Binding Description}"
-                                           FontSize="13"
-                                           TextColor="{StaticResource FinMuted}"
-                                           LineBreakMode="TailTruncation"
-                                           IsVisible="{Binding Description, Converter={StaticResource HasItemsConverter}}"/>
-                                </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="{Binding Name}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource FinDark}"/>
+                                <Label Text="{Binding Description}"
+                                       FontSize="13"
+                                       TextColor="{StaticResource FinMuted}"
+                                       LineBreakMode="TailTruncation"
+                                       IsVisible="{Binding Description, Converter={StaticResource HasItemsConverter}}"/>
+                            </VerticalStackLayout>
 
-                                <HorizontalStackLayout Grid.Column="2"
-                                                       Spacing="12"
-                                                       VerticalOptions="Center">
-                                    <Image Source="edit.svg"
-                                           WidthRequest="18"
-                                           HeightRequest="18">
-                                        <Image.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=EditCategoryCommand}"
-                                                                  CommandParameter="{Binding .}"/>
-                                        </Image.GestureRecognizers>
-                                    </Image>
-                                    <Image Source="trash.svg"
-                                           WidthRequest="18"
-                                           HeightRequest="18">
-                                        <Image.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=DeleteCategoryCommand}"
-                                                                  CommandParameter="{Binding .}"/>
-                                        </Image.GestureRecognizers>
-                                    </Image>
-                                </HorizontalStackLayout>
-                            </Grid>
-
-                            <BoxView HeightRequest="1"
-                                     Color="{StaticResource FinBorder}"/>
-                        </VerticalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2"
+                                                   Spacing="12"
+                                                   VerticalOptions="Center">
+                                <Image Source="edit.svg"
+                                       WidthRequest="18"
+                                       HeightRequest="18">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=EditCategoryCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Image.GestureRecognizers>
+                                </Image>
+                                <Image Source="trash.svg"
+                                       WidthRequest="18"
+                                       HeightRequest="18">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=DeleteCategoryCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </HorizontalStackLayout>
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </Border>
 
-    </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

@@ -48,12 +48,12 @@ namespace LifeSyncApp.ViewModels.Nutrition
             {
                 var date = DateOnly.FromDateTime(SelectedDate);
                 var dto = new CreateDiaryDTO(_userSession.UserId, date);
-                var id = await _nutritionService.CreateDiaryAsync(dto);
+                var (id, error) = await _nutritionService.CreateDiaryAsync(dto);
 
                 if (id.HasValue)
                     OnCreated?.Invoke(this, EventArgs.Empty);
                 else
-                    await Shell.Current.DisplayAlert("Erro", "Não foi possível criar o diário. Verifique se já existe um diário para esta data.", "OK");
+                    await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível criar o diário.", "OK");
             }
             catch (Exception ex)
             {

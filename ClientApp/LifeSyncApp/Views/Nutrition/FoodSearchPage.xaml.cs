@@ -6,15 +6,13 @@ namespace LifeSyncApp.Views.Nutrition;
 public partial class FoodSearchPage : ContentPage
 {
     private readonly FoodSearchViewModel _viewModel;
-    private readonly MealDetailViewModel _mealDetailViewModel;
 
     public int MealId { get; set; }
 
-    public FoodSearchPage(FoodSearchViewModel viewModel, MealDetailViewModel mealDetailViewModel)
+    public FoodSearchPage(FoodSearchViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
-        _mealDetailViewModel = mealDetailViewModel;
         BindingContext = _viewModel;
     }
 
@@ -36,7 +34,6 @@ public partial class FoodSearchPage : ContentPage
     private async void OnSaved(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("..");
-        await _mealDetailViewModel.RefreshMealAsync();
     }
 
     private async void OnCancelled(object? sender, EventArgs e)

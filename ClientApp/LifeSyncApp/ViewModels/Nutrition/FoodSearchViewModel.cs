@@ -119,8 +119,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
             SelectedFood = null;
             IsBottomSheetVisible = false;
             QuantityText = string.Empty;
-
-            _ = SearchAsync();
         }
 
         private async Task DebouncedSearchAsync()
@@ -145,10 +143,17 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (IsBusy) return;
 
+            if (string.IsNullOrWhiteSpace(_searchText))
+            {
+                SearchResults.Clear();
+                ResultCount = 0;
+                return;
+            }
+
             IsBusy = true;
             try
             {
-                var nameFilter = string.IsNullOrWhiteSpace(_searchText) ? null : _searchText.Trim();
+                var nameFilter = _searchText.Trim();
                 var results = await _nutritionService.SearchFoodsAsync(nameFilter, page: 1, pageSize: 50, ct: ct);
 
                 SearchResults.Clear();
@@ -184,10 +189,17 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         private async Task AddFoodAsync()
         {
-            if (IsBusy || _selectedFood == null) return;
+            System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFoodAsync called - IsBusy: {IsBusy}, SelectedFood: {_selectedFood?.Name ?? "null"}, MealId: {MealId}, QuantityText: '{_quantityText}'");
+
+            if (IsBusy || _selectedFood == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFood blocked - IsBusy: {IsBusy}, SelectedFood is null: {_selectedFood == null}");
+                return;
+            }
 
             if (!int.TryParse(_quantityText, out var qty) || qty <= 0)
             {
+                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFood invalid quantity: '{_quantityText}'");
                 await Application.Current!.MainPage!.DisplayAlert("Atenção", "Informe uma quantidade válida em gramas.", "OK");
                 return;
             }
@@ -196,7 +208,12 @@ namespace LifeSyncApp.ViewModels.Nutrition
             try
             {
                 var dto = new CreateMealFoodDTO(MealId, _selectedFood.Id, qty);
+                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] Calling AddFoodToMealAsync - MealId: {MealId}, FoodId: {_selectedFood.Id}, Qty: {qty}");
+
                 var success = await _nutritionService.AddFoodToMealAsync(MealId, dto);
+
+                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFoodToMealAsync returned: {success}");
+
                 if (success)
                 {
                     CloseBottomSheet();
@@ -204,13 +221,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 }
                 else
                 {
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível adicionar o alimento.", "OK");
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível adicionar o alimento. Verifique o log de depuração.", "OK");
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFood error: {ex.Message}");
-                await Application.Current!.MainPage!.DisplayAlert("Erro", "Ocorreu um erro inesperado.", "OK");
+                await Application.Current!.MainPage!.DisplayAlert("Erro", $"Erro inesperado: {ex.Message}", "OK");
             }
             finally
             {
