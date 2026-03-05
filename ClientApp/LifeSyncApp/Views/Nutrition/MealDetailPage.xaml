@@ -12,13 +12,10 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Nav Bar -->
-        <Grid Grid.Row="0"
-              BackgroundColor="#F5F4F1"
-              Padding="16,12"
-              ColumnDefinitions="Auto,*,Auto,Auto">
-
-            <Border Grid.Column="0"
-                    BackgroundColor="Transparent"
+        <HorizontalStackLayout Grid.Row="0"
+                               Padding="16,12"
+                               Spacing="12">
+            <Border BackgroundColor="Transparent"
                     StrokeThickness="0"
                     Padding="4"
                     VerticalOptions="Center">
@@ -31,35 +28,12 @@
                        VerticalOptions="Center"/>
             </Border>
 
-            <!-- Edit icon -->
-            <Border Grid.Column="2"
-                    BackgroundColor="Transparent"
-                    StrokeThickness="0"
-                    WidthRequest="36"
-                    HeightRequest="36"
-                    Padding="8"
-                    Margin="0,0,4,0"
-                    VerticalOptions="Center">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding OpenEditMealModalCommand}"/>
-                </Border.GestureRecognizers>
-                <Image Source="edit.svg" WidthRequest="20" HeightRequest="20"/>
-            </Border>
-
-            <!-- Delete icon -->
-            <Border Grid.Column="3"
-                    BackgroundColor="Transparent"
-                    StrokeThickness="0"
-                    WidthRequest="36"
-                    HeightRequest="36"
-                    Padding="8"
-                    VerticalOptions="Center">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding DeleteMealCommand}"/>
-                </Border.GestureRecognizers>
-                <Image Source="trash.svg" WidthRequest="20" HeightRequest="20"/>
-            </Border>
-        </Grid>
+            <Label Text="{Binding Meal.Name}"
+                   FontSize="18"
+                   FontFamily="OutfitSemiBold"
+                   TextColor="#1A1918"
+                   VerticalOptions="Center"/>
+        </HorizontalStackLayout>
 
         <!-- Content -->
         <ScrollView Grid.Row="1">
@@ -98,12 +72,85 @@
                     </Border>
                 </VerticalStackLayout>
 
+                <!-- Resumo Nutricional Card -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        Padding="16"
+                        StrokeShape="RoundRectangle 12">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Resumo Nutricional"
+                               FontSize="15"
+                               FontFamily="OutfitSemiBold"
+                               TextColor="#1A1918"/>
+
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <!-- Proteina -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center">
+                                <Label Text="{Binding TotalProtein, StringFormat='{0}g'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#3D8A5A"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Proteína"
+                                       FontSize="11"
+                                       TextColor="#9C9B99"
+                                       HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+
+                            <!-- Lipidios -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="Center">
+                                <Label Text="{Binding TotalLipids, StringFormat='{0}g'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#D89575"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Lipídios"
+                                       FontSize="11"
+                                       TextColor="#9C9B99"
+                                       HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+
+                            <!-- Carboidratos -->
+                            <VerticalStackLayout Grid.Column="2" Spacing="2" HorizontalOptions="Center">
+                                <Label Text="{Binding TotalCarbs, StringFormat='{0}g'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#D4A64A"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Carboidratos"
+                                       FontSize="11"
+                                       TextColor="#9C9B99"
+                                       HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
                 <!-- Alimentos Section Header -->
                 <Label Text="Alimentos"
                        FontSize="18"
                        FontFamily="OutfitSemiBold"
                        TextColor="#1A1918"
                        Margin="0,4,0,0"/>
+
+                <!-- + Adicionar Alimento button -->
+                <Border BackgroundColor="Transparent"
+                        Stroke="#3D8A5A"
+                        StrokeThickness="1.5"
+                        Padding="0,12"
+                        StrokeShape="RoundRectangle 10"
+                        HorizontalOptions="Fill">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenAddFoodCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="+ Adicionar Alimento"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="#3D8A5A"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Border>
 
                 <!-- Foods List (BindableLayout) -->
                 <VerticalStackLayout Spacing="10"
@@ -150,30 +197,18 @@
 
                                         <!-- Colored macros -->
                                         <HorizontalStackLayout Spacing="12" Margin="0,2,0,0">
-                                            <Label FontSize="12">
-                                                <Label.FormattedText>
-                                                    <FormattedString>
-                                                        <Span Text="P: " TextColor="#D4A64A" FontAttributes="Bold"/>
-                                                        <Span Text="{Binding Protein, StringFormat='{0}g'}" TextColor="#D4A64A"/>
-                                                    </FormattedString>
-                                                </Label.FormattedText>
-                                            </Label>
-                                            <Label FontSize="12">
-                                                <Label.FormattedText>
-                                                    <FormattedString>
-                                                        <Span Text="L: " TextColor="#D08068" FontAttributes="Bold"/>
-                                                        <Span Text="{Binding Lipids, StringFormat='{0}g'}" TextColor="#D08068"/>
-                                                    </FormattedString>
-                                                </Label.FormattedText>
-                                            </Label>
-                                            <Label FontSize="12">
-                                                <Label.FormattedText>
-                                                    <FormattedString>
-                                                        <Span Text="C: " TextColor="#3D8A5A" FontAttributes="Bold"/>
-                                                        <Span Text="{Binding Carbohydrates, StringFormat='{0}g'}" TextColor="#3D8A5A"/>
-                                                    </FormattedString>
-                                                </Label.FormattedText>
-                                            </Label>
+                                            <Label Text="{Binding Protein, StringFormat='P: {0}g'}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#3D8A5A"/>
+                                            <Label Text="{Binding Lipids, StringFormat='L: {0}g'}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#D89575"/>
+                                            <Label Text="{Binding Carbohydrates, StringFormat='C: {0}g'}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#D4A64A"/>
                                         </HorizontalStackLayout>
                                     </VerticalStackLayout>
 
@@ -212,81 +247,6 @@
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
-
-                <!-- + Adicionar Alimento button -->
-                <Border BackgroundColor="Transparent"
-                        Stroke="#3D8A5A"
-                        StrokeThickness="1.5"
-                        Padding="0,12"
-                        StrokeShape="RoundRectangle 10"
-                        HorizontalOptions="Fill">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenAddFoodCommand}"/>
-                    </Border.GestureRecognizers>
-                    <Label Text="+ Adicionar Alimento"
-                           FontSize="15"
-                           FontAttributes="Bold"
-                           TextColor="#3D8A5A"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"/>
-                </Border>
-
-                <!-- Resumo Nutricional Card -->
-                <Border BackgroundColor="White"
-                        StrokeThickness="1"
-                        Stroke="#E5E4E1"
-                        Padding="16"
-                        StrokeShape="RoundRectangle 12">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Resumo Nutricional"
-                               FontSize="16"
-                               FontFamily="OutfitSemiBold"
-                               TextColor="#1A1918"/>
-
-                        <BoxView HeightRequest="1" Color="#E5E4E1"/>
-
-                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
-                            <!-- Proteina -->
-                            <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center">
-                                <Label Text="Proteína"
-                                       FontSize="12"
-                                       TextColor="#6D6C6A"
-                                       HorizontalOptions="Center"/>
-                                <Label Text="{Binding TotalProtein, StringFormat='{0}g'}"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       TextColor="#D4A64A"
-                                       HorizontalOptions="Center"/>
-                            </VerticalStackLayout>
-
-                            <!-- Lipidios -->
-                            <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="Center">
-                                <Label Text="Lipídios"
-                                       FontSize="12"
-                                       TextColor="#6D6C6A"
-                                       HorizontalOptions="Center"/>
-                                <Label Text="{Binding TotalLipids, StringFormat='{0}g'}"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       TextColor="#D08068"
-                                       HorizontalOptions="Center"/>
-                            </VerticalStackLayout>
-
-                            <!-- Carboidratos -->
-                            <VerticalStackLayout Grid.Column="2" Spacing="2" HorizontalOptions="Center">
-                                <Label Text="Carboidratos"
-                                       FontSize="12"
-                                       TextColor="#6D6C6A"
-                                       HorizontalOptions="Center"/>
-                                <Label Text="{Binding TotalCarbs, StringFormat='{0}g'}"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       TextColor="#3D8A5A"
-                                       HorizontalOptions="Center"/>
-                            </VerticalStackLayout>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
 
                 <!-- Footer buttons -->
                 <VerticalStackLayout Spacing="10" Margin="0,8,0,0">

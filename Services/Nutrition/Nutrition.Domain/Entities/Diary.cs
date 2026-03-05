@@ -55,6 +55,7 @@ namespace Nutrition.Domain.Entities
                 throw new DomainException(DiaryErrors.NullLiquid);
 
             _liquids.Add(liquid);
+            AddDomainEvent(new LiquidChangedEvent(Id));
         }
 
         public void RemoveLiquid(Liquid liquid)
@@ -64,6 +65,8 @@ namespace Nutrition.Domain.Entities
 
             if (!_liquids.Remove(liquid))
                 throw new DomainException(DiaryErrors.LiquidNotFound);
+
+            AddDomainEvent(new LiquidChangedEvent(Id));
         }
 
         public void UpdateDate(DateOnly newDate)

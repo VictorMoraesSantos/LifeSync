@@ -22,6 +22,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
         {
             Liquid? liquid = await _context.Liquids
                 .AsNoTracking()
+                .Include(l => l.LiquidType)
                 .FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
 
             return liquid;
@@ -31,6 +32,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
         {
             IEnumerable<Liquid?> liquids = await _context.Liquids
                 .AsNoTracking()
+                .Include(l => l.LiquidType)
                 .ToListAsync(cancellationToken);
 
             return liquids;
@@ -40,6 +42,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
         {
             IEnumerable<Liquid?> liquids = await _context.Liquids
                 .AsNoTracking()
+                .Include(l => l.LiquidType)
                 .Where(predicate)
                 .ToListAsync();
 
@@ -73,10 +76,10 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
         public async Task<(IEnumerable<Liquid> Items, int TotalCount)> FindByFilter(LiquidQueryFilter filter, CancellationToken cancellationToken = default)
         {
             var spec = new LiquidSpecification(filter);
-            IQueryable<Liquid> query = _context.Liquids.AsNoTracking();
+            IQueryable<Liquid> query = _context.Liquids.AsNoTracking().Include(l => l.LiquidType);
             IQueryable<Liquid> countQuery = spec.Criteria != null ? query.Where(spec.Criteria) : query;
             int totalCount = await countQuery.CountAsync(cancellationToken);
-            IQueryable<Liquid> finalQuery = SpecificationEvaluator.GetQuery(_context.Liquids.AsNoTracking(), spec);
+            IQueryable<Liquid> finalQuery = SpecificationEvaluator.GetQuery(_context.Liquids.AsNoTracking().Include(l => l.LiquidType), spec);
             IEnumerable<Liquid> items = await finalQuery.ToListAsync(cancellationToken);
 
             return (items, totalCount);

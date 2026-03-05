@@ -165,33 +165,35 @@
 
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                 <!-- Checkbox -->
-                                <Border Grid.Column="0"
-                                        WidthRequest="22"
-                                        HeightRequest="22"
-                                        StrokeShape="RoundRectangle 11"
-                                        Stroke="#D1D0CD"
-                                        StrokeThickness="2"
-                                        BackgroundColor="White"
-                                        VerticalOptions="Start"
-                                        Margin="0,2,0,0">
-                                    <Border.GestureRecognizers>
+                                <Grid Grid.Column="0"
+                                      WidthRequest="22"
+                                      HeightRequest="22"
+                                      VerticalOptions="Start"
+                                      Margin="0,2,0,0">
+                                    <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TaskItemsViewModel}}, Path=ToggleStatusCommand}"
                                                               CommandParameter="{Binding .}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding Status}"
-                                                     Value="{x:Static enums:Status.Completed}">
-                                            <Setter Property="BackgroundColor" Value="#3D8A5A"/>
-                                            <Setter Property="Stroke" Value="#3D8A5A"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Border"
-                                                     Binding="{Binding Status}"
-                                                     Value="{x:Static enums:Status.InProgress}">
-                                            <Setter Property="Stroke" Value="#D4A64A"/>
-                                            <Setter Property="BackgroundColor" Value="#FFF8E8"/>
-                                        </DataTrigger>
-                                    </Border.Triggers>
+                                    </Grid.GestureRecognizers>
+                                    <Ellipse WidthRequest="22"
+                                             HeightRequest="22"
+                                             Fill="White"
+                                             Stroke="#D1D0CD"
+                                             StrokeThickness="2">
+                                        <Ellipse.Triggers>
+                                            <DataTrigger TargetType="Ellipse"
+                                                         Binding="{Binding Status}"
+                                                         Value="{x:Static enums:Status.Completed}">
+                                                <Setter Property="Fill" Value="#3D8A5A"/>
+                                                <Setter Property="Stroke" Value="#3D8A5A"/>
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Ellipse"
+                                                         Binding="{Binding Status}"
+                                                         Value="{x:Static enums:Status.InProgress}">
+                                                <Setter Property="Stroke" Value="#D4A64A"/>
+                                                <Setter Property="Fill" Value="#FFF8E8"/>
+                                            </DataTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
                                     <Label Text="{Binding Status, Converter={StaticResource StatusToIconConverter}}"
                                            FontSize="12"
                                            HorizontalOptions="Center"
@@ -199,7 +201,7 @@
                                            HorizontalTextAlignment="Center"
                                            VerticalTextAlignment="Center"
                                            TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"/>
-                                </Border>
+                                </Grid>
 
                                 <!-- Card Body -->
                                 <VerticalStackLayout Grid.Column="1" Spacing="8">

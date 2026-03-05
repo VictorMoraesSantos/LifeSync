@@ -1,7 +1,7 @@
 using LifeSyncApp.DTOs.Nutrition.Meal;
 using LifeSyncApp.DTOs.Nutrition.MealFood;
+using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Nutrition;
-using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
@@ -29,7 +29,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        public ObservableCollection<MealFoodDTO> Foods { get; } = new();
+        public SafeObservableCollection<MealFoodDTO> Foods { get; } = new();
 
         public decimal TotalProtein => Foods.Sum(f => f.Protein ?? 0);
         public decimal TotalLipids => Foods.Sum(f => f.Lipids ?? 0);
@@ -59,17 +59,24 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public async Task RefreshMealAsync()
         {
             if (_meal == null) return;
+            var mealId = _meal.Id;
             try
             {
                 IsBusy = true;
                 _nutritionService.InvalidateAllCache();
-                var updated = await _nutritionService.GetMealByIdAsync(_meal.Id);
+                System.Diagnostics.Debug.WriteLine($"[MealDetailVM] RefreshMealAsync - fetching meal {mealId}");
+                var updated = await _nutritionService.GetMealByIdAsync(mealId);
+                System.Diagnostics.Debug.WriteLine($"[MealDetailVM] RefreshMealAsync - got meal: {updated != null}, foods: {updated?.MealFoods?.Count ?? 0}");
                 if (updated != null)
+                {
+                    _meal = null;
                     Meal = updated;
+                    System.Diagnostics.Debug.WriteLine($"[MealDetailVM] RefreshMealAsync - Foods.Count after sync: {Foods.Count}");
+                }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error refreshing meal: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[MealDetailVM] RefreshMealAsync error: {ex.Message}");
             }
             finally
             {
@@ -79,9 +86,21 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         private void SyncFoodsFromMeal(MealDTO meal)
         {
-            Foods.Clear();
-            foreach (var food in meal.MealFoods)
-                Foods.Add(food);
+            if (MainThread.IsMainThread)
+            {
+                Foods.Clear();
+                foreach (var food in meal.MealFoods)
+                    Foods.Add(food);
+            }
+            else
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Foods.Clear();
+                    foreach (var food in meal.MealFoods)
+                        Foods.Add(food);
+                });
+            }
         }
 
         private async Task OpenEditMealModalAsync()

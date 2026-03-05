@@ -3,13 +3,12 @@ using LifeSyncApp.ViewModels.Nutrition;
 
 namespace LifeSyncApp.Views.Nutrition;
 
-[QueryProperty(nameof(Diary), "Diary")]
-public partial class DiaryDetailPage : ContentPage
+public partial class DiaryDetailPage : ContentPage, IQueryAttributable
 {
     private readonly DiaryDetailViewModel _viewModel;
     private readonly NutritionViewModel _nutritionViewModel;
 
-    public DiaryDTO? Diary { get; set; }
+    private DiaryDTO? _diary;
 
     public DiaryDetailPage(DiaryDetailViewModel viewModel, NutritionViewModel nutritionViewModel)
     {
@@ -19,12 +18,18 @@ public partial class DiaryDetailPage : ContentPage
         BindingContext = _viewModel;
     }
 
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("Diary", out var value) && value is DiaryDTO dto)
+            _diary = dto;
+    }
+
     protected override void OnAppearing()
     {
         base.OnAppearing();
         _viewModel.DiaryDeleted += OnDiaryDeleted;
-        if (Diary != null)
-            _viewModel.Diary = Diary;
+        if (_diary != null)
+            _viewModel.Diary = _diary;
     }
 
     protected override void OnDisappearing()

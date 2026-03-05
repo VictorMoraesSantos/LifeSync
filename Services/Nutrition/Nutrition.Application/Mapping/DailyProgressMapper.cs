@@ -7,13 +7,15 @@ namespace Nutrition.Application.Mapping
     {
         public static DailyProgress ToEntity(CreateDailyProgressDTO dto)
         {
-            DailyProgress entity = new(dto.UserId, dto.Date, (int)dto.CaloriesConsumed, (int)dto.LiquidsConsumedMl);
+            DailyProgress entity = new(dto.UserId, dto.Date, dto.CaloriesConsumed ?? 0, dto.LiquidsConsumedMl ?? 0);
             return entity;
         }
 
         public static DailyProgressDTO ToDTO(DailyProgress entity)
         {
-            DailyGoalDTO goalDTO = new(entity.Goal.Calories, entity.Goal.QuantityMl);
+            DailyGoalDTO? goalDTO = entity.Goal != null
+                ? new(entity.Goal.Calories, entity.Goal.QuantityMl)
+                : null;
             DailyProgressDTO dailyProgress = new DailyProgressDTO(
                 entity.Id,
                 entity.UserId,

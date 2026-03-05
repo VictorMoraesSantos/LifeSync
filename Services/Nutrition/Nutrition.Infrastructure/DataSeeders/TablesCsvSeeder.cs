@@ -19,7 +19,28 @@ namespace Nutrition.Infrastructure.DataSeeders
 
         public async Task SeedAsync()
         {
+            await SeedLiquidTypesAsync();
             await SeedMealFoodsAsync();
+        }
+
+        private async Task SeedLiquidTypesAsync()
+        {
+            if (await _context.LiquidTypes.AnyAsync()) return;
+
+            var liquidTypes = new List<LiquidType>
+            {
+                new("Água"),
+                new("Café"),
+                new("Chá"),
+                new("Suco"),
+                new("Refrigerante"),
+                new("Leite"),
+                new("Energético"),
+                new("Isotônico"),
+            };
+
+            await _context.LiquidTypes.AddRangeAsync(liquidTypes);
+            await _context.SaveChangesAsync();
         }
 
         private async Task SeedMealFoodsAsync()

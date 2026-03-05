@@ -7,7 +7,6 @@ using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using LifeSyncApp.ViewModels.TaskManager;
 
 namespace LifeSyncApp.ViewModels.TaskManager
 {

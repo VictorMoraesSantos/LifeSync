@@ -26,6 +26,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                     .ThenInclude(m => m.MealFoods)
                         .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
+                    .ThenInclude(l => l.LiquidType)
                 .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
 
             return diary;
@@ -39,6 +40,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                     .ThenInclude(m => m.MealFoods)
                         .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
+                    .ThenInclude(l => l.LiquidType)
                 .ToListAsync(cancellationToken);
 
             return diaries;
@@ -53,6 +55,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                     .ThenInclude(m => m.MealFoods)
                         .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
+                    .ThenInclude(l => l.LiquidType)
                 .ToListAsync(cancellationToken);
 
             return diaries;
@@ -67,6 +70,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                     .ThenInclude(m => m.MealFoods)
                         .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
+                    .ThenInclude(l => l.LiquidType)
                 .FirstOrDefaultAsync(d => d.Date == date);
 
             return diary;
@@ -81,6 +85,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
                     .ThenInclude(m => m.MealFoods)
                         .ThenInclude(mf => mf.Food)
                 .Include(d => d.Liquids)
+                    .ThenInclude(l => l.LiquidType)
                 .ToListAsync(cancellationToken);
 
             return diaries;

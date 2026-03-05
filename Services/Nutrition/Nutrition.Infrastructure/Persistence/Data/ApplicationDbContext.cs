@@ -11,6 +11,7 @@ namespace Nutrition.Infrastructure.Persistence.Data
 
         public DbSet<Diary> Diaries { get; set; }
         public DbSet<Liquid> Liquids { get; set; }
+        public DbSet<LiquidType> LiquidTypes { get; set; }
         public DbSet<Meal> Meals { get; set; }
         public DbSet<MealFood> MealFoods { get; set; }
         public DbSet<Food> Foods { get; set; }

@@ -123,66 +123,19 @@
                                                TextColor="#6D6C6A"/>
 
                                         <!-- Macro Info -->
-                                        <HorizontalStackLayout Spacing="10" Margin="0,2,0,0">
-                                            <!-- Protein -->
-                                            <HorizontalStackLayout Spacing="3">
-                                                <BoxView WidthRequest="8"
-                                                         HeightRequest="8"
-                                                         CornerRadius="4"
-                                                         Color="#D4A64A"
-                                                         VerticalOptions="Center"/>
-                                                <Label FontFamily="OutfitRegular"
-                                                       FontSize="12"
-                                                       TextColor="#D4A64A"
-                                                       VerticalOptions="Center">
-                                                    <Label.FormattedText>
-                                                        <FormattedString>
-                                                            <Span Text="Prot " FontAttributes="Bold"/>
-                                                            <Span Text="{Binding Protein, StringFormat='{0:0.#}g'}"/>
-                                                        </FormattedString>
-                                                    </Label.FormattedText>
-                                                </Label>
-                                            </HorizontalStackLayout>
-
-                                            <!-- Lipids -->
-                                            <HorizontalStackLayout Spacing="3">
-                                                <BoxView WidthRequest="8"
-                                                         HeightRequest="8"
-                                                         CornerRadius="4"
-                                                         Color="#D08068"
-                                                         VerticalOptions="Center"/>
-                                                <Label FontFamily="OutfitRegular"
-                                                       FontSize="12"
-                                                       TextColor="#D08068"
-                                                       VerticalOptions="Center">
-                                                    <Label.FormattedText>
-                                                        <FormattedString>
-                                                            <Span Text="Lip " FontAttributes="Bold"/>
-                                                            <Span Text="{Binding Lipids, StringFormat='{0:0.#}g'}"/>
-                                                        </FormattedString>
-                                                    </Label.FormattedText>
-                                                </Label>
-                                            </HorizontalStackLayout>
-
-                                            <!-- Carbs -->
-                                            <HorizontalStackLayout Spacing="3">
-                                                <BoxView WidthRequest="8"
-                                                         HeightRequest="8"
-                                                         CornerRadius="4"
-                                                         Color="#3D8A5A"
-                                                         VerticalOptions="Center"/>
-                                                <Label FontFamily="OutfitRegular"
-                                                       FontSize="12"
-                                                       TextColor="#3D8A5A"
-                                                       VerticalOptions="Center">
-                                                    <Label.FormattedText>
-                                                        <FormattedString>
-                                                            <Span Text="Carb " FontAttributes="Bold"/>
-                                                            <Span Text="{Binding Carbohydrates, StringFormat='{0:0.#}g'}"/>
-                                                        </FormattedString>
-                                                    </Label.FormattedText>
-                                                </Label>
-                                            </HorizontalStackLayout>
+                                        <HorizontalStackLayout Spacing="8" Margin="0,2,0,0">
+                                            <Label Text="{Binding Protein, StringFormat='Prot {0:0.#}g'}"
+                                                   FontSize="11"
+                                                   FontFamily="OutfitSemiBold"
+                                                   TextColor="#3D8A5A"/>
+                                            <Label Text="{Binding Lipids, StringFormat='Lip {0:0.#}g'}"
+                                                   FontSize="11"
+                                                   FontFamily="OutfitSemiBold"
+                                                   TextColor="#D89575"/>
+                                            <Label Text="{Binding Carbohydrates, StringFormat='Carb {0:0.#}g'}"
+                                                   FontSize="11"
+                                                   FontFamily="OutfitSemiBold"
+                                                   TextColor="#D4A64A"/>
                                         </HorizontalStackLayout>
                                     </VerticalStackLayout>
 
@@ -258,82 +211,20 @@
                                    FontSize="14"
                                    TextColor="#6D6C6A"/>
 
-                            <!-- Macro Badges -->
-                            <HorizontalStackLayout Spacing="10" Margin="0,4,0,0">
-                                <!-- Protein -->
-                                <Border BackgroundColor="#FDF6E7"
-                                        StrokeThickness="0"
-                                        Padding="10,6"
-                                        StrokeShape="RoundRectangle 8">
-                                    <HorizontalStackLayout Spacing="4">
-                                        <BoxView WidthRequest="8"
-                                                 HeightRequest="8"
-                                                 CornerRadius="4"
-                                                 Color="#D4A64A"
-                                                 VerticalOptions="Center"/>
-                                        <Label FontFamily="OutfitRegular"
-                                               FontSize="13"
-                                               TextColor="#D4A64A"
-                                               VerticalOptions="Center">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="Prot " FontAttributes="Bold"/>
-                                                    <Span Text="{Binding SelectedFoodProtein}"/>
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
-                                    </HorizontalStackLayout>
-                                </Border>
-
-                                <!-- Lipids -->
-                                <Border BackgroundColor="#FCEEE9"
-                                        StrokeThickness="0"
-                                        Padding="10,6"
-                                        StrokeShape="RoundRectangle 8">
-                                    <HorizontalStackLayout Spacing="4">
-                                        <BoxView WidthRequest="8"
-                                                 HeightRequest="8"
-                                                 CornerRadius="4"
-                                                 Color="#D08068"
-                                                 VerticalOptions="Center"/>
-                                        <Label FontFamily="OutfitRegular"
-                                               FontSize="13"
-                                               TextColor="#D08068"
-                                               VerticalOptions="Center">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="Lip " FontAttributes="Bold"/>
-                                                    <Span Text="{Binding SelectedFoodLipids}"/>
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
-                                    </HorizontalStackLayout>
-                                </Border>
-
-                                <!-- Carbs -->
-                                <Border BackgroundColor="#E8F5EC"
-                                        StrokeThickness="0"
-                                        Padding="10,6"
-                                        StrokeShape="RoundRectangle 8">
-                                    <HorizontalStackLayout Spacing="4">
-                                        <BoxView WidthRequest="8"
-                                                 HeightRequest="8"
-                                                 CornerRadius="4"
-                                                 Color="#3D8A5A"
-                                                 VerticalOptions="Center"/>
-                                        <Label FontFamily="OutfitRegular"
-                                               FontSize="13"
-                                               TextColor="#3D8A5A"
-                                               VerticalOptions="Center">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="Carb " FontAttributes="Bold"/>
-                                                    <Span Text="{Binding SelectedFoodCarbs}"/>
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
-                                    </HorizontalStackLayout>
-                                </Border>
+                            <!-- Macro Info -->
+                            <HorizontalStackLayout Spacing="8" Margin="0,4,0,0">
+                                <Label Text="{Binding SelectedFoodProtein, StringFormat='Prot {0}'}"
+                                       FontSize="11"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"/>
+                                <Label Text="{Binding SelectedFoodLipids, StringFormat='Lip {0}'}"
+                                       FontSize="11"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#D89575"/>
+                                <Label Text="{Binding SelectedFoodCarbs, StringFormat='Carb {0}'}"
+                                       FontSize="11"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#D4A64A"/>
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
 

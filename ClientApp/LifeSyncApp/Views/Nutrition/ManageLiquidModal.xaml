@@ -2,9 +2,15 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             xmlns:dtoliquidtype="clr-namespace:LifeSyncApp.DTOs.Nutrition.LiquidType"
+             xmlns:nutconv="clr-namespace:LifeSyncApp.Converters.Nutrition"
              x:Class="LifeSyncApp.Views.Nutrition.ManageLiquidModal"
              x:DataType="viewmodel:ManageLiquidViewModel"
              BackgroundColor="#F5F4F1">
+
+    <ContentPage.Resources>
+        <nutconv:LiquidNameToIconConverter x:Key="LiquidNameToIconConverter"/>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*">
 
@@ -30,28 +36,72 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="24,0,24,24" Spacing="24">
 
-                <!-- Liquid Type: Água (only option) -->
+                <!-- Liquid Type Selection -->
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Tipo de líquido"
                            FontSize="13"
                            FontFamily="OutfitRegular"
                            TextColor="#6D6C6A"/>
 
-                    <Border Padding="14,12"
-                            StrokeThickness="0"
-                            BackgroundColor="#3D8A5A"
-                            StrokeShape="RoundRectangle 12">
-                        <HorizontalStackLayout Spacing="10">
-                            <Label Text="💧"
-                                   FontSize="16"
-                                   VerticalOptions="Center"/>
-                            <Label Text="Água"
-                                   FontSize="15"
-                                   FontFamily="OutfitSemiBold"
-                                   TextColor="White"
-                                   VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-                    </Border>
+                    <!-- Loading indicator -->
+                    <ActivityIndicator IsRunning="{Binding IsLoadingTypes}"
+                                       IsVisible="{Binding IsLoadingTypes}"
+                                       Color="#3D8A5A"
+                                       HeightRequest="30"/>
+
+                    <!-- Liquid types list -->
+                    <CollectionView x:Name="LiquidTypesLayout"
+                                    ItemsSource="{Binding LiquidTypes}"
+                                    SelectedItem="{Binding SelectedLiquidType, Mode=TwoWay}"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnLiquidTypeSelectionChanged"
+                                    IsVisible="{Binding IsLoadingTypes, Converter={StaticResource InvertedBoolConverter}}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtoliquidtype:LiquidTypeDTO">
+                                <Border Padding="0,0,0,0"
+                                        HeightRequest="44"
+                                        StrokeShape="RoundRectangle 100"
+                                        BackgroundColor="White"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E4E1">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup Name="CommonStates">
+                                            <VisualState Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="White"/>
+                                                    <Setter Property="Stroke" Value="#E5E4E1"/>
+                                                    <Setter Property="StrokeThickness" Value="1"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="#3D8A5A"/>
+                                                    <Setter Property="Stroke" Value="Transparent"/>
+                                                    <Setter Property="StrokeThickness" Value="0"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <HorizontalStackLayout Spacing="10"
+                                                           Padding="18,0"
+                                                           VerticalOptions="Center">
+                                        <Image Source="{Binding Name, Converter={StaticResource LiquidNameToIconConverter}}"
+                                               WidthRequest="16"
+                                               HeightRequest="16"
+                                               VerticalOptions="Center"/>
+                                        <Label Text="{Binding Name}"
+                                               FontSize="14"
+                                               FontFamily="OutfitRegular"
+                                               TextColor="#1A1918"
+                                               VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                 </VerticalStackLayout>
 
                 <!-- Quantity -->
@@ -80,75 +130,68 @@
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Atalhos rápidos"
                            FontSize="13"
-                           FontFamily="OutfitRegular"
+                           FontFamily="OutfitSemiBold"
                            TextColor="#6D6C6A"/>
-                    <FlexLayout Wrap="Wrap" JustifyContent="Start" Direction="Row">
-                        <Border BackgroundColor="White"
-                                StrokeThickness="1"
-                                Stroke="#E5E4E1"
-                                Padding="14,10"
-                                Margin="0,0,8,8"
-                                StrokeShape="RoundRectangle 10">
+                    <!-- Row 1 -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <Border x:Name="Btn100" Grid.Column="0"
+                                BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1"
+                                HeightRequest="38" StrokeShape="RoundRectangle 100">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="100"/>
                             </Border.GestureRecognizers>
-                            <Label Text="100ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                            <Label x:Name="Lbl100" Text="100ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
-                        <Border BackgroundColor="#3D8A5A"
-                                StrokeThickness="0"
-                                Padding="14,10"
-                                Margin="0,0,8,8"
-                                StrokeShape="RoundRectangle 10">
+                        <Border x:Name="Btn250" Grid.Column="1"
+                                BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1"
+                                HeightRequest="38" StrokeShape="RoundRectangle 100">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="250"/>
                             </Border.GestureRecognizers>
-                            <Label Text="250ml" FontSize="13" FontFamily="OutfitSemiBold" TextColor="White"/>
+                            <Label x:Name="Lbl250" Text="250ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
-                        <Border BackgroundColor="White"
-                                StrokeThickness="1"
-                                Stroke="#E5E4E1"
-                                Padding="14,10"
-                                Margin="0,0,8,8"
-                                StrokeShape="RoundRectangle 10">
+                        <Border x:Name="Btn300" Grid.Column="2"
+                                BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1"
+                                HeightRequest="38" StrokeShape="RoundRectangle 100">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="300"/>
                             </Border.GestureRecognizers>
-                            <Label Text="300ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                            <Label x:Name="Lbl300" Text="300ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
-                        <Border BackgroundColor="White"
-                                StrokeThickness="1"
-                                Stroke="#E5E4E1"
-                                Padding="14,10"
-                                Margin="0,0,8,8"
-                                StrokeShape="RoundRectangle 10">
+                    </Grid>
+                    <!-- Row 2 -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <Border x:Name="Btn500" Grid.Column="0"
+                                BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1"
+                                HeightRequest="38" StrokeShape="RoundRectangle 100">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="500"/>
                             </Border.GestureRecognizers>
-                            <Label Text="500ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                            <Label x:Name="Lbl500" Text="500ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
-                        <Border BackgroundColor="White"
-                                StrokeThickness="1"
-                                Stroke="#E5E4E1"
-                                Padding="14,10"
-                                Margin="0,0,8,8"
-                                StrokeShape="RoundRectangle 10">
+                        <Border x:Name="Btn1000" Grid.Column="1"
+                                BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1"
+                                HeightRequest="38" StrokeShape="RoundRectangle 100">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="1000"/>
                             </Border.GestureRecognizers>
-                            <Label Text="1000ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                            <Label x:Name="Lbl1000" Text="1000ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
-                        <Border BackgroundColor="White"
-                                StrokeThickness="1"
-                                Stroke="#E5E4E1"
-                                Padding="14,10"
-                                Margin="0,0,8,8"
-                                StrokeShape="RoundRectangle 10">
+                        <Border x:Name="Btn200" Grid.Column="2"
+                                BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1"
+                                HeightRequest="38" StrokeShape="RoundRectangle 100">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SetQuickQuantityCommand}" CommandParameter="200"/>
                             </Border.GestureRecognizers>
-                            <Label Text="200ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"/>
+                            <Label x:Name="Lbl200" Text="200ml" FontSize="13" FontFamily="OutfitRegular" TextColor="#1A1918"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
-                    </FlexLayout>
+                    </Grid>
                 </VerticalStackLayout>
 
                 <!-- Buttons -->
@@ -157,8 +200,8 @@
                             BackgroundColor="White"
                             StrokeThickness="1"
                             Stroke="#E5E4E1"
-                            Padding="0,14"
-                            StrokeShape="RoundRectangle 12">
+                            HeightRequest="50"
+                            StrokeShape="RoundRectangle 100">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
                         </Border.GestureRecognizers>
@@ -166,18 +209,19 @@
                                FontSize="15"
                                FontFamily="OutfitRegular"
                                TextColor="#6D6C6A"
-                               HorizontalOptions="Center"/>
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
                     </Border>
 
                     <Border Grid.Column="1"
                             BackgroundColor="#3D8A5A"
                             StrokeThickness="0"
-                            Padding="0,14"
-                            StrokeShape="RoundRectangle 12">
+                            HeightRequest="50"
+                            StrokeShape="RoundRectangle 100">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SaveCommand}"/>
                         </Border.GestureRecognizers>
-                        <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
                             <Label Text="✓"
                                    FontSize="14"
                                    TextColor="White"

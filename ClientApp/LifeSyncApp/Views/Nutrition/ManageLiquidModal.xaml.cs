@@ -1,17 +1,17 @@
 using LifeSyncApp.DTOs.Nutrition.Liquid;
 using LifeSyncApp.ViewModels.Nutrition;
+using System.ComponentModel;
 
 namespace LifeSyncApp.Views.Nutrition;
 
-[QueryProperty(nameof(DiaryId), "DiaryId")]
-[QueryProperty(nameof(Liquid), "Liquid")]
-public partial class ManageLiquidModal : ContentPage
+public partial class ManageLiquidModal : ContentPage, IQueryAttributable
 {
     private readonly ManageLiquidViewModel _viewModel;
     private readonly NutritionViewModel _nutritionViewModel;
+    private Dictionary<string, (Border Border, Label Label)> _quickButtons = new();
 
-    public int DiaryId { get; set; }
-    public LiquidDTO? Liquid { get; set; }
+    private int _diaryId;
+    private LiquidDTO? _liquid;
 
     public ManageLiquidModal(ManageLiquidViewModel viewModel, NutritionViewModel nutritionViewModel)
     {
@@ -19,6 +19,30 @@ public partial class ManageLiquidModal : ContentPage
         _viewModel = viewModel;
         _nutritionViewModel = nutritionViewModel;
         BindingContext = _viewModel;
+
+        _quickButtons = new Dictionary<string, (Border, Label)>
+        {
+            { "100", (Btn100, Lbl100) },
+            { "250", (Btn250, Lbl250) },
+            { "300", (Btn300, Lbl300) },
+            { "500", (Btn500, Lbl500) },
+            { "1000", (Btn1000, Lbl1000) },
+            { "200", (Btn200, Lbl200) },
+        };
+    }
+
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("DiaryId", out var diaryIdValue))
+        {
+            if (diaryIdValue is int id)
+                _diaryId = id;
+            else if (diaryIdValue is string s && int.TryParse(s, out var parsed))
+                _diaryId = parsed;
+        }
+
+        if (query.TryGetValue("Liquid", out var liquidValue) && liquidValue is LiquidDTO dto)
+            _liquid = dto;
     }
 
     protected override async void OnAppearing()
@@ -26,7 +50,12 @@ public partial class ManageLiquidModal : ContentPage
         base.OnAppearing();
         _viewModel.OnSaved += OnSaved;
         _viewModel.OnCancelled += OnCancelled;
-        await _viewModel.InitializeAsync(DiaryId, Liquid);
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        await _viewModel.InitializeAsync(_diaryId, _liquid);
+        UpdateButtonStyles(_viewModel.SelectedQuickQuantity);
+
+        // Apply initial liquid type selection style after visual tree is ready
+        ApplyInitialLiquidTypeStyle(0);
     }
 
     protected override void OnDisappearing()
@@ -34,6 +63,120 @@ public partial class ManageLiquidModal : ContentPage
         base.OnDisappearing();
         _viewModel.OnSaved -= OnSaved;
         _viewModel.OnCancelled -= OnCancelled;
+        _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ManageLiquidViewModel.SelectedQuickQuantity))
+            UpdateButtonStyles(_viewModel.SelectedQuickQuantity);
+    }
+
+    private void ApplyInitialLiquidTypeStyle(int attempt)
+    {
+        if (_viewModel.SelectedLiquidType == null || attempt > 10) return;
+
+        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(150), () =>
+        {
+            if (_viewModel.SelectedLiquidType != null &&
+                GetBorderForItem(_viewModel.SelectedLiquidType) is Border border)
+            {
+                UpdateLiquidTypeItemStyle(border, true);
+            }
+            else
+            {
+                ApplyInitialLiquidTypeStyle(attempt + 1);
+            }
+        });
+    }
+
+    private void OnLiquidTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        // Update previous selection to normal style
+        foreach (var item in e.PreviousSelection)
+        {
+            if (GetBorderForItem(item) is Border border)
+                UpdateLiquidTypeItemStyle(border, false);
+        }
+
+        // Update new selection to selected style
+        foreach (var item in e.CurrentSelection)
+        {
+            if (GetBorderForItem(item) is Border border)
+                UpdateLiquidTypeItemStyle(border, true);
+        }
+    }
+
+    private Border? GetBorderForItem(object item)
+    {
+        // Find the Border element for the given data item in the CollectionView
+        foreach (var child in LiquidTypesLayout.GetVisualTreeDescendants())
+        {
+            if (child is Border border && border.BindingContext == item)
+                return border;
+        }
+        return null;
+    }
+
+    private static void UpdateLiquidTypeItemStyle(Border border, bool isSelected)
+    {
+        var stack = border.Content as HorizontalStackLayout;
+        if (stack == null) return;
+
+        string? liquidName = null;
+
+        foreach (var child in stack.Children)
+        {
+            if (child is Label label)
+            {
+                liquidName ??= label.Text;
+                label.TextColor = isSelected ? Colors.White : Color.FromArgb("#1A1918");
+                label.FontFamily = isSelected ? "OutfitSemiBold" : "OutfitRegular";
+            }
+        }
+
+        // Update icon source based on liquid type name
+        foreach (var child in stack.Children)
+        {
+            if (child is Image image && liquidName != null)
+            {
+                image.Source = GetIconForLiquid(liquidName, isSelected);
+                break;
+            }
+        }
+    }
+
+    private static string GetIconForLiquid(string name, bool isWhite)
+    {
+        var lower = name.ToLowerInvariant();
+        if (lower.Contains("café") || lower.Contains("cafe") || lower.Contains("coffee"))
+            return isWhite ? "coffe_white.svg" : "coffe.svg";
+        if (lower.Contains("chá") || lower.Contains("cha") || lower.Contains("tea"))
+            return isWhite ? "tea_white.svg" : "tea.svg";
+        return isWhite ? "water_white.svg" : "water.svg";
+    }
+
+    private void UpdateButtonStyles(string? selectedValue)
+    {
+        foreach (var (value, (border, label)) in _quickButtons)
+        {
+            if (value == selectedValue)
+            {
+                border.BackgroundColor = Color.FromArgb("#C8F0D8");
+                border.StrokeThickness = 0;
+                border.Stroke = Colors.Transparent;
+                label.TextColor = Color.FromArgb("#3D8A5A");
+                label.FontFamily = "OutfitSemiBold";
+            }
+            else
+            {
+                border.BackgroundColor = Colors.White;
+                border.StrokeThickness = 1;
+                border.Stroke = Color.FromArgb("#E5E4E1");
+                label.TextColor = Color.FromArgb("#1A1918");
+                label.FontFamily = "OutfitRegular";
+            }
+        }
     }
 
     private async void OnSaved(object? sender, EventArgs e)

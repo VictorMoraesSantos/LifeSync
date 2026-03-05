@@ -14,13 +14,19 @@ namespace Nutrition.Infrastructure.Services
     public class LiquidService : ILiquidService
     {
         private readonly ILiquidRepository _liquidRepository;
+        private readonly IDiaryRepository _diaryRepository;
+        private readonly IDailyProgressRepository _dailyProgressRepository;
         private readonly ILogger<LiquidService> _logger;
 
         public LiquidService(
             ILiquidRepository liquidRepository,
+            IDiaryRepository diaryRepository,
+            IDailyProgressRepository dailyProgressRepository,
             ILogger<LiquidService> logger)
         {
             _liquidRepository = liquidRepository;
+            _diaryRepository = diaryRepository;
+            _dailyProgressRepository = dailyProgressRepository;
             _logger = logger;
         }
 
@@ -208,6 +214,8 @@ namespace Nutrition.Infrastructure.Services
 
                 await _liquidRepository.Update(entity, cancellationToken);
 
+                await UpdateDailyProgressLiquidsAsync(entity.DiaryId, cancellationToken);
+
                 _logger.LogInformation("Líquido atualizado com sucesso: {LiquidId}", dto.Id);
                 return Result.Success(true);
             }
@@ -226,7 +234,10 @@ namespace Nutrition.Infrastructure.Services
                 if (entity == null)
                     return Result.Failure<bool>(LiquidErrors.NotFound(id));
 
+                var diaryId = entity.DiaryId;
                 await _liquidRepository.Delete(entity, cancellationToken);
+
+                await UpdateDailyProgressLiquidsAsync(diaryId, cancellationToken);
 
                 _logger.LogInformation("Líquido excluído com sucesso: {LiquidId}", id);
                 return Result.Success(true);
@@ -319,6 +330,25 @@ namespace Nutrition.Infrastructure.Services
             {
                 _logger.LogError(ex, "Erro ao buscar líquidos com filtro {@Filter}", filter);
                 return Result.Failure<(IEnumerable<LiquidDTO>, PaginationData)>(Error.Failure(ex.Message));
+            }
+        }
+        private async Task UpdateDailyProgressLiquidsAsync(int diaryId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var diary = await _diaryRepository.GetById(diaryId, cancellationToken);
+                if (diary == null) return;
+
+                var dailyProgress = await _dailyProgressRepository.GetByUserIdAndDateAsync(diary.UserId, diary.Date, cancellationToken);
+                if (dailyProgress == null) return;
+
+                int totalLiquidsMl = diary.Liquids.Sum(l => l.Quantity);
+                dailyProgress.SetConsumed(dailyProgress.CaloriesConsumed, totalLiquidsMl);
+                await _dailyProgressRepository.Update(dailyProgress, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Erro ao atualizar progresso diário de líquidos para diário {DiaryId}", diaryId);
             }
         }
     }

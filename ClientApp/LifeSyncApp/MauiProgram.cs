@@ -84,21 +84,21 @@ namespace LifeSyncApp
             });
 
             // API Services
-            builder.Services.AddScoped(typeof(IApiService<>), typeof(ApiService<>));
+            builder.Services.AddSingleton(typeof(IApiService<>), typeof(ApiService<>));
 
             // User Session
             builder.Services.AddSingleton<IUserSession, UserSession>();
 
             // Business Services
-            builder.Services.AddScoped<TaskItemService>();
-            builder.Services.AddScoped<TaskLabelService>();
+            builder.Services.AddSingleton<TaskItemService>();
+            builder.Services.AddSingleton<TaskLabelService>();
 
             // Financial Services
-            builder.Services.AddScoped<TransactionService>();
-            builder.Services.AddScoped<CategoryService>();
+            builder.Services.AddSingleton<TransactionService>();
+            builder.Services.AddSingleton<CategoryService>();
 
             // Nutrition Services
-            builder.Services.AddScoped<NutritionService>();
+            builder.Services.AddSingleton<NutritionService>();
 
             // ViewModels - Singleton para manter estado entre navegações
             builder.Services.AddSingleton<TaskItemsViewModel>();

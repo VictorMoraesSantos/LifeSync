@@ -50,7 +50,7 @@ services:
   mailhog:
     container_name: mailhog
     image: mailhog/mailhog
-    restart: always
+    restart: always 
     ports:
       - "1025:1025"
       - "8025:8025"

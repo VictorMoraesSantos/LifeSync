@@ -37,6 +37,7 @@ public partial class EditMealFoodModal : ContentPage
 
     private async void OnSaved(object? sender, EventArgs e)
     {
+        MessagingCenter.Send(this, "MealFoodChanged");
         await Shell.Current.GoToAsync("..");
     }
 

@@ -17,23 +17,27 @@ public partial class MealDetailPage : ContentPage
         _viewModel = viewModel;
         _nutritionViewModel = nutritionViewModel;
         BindingContext = _viewModel;
+
+        MessagingCenter.Subscribe<FoodSearchPage>(this, "MealFoodChanged", async (sender) =>
+        {
+            await _viewModel.RefreshMealAsync();
+        });
+
+        MessagingCenter.Subscribe<EditMealFoodModal>(this, "MealFoodChanged", async (sender) =>
+        {
+            await _viewModel.RefreshMealAsync();
+        });
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
         _viewModel.MealDeleted += OnMealDeleted;
 
         if (Meal != null)
         {
-            // New navigation — set the meal from query parameter
             _viewModel.Meal = Meal;
-            Meal = null; // Clear so back-navigation doesn't re-set stale data
-        }
-        else if (_viewModel.Meal != null)
-        {
-            // Returning from sub-page — refresh current meal from API
-            await _viewModel.RefreshMealAsync();
+            Meal = null;
         }
     }
 
@@ -47,5 +51,11 @@ public partial class MealDetailPage : ContentPage
     private void OnMealDeleted(object? sender, EventArgs e)
     {
         _nutritionViewModel.InvalidateDataCache();
+    }
+
+    ~MealDetailPage()
+    {
+        MessagingCenter.Unsubscribe<FoodSearchPage>(this, "MealFoodChanged");
+        MessagingCenter.Unsubscribe<EditMealFoodModal>(this, "MealFoodChanged");
     }
 }

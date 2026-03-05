@@ -52,6 +52,10 @@ public partial class MainPage : ContentPage
         {
             await taskVm.LoadTasksAsync();
         }
+        else if (_currentTabIndex == 3 && _currentPage?.BindingContext is NutritionViewModel nutritionVm)
+        {
+            await nutritionVm.LoadDataAsync();
+        }
     }
 
     private void OnTabSelected(object sender, int tabIndex)

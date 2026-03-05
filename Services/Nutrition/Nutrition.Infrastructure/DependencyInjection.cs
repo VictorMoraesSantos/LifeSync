@@ -35,6 +35,7 @@ namespace Nutrition.Infrastructure
             services.AddScoped<IMealRepository, MealRepository>();
             services.AddScoped<IMealFoodRepository, MealFoodRepository>();
             services.AddScoped<ILiquidRepository, LiquidRepository>();
+            services.AddScoped<ILiquidTypeRepository, LiquidTypeRepository>();
             services.AddScoped<IDailyProgressRepository, DailyProgressRepository>();
             services.AddScoped<IFoodRepository, FoodRepository>();
 
@@ -47,6 +48,7 @@ namespace Nutrition.Infrastructure
             services.AddScoped<IMealService, MealService>();
             services.AddScoped<IMealFoodService, MealFoodService>();
             services.AddScoped<ILiquidService, LiquidService>();
+            services.AddScoped<ILiquidTypeService, LiquidTypeService>();
             services.AddScoped<IDailyProgressService, DailyProgressService>();
             services.AddScoped<IFoodService, FoodService>();
 

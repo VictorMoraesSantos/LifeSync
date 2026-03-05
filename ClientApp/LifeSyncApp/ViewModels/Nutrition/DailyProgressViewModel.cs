@@ -141,23 +141,28 @@ namespace LifeSyncApp.ViewModels.Nutrition
             ResetGoalCommand = new Command(async () => await ResetGoalAsync());
         }
 
-        public void Initialize(DailyProgressDTO? progress)
+        public void Initialize(DailyProgressDTO? progress, int caloriesConsumed = 0, int liquidsConsumedMl = 0)
         {
             _selectedDate = progress?.Date ?? DateOnly.FromDateTime(DateTime.Today);
             UpdateDateLabel();
 
-            if (progress != null)
+            CurrentProgress = progress;
+            CaloriesConsumed = caloriesConsumed;
+            LiquidsConsumedMl = liquidsConsumedMl;
+
+            if (progress?.Goal != null)
             {
-                CurrentProgress = progress;
-                CaloriesConsumed = progress.CaloriesConsumed ?? 0;
-                LiquidsConsumedMl = progress.LiquidsConsumedMl ?? 0;
-                if (progress.Goal != null)
-                {
-                    CaloriesGoal = progress.Goal.Calories;
-                    LiquidsGoalMl = progress.Goal.QuantityMl;
-                    CaloriesGoalText = progress.Goal.Calories.ToString();
-                    LiquidsGoalText = progress.Goal.QuantityMl.ToString();
-                }
+                CaloriesGoal = progress.Goal.Calories;
+                LiquidsGoalMl = progress.Goal.QuantityMl;
+                CaloriesGoalText = progress.Goal.Calories.ToString();
+                LiquidsGoalText = progress.Goal.QuantityMl.ToString();
+            }
+            else
+            {
+                CaloriesGoal = 2000;
+                LiquidsGoalMl = 2500;
+                CaloriesGoalText = "2000";
+                LiquidsGoalText = "2500";
             }
 
             _ = LoadHistoryAsync();
@@ -175,24 +180,23 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 IsBusy = true;
                 var progresses = await _nutritionService.GetDailyProgressByUserIdAsync(_userSession.UserId);
                 var progress = progresses.FirstOrDefault(p => p.Date == _selectedDate);
-                if (progress != null)
+                CurrentProgress = progress;
+                CaloriesConsumed = progress?.CaloriesConsumed ?? 0;
+                LiquidsConsumedMl = progress?.LiquidsConsumedMl ?? 0;
+
+                if (progress?.Goal != null)
                 {
-                    CurrentProgress = progress;
-                    CaloriesConsumed = progress.CaloriesConsumed ?? 0;
-                    LiquidsConsumedMl = progress.LiquidsConsumedMl ?? 0;
-                    if (progress.Goal != null)
-                    {
-                        CaloriesGoal = progress.Goal.Calories;
-                        LiquidsGoalMl = progress.Goal.QuantityMl;
-                        CaloriesGoalText = progress.Goal.Calories.ToString();
-                        LiquidsGoalText = progress.Goal.QuantityMl.ToString();
-                    }
+                    CaloriesGoal = progress.Goal.Calories;
+                    LiquidsGoalMl = progress.Goal.QuantityMl;
+                    CaloriesGoalText = progress.Goal.Calories.ToString();
+                    LiquidsGoalText = progress.Goal.QuantityMl.ToString();
                 }
                 else
                 {
-                    CurrentProgress = null;
-                    CaloriesConsumed = 0;
-                    LiquidsConsumedMl = 0;
+                    CaloriesGoal = 2000;
+                    LiquidsGoalMl = 2500;
+                    CaloriesGoalText = "2000";
+                    LiquidsGoalText = "2500";
                 }
             }
             finally

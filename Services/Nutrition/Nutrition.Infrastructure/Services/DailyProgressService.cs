@@ -8,6 +8,7 @@ using Nutrition.Domain.Entities;
 using Nutrition.Domain.Errors;
 using Nutrition.Domain.Filters;
 using Nutrition.Domain.Repositories;
+using Nutrition.Domain.ValueObjects;
 using System.Linq.Expressions;
 
 namespace Nutrition.Infrastructure.Services
@@ -162,6 +163,16 @@ namespace Nutrition.Infrastructure.Services
                     return Result.Failure<int>(Error.NullValue);
 
                 var entity = DailyProgressMapper.ToEntity(dto);
+
+                // Copy goal from user's most recent daily progress
+                var existingProgresses = await _dailyProgressRepository.GetAllByUserId(dto.UserId, cancellationToken);
+                var latestWithGoal = existingProgresses
+                    .Where(p => p != null && p.Goal != null && (p.Goal.Calories > 0 || p.Goal.QuantityMl > 0))
+                    .OrderByDescending(p => p!.Date)
+                    .FirstOrDefault();
+                if (latestWithGoal?.Goal != null)
+                    entity.SetGoal(new DailyGoal(latestWithGoal.Goal.Calories, latestWithGoal.Goal.QuantityMl));
+
                 await _dailyProgressRepository.Create(entity, cancellationToken);
 
                 _logger.LogInformation("Progresso diário criado com sucesso: {ProgressId}", entity.Id);

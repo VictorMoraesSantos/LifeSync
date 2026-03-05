@@ -17,7 +17,7 @@ namespace Nutrition.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.1")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -195,7 +195,7 @@ namespace Nutrition.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LiquidType");
+                    b.ToTable("LiquidTypes");
                 });
 
             modelBuilder.Entity("Nutrition.Domain.Entities.Meal", b =>

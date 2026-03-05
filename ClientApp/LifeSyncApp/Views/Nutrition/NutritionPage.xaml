@@ -4,10 +4,16 @@
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
              xmlns:meal="clr-namespace:LifeSyncApp.DTOs.Nutrition.Meal"
              xmlns:liquid="clr-namespace:LifeSyncApp.DTOs.Nutrition.Liquid"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
+             xmlns:nutconv="clr-namespace:LifeSyncApp.Converters.Nutrition"
              x:Class="LifeSyncApp.Views.Nutrition.NutritionPage"
              x:DataType="viewmodel:NutritionViewModel"
              x:Name="page"
              BackgroundColor="#F5F4F1">
+
+    <ContentPage.Resources>
+        <nutconv:LiquidNameToIconConverter x:Key="LiquidNameToIconConverter"/>
+    </ContentPage.Resources>
 
     <Grid>
         <Grid RowDefinitions="Auto,*">
@@ -76,17 +82,14 @@
                                 <TapGestureRecognizer Command="{Binding OpenDailyProgressCommand}"/>
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                                <!-- Circular Progress Placeholder -->
                                 <Grid WidthRequest="80" HeightRequest="80" HorizontalOptions="Center">
-                                    <Border BackgroundColor="Transparent"
-                                            StrokeThickness="6"
-                                            Stroke="#E5E4E1"
-                                            WidthRequest="80"
-                                            HeightRequest="80"
-                                            StrokeShape="RoundRectangle 40"/>
-                                    <ProgressBar Progress="{Binding CaloriesProgressValue}"
-                                                 ProgressColor="#3D8A5A"
-                                                 IsVisible="False"/>
+                                    <controls:CircularProgressView
+                                        Progress="{Binding CaloriesProgressValue}"
+                                        ProgressColor="#3D8A5A"
+                                        TrackColor="#E5E4E1"
+                                        StrokeWidth="6"
+                                        WidthRequest="80"
+                                        HeightRequest="80"/>
                                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
                                         <Label Text="{Binding CaloriesDisplay}"
                                                FontSize="20"
@@ -123,12 +126,13 @@
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
                                 <Grid WidthRequest="80" HeightRequest="80" HorizontalOptions="Center">
-                                    <Border BackgroundColor="Transparent"
-                                            StrokeThickness="6"
-                                            Stroke="#E5E4E1"
-                                            WidthRequest="80"
-                                            HeightRequest="80"
-                                            StrokeShape="RoundRectangle 40"/>
+                                    <controls:CircularProgressView
+                                        Progress="{Binding LiquidsProgressValue}"
+                                        ProgressColor="#D4A64A"
+                                        TrackColor="#E5E4E1"
+                                        StrokeWidth="6"
+                                        WidthRequest="80"
+                                        HeightRequest="80"/>
                                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
                                         <Label Text="{Binding LiquidsDisplay}"
                                                FontSize="20"
@@ -151,64 +155,73 @@
                         </Border>
                     </Grid>
 
-                    <!-- Diary Summary Row -->
+                    <!-- Macronutrients Summary -->
                     <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
-                        <Border Grid.Column="0" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="10,8" StrokeShape="RoundRectangle 10">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OpenDiaryDetailCommand}"/>
-                            </Border.GestureRecognizers>
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
-                                <Label Text="{Binding CaloriesDisplay}"
+                        <Border Grid.Column="0" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="10,8" HeightRequest="64" StrokeShape="RoundRectangle 12">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,1" Radius="6" Opacity="0.03"/>
+                            </Border.Shadow>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding TotalProteinDisplay}"
                                        FontSize="15"
                                        FontFamily="OutfitSemiBold"
                                        TextColor="#1A1918"
                                        HorizontalOptions="Center"/>
-                                <Label Text="kcal"
-                                       FontSize="11"
+                                <Label Text="proteínas"
+                                       FontSize="10"
                                        FontFamily="OutfitRegular"
-                                       TextColor="#6D6C6A"
+                                       TextColor="#9C9B99"
                                        HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
-                        <Border Grid.Column="1" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="10,8" StrokeShape="RoundRectangle 10">
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
-                                <Label Text="{Binding LiquidsDisplay}"
+                        <Border Grid.Column="1" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="10,8" HeightRequest="64" StrokeShape="RoundRectangle 12">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,1" Radius="6" Opacity="0.03"/>
+                            </Border.Shadow>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding TotalCarbsDisplay}"
                                        FontSize="15"
                                        FontFamily="OutfitSemiBold"
                                        TextColor="#1A1918"
                                        HorizontalOptions="Center"/>
-                                <Label Text="ml"
-                                       FontSize="11"
+                                <Label Text="carboidratos"
+                                       FontSize="10"
                                        FontFamily="OutfitRegular"
-                                       TextColor="#6D6C6A"
+                                       TextColor="#9C9B99"
                                        HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
-                        <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="10,8" StrokeShape="RoundRectangle 10">
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
-                                <Label Text="{Binding MealsCount}"
+                        <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="10,8" HeightRequest="64" StrokeShape="RoundRectangle 12">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,1" Radius="6" Opacity="0.03"/>
+                            </Border.Shadow>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding TotalLipidsDisplay}"
                                        FontSize="15"
                                        FontFamily="OutfitSemiBold"
                                        TextColor="#1A1918"
                                        HorizontalOptions="Center"/>
-                                <Label Text="refeições"
-                                       FontSize="11"
+                                <Label Text="lipídeos"
+                                       FontSize="10"
                                        FontFamily="OutfitRegular"
-                                       TextColor="#6D6C6A"
+                                       TextColor="#9C9B99"
                                        HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
-                        <Border Grid.Column="3" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="10,8" StrokeShape="RoundRectangle 10">
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
-                                <Label Text="{Binding LiquidsCount}"
+                        <Border Grid.Column="3" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="10,8" HeightRequest="64" StrokeShape="RoundRectangle 12">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,1" Radius="6" Opacity="0.03"/>
+                            </Border.Shadow>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding TotalSodiumDisplay}"
                                        FontSize="15"
                                        FontFamily="OutfitSemiBold"
                                        TextColor="#1A1918"
                                        HorizontalOptions="Center"/>
-                                <Label Text="líquidos"
-                                       FontSize="11"
+                                <Label Text="sódio"
+                                       FontSize="10"
                                        FontFamily="OutfitRegular"
-                                       TextColor="#6D6C6A"
+                                       TextColor="#9C9B99"
                                        HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
@@ -220,6 +233,29 @@
                                FontSize="18"
                                FontFamily="OutfitSemiBold"
                                TextColor="#1A1918"/>
+
+                        <!-- Add Meal Button -->
+                        <Border BackgroundColor="Transparent"
+                                StrokeThickness="1"
+                                Stroke="#3D8A5A"
+                                HeightRequest="44"
+                                StrokeShape="RoundRectangle 12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenManageMealModalCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="+"
+                                       FontSize="16"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Adicionar Refeição"
+                                       FontSize="14"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
 
                         <Label Text="Nenhuma refeição registrada ainda."
                                FontSize="13"
@@ -260,8 +296,9 @@
                                                     HeightRequest="40"
                                                     VerticalOptions="Center"
                                                     StrokeShape="RoundRectangle 20">
-                                                <Label Text="🍽"
-                                                       FontSize="18"
+                                                <Image Source="meal.svg"
+                                                       WidthRequest="20"
+                                                       HeightRequest="20"
                                                        HorizontalOptions="Center"
                                                        VerticalOptions="Center"/>
                                             </Border>
@@ -292,29 +329,6 @@
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
-
-                        <!-- Add Meal Button -->
-                        <Border BackgroundColor="Transparent"
-                                StrokeThickness="1"
-                                Stroke="#3D8A5A"
-                                HeightRequest="44"
-                                StrokeShape="RoundRectangle 12">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OpenManageMealModalCommand}"/>
-                            </Border.GestureRecognizers>
-                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                <Label Text="+"
-                                       FontSize="16"
-                                       FontFamily="OutfitSemiBold"
-                                       TextColor="#3D8A5A"
-                                       VerticalOptions="Center"/>
-                                <Label Text="Adicionar Refeição"
-                                       FontSize="14"
-                                       FontFamily="OutfitSemiBold"
-                                       TextColor="#3D8A5A"
-                                       VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                        </Border>
                     </VerticalStackLayout>
 
                     <!-- Liquids Section -->
@@ -323,6 +337,29 @@
                                FontSize="18"
                                FontFamily="OutfitSemiBold"
                                TextColor="#1A1918"/>
+
+                        <!-- Add Liquid Button -->
+                        <Border BackgroundColor="Transparent"
+                                StrokeThickness="1"
+                                Stroke="#3D8A5A"
+                                HeightRequest="44"
+                                StrokeShape="RoundRectangle 12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenManageLiquidModalCommand}"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="+"
+                                       FontSize="16"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                                <Label Text="Adicionar Líquido"
+                                       FontSize="14"
+                                       FontFamily="OutfitSemiBold"
+                                       TextColor="#3D8A5A"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </Border>
 
                         <Label Text="Nenhum líquido registrado ainda."
                                FontSize="13"
@@ -349,7 +386,7 @@
                                             <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
                                         </Border.Shadow>
 
-                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                             <!-- Liquid Icon -->
                                             <Border Grid.Column="0"
                                                     BackgroundColor="#C8F0D8"
@@ -358,8 +395,9 @@
                                                     HeightRequest="36"
                                                     VerticalOptions="Center"
                                                     StrokeShape="RoundRectangle 100">
-                                                <Label Text="💧"
-                                                       FontSize="16"
+                                                <Image Source="{Binding Name, Converter={StaticResource LiquidNameToIconConverter}}"
+                                                       WidthRequest="18"
+                                                       HeightRequest="18"
                                                        HorizontalOptions="Center"
                                                        VerticalOptions="Center"/>
                                             </Border>
@@ -377,34 +415,42 @@
                                                        FontFamily="OutfitRegular"
                                                        TextColor="#6D6C6A"/>
                                             </VerticalStackLayout>
+
+                                            <!-- Action Buttons -->
+                                            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                                                <Border BackgroundColor="#F5F4F1"
+                                                        StrokeThickness="0"
+                                                        WidthRequest="34"
+                                                        HeightRequest="34"
+                                                        Padding="7"
+                                                        StrokeShape="RoundRectangle 8">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:NutritionViewModel}}, Path=EditLiquidCommand}"
+                                                            CommandParameter="{Binding .}"/>
+                                                    </Border.GestureRecognizers>
+                                                    <Image Source="edit.svg" WidthRequest="18" HeightRequest="18"/>
+                                                </Border>
+
+                                                <Border BackgroundColor="#FEF2F2"
+                                                        StrokeThickness="0"
+                                                        WidthRequest="34"
+                                                        HeightRequest="34"
+                                                        Padding="7"
+                                                        StrokeShape="RoundRectangle 8">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:NutritionViewModel}}, Path=DeleteLiquidCommand}"
+                                                            CommandParameter="{Binding .}"/>
+                                                    </Border.GestureRecognizers>
+                                                    <Image Source="trash.svg" WidthRequest="18" HeightRequest="18"/>
+                                                </Border>
+                                            </HorizontalStackLayout>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
-
-                        <!-- Add Liquid Button -->
-                        <Border BackgroundColor="Transparent"
-                                StrokeThickness="1"
-                                Stroke="#3D8A5A"
-                                HeightRequest="44"
-                                StrokeShape="RoundRectangle 12">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OpenManageLiquidModalCommand}"/>
-                            </Border.GestureRecognizers>
-                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                                <Label Text="+"
-                                       FontSize="16"
-                                       FontFamily="OutfitSemiBold"
-                                       TextColor="#3D8A5A"
-                                       VerticalOptions="Center"/>
-                                <Label Text="Adicionar Líquido"
-                                       FontSize="14"
-                                       FontFamily="OutfitSemiBold"
-                                       TextColor="#3D8A5A"
-                                       VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                        </Border>
                     </VerticalStackLayout>
 
                 </VerticalStackLayout>

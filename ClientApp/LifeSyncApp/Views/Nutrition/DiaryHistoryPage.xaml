@@ -103,7 +103,7 @@
                                                    TextColor="#6D6C6A"/>
                                         </HorizontalStackLayout>
                                         <HorizontalStackLayout Spacing="4">
-                                            <Label Text="🍽" FontSize="11"/>
+                                            <Image Source="meal.svg" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
                                             <Label Text="{Binding Meals.Count, StringFormat='{0} refeições'}"
                                                    FontSize="12"
                                                    FontFamily="OutfitRegular"

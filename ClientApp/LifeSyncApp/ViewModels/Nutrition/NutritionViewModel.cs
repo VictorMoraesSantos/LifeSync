@@ -5,7 +5,6 @@ using LifeSyncApp.DTOs.Nutrition.Meal;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.UserSession;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Input;
 
@@ -146,8 +145,42 @@ namespace LifeSyncApp.ViewModels.Nutrition
             set => SetProperty(ref _liquidsCount, value);
         }
 
-        public ObservableCollection<MealDTO> Meals { get; } = new();
-        public ObservableCollection<LiquidDTO> Liquids { get; } = new();
+        private decimal _totalProtein;
+        private decimal _totalCarbs;
+        private decimal _totalLipids;
+        private decimal _totalSodium;
+
+        public decimal TotalProtein
+        {
+            get => _totalProtein;
+            set => SetProperty(ref _totalProtein, value);
+        }
+
+        public decimal TotalCarbs
+        {
+            get => _totalCarbs;
+            set => SetProperty(ref _totalCarbs, value);
+        }
+
+        public decimal TotalLipids
+        {
+            get => _totalLipids;
+            set => SetProperty(ref _totalLipids, value);
+        }
+
+        public decimal TotalSodium
+        {
+            get => _totalSodium;
+            set => SetProperty(ref _totalSodium, value);
+        }
+
+        public string TotalProteinDisplay => $"{TotalProtein:F0}g";
+        public string TotalCarbsDisplay => $"{TotalCarbs:F0}g";
+        public string TotalLipidsDisplay => $"{TotalLipids:F0}g";
+        public string TotalSodiumDisplay => $"{TotalSodium / 1000m:F1}g";
+
+        public SafeObservableCollection<MealDTO> Meals { get; } = new();
+        public SafeObservableCollection<LiquidDTO> Liquids { get; } = new();
 
         public ICommand LoadDataCommand { get; }
         public ICommand RefreshCommand { get; }
@@ -159,6 +192,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public ICommand OpenDiaryDetailCommand { get; }
         public ICommand OpenDailyProgressCommand { get; }
         public ICommand OpenDiaryHistoryCommand { get; }
+        public ICommand EditLiquidCommand { get; }
+        public ICommand DeleteLiquidCommand { get; }
 
         public NutritionViewModel(NutritionService nutritionService, IUserSession userSession)
         {
@@ -178,6 +213,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
             OpenDiaryDetailCommand = new Command(async () => await OpenDiaryDetailAsync());
             OpenDailyProgressCommand = new Command(async () => await OpenDailyProgressAsync());
             OpenDiaryHistoryCommand = new Command(async () => await Shell.Current.GoToAsync("DiaryHistoryPage"));
+            EditLiquidCommand = new Command<LiquidDTO>(async (l) => await EditLiquidAsync(l));
+            DeleteLiquidCommand = new Command<LiquidDTO>(async (l) => await DeleteLiquidAsync(l));
         }
 
         private void UpdateDateLabel()
@@ -202,7 +239,9 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (!forceRefresh && _loadingTask != null && !_loadingTask.IsCompleted)
                 return _loadingTask;
 
-            _nutritionService.InvalidateAllCache();
+            if (forceRefresh)
+                _nutritionService.InvalidateAllCache();
+
             _loadingTask = LoadDataInternalAsync();
             return _loadingTask;
         }
@@ -238,7 +277,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 }
 
                 // Update UI on main thread in a single batch
-                MainThread.BeginInvokeOnMainThread(() =>
+                await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     TodayDiary = todayDiary;
                     DailyProgress = todayProgress;
@@ -261,6 +300,18 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     LiquidsConsumedMl = liquids.Sum(l => l.Quantity);
                     LiquidsCount = liquids.Count;
 
+                    // Calculate macronutrients from all meal foods
+                    // Protein, Lipids, Carbohydrates are in grams per 100g; Sodium is in mg per 100g
+                    var allFoods = meals.SelectMany(m => m.MealFoods).ToList();
+                    TotalProtein = allFoods.Sum(f => (f.Protein ?? 0) * f.Quantity / 100m);
+                    TotalCarbs = allFoods.Sum(f => (f.Carbohydrates ?? 0) * f.Quantity / 100m);
+                    TotalLipids = allFoods.Sum(f => (f.Lipids ?? 0) * f.Quantity / 100m);
+                    TotalSodium = allFoods.Sum(f => (f.Sodium ?? 0) * f.Quantity / 100m);
+                    OnPropertyChanged(nameof(TotalProteinDisplay));
+                    OnPropertyChanged(nameof(TotalCarbsDisplay));
+                    OnPropertyChanged(nameof(TotalLipidsDisplay));
+                    OnPropertyChanged(nameof(TotalSodiumDisplay));
+
                     IsBusy = false;
                 });
 
@@ -269,7 +320,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading nutrition data: {ex.Message}");
-                MainThread.BeginInvokeOnMainThread(() => IsBusy = false);
+                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
             }
         }
 
@@ -354,19 +405,83 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         private async Task OpenDailyProgressAsync()
         {
-            if (DailyProgress == null)
-                await LoadDataAsync(forceRefresh: true);
-
-            if (DailyProgress == null)
+            try
             {
-                await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o progresso diário.", "OK");
-                return;
+                if (DailyProgress == null)
+                    await LoadDataAsync(forceRefresh: true);
+
+                if (DailyProgress == null)
+                {
+                    try
+                    {
+                        IsBusy = true;
+                        var dto = new CreateDailyProgressDTO(_userSession.UserId, _selectedDate);
+                        var progressId = await _nutritionService.CreateDailyProgressAsync(dto);
+                        if (progressId == null)
+                        {
+                            await Shell.Current.DisplayAlert("Erro", "Não foi possível criar o progresso diário.", "OK");
+                            return;
+                        }
+                        InvalidateDataCache();
+                        await LoadDataAsync(forceRefresh: true);
+                    }
+                    finally
+                    {
+                        IsBusy = false;
+                    }
+                }
+
+                if (DailyProgress == null)
+                {
+                    await Shell.Current.DisplayAlert("Erro", "Não foi possível carregar o progresso diário.", "OK");
+                    return;
+                }
+
+                await Shell.Current.GoToAsync("DailyProgressPage", new Dictionary<string, object>
+                {
+                    { "DailyProgress", DailyProgress }
+                });
             }
-
-            await Shell.Current.GoToAsync("DailyProgressPage", new Dictionary<string, object>
+            catch (Exception ex)
             {
-                { "DailyProgress", DailyProgress }
+                System.Diagnostics.Debug.WriteLine($"Error opening daily progress: {ex}");
+                IsBusy = false;
+                await Shell.Current.DisplayAlert("Erro", $"Erro ao abrir progresso diário: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task EditLiquidAsync(LiquidDTO? liquid)
+        {
+            if (liquid == null || TodayDiary == null) return;
+
+            await Shell.Current.GoToAsync("ManageLiquidModal", new Dictionary<string, object>
+            {
+                { "DiaryId", TodayDiary.Id },
+                { "Liquid", liquid }
             });
+        }
+
+        private async Task DeleteLiquidAsync(LiquidDTO? liquid)
+        {
+            if (liquid == null) return;
+
+            var confirm = await Shell.Current.DisplayAlert(
+                "Excluir Líquido",
+                $"Deseja excluir {liquid.Name} ({liquid.Quantity} ml)?",
+                "Excluir", "Cancelar");
+
+            if (!confirm) return;
+
+            var success = await _nutritionService.DeleteLiquidAsync(liquid.Id);
+            if (success)
+            {
+                InvalidateDataCache();
+                await LoadDataAsync(forceRefresh: true);
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Erro", "Não foi possível excluir o líquido.", "OK");
+            }
         }
     }
 }

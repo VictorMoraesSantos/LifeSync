@@ -3,13 +3,12 @@ using LifeSyncApp.ViewModels.Nutrition;
 
 namespace LifeSyncApp.Views.Nutrition;
 
-[QueryProperty(nameof(DailyProgress), "DailyProgress")]
-public partial class DailyProgressPage : ContentPage
+public partial class DailyProgressPage : ContentPage, IQueryAttributable
 {
     private readonly DailyProgressViewModel _viewModel;
     private readonly NutritionViewModel _nutritionViewModel;
 
-    public DailyProgressDTO? DailyProgress { get; set; }
+    private DailyProgressDTO? _dailyProgress;
 
     public DailyProgressPage(DailyProgressViewModel viewModel, NutritionViewModel nutritionViewModel)
     {
@@ -19,10 +18,16 @@ public partial class DailyProgressPage : ContentPage
         BindingContext = _viewModel;
     }
 
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("DailyProgress", out var value) && value is DailyProgressDTO dto)
+            _dailyProgress = dto;
+    }
+
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        _viewModel.Initialize(DailyProgress);
+        _viewModel.Initialize(_dailyProgress, _nutritionViewModel.CaloriesConsumed, _nutritionViewModel.LiquidsConsumedMl);
     }
 
     protected override void OnDisappearing()

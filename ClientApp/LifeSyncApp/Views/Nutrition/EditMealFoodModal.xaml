@@ -73,15 +73,15 @@
                             <Label Text="{Binding ProteinInfo}"
                                    FontSize="12"
                                    FontFamily="OutfitSemiBold"
-                                   TextColor="#D4A64A"/>
+                                   TextColor="#3D8A5A"/>
                             <Label Text="{Binding LipidsInfo}"
                                    FontSize="12"
                                    FontFamily="OutfitSemiBold"
-                                   TextColor="#D08068"/>
+                                   TextColor="#D89575"/>
                             <Label Text="{Binding CarbsInfo}"
                                    FontSize="12"
                                    FontFamily="OutfitSemiBold"
-                                   TextColor="#3D8A5A"/>
+                                   TextColor="#D4A64A"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Border>
