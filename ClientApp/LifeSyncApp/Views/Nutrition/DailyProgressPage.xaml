@@ -11,14 +11,20 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Header -->
-        <HorizontalStackLayout Grid.Row="0" Padding="24,16" Spacing="8">
+        <HorizontalStackLayout Grid.Row="0" Padding="24,16" Spacing="12">
+            <Label Text="←"
+                   FontSize="22"
+                   FontFamily="OutfitSemiBold"
+                   TextColor="#1A1918"
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
+                </Label.GestureRecognizers>
+            </Label>
             <Label Text="Progresso Diário"
                    FontSize="22"
                    FontFamily="OutfitSemiBold"
                    TextColor="#1A1918"
-                   VerticalOptions="Center"/>
-            <Label Text="🔒"
-                   FontSize="16"
                    VerticalOptions="Center"/>
         </HorizontalStackLayout>
 

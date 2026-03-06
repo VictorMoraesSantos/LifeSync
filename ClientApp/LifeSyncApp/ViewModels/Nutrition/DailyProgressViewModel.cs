@@ -23,6 +23,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
         private string _caloriesGoalText = "2000";
         private string _liquidsGoalText = "2500";
 
+        private DateOnly _initialDate;
+        private int _initialCaloriesConsumed;
+        private int _initialLiquidsConsumedMl;
+
         public DailyProgressDTO? CurrentProgress
         {
             get => _dailyProgress;
@@ -144,6 +148,9 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public void Initialize(DailyProgressDTO? progress, int caloriesConsumed = 0, int liquidsConsumedMl = 0)
         {
             _selectedDate = progress?.Date ?? DateOnly.FromDateTime(DateTime.Today);
+            _initialDate = _selectedDate;
+            _initialCaloriesConsumed = caloriesConsumed;
+            _initialLiquidsConsumedMl = liquidsConsumedMl;
             UpdateDateLabel();
 
             CurrentProgress = progress;
@@ -181,8 +188,17 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 var progresses = await _nutritionService.GetDailyProgressByUserIdAsync(_userSession.UserId);
                 var progress = progresses.FirstOrDefault(p => p.Date == _selectedDate);
                 CurrentProgress = progress;
-                CaloriesConsumed = progress?.CaloriesConsumed ?? 0;
-                LiquidsConsumedMl = progress?.LiquidsConsumedMl ?? 0;
+
+                if (_selectedDate == _initialDate)
+                {
+                    CaloriesConsumed = _initialCaloriesConsumed;
+                    LiquidsConsumedMl = _initialLiquidsConsumedMl;
+                }
+                else
+                {
+                    CaloriesConsumed = progress?.CaloriesConsumed ?? 0;
+                    LiquidsConsumedMl = progress?.LiquidsConsumedMl ?? 0;
+                }
 
                 if (progress?.Goal != null)
                 {
@@ -193,10 +209,25 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 }
                 else
                 {
-                    CaloriesGoal = 2000;
-                    LiquidsGoalMl = 2500;
-                    CaloriesGoalText = "2000";
-                    LiquidsGoalText = "2500";
+                    var latestGoal = progresses
+                        .Where(p => p.Goal != null && p.Date <= _selectedDate)
+                        .OrderByDescending(p => p.Date)
+                        .FirstOrDefault()?.Goal;
+
+                    if (latestGoal != null)
+                    {
+                        CaloriesGoal = latestGoal.Calories;
+                        LiquidsGoalMl = latestGoal.QuantityMl;
+                        CaloriesGoalText = latestGoal.Calories.ToString();
+                        LiquidsGoalText = latestGoal.QuantityMl.ToString();
+                    }
+                    else
+                    {
+                        CaloriesGoal = 2000;
+                        LiquidsGoalMl = 2500;
+                        CaloriesGoalText = "2000";
+                        LiquidsGoalText = "2500";
+                    }
                 }
             }
             finally
@@ -217,7 +248,20 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
                 RecentHistory.Clear();
                 foreach (var p in recent)
-                    RecentHistory.Add(p);
+                {
+                    if (p.Date == _initialDate)
+                    {
+                        RecentHistory.Add(p with
+                        {
+                            CaloriesConsumed = _initialCaloriesConsumed,
+                            LiquidsConsumedMl = _initialLiquidsConsumedMl
+                        });
+                    }
+                    else
+                    {
+                        RecentHistory.Add(p);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -250,6 +294,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 {
                     CaloriesGoal = calGoal;
                     LiquidsGoalMl = liqGoal;
+                    await LoadHistoryAsync();
                     await Shell.Current.DisplayAlert("Sucesso", "Meta salva com sucesso!", "OK");
                 }
             }

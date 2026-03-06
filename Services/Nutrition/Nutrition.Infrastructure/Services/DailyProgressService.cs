@@ -296,7 +296,25 @@ namespace Nutrition.Infrastructure.Services
 
                 await _dailyProgressRepository.Update(entity, cancellationToken);
 
-                _logger.LogInformation("Meta definida com sucesso para progresso diário: {ProgressId}", id);
+                // Update goal for all future daily progresses of the same user
+                var allProgresses = await _dailyProgressRepository.GetAllByUserId(entity.UserId, cancellationToken);
+                var futureIds = allProgresses
+                    .Where(p => p != null && p.Date > entity.Date)
+                    .Select(p => p!.Id)
+                    .ToList();
+
+                foreach (var futureId in futureIds)
+                {
+                    var futureEntity = await _dailyProgressRepository.GetById(futureId, cancellationToken);
+                    if (futureEntity != null)
+                    {
+                        futureEntity.SetGoal(new DailyGoal(goalDto.Calories, goalDto.QuantityMl));
+                        futureEntity.MarkAsUpdated();
+                        await _dailyProgressRepository.Update(futureEntity, cancellationToken);
+                    }
+                }
+
+                _logger.LogInformation("Meta definida com sucesso para progresso diário: {ProgressId} e {FutureCount} dias posteriores", id, futureIds.Count);
                 return Result.Success(true);
             }
             catch (Exception ex)

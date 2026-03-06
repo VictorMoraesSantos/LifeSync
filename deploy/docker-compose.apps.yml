@@ -1,0 +1,125 @@
+services:
+  taskmanager.api:
+    image: ghcr.io/victormoraessantos/lifesync-taskmanagerapi:${TASKMANAGER_TAG}
+    container_name: taskmanager-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=${DB_USER};Password=${DB_PASSWORD}
+      - RabbitMQSettings__Host=rabbitmq
+      - RabbitMQSettings__Port=5672
+      - RabbitMQSettings__User=${RABBIT_USER}
+      - RabbitMQSettings__Password=${RABBIT_PASSWORD}
+    networks: [lifesync]
+    restart: unless-stopped
+
+  nutrition.api:
+    image: ghcr.io/victormoraessantos/lifesync-nutritionapi:${NUTRITION_TAG}
+    container_name: nutrition-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=${DB_USER};Password=${DB_PASSWORD}
+    networks: [lifesync]
+    restart: unless-stopped
+
+  financial.api:
+    image: ghcr.io/victormoraessantos/lifesync-financialapi:${FINANCIAL_TAG}
+    container_name: financial-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=${DB_USER};Password=${DB_PASSWORD}
+    networks: [lifesync]
+    restart: unless-stopped
+
+  users.api:
+    image: ghcr.io/victormoraessantos/lifesync-usersapi:${USERS_TAG}
+    container_name: users-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=${DB_USER};Password=${DB_PASSWORD}
+      - RabbitMQSettings__Host=rabbitmq
+      - RabbitMQSettings__Port=5672
+      - RabbitMQSettings__User=${RABBIT_USER}
+      - RabbitMQSettings__Password=${RABBIT_PASSWORD}
+    networks: [lifesync]
+    restart: unless-stopped
+
+  gym.api:
+    image: ghcr.io/victormoraessantos/lifesync-gymapi:${GYM_TAG}
+    container_name: gym-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=${DB_USER};Password=${DB_PASSWORD}
+    networks: [lifesync]
+    restart: unless-stopped
+
+  notification.api:
+    image: ghcr.io/victormoraessantos/lifesync-notificationapi:${NOTIFICATION_TAG}
+    container_name: notification-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Database=Server=lifesyncdb;Port=5432;Database=LifeSyncDB;User Id=${DB_USER};Password=${DB_PASSWORD}
+      - RabbitMQSettings__Host=rabbitmq
+      - RabbitMQSettings__Port=5672
+      - RabbitMQSettings__User=${RABBIT_USER}
+      - RabbitMQSettings__Password=${RABBIT_PASSWORD}
+      - SmtpSettings__Host=${SMTP_HOST}
+      - SmtpSettings__Port=${SMTP_PORT}
+      - SmtpSettings__EnableSsl=true
+      - SmtpSettings__User=${SMTP_USER}
+      - SmtpSettings__Password=${SMTP_PASSWORD}
+      - SmtpSettings__From=${SMTP_FROM}
+    networks: [lifesync]
+    restart: unless-stopped
+
+  yarpapigateway:
+    image: ghcr.io/victormoraessantos/lifesync-yarpgateway:${GATEWAY_TAG}
+    container_name: yarp-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    volumes:
+      - gateway_dataprotection_keys:/keys
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gateway.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.gateway.entrypoints=web"
+      - "traefik.http.services.gateway.loadbalancer.server.port=8080"
+      # Descomentar quando tiver domínio:
+      # - "traefik.http.routers.gateway.rule=Host(`${API_DOMAIN}`)"
+      # - "traefik.http.routers.gateway.entrypoints=websecure"
+      # - "traefik.http.routers.gateway.tls.certresolver=letsencrypt"
+    networks: [lifesync]
+    restart: unless-stopped
+
+  lifesyncapp.webapp:
+    image: ghcr.io/victormoraessantos/lifesync-webapp:${WEBAPP_TAG}
+    container_name: lifesync-webapp
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - BaseApiUrl=http://yarpapigateway:8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webapp.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.webapp.entrypoints=web"
+      - "traefik.http.routers.webapp.priority=1"
+      - "traefik.http.services.webapp.loadbalancer.server.port=8080"
+      # Descomentar quando tiver domínio:
+      # - "traefik.http.routers.webapp.rule=Host(`${APP_DOMAIN}`)"
+      # - "traefik.http.routers.webapp.entrypoints=websecure"
+      # - "traefik.http.routers.webapp.tls.certresolver=letsencrypt"
+    networks: [lifesync]
+    restart: unless-stopped
+
+volumes:
+  gateway_dataprotection_keys:
+
+networks:
+  lifesync:
+    external: true
