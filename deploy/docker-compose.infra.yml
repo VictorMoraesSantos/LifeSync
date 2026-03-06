@@ -31,7 +31,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=LifeSyncDB
     volumes:
-      - postgres_lifesync:/var/lib/postgresql/data
+      - postgres_lifesync:/var/lib/postgresql
     networks: [lifesync]
     restart: unless-stopped
     healthcheck:
