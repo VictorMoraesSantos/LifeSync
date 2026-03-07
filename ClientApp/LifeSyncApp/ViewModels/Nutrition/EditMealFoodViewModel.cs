@@ -28,9 +28,9 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         public string FoodName => _mealFood?.Name ?? string.Empty;
         public string CaloriesInfo => _mealFood != null ? $"{_mealFood.Calories} kcal / 100g" : string.Empty;
-        public string ProteinInfo => _mealFood?.Protein != null ? $"Prot {_mealFood.Protein:F1}g" : string.Empty;
-        public string LipidsInfo => _mealFood?.Lipids != null ? $"Lip {_mealFood.Lipids:F1}g" : string.Empty;
-        public string CarbsInfo => _mealFood?.Carbohydrates != null ? $"Carb {_mealFood.Carbohydrates:F1}g" : string.Empty;
+        public string ProteinInfo => _mealFood?.Protein != null ? $"Prot {_mealFood.Protein:F1}g / 100g" : string.Empty;
+        public string LipidsInfo => _mealFood?.Lipids != null ? $"Lip {_mealFood.Lipids:F1}g / 100g" : string.Empty;
+        public string CarbsInfo => _mealFood?.Carbohydrates != null ? $"Carb {_mealFood.Carbohydrates:F1}g / 100g" : string.Empty;
 
         public string QuantityText
         {
@@ -95,15 +95,15 @@ namespace LifeSyncApp.ViewModels.Nutrition
             try
             {
                 var dto = new UpdateMealFoodDTO(_mealFood.Id, _mealFood.FoodId, qty);
-                var success = await _nutritionService.UpdateMealFoodAsync(_mealFood.Id, dto);
+                var (success, error) = await _nutritionService.UpdateMealFoodAsync(_mealFood.Id, dto);
                 if (success)
                     OnSaved?.Invoke(this, EventArgs.Empty);
                 else
-                    await Shell.Current.DisplayAlert("Erro", "Não foi possível salvar.", "OK");
+                    await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível salvar.", "OK");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error updating meal food: {ex.Message}");
+                await Shell.Current.DisplayAlert("Erro", ex.Message, "OK");
             }
             finally
             {

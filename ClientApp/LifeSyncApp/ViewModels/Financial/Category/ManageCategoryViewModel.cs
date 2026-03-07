@@ -93,33 +93,25 @@ namespace LifeSyncApp.ViewModels.Financial.Category
                 if (IsEditing && _category != null)
                 {
                     var dto = new UpdateCategoryDTO(_category.Id, Name, CategoryDescription);
-                    var success = await _categoryService.UpdateCategoryAsync(_category.Id, dto);
+                    var (success, error) = await _categoryService.UpdateCategoryAsync(_category.Id, dto);
                     if (success)
-                    {
                         OnSaved?.Invoke(this, EventArgs.Empty);
-                    }
                     else
-                    {
-                        await Shell.Current.DisplayAlert("Erro", "Não foi possível atualizar a categoria.", "OK");
-                    }
+                        await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível atualizar a categoria.", "OK");
                 }
                 else
                 {
                     var dto = new CreateCategoryDTO(_userSession.UserId, Name, CategoryDescription);
-                    var id = await _categoryService.CreateCategoryAsync(dto);
+                    var (id, error) = await _categoryService.CreateCategoryAsync(dto);
                     if (id.HasValue)
-                    {
                         OnSaved?.Invoke(this, EventArgs.Empty);
-                    }
                     else
-                    {
-                        await Shell.Current.DisplayAlert("Erro", "Não foi possível criar a categoria.", "OK");
-                    }
+                        await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível criar a categoria.", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Erro", "Não foi possível salvar a categoria. Verifique sua conexão e tente novamente.", "OK");
+                await Shell.Current.DisplayAlert("Erro", ex.Message, "OK");
             }
             finally
             {

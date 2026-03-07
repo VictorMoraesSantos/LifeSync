@@ -38,7 +38,7 @@ namespace LifeSyncApp.Services.Financial
                 var rawJson = await response.Content.ReadAsStringAsync(cancellationToken);
                 System.Diagnostics.Debug.WriteLine($"[CategoryService] Response JSON: {rawJson[..Math.Min(500, rawJson.Length)]}");
 
-                var result = System.Text.Json.JsonSerializer.Deserialize<ApiSingleResponse<List<CategoryDTO>>>(rawJson, _jsonOptions);
+                var result = JsonSerializer.Deserialize<ApiSingleResponse<List<CategoryDTO>>>(rawJson, _jsonOptions);
                 System.Diagnostics.Debug.WriteLine($"[CategoryService] Deserialized {result?.Data?.Count ?? 0} categories");
                 return result?.Data ?? new List<CategoryDTO>();
             }
@@ -72,7 +72,7 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
-        public async Task<int?> CreateCategoryAsync(CreateCategoryDTO dto, CancellationToken cancellationToken = default)
+        public async Task<(int? Id, string? Error)> CreateCategoryAsync(CreateCategoryDTO dto, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -85,21 +85,21 @@ namespace LifeSyncApp.Services.Financial
                 {
                     var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
                     System.Diagnostics.Debug.WriteLine($"Error creating category. Status: {response.StatusCode}, Content: {errorContent}");
-                    return null;
+                    return (null, ExtractErrorMessage(errorContent));
                 }
 
                 var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<int>>(_jsonOptions, cancellationToken);
                 System.Diagnostics.Debug.WriteLine($"Category created with ID: {result?.Data}");
-                return result?.Data;
+                return (result?.Data, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error creating category: {ex.Message}\n{ex.StackTrace}");
-                return null;
+                return (null, ex.Message);
             }
         }
 
-        public async Task<bool> UpdateCategoryAsync(int id, UpdateCategoryDTO dto, CancellationToken cancellationToken = default)
+        public async Task<(bool Success, string? Error)> UpdateCategoryAsync(int id, UpdateCategoryDTO dto, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -112,20 +112,20 @@ namespace LifeSyncApp.Services.Financial
                 {
                     var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
                     System.Diagnostics.Debug.WriteLine($"Error updating category. Status: {response.StatusCode}, Content: {errorContent}");
-                    return false;
+                    return (false, ExtractErrorMessage(errorContent));
                 }
 
                 System.Diagnostics.Debug.WriteLine($"Category {id} updated successfully");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error updating category: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> DeleteCategoryAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<(bool Success, string? Error)> DeleteCategoryAsync(int id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -136,17 +136,55 @@ namespace LifeSyncApp.Services.Financial
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error deleting category. Status: {response.StatusCode}");
+                    var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                    System.Diagnostics.Debug.WriteLine($"Error deleting category. Status: {response.StatusCode}, Content: {errorContent}");
+                    return (false, ExtractErrorMessage(errorContent));
                 }
 
-                return response.IsSuccessStatusCode;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error deleting category: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
+        private static string? ExtractErrorMessage(string responseBody)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(responseBody);
+                var root = doc.RootElement;
+
+                if (root.TryGetProperty("errors", out var errors))
+                {
+                    if (errors.ValueKind == JsonValueKind.Array)
+                    {
+                        var messages = new List<string>();
+                        foreach (var item in errors.EnumerateArray())
+                            if (item.GetString() is string msg)
+                                messages.Add(msg);
+                        if (messages.Count > 0)
+                            return string.Join("\n", messages);
+                    }
+                    else if (errors.ValueKind == JsonValueKind.Object)
+                    {
+                        var messages = new List<string>();
+                        foreach (var prop in errors.EnumerateObject())
+                            foreach (var msg in prop.Value.EnumerateArray())
+                                messages.Add(msg.GetString() ?? prop.Name);
+                        if (messages.Count > 0)
+                            return string.Join("\n", messages);
+                    }
+                }
+                if (root.TryGetProperty("description", out var desc) && desc.GetString() is string d)
+                    return d;
+                if (root.TryGetProperty("title", out var title) && title.GetString() is string t)
+                    return t;
+            }
+            catch { }
+            return null;
+        }
     }
 }

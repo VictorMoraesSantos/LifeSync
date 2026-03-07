@@ -86,7 +86,7 @@ namespace LifeSyncApp.Services.Financial
                 var rawJson = await response.Content.ReadAsStringAsync(cancellationToken);
                 System.Diagnostics.Debug.WriteLine($"[TransactionService] Response JSON (first 500 chars): {rawJson[..Math.Min(500, rawJson.Length)]}");
 
-                var result = System.Text.Json.JsonSerializer.Deserialize<ApiSingleResponse<List<TransactionDTO>>>(rawJson, _jsonOptions);
+                var result = JsonSerializer.Deserialize<ApiSingleResponse<List<TransactionDTO>>>(rawJson, _jsonOptions);
                 System.Diagnostics.Debug.WriteLine($"[TransactionService] Deserialized {result?.Data?.Count ?? 0} transactions");
                 return result?.Data ?? new List<TransactionDTO>();
             }
@@ -97,7 +97,7 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
-        public async Task<int?> CreateTransactionAsync(CreateTransactionDTO dto,
+        public async Task<(int? Id, string? Error)> CreateTransactionAsync(CreateTransactionDTO dto,
             CancellationToken cancellationToken = default)
         {
             try
@@ -110,21 +110,21 @@ namespace LifeSyncApp.Services.Financial
                     var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
                     System.Diagnostics.Debug.WriteLine(
                         $"Error creating transaction. Status: {response.StatusCode}, Content: {errorContent}");
-                    return null;
+                    return (null, ExtractErrorMessage(errorContent));
                 }
 
                 var result =
                     await response.Content.ReadFromJsonAsync<ApiSingleResponse<int>>(_jsonOptions, cancellationToken);
-                return result?.Data;
+                return (result?.Data, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error creating transaction: {ex.Message}");
-                return null;
+                return (null, ex.Message);
             }
         }
 
-        public async Task<bool> UpdateTransactionAsync(int id, UpdateTransactionDTO dto,
+        public async Task<(bool Success, string? Error)> UpdateTransactionAsync(int id, UpdateTransactionDTO dto,
             CancellationToken cancellationToken = default)
         {
             try
@@ -137,18 +137,19 @@ namespace LifeSyncApp.Services.Financial
                     var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
                     System.Diagnostics.Debug.WriteLine(
                         $"Error updating transaction. Status: {response.StatusCode}, Content: {errorContent}");
+                    return (false, ExtractErrorMessage(errorContent));
                 }
 
-                return response.IsSuccessStatusCode;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error updating transaction: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> DeleteTransactionAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<(bool Success, string? Error)> DeleteTransactionAsync(int id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -157,15 +158,17 @@ namespace LifeSyncApp.Services.Financial
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error deleting transaction. Status: {response.StatusCode}");
+                    var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                    System.Diagnostics.Debug.WriteLine($"Error deleting transaction. Status: {response.StatusCode}, Content: {errorContent}");
+                    return (false, ExtractErrorMessage(errorContent));
                 }
 
-                return response.IsSuccessStatusCode;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error deleting transaction: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
@@ -193,5 +196,41 @@ namespace LifeSyncApp.Services.Financial
             return string.Join("&", parameters);
         }
 
+        private static string? ExtractErrorMessage(string responseBody)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(responseBody);
+                var root = doc.RootElement;
+
+                if (root.TryGetProperty("errors", out var errors))
+                {
+                    if (errors.ValueKind == JsonValueKind.Array)
+                    {
+                        var messages = new List<string>();
+                        foreach (var item in errors.EnumerateArray())
+                            if (item.GetString() is string msg)
+                                messages.Add(msg);
+                        if (messages.Count > 0)
+                            return string.Join("\n", messages);
+                    }
+                    else if (errors.ValueKind == JsonValueKind.Object)
+                    {
+                        var messages = new List<string>();
+                        foreach (var prop in errors.EnumerateObject())
+                            foreach (var msg in prop.Value.EnumerateArray())
+                                messages.Add(msg.GetString() ?? prop.Name);
+                        if (messages.Count > 0)
+                            return string.Join("\n", messages);
+                    }
+                }
+                if (root.TryGetProperty("description", out var desc) && desc.GetString() is string d)
+                    return d;
+                if (root.TryGetProperty("title", out var title) && title.GetString() is string t)
+                    return t;
+            }
+            catch { }
+            return null;
+        }
     }
 }

@@ -84,16 +84,18 @@ namespace LifeSyncApp.Services.Nutrition
 
         /// <summary>
         /// Checks if the response indicates success by reading the body's success flag.
-        /// The backend always returns HTTP 200; the real status is in the JSON body.
+        /// Returns (true, null) on success or (false, errorMessage) on failure.
         /// </summary>
-        private async Task<bool> IsResponseSuccessAsync(HttpResponseMessage response, string context, CancellationToken ct = default)
+        private async Task<(bool Success, string? Error)> CheckResponseAsync(HttpResponseMessage response, string context, CancellationToken ct = default)
         {
             var body = await response.Content.ReadAsStringAsync(ct);
             var result = JsonSerializer.Deserialize<ApiSingleResponse<object>>(body, _jsonOptions);
-            if (result?.Success == true) return true;
+            if (result?.Success == true) return (true, null);
 
             System.Diagnostics.Debug.WriteLine($"[NutritionService] {context} failed. Body: {body}");
-            return false;
+            var error = result?.Errors?.FirstOrDefault()
+                ?? ExtractErrorMessage(body);
+            return (false, error);
         }
 
         // ── Diaries ──────────────────────────────────────────────────────────
@@ -219,39 +221,49 @@ namespace LifeSyncApp.Services.Nutrition
             return null;
         }
 
-        public async Task<bool> UpdateDiaryAsync(int id, UpdateDiaryDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> UpdateDiaryAsync(int id, UpdateDiaryDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{DiariesBase}/{id}", dto, _jsonOptions, ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "UpdateDiary"); return false; }
+                if (!response.IsSuccessStatusCode)
+                {
+                    var body = await response.Content.ReadAsStringAsync(ct);
+                    System.Diagnostics.Debug.WriteLine($"[NutritionService] UpdateDiary failed. Status: {(int)response.StatusCode}. Body: {body}");
+                    return (false, ExtractErrorMessage(body));
+                }
                 InvalidateCache("diaries_");
                 InvalidateCache($"diary_{id}");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] UpdateDiary exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> DeleteDiaryAsync(int id, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> DeleteDiaryAsync(int id, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.DeleteAsync($"{DiariesBase}/{id}", ct);
-                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "DeleteDiary"); return false; }
+                if (!response.IsSuccessStatusCode)
+                {
+                    var body = await response.Content.ReadAsStringAsync(ct);
+                    System.Diagnostics.Debug.WriteLine($"[NutritionService] DeleteDiary failed. Status: {(int)response.StatusCode}. Body: {body}");
+                    return (false, ExtractErrorMessage(body));
+                }
                 InvalidateCache("diaries_");
                 InvalidateCache($"diary_{id}");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] DeleteDiary exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
@@ -351,114 +363,120 @@ namespace LifeSyncApp.Services.Nutrition
             }
         }
 
-        public async Task<bool> CreateMealAsync(CreateMealDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> CreateMealAsync(CreateMealDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync(MealsBase, dto, _jsonOptions, ct);
-                if (!await IsResponseSuccessAsync(response, "CreateMeal", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "CreateMeal", ct);
+                if (!success) return (false, error);
                 InvalidateCache("meals_diary_");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] CreateMeal exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> UpdateMealAsync(int mealId, UpdateMealDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> UpdateMealAsync(int mealId, UpdateMealDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{MealsBase}/{mealId}", dto, _jsonOptions, ct);
-                if (!await IsResponseSuccessAsync(response, "UpdateMeal", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "UpdateMeal", ct);
+                if (!success) return (false, error);
                 InvalidateCache("meals_diary_");
                 InvalidateCache($"meal_{mealId}");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] UpdateMeal exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> DeleteMealAsync(int mealId, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> DeleteMealAsync(int mealId, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.DeleteAsync($"{MealsBase}/{mealId}", ct);
-                if (!await IsResponseSuccessAsync(response, "DeleteMeal", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "DeleteMeal", ct);
+                if (!success) return (false, error);
                 InvalidateCache("meals_diary_");
                 InvalidateCache($"meal_{mealId}");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] DeleteMeal exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
         // ── Meal Foods ────────────────────────────────────────────────────────
 
-        public async Task<bool> AddFoodToMealAsync(int mealId, CreateMealFoodDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> AddFoodToMealAsync(int mealId, CreateMealFoodDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var url = $"{MealsBase}/{mealId}/foods";
                 var response = await client.PostAsJsonAsync(url, dto, _jsonOptions, ct);
-                if (!await IsResponseSuccessAsync(response, "AddFoodToMeal", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "AddFoodToMeal", ct);
+                if (!success) return (false, error);
 
                 InvalidateCache("meals_diary_");
                 InvalidateCache($"meal_{mealId}");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] AddFoodToMeal exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> RemoveFoodFromMealAsync(int mealId, int foodId, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> RemoveFoodFromMealAsync(int mealId, int foodId, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.DeleteAsync($"{MealsBase}/{mealId}/foods/{foodId}", ct);
-                if (!await IsResponseSuccessAsync(response, "RemoveFoodFromMeal", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "RemoveFoodFromMeal", ct);
+                if (!success) return (false, error);
                 InvalidateCache("meals_diary_");
                 InvalidateCache($"meal_{mealId}");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] RemoveFoodFromMeal exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> UpdateMealFoodAsync(int id, UpdateMealFoodDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> UpdateMealFoodAsync(int id, UpdateMealFoodDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{MealFoodsBase}/{id}", dto, _jsonOptions, ct);
-                if (!await IsResponseSuccessAsync(response, "UpdateMealFood", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "UpdateMealFood", ct);
+                if (!success) return (false, error);
                 InvalidateCache("meals_diary_");
                 InvalidateCache("meal_");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] UpdateMealFood exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
@@ -512,54 +530,57 @@ namespace LifeSyncApp.Services.Nutrition
             }
         }
 
-        public async Task<bool> CreateLiquidAsync(CreateLiquidDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> CreateLiquidAsync(CreateLiquidDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync(LiquidsBase, dto, _jsonOptions, ct);
-                if (!await IsResponseSuccessAsync(response, "CreateLiquid", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "CreateLiquid", ct);
+                if (!success) return (false, error);
                 InvalidateCache("liquids_diary_");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] CreateLiquid exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> UpdateLiquidAsync(int liquidId, UpdateLiquidDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> UpdateLiquidAsync(int liquidId, UpdateLiquidDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{LiquidsBase}/{liquidId}", dto, _jsonOptions, ct);
-                if (!await IsResponseSuccessAsync(response, "UpdateLiquid", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "UpdateLiquid", ct);
+                if (!success) return (false, error);
                 InvalidateCache("liquids_diary_");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] UpdateLiquid exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> DeleteLiquidAsync(int liquidId, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> DeleteLiquidAsync(int liquidId, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.DeleteAsync($"{LiquidsBase}/{liquidId}", ct);
-                if (!await IsResponseSuccessAsync(response, "DeleteLiquid", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "DeleteLiquid", ct);
+                if (!success) return (false, error);
                 InvalidateCache("liquids_diary_");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] DeleteLiquid exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
@@ -618,37 +639,39 @@ namespace LifeSyncApp.Services.Nutrition
             }
         }
 
-        public async Task<bool> SetGoalAsync(int dailyProgressId, SetGoalDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> SetGoalAsync(int dailyProgressId, SetGoalDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync($"{ProgressBase}/{dailyProgressId}/set-goal", dto, _jsonOptions, ct);
-                if (!await IsResponseSuccessAsync(response, "SetGoal", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "SetGoal", ct);
+                if (!success) return (false, error);
                 InvalidateCache("progress_");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] SetGoal exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
 
-        public async Task<bool> UpdateDailyProgressAsync(int id, UpdateDailyProgressDTO dto, CancellationToken ct = default)
+        public async Task<(bool Success, string? Error)> UpdateDailyProgressAsync(int id, UpdateDailyProgressDTO dto, CancellationToken ct = default)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PutAsJsonAsync($"{ProgressBase}/{id}", dto, _jsonOptions, ct);
-                if (!await IsResponseSuccessAsync(response, "UpdateDailyProgress", ct)) return false;
+                var (success, error) = await CheckResponseAsync(response, "UpdateDailyProgress", ct);
+                if (!success) return (false, error);
                 InvalidateCache("progress_");
-                return true;
+                return (true, null);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[NutritionService] UpdateDailyProgress exception: {ex.Message}");
-                return false;
+                return (false, ex.Message);
             }
         }
     }

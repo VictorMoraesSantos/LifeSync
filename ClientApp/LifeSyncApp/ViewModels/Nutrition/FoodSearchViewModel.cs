@@ -210,7 +210,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 var dto = new CreateMealFoodDTO(MealId, _selectedFood.Id, qty);
                 System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] Calling AddFoodToMealAsync - MealId: {MealId}, FoodId: {_selectedFood.Id}, Qty: {qty}");
 
-                var success = await _nutritionService.AddFoodToMealAsync(MealId, dto);
+                var (success, error) = await _nutritionService.AddFoodToMealAsync(MealId, dto);
 
                 System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFoodToMealAsync returned: {success}");
 
@@ -221,7 +221,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 }
                 else
                 {
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível adicionar o alimento. Verifique o log de depuração.", "OK");
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível adicionar o alimento.", "OK");
                 }
             }
             catch (Exception ex)

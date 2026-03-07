@@ -78,44 +78,36 @@ public partial class ManageLiquidModal : ContentPage, IQueryAttributable
 
         Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(150), () =>
         {
-            if (_viewModel.SelectedLiquidType != null &&
-                GetBorderForItem(_viewModel.SelectedLiquidType) is Border border)
+            var found = false;
+            var selectedItem = _viewModel.SelectedLiquidType;
+            foreach (var child in LiquidTypesLayout.GetVisualTreeDescendants())
             {
-                UpdateLiquidTypeItemStyle(border, true);
+                if (child is Border border && border.BindingContext is DTOs.Nutrition.LiquidType.LiquidTypeDTO dto)
+                {
+                    var isSelected = dto == selectedItem;
+                    UpdateLiquidTypeItemStyle(border, isSelected);
+                    if (isSelected) found = true;
+                }
             }
-            else
-            {
+
+            if (!found)
                 ApplyInitialLiquidTypeStyle(attempt + 1);
-            }
         });
     }
 
     private void OnLiquidTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        // Update previous selection to normal style
-        foreach (var item in e.PreviousSelection)
-        {
-            if (GetBorderForItem(item) is Border border)
-                UpdateLiquidTypeItemStyle(border, false);
-        }
-
-        // Update new selection to selected style
-        foreach (var item in e.CurrentSelection)
-        {
-            if (GetBorderForItem(item) is Border border)
-                UpdateLiquidTypeItemStyle(border, true);
-        }
+        UpdateAllLiquidTypeStyles();
     }
 
-    private Border? GetBorderForItem(object item)
+    private void UpdateAllLiquidTypeStyles()
     {
-        // Find the Border element for the given data item in the CollectionView
+        var selectedItem = _viewModel.SelectedLiquidType;
         foreach (var child in LiquidTypesLayout.GetVisualTreeDescendants())
         {
-            if (child is Border border && border.BindingContext == item)
-                return border;
+            if (child is Border border && border.BindingContext is DTOs.Nutrition.LiquidType.LiquidTypeDTO dto)
+                UpdateLiquidTypeItemStyle(border, dto == selectedItem);
         }
-        return null;
     }
 
     private static void UpdateLiquidTypeItemStyle(Border border, bool isSelected)

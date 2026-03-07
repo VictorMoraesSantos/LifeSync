@@ -131,7 +131,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             {
                 var types = await _nutritionService.GetLiquidTypesAsync();
                 LiquidTypes.Clear();
-                foreach (var type in types)
+                foreach (var type in types.OrderBy(t => t.Id))
                     LiquidTypes.Add(type);
             }
             catch (Exception ex)
@@ -164,21 +164,23 @@ namespace LifeSyncApp.ViewModels.Nutrition
             try
             {
                 bool success;
+                string? error;
+
                 if (_isEditing)
                 {
                     var dto = new UpdateLiquidDTO(_liquidId, SelectedLiquidType.Id, qty);
-                    success = await _nutritionService.UpdateLiquidAsync(_liquidId, dto);
+                    (success, error) = await _nutritionService.UpdateLiquidAsync(_liquidId, dto);
                 }
                 else
                 {
                     var dto = new CreateLiquidDTO(DiaryId, SelectedLiquidType.Id, qty);
-                    success = await _nutritionService.CreateLiquidAsync(dto);
+                    (success, error) = await _nutritionService.CreateLiquidAsync(dto);
                 }
 
                 if (success)
                     OnSaved?.Invoke(this, EventArgs.Empty);
                 else
-                    await Shell.Current.DisplayAlert("Erro", "Não foi possível salvar o líquido.", "OK");
+                    await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível salvar o líquido.", "OK");
             }
             catch (Exception ex)
             {

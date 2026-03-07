@@ -148,9 +148,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBusy = true;
             try
             {
-                var success = await _nutritionService.DeleteMealAsync(meal.Id);
+                var (success, error) = await _nutritionService.DeleteMealAsync(meal.Id);
                 if (success)
                     await RefreshDiaryAsync();
+                else
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível remover a refeição.", "OK");
             }
             finally
             {
@@ -202,9 +204,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBusy = true;
             try
             {
-                var success = await _nutritionService.DeleteLiquidAsync(liquid.Id);
+                var (success, error) = await _nutritionService.DeleteLiquidAsync(liquid.Id);
                 if (success)
                     await RefreshDiaryAsync();
+                else
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível remover o líquido.", "OK");
             }
             finally
             {
@@ -231,9 +235,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBusy = true;
             try
             {
-                var success = await _nutritionService.UpdateDiaryAsync(_diary.Id, new UpdateDiaryDTO(_diary.Id, newDate));
+                var (success, error) = await _nutritionService.UpdateDiaryAsync(_diary.Id, new UpdateDiaryDTO(_diary.Id, newDate));
                 if (success)
                     await RefreshDiaryAsync();
+                else
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível atualizar a data.", "OK");
             }
             finally
             {
@@ -252,11 +258,15 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBusy = true;
             try
             {
-                var success = await _nutritionService.DeleteDiaryAsync(_diary.Id);
+                var (success, error) = await _nutritionService.DeleteDiaryAsync(_diary.Id);
                 if (success)
                 {
                     DiaryDeleted?.Invoke(this, EventArgs.Empty);
                     await Shell.Current.GoToAsync("..");
+                }
+                else
+                {
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível excluir o diário.", "OK");
                 }
             }
             finally

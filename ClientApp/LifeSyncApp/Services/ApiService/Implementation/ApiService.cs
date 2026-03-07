@@ -24,12 +24,26 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.GetAsync(endpoint);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("GET {Endpoint} retornou {StatusCode}: {Body}", endpoint, response.StatusCode, errorBody);
+
+                    var friendlyMessage = TryExtractValidationErrors(errorBody)
+                        ?? $"Erro {(int)response.StatusCode}: {response.ReasonPhrase}";
+                    throw new HttpRequestException(friendlyMessage);
+                }
+
                 var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<T>>(_jsonOptions);
                 var resultData = apiResponse.Data;
                 return resultData;
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao fazer GET em {Endpoint}", endpoint);
                 throw;
@@ -41,12 +55,26 @@ namespace LifeSyncApp.Services.ApiService.Implementation
             try
             {
                 var response = await _httpClient.GetAsync(endpoint);
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("SEARCH {Endpoint} retornou {StatusCode}: {Body}", endpoint, response.StatusCode, errorBody);
+
+                    var friendlyMessage = TryExtractValidationErrors(errorBody)
+                        ?? $"Erro {(int)response.StatusCode}: {response.ReasonPhrase}";
+                    throw new HttpRequestException(friendlyMessage);
+                }
+
                 var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<T>>(_jsonOptions);
                 var resultData = apiResponse?.Data ?? new List<T>();
                 return resultData;
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
+            {
+                throw;
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao fazer SEARCH em {Endpoint}", endpoint);
                 throw;
@@ -148,11 +176,20 @@ namespace LifeSyncApp.Services.ApiService.Implementation
                 if (root.TryGetProperty("errors", out var errors))
                 {
                     var messages = new List<string>();
-                    foreach (var prop in errors.EnumerateObject())
+
+                    if (errors.ValueKind == JsonValueKind.Array)
                     {
-                        foreach (var msg in prop.Value.EnumerateArray())
-                            messages.Add(msg.GetString() ?? prop.Name);
+                        foreach (var item in errors.EnumerateArray())
+                            if (item.GetString() is string msg)
+                                messages.Add(msg);
                     }
+                    else if (errors.ValueKind == JsonValueKind.Object)
+                    {
+                        foreach (var prop in errors.EnumerateObject())
+                            foreach (var msg in prop.Value.EnumerateArray())
+                                messages.Add(msg.GetString() ?? prop.Name);
+                    }
+
                     if (messages.Count > 0)
                         return string.Join("\n", messages);
                 }

@@ -197,15 +197,15 @@
 
                                         <!-- Colored macros -->
                                         <HorizontalStackLayout Spacing="12" Margin="0,2,0,0">
-                                            <Label Text="{Binding Protein, StringFormat='P: {0}g'}"
+                                            <Label Text="{Binding ScaledProtein, StringFormat='P: {0}g'}"
                                                    FontSize="11"
                                                    FontAttributes="Bold"
                                                    TextColor="#3D8A5A"/>
-                                            <Label Text="{Binding Lipids, StringFormat='L: {0}g'}"
+                                            <Label Text="{Binding ScaledLipids, StringFormat='L: {0}g'}"
                                                    FontSize="11"
                                                    FontAttributes="Bold"
                                                    TextColor="#D89575"/>
-                                            <Label Text="{Binding Carbohydrates, StringFormat='C: {0}g'}"
+                                            <Label Text="{Binding ScaledCarbohydrates, StringFormat='C: {0}g'}"
                                                    FontSize="11"
                                                    FontAttributes="Bold"
                                                    TextColor="#D4A64A"/>

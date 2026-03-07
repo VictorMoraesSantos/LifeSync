@@ -106,19 +106,20 @@ namespace LifeSyncApp.ViewModels.Financial.Category
 
             try
             {
-                var success = await _categoryService.DeleteCategoryAsync(category.Id);
+                var (success, error) = await _categoryService.DeleteCategoryAsync(category.Id);
                 if (success)
                 {
                     InvalidateCategoriesCache();
                     Categories.Remove(category);
                 }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível excluir a categoria.", "OK");
+                }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert(
-                    "Erro",
-                    "Não foi possível excluir a categoria.",
-                    "OK");
+                await Shell.Current.DisplayAlert("Erro", ex.Message, "OK");
             }
             finally
             {

@@ -289,13 +289,17 @@ namespace LifeSyncApp.ViewModels.Nutrition
             {
                 var goal = new DailyGoalDTO(calGoal, liqGoal);
                 var dto = new SetGoalDTO(goal);
-                var success = await _nutritionService.SetGoalAsync(_dailyProgress.Id, dto);
+                var (success, error) = await _nutritionService.SetGoalAsync(_dailyProgress.Id, dto);
                 if (success)
                 {
                     CaloriesGoal = calGoal;
                     LiquidsGoalMl = liqGoal;
                     await LoadHistoryAsync();
                     await Shell.Current.DisplayAlert("Sucesso", "Meta salva com sucesso!", "OK");
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível salvar a meta.", "OK");
                 }
             }
             finally

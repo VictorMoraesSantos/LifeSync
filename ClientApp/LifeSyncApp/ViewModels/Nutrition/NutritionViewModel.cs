@@ -174,10 +174,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
             set => SetProperty(ref _totalSodium, value);
         }
 
-        public string TotalProteinDisplay => $"{TotalProtein:F0}g";
-        public string TotalCarbsDisplay => $"{TotalCarbs:F0}g";
-        public string TotalLipidsDisplay => $"{TotalLipids:F0}g";
-        public string TotalSodiumDisplay => $"{TotalSodium / 1000m:F1}g";
+        public string TotalProteinDisplay => $"{TotalProtein:0.##}g";
+        public string TotalCarbsDisplay => $"{TotalCarbs:0.##}g";
+        public string TotalLipidsDisplay => $"{TotalLipids:0.##}g";
+        public string TotalSodiumDisplay => $"{TotalSodium / 1000m:0.##}g";
 
         public SafeObservableCollection<MealDTO> Meals { get; } = new();
         public SafeObservableCollection<LiquidDTO> Liquids { get; } = new();
@@ -472,7 +472,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             if (!confirm) return;
 
-            var success = await _nutritionService.DeleteLiquidAsync(liquid.Id);
+            var (success, error) = await _nutritionService.DeleteLiquidAsync(liquid.Id);
             if (success)
             {
                 InvalidateDataCache();
@@ -480,7 +480,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             else
             {
-                await Shell.Current.DisplayAlert("Erro", "Não foi possível excluir o líquido.", "OK");
+                await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível excluir o líquido.", "OK");
             }
         }
     }

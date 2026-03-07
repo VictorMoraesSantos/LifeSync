@@ -31,9 +31,9 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         public SafeObservableCollection<MealFoodDTO> Foods { get; } = new();
 
-        public decimal TotalProtein => Foods.Sum(f => f.Protein ?? 0);
-        public decimal TotalLipids => Foods.Sum(f => f.Lipids ?? 0);
-        public decimal TotalCarbs => Foods.Sum(f => f.Carbohydrates ?? 0);
+        public decimal TotalProtein => Foods.Sum(f => (f.Protein ?? 0) * f.Quantity / 100m);
+        public decimal TotalLipids => Foods.Sum(f => (f.Lipids ?? 0) * f.Quantity / 100m);
+        public decimal TotalCarbs => Foods.Sum(f => (f.Carbohydrates ?? 0) * f.Quantity / 100m);
 
         public ICommand GoBackCommand { get; }
         public ICommand OpenEditMealModalCommand { get; }
@@ -131,11 +131,15 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBusy = true;
             try
             {
-                var success = await _nutritionService.DeleteMealAsync(_meal.Id);
+                var (success, error) = await _nutritionService.DeleteMealAsync(_meal.Id);
                 if (success)
                 {
                     MealDeleted?.Invoke(this, EventArgs.Empty);
                     await Shell.Current.GoToAsync("..");
+                }
+                else
+                {
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível remover a refeição.", "OK");
                 }
             }
             finally
@@ -187,9 +191,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBusy = true;
             try
             {
-                var success = await _nutritionService.RemoveFoodFromMealAsync(_meal.Id, food.Id);
+                var (success, error) = await _nutritionService.RemoveFoodFromMealAsync(_meal.Id, food.Id);
                 if (success)
                     await RefreshMealAsync();
+                else
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível remover o alimento.", "OK");
             }
             finally
             {

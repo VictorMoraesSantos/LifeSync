@@ -17,5 +17,10 @@ namespace LifeSyncApp.DTOs.Nutrition.MealFood
         decimal? Sodium,
         decimal? Potassium,
         int Quantity,
-        decimal TotalCalories);
+        decimal TotalCalories)
+    {
+        public decimal? ScaledProtein => Protein.HasValue ? Protein.Value * Quantity / 100m : null;
+        public decimal? ScaledLipids => Lipids.HasValue ? Lipids.Value * Quantity / 100m : null;
+        public decimal? ScaledCarbohydrates => Carbohydrates.HasValue ? Carbohydrates.Value * Quantity / 100m : null;
+    }
 }

@@ -60,7 +60,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 
             try
             {
-                bool success = await _transactionService.DeleteTransactionAsync(Transaction.Id);
+                var (success, error) = await _transactionService.DeleteTransactionAsync(Transaction.Id);
                 if (success)
                 {
                     OnDeleted?.Invoke(this, Transaction.Id);
@@ -68,18 +68,12 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert(
-                        "Erro",
-                        "Não foi possível excluir a transação.",
-                        "OK");
+                    await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível excluir a transação.", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert(
-                    "Erro",
-                    "Ocorreu um erro ao excluir a transação.",
-                    "OK");
+                await Shell.Current.DisplayAlert("Erro", ex.Message, "OK");
             }
             finally
             {

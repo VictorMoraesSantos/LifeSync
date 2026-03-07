@@ -79,25 +79,27 @@ namespace LifeSyncApp.ViewModels.Nutrition
             try
             {
                 bool success;
+                string? error;
+
                 if (IsEditing)
                 {
                     var dto = new UpdateMealDTO(_mealId, Name, Description);
-                    success = await _nutritionService.UpdateMealAsync(_mealId, dto);
+                    (success, error) = await _nutritionService.UpdateMealAsync(_mealId, dto);
                 }
                 else
                 {
                     var dto = new CreateMealDTO(_diaryId, Name, Description);
-                    success = await _nutritionService.CreateMealAsync(dto);
+                    (success, error) = await _nutritionService.CreateMealAsync(dto);
                 }
 
                 if (success)
                     OnSaved?.Invoke(this, EventArgs.Empty);
                 else
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", "Não foi possível salvar a refeição.", "OK");
+                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível salvar a refeição.", "OK");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error saving meal: {ex.Message}");
+                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
             }
             finally
             {

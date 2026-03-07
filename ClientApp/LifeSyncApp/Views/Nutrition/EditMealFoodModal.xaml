@@ -7,7 +7,7 @@
              Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
-    <Grid BackgroundColor="#AA000000">
+    <Grid BackgroundColor="#AA000000" IgnoreSafeArea="True">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
         </Grid.GestureRecognizers>

@@ -199,9 +199,11 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
                         Description,
                         TransactionDate);
 
-                    var success = await _transactionService.UpdateTransactionAsync(_transaction.Id, dto);
+                    var (success, error) = await _transactionService.UpdateTransactionAsync(_transaction.Id, dto);
                     if (success)
                         OnSaved?.Invoke(this, EventArgs.Empty);
+                    else
+                        await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível atualizar a transação.", "OK");
                 }
                 else
                 {
@@ -214,20 +216,16 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
                         Description,
                         TransactionDate);
 
-                    var id = await _transactionService.CreateTransactionAsync(dto);
+                    var (id, error) = await _transactionService.CreateTransactionAsync(dto);
                     if (id.HasValue)
-                    {
                         OnSaved?.Invoke(this, EventArgs.Empty);
-                    }
                     else
-                    {
-                        await Shell.Current.DisplayAlert("Erro", "Não foi possível criar a transação. Verifique sua conexão e tente novamente.", "OK");
-                    }
+                        await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível criar a transação.", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Erro", "Não foi possível criar a transação. Verifique sua conexão e tente novamente.", "OK");
+                await Shell.Current.DisplayAlert("Erro", ex.Message, "OK");
             }
             finally
             {
