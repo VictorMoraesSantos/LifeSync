@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeSyncApp.Views.Auth.LoginPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource FinBackground}">
+
+    <ScrollView VerticalScrollBarVisibility="Never">
+        <VerticalStackLayout Spacing="32"
+                             VerticalOptions="Center"
+                             Padding="24,60">
+
+            <!-- Header -->
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Label Text="LifeSync"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="40"
+                       HorizontalOptions="Center"
+                       TextColor="{StaticResource FinDark}"/>
+                <Label Text="Organize sua vida em um so lugar"
+                       FontFamily="OpenSansRegular"
+                       FontSize="14"
+                       TextColor="{StaticResource FinSecondaryText}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+
+            <!-- Form -->
+            <VerticalStackLayout Spacing="16">
+                <!-- Email -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="E-mail ou usuario"
+                           FontFamily="OpenSansRegular"
+                           FontSize="13"
+                           TextColor="{StaticResource FinSecondaryText}"/>
+                    <Border StrokeShape="RoundRectangle 16"
+                            Stroke="{StaticResource FinBorder}"
+                            StrokeThickness="1"
+                            BackgroundColor="{StaticResource FinCardBg}"
+                            HeightRequest="52"
+                            Padding="16,0">
+                        <Entry x:Name="EmailEntry"
+                               Placeholder="seu@email.com"
+                               PlaceholderColor="{StaticResource FinMuted}"
+                               Text="{Binding Email}"
+                               Keyboard="Email"
+                               FontFamily="OpenSansRegular"
+                               FontSize="14"
+                               TextColor="{StaticResource FinDark}"
+                               ReturnType="Next"
+                               VerticalOptions="Center"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Password -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Senha"
+                           FontFamily="OpenSansRegular"
+                           FontSize="13"
+                           TextColor="{StaticResource FinSecondaryText}"/>
+                    <Border StrokeShape="RoundRectangle 16"
+                            Stroke="{StaticResource FinBorder}"
+                            StrokeThickness="1"
+                            BackgroundColor="{StaticResource FinCardBg}"
+                            HeightRequest="52"
+                            Padding="16,0">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Entry x:Name="PasswordEntry"
+                                   Grid.Column="0"
+                                   Placeholder="********"
+                                   PlaceholderColor="{StaticResource FinMuted}"
+                                   Text="{Binding Password}"
+                                   IsPassword="True"
+                                   FontFamily="OpenSansRegular"
+                                   FontSize="14"
+                                   TextColor="{StaticResource FinDark}"
+                                   ReturnType="Done"
+                                   VerticalOptions="Center"/>
+                            <Image x:Name="EyeIcon"
+                                   Grid.Column="1"
+                                   Source="eye_on.png"
+                                   WidthRequest="20"
+                                   HeightRequest="20"
+                                   VerticalOptions="Center"
+                                   Margin="8,0,0,0">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnTogglePasswordTapped"/>
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Forgot Password -->
+                <Label Text="Esqueceu a senha?"
+                       FontFamily="OpenSansSemibold"
+                       FontSize="13"
+                       TextColor="{StaticResource FinDark}"
+                       HorizontalOptions="End">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnForgotPasswordTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </VerticalStackLayout>
+
+            <!-- Error Message -->
+            <Label Text="{Binding ErrorMessage}"
+                   IsVisible="{Binding HasError}"
+                   TextColor="#C62828"
+                   FontFamily="OpenSansRegular"
+                   FontSize="13"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,-16,0,0"/>
+
+            <!-- Actions -->
+            <VerticalStackLayout Spacing="16">
+                <!-- Login Button -->
+                <Button Text="Entrar"
+                        Clicked="OnLoginClicked"
+                        BackgroundColor="{StaticResource FinGreen}"
+                        TextColor="White"
+                        FontFamily="OutfitSemiBold"
+                        FontSize="16"
+                        HeightRequest="52"
+                        CornerRadius="16"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
+
+                <!-- Loading -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource FinDark}"
+                                   HeightRequest="20"
+                                   HorizontalOptions="Center"/>
+
+                <!-- Divider -->
+                <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12">
+                    <BoxView Grid.Column="0" HeightRequest="1" Color="{StaticResource FinBorder}" VerticalOptions="Center"/>
+                    <Label Grid.Column="1" Text="ou" FontSize="13" TextColor="{StaticResource FinMuted}"
+                           FontFamily="OpenSansRegular" VerticalOptions="Center"/>
+                    <BoxView Grid.Column="2" HeightRequest="1" Color="{StaticResource FinBorder}" VerticalOptions="Center"/>
+                </Grid>
+
+                <!-- Google Button -->
+                <Border StrokeShape="RoundRectangle 16"
+                        Stroke="{StaticResource FinBorder}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource FinCardBg}"
+                        HeightRequest="52">
+                    <HorizontalStackLayout Spacing="10"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center">
+                        <Label Text="&#x1F310;"
+                               FontSize="16"
+                               VerticalOptions="Center"/>
+                        <Label Text="Continuar com Google"
+                               FontFamily="OpenSansRegular"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource FinDark}"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnGoogleLoginTapped"/>
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <!-- Register Link -->
+                <HorizontalStackLayout Spacing="4" HorizontalOptions="Center">
+                    <Label Text="Nao tem uma conta?"
+                           FontFamily="OpenSansRegular"
+                           FontSize="13"
+                           TextColor="{StaticResource FinMuted}"
+                           VerticalOptions="Center"/>
+                    <Label Text="Criar conta"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="13"
+                           TextColor="{StaticResource FinDark}"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnRegisterTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

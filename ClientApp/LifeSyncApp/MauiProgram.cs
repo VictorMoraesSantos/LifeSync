@@ -1,15 +1,18 @@
 using LifeSyncApp.Services.ApiService.Implementation;
 using LifeSyncApp.Services.ApiService.Interface;
+using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.Services.UserSession;
+using LifeSyncApp.ViewModels.Auth;
 using LifeSyncApp.ViewModels.Financial;
 using LifeSyncApp.ViewModels.Financial.Category;
 using LifeSyncApp.ViewModels.Financial.Transaction;
 using LifeSyncApp.ViewModels.Nutrition;
 using LifeSyncApp.ViewModels.TaskManager;
 using LifeSyncApp.Views.Academic;
+using LifeSyncApp.Views.Auth;
 using LifeSyncApp.Views.Financial;
 using LifeSyncApp.Views.Nutrition;
 using LifeSyncApp.Views.TaskManager.TaskItem;
@@ -54,18 +57,22 @@ namespace LifeSyncApp
                 });
 
             // Configure a URL base baseado na plataforma
-            var baseUrl = "http://45.55.233.34";  // VPS produção
+            var baseUrl = "https://api.lifesync.tech";  // VPS produção
 
             // Para desenvolvimento local, descomente abaixo e comente a linha acima:
             // var baseUrl = DeviceInfo.Platform == DevicePlatform.Android && DeviceInfo.DeviceType == DeviceType.Virtual
             //     ? "http://10.0.2.2:6006"  // Emulador Android
             //     : "http://192.168.0.36:6006";  // Dispositivo físico
 
+            // Auth DelegatingHandler - adds JWT token to every request
+            builder.Services.AddTransient<AuthDelegatingHandler>();
+
             builder.Services.AddHttpClient("LifeSyncApi", client =>
             {
                 client.BaseAddress = new Uri(baseUrl);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             })
+            .AddHttpMessageHandler<AuthDelegatingHandler>()
             .ConfigurePrimaryHttpMessageHandler(() =>
             {
 #if ANDROID
@@ -89,6 +96,9 @@ namespace LifeSyncApp
             // API Services
             builder.Services.AddSingleton(typeof(IApiService<>), typeof(ApiService<>));
 
+            // Auth Service
+            builder.Services.AddSingleton<IAuthService, AuthService>();
+
             // User Session
             builder.Services.AddSingleton<IUserSession, UserSession>();
 
@@ -102,6 +112,10 @@ namespace LifeSyncApp
 
             // Nutrition Services
             builder.Services.AddSingleton<NutritionService>();
+
+            // Auth ViewModels
+            builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<RegisterViewModel>();
 
             // ViewModels - Singleton para manter estado entre navegações
             builder.Services.AddSingleton<TaskItemsViewModel>();
@@ -123,6 +137,10 @@ namespace LifeSyncApp
             builder.Services.AddSingleton<TransactionListViewModel>();
             builder.Services.AddTransient<TransactionDetailViewModel>();
             builder.Services.AddTransient<FilterTransactionViewModel>();
+
+            // Auth Views
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<RegisterPage>();
 
             // Views - Transient para criar nova instância sempre
             builder.Services.AddTransient<MainPage>();

@@ -1,4 +1,5 @@
-﻿using LifeSyncApp.Views.Financial;
+﻿using LifeSyncApp.Views.Auth;
+using LifeSyncApp.Views.Financial;
 using LifeSyncApp.Views.Nutrition;
 using LifeSyncApp.Views.TaskManager.TaskItem;
 using LifeSyncApp.Views.TaskManager.TaskLabel;
@@ -10,6 +11,9 @@ namespace LifeSyncApp
         public AppShell()
         {
             InitializeComponent();
+
+            Routing.RegisterRoute("LoginPage", typeof(LoginPage));
+            Routing.RegisterRoute("RegisterPage", typeof(RegisterPage));
 
             Routing.RegisterRoute("taskdetail", typeof(TaskItemDetailPage));
             Routing.RegisterRoute("tasklabels", typeof(TaskLabelPage));

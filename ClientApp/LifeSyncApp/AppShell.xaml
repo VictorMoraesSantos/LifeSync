@@ -4,11 +4,26 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:LifeSyncApp"
+    xmlns:auth="clr-namespace:LifeSyncApp.Views.Auth"
     Title="LifeSync"
-    Shell.NavBarIsVisible="False">
+    Shell.NavBarIsVisible="False"
+    Shell.FlyoutBehavior="Disabled">
 
-    <ShellContent
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <!-- Auth -->
+    <ShellContent Route="LoginPage"
+                  ContentTemplate="{DataTemplate auth:LoginPage}"
+                  Shell.TabBarIsVisible="False"
+                  FlyoutItemIsVisible="False" />
+
+    <ShellContent Route="RegisterPage"
+                  ContentTemplate="{DataTemplate auth:RegisterPage}"
+                  Shell.TabBarIsVisible="False"
+                  FlyoutItemIsVisible="False" />
+
+    <!-- App -->
+    <ShellContent Route="MainPage"
+                  ContentTemplate="{DataTemplate local:MainPage}"
+                  Shell.TabBarIsVisible="False"
+                  FlyoutItemIsVisible="False" />
 
 </Shell>

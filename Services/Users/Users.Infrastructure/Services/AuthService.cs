@@ -127,7 +127,10 @@ namespace Users.Infrastructure.Services
             try
             {
                 var user = await _userManager.FindByIdAsync(userId);
-                if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                if (user == null)
+                    return Result<bool>.Failure(Error.Problem("User not found"));
+
+                if (user.RefreshToken != null && user.RefreshTokenExpiryTime <= DateTime.UtcNow)
                     return Result<bool>.Failure(Error.Problem("Invalid or expired refresh token"));
 
                 user.RefreshToken = refreshToken;
