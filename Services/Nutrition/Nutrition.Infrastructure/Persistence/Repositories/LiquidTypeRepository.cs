@@ -31,6 +31,7 @@ namespace Nutrition.Infrastructure.Persistence.Repositories
         {
             IEnumerable<LiquidType?> liquidTypes = await _context.LiquidTypes
                 .AsNoTracking()
+                .OrderBy(lt => lt.Id)
                 .ToListAsync(cancellationToken);
 
             return liquidTypes;
