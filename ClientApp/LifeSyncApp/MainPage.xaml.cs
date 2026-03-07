@@ -42,19 +42,13 @@ public partial class MainPage : ContentPage
     {
         base.OnAppearing();
 
-        // Reload current tab data when returning from a modal (e.g., filters, create/edit)
-        // Cache invalidation is handled by the modals themselves, so just call load (cache-aware)
-        if (_currentTabIndex == 0 && _currentPage?.BindingContext is ViewModels.Financial.FinancialViewModel financialVm)
+        // Reload current tab by re-creating the page to avoid ObjectDisposedException
+        // (Shell navigation can dispose the extracted visual tree)
+        if (_currentTabIndex >= 0)
         {
-            await financialVm.LoadDataAsync();
-        }
-        else if (_currentTabIndex == 2 && _currentPage?.BindingContext is ViewModels.TaskManager.TaskItemsViewModel taskVm)
-        {
-            await taskVm.LoadTasksAsync();
-        }
-        else if (_currentTabIndex == 3 && _currentPage?.BindingContext is NutritionViewModel nutritionVm)
-        {
-            await nutritionVm.LoadDataAsync();
+            var tabIndex = _currentTabIndex;
+            _currentTabIndex = -1; // Reset so LoadPage doesn't skip
+            LoadPage(tabIndex);
         }
     }
 

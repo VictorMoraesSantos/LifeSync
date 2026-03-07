@@ -93,74 +93,70 @@
             </Border>
 
             <!-- Income / Expense Chips (horizontal scroll) -->
-            <ScrollView Orientation="Horizontal"
-                        HorizontalScrollBarVisibility="Never">
-                <HorizontalStackLayout Spacing="12">
-
-                    <!-- Receitas Chip -->
-                    <Border BackgroundColor="{StaticResource FinCardBg}"
+            <Grid ColumnDefinitions="*, *"
+                  ColumnSpacing="12">
+                <!-- Receitas Chip -->
+                <Border BackgroundColor="{StaticResource FinCardBg}"
                             StrokeThickness="1"
                             Stroke="{StaticResource FinBorder}"
                             Padding="16,14"
                             WidthRequest="180"
                             StrokeShape="RoundRectangle 16">
-                        <Border.Shadow>
-                            <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
-                        </Border.Shadow>
-                        <HorizontalStackLayout Spacing="12">
-                            <Ellipse Fill="{StaticResource FinGreen}"
+                    <Border.Shadow>
+                        <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <HorizontalStackLayout Spacing="12">
+                        <Ellipse Fill="{StaticResource FinGreen}"
                                      WidthRequest="10"
                                      HeightRequest="10"
                                      VerticalOptions="Center"/>
-                            <VerticalStackLayout Spacing="2">
-                                <Label Text="Receitas"
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Receitas"
                                        FontSize="11"
                                        FontAttributes="Bold"
                                        TextColor="{StaticResource FinMuted}"/>
-                                <Label Text="{Binding TotalIncome, StringFormat='R$ {0:N2}'}"
+                            <Label Text="{Binding TotalIncome, StringFormat='R$ {0:N2}'}"
                                        FontSize="15"
                                        FontAttributes="Bold"
                                        TextColor="{StaticResource FinGreen}"/>
-                                <Label Text="{Binding IncomeCount, StringFormat='{0} entradas'}"
+                            <Label Text="{Binding IncomeCount, StringFormat='{0} entradas'}"
                                        FontSize="11"
                                        TextColor="{StaticResource FinMuted}"/>
-                            </VerticalStackLayout>
-                        </HorizontalStackLayout>
-                    </Border>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
 
-                    <!-- Despesas Chip -->
-                    <Border BackgroundColor="{StaticResource FinCardBg}"
+                <!-- Despesas Chip -->
+                <Border BackgroundColor="{StaticResource FinCardBg}"
                             StrokeThickness="1"
                             Stroke="{StaticResource FinBorder}"
                             Padding="16,14"
                             WidthRequest="180"
                             StrokeShape="RoundRectangle 16">
-                        <Border.Shadow>
-                            <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
-                        </Border.Shadow>
-                        <HorizontalStackLayout Spacing="12">
-                            <Ellipse Fill="{StaticResource FinExpense}"
+                    <Border.Shadow>
+                        <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <HorizontalStackLayout Spacing="12">
+                        <Ellipse Fill="{StaticResource FinExpense}"
                                      WidthRequest="10"
                                      HeightRequest="10"
                                      VerticalOptions="Center"/>
-                            <VerticalStackLayout Spacing="2">
-                                <Label Text="Despesas"
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Despesas"
                                        FontSize="11"
                                        FontAttributes="Bold"
                                        TextColor="{StaticResource FinMuted}"/>
-                                <Label Text="{Binding TotalExpense, StringFormat='R$ {0:N2}'}"
+                            <Label Text="{Binding TotalExpense, StringFormat='R$ {0:N2}'}"
                                        FontSize="15"
                                        FontAttributes="Bold"
                                        TextColor="{StaticResource FinExpense}"/>
-                                <Label Text="{Binding ExpenseCount, StringFormat='{0} saídas'}"
+                            <Label Text="{Binding ExpenseCount, StringFormat='{0} saídas'}"
                                        FontSize="11"
                                        TextColor="{StaticResource FinMuted}"/>
-                            </VerticalStackLayout>
-                        </HorizontalStackLayout>
-                    </Border>
-
-                </HorizontalStackLayout>
-            </ScrollView>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
 
             <!-- Top Categories (horizontal scroll) -->
             <VerticalStackLayout Spacing="12">
