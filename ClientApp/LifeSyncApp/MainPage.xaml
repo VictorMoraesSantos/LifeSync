@@ -6,13 +6,13 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource FinBackground}">
 
-    <Grid RowDefinitions="*,Auto">
-        <!-- Content Area -->
-        <ContentView x:Name="ContentArea" Grid.Row="0"/>
+    <Grid>
+        <!-- Content Area fills entire page -->
+        <ContentView x:Name="ContentArea"/>
 
-        <!-- Custom Tab Bar -->
+        <!-- Custom Tab Bar floats at the bottom with transparent background -->
         <controls:CustomTabBar x:Name="TabBar"
-                              Grid.Row="1"
+                              VerticalOptions="End"
                               TabSelected="OnTabSelected"/>
     </Grid>
 

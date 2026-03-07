@@ -63,7 +63,7 @@
 
             <!-- Scrollable Content -->
             <ScrollView Grid.Row="1">
-                <VerticalStackLayout Padding="24,0,24,24" Spacing="24">
+                <VerticalStackLayout Padding="24,0,24,100" Spacing="24">
 
                     <!-- Progress Cards Row -->
                     <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">

@@ -7,7 +7,8 @@
     xmlns:auth="clr-namespace:LifeSyncApp.Views.Auth"
     Title="LifeSync"
     Shell.NavBarIsVisible="False"
-    Shell.FlyoutBehavior="Disabled">
+    Shell.FlyoutBehavior="Disabled"
+    BackgroundColor="{StaticResource FinBackground}">
 
     <!-- Auth -->
     <ShellContent Route="LoginPage"

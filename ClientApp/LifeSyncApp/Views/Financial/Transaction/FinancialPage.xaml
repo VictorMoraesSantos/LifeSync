@@ -11,7 +11,7 @@
              BackgroundColor="{StaticResource FinBackground}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20,0,20,24"
+        <VerticalStackLayout Padding="20,0,20,100"
                              Spacing="24">
 
             <!-- Header -->
