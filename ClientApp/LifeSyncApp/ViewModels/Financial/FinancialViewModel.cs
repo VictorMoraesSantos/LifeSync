@@ -83,9 +83,9 @@ namespace LifeSyncApp.ViewModels.Financial
             set => SetProperty(ref _highestExpense, value);
         }
 
-        public ObservableCollection<TransactionDTO> RecentTransactions { get; } = new();
-        public ObservableCollection<CategoryExpense> TopCategories { get; } = new();
-        public ObservableCollection<CategoryDTO> Categories { get; } = new();
+        public SafeObservableCollection<TransactionDTO> RecentTransactions { get; } = new();
+        public SafeObservableCollection<CategoryExpense> TopCategories { get; } = new();
+        public SafeObservableCollection<CategoryDTO> Categories { get; } = new();
 
         public bool HasTopCategories => TopCategories.Count > 0;
         public bool HasNoTopCategories => TopCategories.Count == 0;
@@ -151,14 +151,14 @@ namespace LifeSyncApp.ViewModels.Financial
                 var incomes = transactions.Where(t => t.TransactionType == TransactionType.Income).ToList();
                 var expenses = transactions.Where(t => t.TransactionType == TransactionType.Expense).ToList();
 
-                var totalIncome = incomes.Sum(t => t.Amount.ToDecimal());
-                var totalExpense = expenses.Sum(t => t.Amount.ToDecimal());
+                var totalIncome = incomes.Sum(t => t.Amount?.ToDecimal() ?? 0m);
+                var totalExpense = expenses.Sum(t => t.Amount?.ToDecimal() ?? 0m);
                 var balance = totalIncome - totalExpense;
                 var transactionCount = transactions.Count;
                 var incomeCount = incomes.Count;
                 var expenseCount = expenses.Count;
-                var highestIncome = incomes.Any() ? incomes.Max(t => t.Amount.ToDecimal()) : 0;
-                var highestExpense = expenses.Any() ? expenses.Max(t => t.Amount.ToDecimal()) : 0;
+                var highestIncome = incomes.Any() ? incomes.Max(t => t.Amount?.ToDecimal() ?? 0m) : 0;
+                var highestExpense = expenses.Any() ? expenses.Max(t => t.Amount?.ToDecimal() ?? 0m) : 0;
 
                 var recentTransactions = transactions.OrderByDescending(t => t.TransactionDate).Take(5).ToList();
 
@@ -174,8 +174,8 @@ namespace LifeSyncApp.ViewModels.Financial
                     {
                         CategoryId = g.Key,
                         CategoryName = g.First().Category!.Name,
-                        Amount = g.Sum(t => t.Amount.ToDecimal()),
-                        Percentage = totalExpense > 0 ? (double)((g.Sum(t => t.Amount.ToDecimal()) / totalExpense) * 100) : 0
+                        Amount = g.Sum(t => t.Amount?.ToDecimal() ?? 0m),
+                        Percentage = totalExpense > 0 ? (double)((g.Sum(t => t.Amount?.ToDecimal() ?? 0m) / totalExpense) * 100) : 0
                     })
                     .OrderByDescending(c => c.Amount)
                     .Take(5)
@@ -209,11 +209,13 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[FinancialVM] Error loading financial data: {ex.Message}\n{ex.StackTrace}");
+                System.Diagnostics.Debug.WriteLine($"[FinancialVM] {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
+                if (ex.InnerException != null)
+                    System.Diagnostics.Debug.WriteLine($"[FinancialVM] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     IsBusy = false;
-                    await Shell.Current.DisplayAlert("Erro", $"Não foi possível carregar os dados financeiros: {ex.Message}", "OK");
+                    await Shell.Current.DisplayAlert("Erro", $"Não foi possível carregar os dados financeiros.\n[{ex.GetType().Name}] {ex.Message}", "OK");
                 });
             }
             finally
@@ -232,16 +234,16 @@ namespace LifeSyncApp.ViewModels.Financial
             var incomes = transactions.Where(t => t.TransactionType == TransactionType.Income).ToList();
             var expenses = transactions.Where(t => t.TransactionType == TransactionType.Expense).ToList();
 
-            TotalIncome = incomes.Sum(t => t.Amount.ToDecimal());
-            TotalExpense = expenses.Sum(t => t.Amount.ToDecimal());
+            TotalIncome = incomes.Sum(t => t.Amount?.ToDecimal() ?? 0m);
+            TotalExpense = expenses.Sum(t => t.Amount?.ToDecimal() ?? 0m);
             Balance = TotalIncome - TotalExpense;
 
             TransactionCount = transactions.Count;
             IncomeCount = incomes.Count;
             ExpenseCount = expenses.Count;
 
-            HighestIncome = incomes.Any() ? incomes.Max(t => t.Amount.ToDecimal()) : 0;
-            HighestExpense = expenses.Any() ? expenses.Max(t => t.Amount.ToDecimal()) : 0;
+            HighestIncome = incomes.Any() ? incomes.Max(t => t.Amount?.ToDecimal() ?? 0m) : 0;
+            HighestExpense = expenses.Any() ? expenses.Max(t => t.Amount?.ToDecimal() ?? 0m) : 0;
         }
 
         private void CalculateTopCategories(List<TransactionDTO> transactions)
@@ -254,8 +256,8 @@ namespace LifeSyncApp.ViewModels.Financial
                 {
                     CategoryId = g.Key,
                     CategoryName = g.First().Category!.Name,
-                    Amount = g.Sum(t => t.Amount.ToDecimal()),
-                    Percentage = totalExpenses > 0 ? (double)((g.Sum(t => t.Amount.ToDecimal()) / totalExpenses) * 100) : 0
+                    Amount = g.Sum(t => t.Amount?.ToDecimal() ?? 0m),
+                    Percentage = totalExpenses > 0 ? (double)((g.Sum(t => t.Amount?.ToDecimal() ?? 0m) / totalExpenses) * 100) : 0
                 })
                 .OrderByDescending(c => c.Amount)
                 .Take(5);

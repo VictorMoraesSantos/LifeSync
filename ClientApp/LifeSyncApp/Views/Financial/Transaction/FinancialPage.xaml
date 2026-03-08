@@ -96,12 +96,12 @@
             <Grid ColumnDefinitions="*, *"
                   ColumnSpacing="12">
                 <!-- Receitas Chip -->
-                <Border BackgroundColor="{StaticResource FinCardBg}"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource FinBorder}"
-                            Padding="16,14"
-                            WidthRequest="180"
-                            StrokeShape="RoundRectangle 16">
+                <Border Grid.Column="0"
+                        BackgroundColor="{StaticResource FinCardBg}"
+                        StrokeThickness="1"
+                        Stroke="{StaticResource FinBorder}"
+                        Padding="16,14"
+                        StrokeShape="RoundRectangle 16">
                     <Border.Shadow>
                         <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
                     </Border.Shadow>
@@ -127,12 +127,12 @@
                 </Border>
 
                 <!-- Despesas Chip -->
-                <Border BackgroundColor="{StaticResource FinCardBg}"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource FinBorder}"
-                            Padding="16,14"
-                            WidthRequest="180"
-                            StrokeShape="RoundRectangle 16">
+                <Border Grid.Column="1"
+                        BackgroundColor="{StaticResource FinCardBg}"
+                        StrokeThickness="1"
+                        Stroke="{StaticResource FinBorder}"
+                        Padding="16,14"
+                        StrokeShape="RoundRectangle 16">
                     <Border.Shadow>
                         <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
                     </Border.Shadow>
@@ -302,15 +302,14 @@
                         <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
                     </Border.Shadow>
 
-                    <CollectionView ItemsSource="{Binding RecentTransactions}"
-                                    SelectionMode="None">
-                        <CollectionView.ItemTemplate>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding RecentTransactions}">
+                        <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="transaction:TransactionDTO">
                                 <Grid ColumnDefinitions="Auto,*,Auto"
                                       ColumnSpacing="12"
                                       Padding="16,14">
                                     <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:FinancialViewModel}}, Path=OpenDetailCommand}"
+                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenDetailCommand, Source={x:Reference page}}"
                                                               CommandParameter="{Binding .}"/>
                                     </Grid.GestureRecognizers>
 
@@ -361,8 +360,8 @@
                                     </Label>
                                 </Grid>
                             </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>
 
