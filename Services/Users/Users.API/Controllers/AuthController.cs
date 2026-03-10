@@ -17,10 +17,12 @@ namespace Users.API.Controllers
     public class AuthController : ApiController
     {
         private readonly ISender _sender;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(ISender sender)
+        public AuthController(ISender sender, IConfiguration configuration)
         {
             _sender = sender;
+            _configuration = configuration;
         }
 
         [AllowAnonymous]
@@ -54,6 +56,84 @@ namespace Users.API.Controllers
             return result.IsSuccess
                 ? HttpResult<object>.Ok(result.Value!)
                 : HttpResult<object>.BadRequest(result.Error!.Description);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("google-login")]
+        public IActionResult GoogleLogin([FromQuery] string state)
+        {
+            var clientId = _configuration["GoogleAuth:ClientId"];
+            var redirectUri = _configuration["GoogleAuth:RedirectUri"];
+
+            var googleUrl = "https://accounts.google.com/o/oauth2/v2/auth" +
+                $"?client_id={clientId}" +
+                $"&redirect_uri={Uri.EscapeDataString(redirectUri!)}" +
+                "&response_type=code" +
+                "&scope=openid email profile" +
+                "&access_type=offline" +
+                $"&state={Uri.EscapeDataString(state ?? "")}";
+
+            return Redirect(googleUrl);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("google-callback")]
+        public async Task<IActionResult> GoogleCallback(
+            [FromQuery] string code, [FromQuery] string state, CancellationToken cancellationToken)
+        {
+            var appScheme = _configuration["GoogleAuth:AppScheme"] ?? "com.lifesync.app";
+
+            if (string.IsNullOrEmpty(code))
+                return Redirect($"{appScheme}://callback?error=no_code");
+
+            try
+            {
+                // Trocar authorization code por ID token
+                var clientId = _configuration["GoogleAuth:ClientId"];
+                var clientSecret = _configuration["GoogleAuth:ClientSecret"];
+                var redirectUri = _configuration["GoogleAuth:RedirectUri"];
+
+                using var httpClient = new HttpClient();
+                var tokenResponse = await httpClient.PostAsync("https://oauth2.googleapis.com/token",
+                    new FormUrlEncodedContent(new Dictionary<string, string>
+                    {
+                        ["code"] = code,
+                        ["client_id"] = clientId!,
+                        ["client_secret"] = clientSecret!,
+                        ["redirect_uri"] = redirectUri!,
+                        ["grant_type"] = "authorization_code"
+                    }), cancellationToken);
+
+                var tokenJson = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
+
+                if (!tokenResponse.IsSuccessStatusCode)
+                    return Redirect($"{appScheme}://callback?error=token_exchange_failed");
+
+                var tokenDoc = System.Text.Json.JsonDocument.Parse(tokenJson);
+                var idToken = tokenDoc.RootElement.GetProperty("id_token").GetString();
+
+                if (string.IsNullOrEmpty(idToken))
+                    return Redirect($"{appScheme}://callback?error=no_id_token");
+
+                // Usar o fluxo existente de external login
+                var command = new ExternalLoginCommand(idToken, "Google");
+                var result = await _sender.Send(command, cancellationToken);
+
+                if (!result.IsSuccess)
+                    return Redirect($"{appScheme}://callback?error={Uri.EscapeDataString(result.Error!.Description)}");
+
+                var authResult = result.Value!;
+                return Redirect(
+                    $"{appScheme}://callback" +
+                    $"?access_token={Uri.EscapeDataString(authResult.AccessToken)}" +
+                    $"&refresh_token={Uri.EscapeDataString(authResult.RefreshToken)}" +
+                    $"&user_id={Uri.EscapeDataString(authResult.User.Id)}" +
+                    $"&state={Uri.EscapeDataString(state ?? "")}");
+            }
+            catch (Exception ex)
+            {
+                return Redirect($"{appScheme}://callback?error={Uri.EscapeDataString(ex.Message)}");
+            }
         }
 
         [HttpPost("logout")]

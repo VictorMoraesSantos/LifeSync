@@ -70,42 +70,39 @@ namespace LifeSyncApp.Services.Auth
 
         public async Task<AuthResult> GoogleLoginAsync()
         {
-            System.Diagnostics.Debug.WriteLine("[Auth] Starting Google login via WebAuthenticator");
+            System.Diagnostics.Debug.WriteLine("[Auth] Starting Google login via backend OAuth flow");
 
-            var authResult = await WebAuthenticatorBridge.AuthenticateAsync(
-                new Uri("https://accounts.google.com/o/oauth2/v2/auth?" +
-                    "client_id=478465581296-cet2uhvb552sajknt39jh6fb0sivdpdu.apps.googleusercontent.com" +
-                    "&redirect_uri=com.lifesync.app:/" +
-                    "&response_type=id_token" +
-                    "&scope=openid email profile" +
-                    "&nonce=" + Guid.NewGuid().ToString()),
-                new Uri("com.lifesync.app:/"));
+            var baseAddress = _httpClient.BaseAddress?.ToString().TrimEnd('/');
+            var state = Guid.NewGuid().ToString("N");
 
-            var idToken = authResult.IdToken;
+            var authResult = await WebAuthenticator.Default.AuthenticateAsync(
+                new WebAuthenticatorOptions
+                {
+                    Url = new Uri($"{baseAddress}/auth/google-login?state={state}"),
+                    CallbackUrl = new Uri("com.lifesync.app://callback")
+                });
 
-            if (string.IsNullOrEmpty(idToken))
-                throw new InvalidOperationException("Nao foi possivel obter o token do Google.");
+            var error = authResult?.Get("error");
+            if (!string.IsNullOrEmpty(error))
+                throw new InvalidOperationException($"Erro no login com Google: {Uri.UnescapeDataString(error)}");
 
-            var request = new ExternalLoginRequest
+            var accessToken = authResult?.Get("access_token");
+            var refreshToken = authResult?.Get("refresh_token");
+            var userId = authResult?.Get("user_id");
+
+            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(userId))
+                throw new InvalidOperationException("Resposta incompleta do login com Google.");
+
+            await SecureStorage.SetAsync(AccessTokenKey, accessToken);
+            await SecureStorage.SetAsync(RefreshTokenKey, refreshToken);
+            await SecureStorage.SetAsync(UserIdKey, userId);
+
+            return new AuthResult
             {
-                IdToken = idToken,
-                Provider = "Google"
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                User = new UserDTO { Id = userId }
             };
-
-            var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}/external-login", request, _jsonOptions);
-            var body = await response.Content.ReadAsStringAsync();
-            System.Diagnostics.Debug.WriteLine($"[Auth] Google login response {response.StatusCode}: {body}");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var friendlyMessage = TryExtractError(body) ?? "Erro no login com Google.";
-                throw new HttpRequestException(friendlyMessage);
-            }
-
-            var apiResponse = JsonSerializer.Deserialize<ApiSingleResponse<AuthResult>>(body, _jsonOptions);
-            var result = apiResponse?.Data ?? throw new InvalidOperationException($"Resposta inesperada da API: {body}");
-            await StoreTokensAsync(result);
-            return result;
         }
 
         public async Task LogoutAsync()
