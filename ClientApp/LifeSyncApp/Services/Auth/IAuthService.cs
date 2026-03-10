@@ -6,6 +6,7 @@ namespace LifeSyncApp.Services.Auth
     {
         Task<AuthResult> LoginAsync(LoginRequest request);
         Task<AuthResult> RegisterAsync(RegisterRequest request);
+        Task<AuthResult> GoogleLoginAsync();
         Task LogoutAsync();
         Task<bool> IsAuthenticatedAsync();
         Task<string?> GetAccessTokenAsync();

@@ -9,7 +9,7 @@ namespace LifeSyncApp.Services.Auth
         {
             // Skip auth header for login/register endpoints
             var path = request.RequestUri?.AbsolutePath ?? "";
-            if (!path.Contains("/auth/login") && !path.Contains("/auth/register"))
+            if (!path.Contains("/auth/login") && !path.Contains("/auth/register") && !path.Contains("/auth/external-login"))
             {
                 try
                 {

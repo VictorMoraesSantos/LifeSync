@@ -5,7 +5,17 @@
 		android:icon="@mipmap/appicon"
 		android:roundIcon="@mipmap/appicon_round"
 		android:supportsRtl="true"
-		android:usesCleartextTraffic="true"></application>
+		android:usesCleartextTraffic="true">
+		<activity android:name="microsoft.maui.essentials.WebAuthenticatorCallbackActivity"
+				  android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="com.lifesync.app" />
+			</intent-filter>
+		</activity>
+	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 </manifest>

@@ -33,7 +33,7 @@ public partial class LoginPage : ContentPage
 
     private async void OnGoogleLoginTapped(object sender, TappedEventArgs e)
     {
-        await DisplayAlert("Em breve", "Login com Google sera implementado em breve.", "OK");
+        await _viewModel.GoogleLoginAsync();
     }
 
     private async void OnRegisterTapped(object sender, TappedEventArgs e)

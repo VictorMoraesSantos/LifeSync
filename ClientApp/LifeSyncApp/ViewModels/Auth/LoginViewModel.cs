@@ -87,6 +87,35 @@ namespace LifeSyncApp.ViewModels.Auth
             }
         }
 
+        public async Task GoogleLoginAsync()
+        {
+            if (IsBusy) return;
+            IsBusy = true;
+            HasError = false;
+
+            try
+            {
+                await _authService.GoogleLoginAsync();
+                await _userSession.InitializeAsync();
+
+                await Shell.Current.GoToAsync("//MainPage");
+            }
+            catch (TaskCanceledException)
+            {
+                // Usuario cancelou o login - nao faz nada
+            }
+            catch (Exception ex)
+            {
+                HasError = true;
+                ErrorMessage = ex.Message;
+                System.Diagnostics.Debug.WriteLine($"Google Login Error: {ex}");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
         public async Task GoToRegisterAsync()
         {
             await Shell.Current.GoToAsync("//RegisterPage");
