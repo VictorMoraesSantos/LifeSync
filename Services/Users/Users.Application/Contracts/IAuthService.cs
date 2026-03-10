@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Results;
 using System.Security.Claims;
+using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 
 namespace Users.Application.Interfaces
@@ -8,6 +9,7 @@ namespace Users.Application.Interfaces
     {
         // Autenticação
         Task<Result<UserDTO>> LoginAsync(string email, string password);
+        Task<Result<UserDTO>> ExternalLoginAsync(string email, string firstname, string lastname, string provider, string providerKey);
         Task<Result<UserDTO>> SignUpAsync(string firstName, string lastName, string email, string password);
         Task<Result> LogoutAsync(ClaimsPrincipal user);
         Task<Result<bool>> UpdateRefreshTokenAsync(string userId, string refreshToken);

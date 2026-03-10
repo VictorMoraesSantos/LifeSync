@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Users.Application.Contracts;
 using Users.Application.Interfaces;
 using Users.Domain.Entities;
 using Users.Infrastructure.Data;
@@ -103,6 +104,7 @@ namespace Users.Infrastructure
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
             services.AddAuthorization();
 

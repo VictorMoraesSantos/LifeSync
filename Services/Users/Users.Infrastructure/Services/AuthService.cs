@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
 using Users.Application.Mapping;
@@ -47,6 +48,44 @@ namespace Users.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while logging in user {Email}", email);
+                return Result<UserDTO>.Failure(Error.Failure(ex.Message));
+            }
+        }
+
+        public async Task<Result<UserDTO>> ExternalLoginAsync(string email, string firstname, string lastname, string provider, string providerKey)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+
+                if(user is null)
+                {
+                    var name = new Name(firstname, lastname);
+                    var contact = new Contact(email);
+                    user = new User(name, contact);
+                    var createResult = await _userManager.CreateAsync(user);
+                    if(!createResult.Succeeded)
+                        return Result<UserDTO>.Failure(Error.Problem(string.Join("; ", createResult.Errors.Select(e => e.Description))));
+
+                    await _userManager.AddToRoleAsync(user, "User");
+                }
+
+                var existingLogins = await _userManager.GetLoginsAsync(user);
+                if (!existingLogins.Any(l => l.LoginProvider == provider))
+                {
+                    var loginInfo = new UserLoginInfo(provider, providerKey, provider);
+                    var addLoginResult = await _userManager.AddLoginAsync(user, loginInfo);
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+                var dto = UserMapper.ToDto(user) with { Roles = roles.ToList() };
+
+                return Result<UserDTO>.Success(dto);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while logging in user {Email} with provider {Provider}", email, provider);
                 return Result<UserDTO>.Failure(Error.Failure(ex.Message));
             }
         }

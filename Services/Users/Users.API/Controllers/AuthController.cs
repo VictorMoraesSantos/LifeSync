@@ -9,6 +9,7 @@ using Users.Application.Features.Auth.Commands.Login;
 using Users.Application.Features.Auth.Commands.Logout;
 using Users.Application.Features.Auth.Commands.ResetPassword;
 using Users.Application.Features.Auth.Commands.SendEmailConfirmation;
+using Users.Application.Features.Auth.Commands.ExternalLogin;
 using Users.Application.Features.Auth.Commands.SignUp;
 
 namespace Users.API.Controllers
@@ -36,6 +37,17 @@ namespace Users.API.Controllers
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<HttpResult<object>> Register([FromBody] SignUpCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _sender.Send(command, cancellationToken);
+
+            return result.IsSuccess
+                ? HttpResult<object>.Ok(result.Value!)
+                : HttpResult<object>.BadRequest(result.Error!.Description);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("external-login")]
+        public async Task<HttpResult<object>> ExternalLogin([FromBody] ExternalLoginCommand command, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(command, cancellationToken);
 
