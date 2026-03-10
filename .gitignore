@@ -364,3 +364,7 @@ FodyWeavers.xsd
 # Data Protection Keys
 Keys/
 **/Keys/
+
+# Environment variables
+.env
+deploy/.env

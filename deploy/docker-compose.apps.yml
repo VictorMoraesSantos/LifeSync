@@ -44,6 +44,8 @@ services:
       - RabbitMQSettings__Port=5672
       - RabbitMQSettings__User=${RABBIT_USER}
       - RabbitMQSettings__Password=${RABBIT_PASSWORD}
+      - GoogleAuth__ClientId=${GOOGLE_CLIENT_ID}
+      - GoogleAuth__ClientSecret=${GOOGLE_CLIENT_SECRET}
     networks: [lifesync]
     restart: unless-stopped
 

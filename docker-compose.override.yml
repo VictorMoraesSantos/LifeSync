@@ -100,6 +100,8 @@ services:
       - RabbitMQSettings__Port=5672
       - RabbitMQSettings__User=guest
       - RabbitMQSettings__Password=guest
+      - GoogleAuth__ClientId=${GOOGLE_CLIENT_ID}
+      - GoogleAuth__ClientSecret=${GOOGLE_CLIENT_SECRET}
     depends_on:
       lifesyncdb:
         condition: service_healthy
