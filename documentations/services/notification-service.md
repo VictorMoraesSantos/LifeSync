@@ -352,14 +352,26 @@ GET /health
 
 ## Limitações Conhecidas
 
-| Limitação | Descrição |
-|---|---|
-| Métodos de CRUD de e-mail não implementados | `CreateEmail`, `UpdateEmail`, `DeleteEmail`, `GetAllEmailMessages`, `GetEmailById` lançam `NotImplementedException` |
-| E-mails não são persistidos | O `EmailMessage` é criado em memória mas não salvo no banco |
-| Templates básicos | Não há motor de templates — os textos são strings literais |
-| Handler para `TaskDueReminderIntegrationEvent` ausente | O evento é consumido mas não há handler registrado |
-| SSL não utilizado | A propriedade `EnableSsl` do `SmtpSettings` não é usada no `EmailService` |
-| Namespace misto | Algumas classes ainda usam `EmailSender.*` como namespace (nome original do serviço) |
+| Severidade | Problema | Descrição |
+|---|---|---|
+| CRÍTICO | Consumer sem error handling | `RabbitMqEventConsumer.OnMessage()` não tem try-catch — erro de JSON causa crash |
+| CRÍTICO | Blocking async | `.GetAwaiter().GetResult()` bloqueia thread do pool |
+| CRÍTICO | SMTP sem TLS/SSL | `SecureSocketOptions.None` envia credenciais em texto puro |
+| CRÍTICO | Sem error handling no EmailService | Exceções SMTP não são tratadas — podem derrubar o serviço |
+| CRÍTICO | Credenciais hardcoded | RabbitMQ usa `guest/guest` no appsettings |
+| ALTO | Sem Dead Letter Queue | Mensagens com falha são perdidas |
+| ALTO | Templates hardcoded | Textos literais sem personalização (`"Thanks for registering."`) |
+| ALTO | Sem validação de e-mail | Destinatário não é validado antes do envio |
+| ALTO | Nova conexão SMTP por e-mail | Sem connection pooling — overhead em cada envio |
+| ALTO | Zero logging | Nenhum `ILogger` em todo o serviço |
+| ALTO | Zero testes | Nenhum projeto de teste |
+| ALTO | Banco implementado mas não usado | `EmailMessageRepository` e `DbContext` nunca são chamados |
+| ALTO | Handler para `TaskDueReminderIntegrationEvent` ausente | Evento consumido mas ignorado silenciosamente |
+| MÉDIO | Métodos de CRUD não implementados | `CreateEmail`, `UpdateEmail`, `DeleteEmail`, `GetEmailById` lançam `NotImplementedException` |
+| MÉDIO | Namespace misto (~70% ainda `EmailSender.*`) | Refatoração incompleta do nome do serviço |
+| MÉDIO | Dead code | `EmailMessage` criado em memória mas nunca usado |
+| MÉDIO | Typo no parâmetro | `cancellationTokeno` ao invés de `cancellationToken` |
+| MÉDIO | `EnableSsl` configurado mas ignorado | Propriedade existe no `SmtpSettings` mas não é usada no `EmailService` |
 
 ---
 

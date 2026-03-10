@@ -11,7 +11,7 @@ Bibliotecas internas compartilhadas por todos os microserviços do LifeSync.
   - [Validação](#validação)
   - [Autenticação e Autorização](#autenticação-e-autorização)
   - [Helpers de Query](#helpers-de-query)
-- [BuildingBlocks.Messaging](#buildblockmessaging)
+- [BuildingBlocks.Messaging](#buildingblocksmessaging)
   - [Event Bus](#event-bus)
   - [Event Consumer](#event-consumer)
   - [Conexão Persistente](#conexão-persistente)
@@ -668,30 +668,32 @@ public class ApiController : ControllerBase { }
 |---|---|---|
 | `FluentValidation` | 12.1.1 | Validação de commands/queries |
 | `FluentValidation.DependencyInjectionExtensions` | 12.1.1 | DI automático de validadores |
-| `Microsoft.AspNetCore.Authentication.JwtBearer` | 10.0.1 | JWT |
-| `Microsoft.AspNetCore.Http.Abstractions` | 2.3.0 | Primitivas HTTP |
-| `SonarAnalyzer.CSharp` | 10.17.0 | Análise estática de qualidade |
+| `Microsoft.AspNetCore.Authentication.JwtBearer` | 10.0.3 | JWT |
+| `Microsoft.AspNetCore.Http.Abstractions` | 2.3.9 | Primitivas HTTP |
+| `Microsoft.Extensions.Configuration.Abstractions` | 10.0.3 | Configuração |
+| `Microsoft.Extensions.DependencyInjection.Abstractions` | 10.0.3 | Injeção de dependência |
+| `SonarAnalyzer.CSharp` | 10.20.0.135146 | Análise estática de qualidade |
 
 ### BuildingBlocks.Messaging.csproj
 
 | Pacote | Versão | Uso |
 |---|---|---|
-| `RabbitMQ.Client` | 7.2.0 | Message broker |
-| `Microsoft.Extensions.Configuration.Binder` | 10.0.1 | Bind de configuração |
-| `Microsoft.Extensions.Options` | 10.0.1 | IOptions<T> |
-| `Microsoft.Extensions.Logging.Abstractions` | 10.0.1 | ILogger |
+| `RabbitMQ.Client` | 7.2.1 | Message broker |
+| `Microsoft.Extensions.Configuration.Binder` | 10.0.3 | Bind de configuração |
+| `Microsoft.Extensions.Options` | 10.0.3 | IOptions<T> |
+| `Microsoft.Extensions.Logging.Abstractions` | 10.0.3 | ILogger |
 
 ### Core.Domain.csproj
 
 | Pacote / Referência | Uso |
 |---|---|
 | `BuildingBlocks` | INotification para DomainEvent |
-| `SonarAnalyzer.CSharp` 10.17.0 | Análise estática |
+| `SonarAnalyzer.CSharp` 10.20.0.135146 | Análise estática |
 
 ### Core.Infrastructure.csproj
 
 | Pacote | Versão | Uso |
 |---|---|---|
-| `Microsoft.EntityFrameworkCore` | 10.0.1 | ORM |
-| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` | 10.0.1 | Identity |
-| `Newtonsoft.Json` | 13.0.3 | Serialização JSON |
+| `Microsoft.EntityFrameworkCore` | 10.0.3 | ORM |
+| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` | 10.0.3 | Identity |
+| `Newtonsoft.Json` | 13.0.4 | Serialização JSON |

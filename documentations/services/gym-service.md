@@ -501,6 +501,36 @@ GET /health
 
 ---
 
+## Testes
+
+### Projetos de Teste
+
+| Projeto | Tipo | Status |
+|---|---|---|
+| `Gym.UnitTests` | Unitários | Stub vazio (não implementado) |
+| `Gym.IntegrationTests` | Integração | Existente |
+| `Gym.E2ETests` | E2E | Existente |
+
+---
+
+## Problemas Conhecidos
+
+| Severidade | Problema | Descrição |
+|---|---|---|
+| CRÍTICO | RoutineMapper com parâmetros invertidos | `Name` e `Description` estão trocados no `ToDTO()` — respostas da API retornam dados invertidos |
+| CRÍTICO | Paginação em memória | `GetPagedAsync`, `FindAsync`, `CountAsync` carregam todos os dados em memória |
+| CRÍTICO | Controllers sem `[Authorize]` | Todos os endpoints são públicos |
+| CRÍTICO | RoutineExerciseSpecification: `SetsEquals` usa `<=` | Deveria usar `==` para comparação de igualdade |
+| ALTO | CompletedExerciseConfiguration duplicada | `OwnsOne(ce => ce.SetsCompleted)` registrado duas vezes |
+| ALTO | TrainingSessionSpecification NullReference | `Notes.Contains()` pode lançar exceção se `Notes` for null |
+| ALTO | Sem isolamento de dados por usuário | Dados de todos os usuários são acessíveis |
+| ALTO | Arquivos com extensão duplicada | `UpdateRoutineExerciseDTO.cs.cs` e `UpdateTrainingSessionDTO.cs.cs` |
+| ALTO | `CompletedAt` nunca inicializado | `MarkCompleted()` existe mas nunca é chamado |
+| MÉDIO | Exceções inconsistentes | Exercise usa `ArgumentException`, Routine usa `DomainException` |
+| MÉDIO | Domain events comentados | Eventos de domínio declarados mas desativados |
+
+---
+
 ## Configuração
 
 ```json

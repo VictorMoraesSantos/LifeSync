@@ -42,13 +42,7 @@ namespace LifeSyncApp.Services.Auth
                 throw new HttpRequestException(friendlyMessage);
             }
 
-            var apiResponse = await response.Content.ReadFromJsonAsync<ApiSingleResponse<AuthResult>>(_jsonOptions);
-            if (apiResponse?.Data == null)
-            {
-                // Fallback: try deserializing body again since stream was consumed
-                apiResponse = JsonSerializer.Deserialize<ApiSingleResponse<AuthResult>>(body, _jsonOptions);
-            }
-
+            var apiResponse = JsonSerializer.Deserialize<ApiSingleResponse<AuthResult>>(body, _jsonOptions);
             var result = apiResponse?.Data ?? throw new InvalidOperationException($"Resposta inesperada da API: {body}");
             await StoreTokensAsync(result);
             return result;

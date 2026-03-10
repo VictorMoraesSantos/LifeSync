@@ -373,6 +373,29 @@ Todos os endpoints retornam `HttpResult<object>`:
 
 ---
 
+## Problemas Conhecidos
+
+| Severidade | Problema | Descrição |
+|---|---|---|
+| CRÍTICO | Política de senha fraca | Mínimo 6 caracteres, apenas minúsculas obrigatórias — deveria ser 12+ com mix |
+| CRÍTICO | `LastLoginAt` nunca atualizado | Campo existe mas `UpdateLastLogin()` nunca é chamado no login |
+| CRÍTICO | Soft delete não filtrado | Usuários com `IsDeleted = true` ainda podem fazer login e aparecem nas listas |
+| CRÍTICO | N+1 em `GetAllUsersDetailsAsync` | Carrega todos os usuários, depois faz 1 query por usuário para buscar roles |
+| CRÍTICO | Bug no `UsersController.UpdateUser` | Cria `updateCommand` com o userId correto mas envia o `command` original — variável nunca usada |
+| CRÍTICO | `DeleteUserCommandHandler` vazio | Handler não implementado — operação de delete não funciona |
+| ALTO | Sem token blacklist | Access token permanece válido até expirar mesmo após logout |
+| ALTO | E-mail alterado sem verificação | Mudança de e-mail não exige confirmação |
+| ALTO | Token exposto no e-mail de reset | Token de redefinição de senha exibido no corpo do e-mail HTML |
+| ALTO | `UserDTO.Id` é `string`, `UpdateUserDTO.Id` é `int` | Inconsistência de tipo de ID entre DTOs |
+| ALTO | Sem paginação | `GetAll` retorna todos os usuários sem limite |
+| ALTO | CORS permissivo | `AllowAnyMethod()` e `AllowAnyHeader()` sem restrição |
+| ALTO | Refresh token expiry hardcoded | 7 dias fixo no `AuthService`, ignora `JwtSettings.RefreshTokenExpiryDays` |
+| MÉDIO | Regex de e-mail permissivo | `test@c` é considerado válido pelo regex do `Contact` |
+| MÉDIO | DTOs sem validação | Nenhum DTO possui FluentValidation ou DataAnnotations |
+| MÉDIO | `LoginDTO.UserNameOrEmail` enganoso | Propriedade aceita apenas e-mail, não username |
+
+---
+
 ## Configuração
 
 ### `appsettings.json`

@@ -443,6 +443,49 @@ GET /health
 
 ---
 
+## Testes
+
+### Projetos de Teste
+
+| Projeto | Tipo | Status |
+|---|---|---|
+| `Financial.UnitTests` | Unitários | 12+ testes para Category, 20+ para Transaction |
+| `Financial.IntegrationTests` | Integração | Stub vazio (não implementado) |
+
+**Framework:** xUnit, assertions nativas (`Assert.*`)
+
+### Cobertura
+
+- **Category:** Criação válida/inválida, atualização, exceções de validação
+- **Transaction:** Construtor, Update, validação de Money, regras de negócio
+
+```bash
+dotnet test tests/Financial.UnitTests
+```
+
+---
+
+## Problemas Conhecidos
+
+| Severidade | Problema | Descrição |
+|---|---|---|
+| CRÍTICO | Controllers sem `[Authorize]` | Todos os endpoints são públicos — sem autenticação |
+| CRÍTICO | Paginação em memória | `GetPagedAsync` carrega todos os registros e pagina em memória |
+| CRÍTICO | `FindAsync` carrega tudo | Busca todos os registros, filtra em memória |
+| CRÍTICO | N+1 em `DeleteRangeAsync` | Loop chama `GetById()` para cada ID |
+| CRÍTICO | Validator sempre true | `amount > 0 \|\| amount < 0` sempre é verdadeiro |
+| ALTO | `GetByNameAsync` ignora UserId | Valida `userId` mas não usa na query — retorna dados de todos os usuários |
+| ALTO | `GetAll()` sem filtro de usuário | Retorna dados de todos os usuários |
+| ALTO | Índices faltando | `UserId`, `TransactionDate`, `PaymentMethod` sem índice |
+| ALTO | Sem global query filter para soft delete | Registros deletados aparecem nas queries |
+| ALTO | `TransactionDTO.Category` non-nullable | Pode receber `null` do mapper |
+| MÉDIO | DTOs de Report não utilizados | `UserBalanceSummaryDTO`, `AccountBalanceDTO` definidos mas não usados |
+| MÉDIO | `ReportsController` vazio | Placeholder sem implementação |
+| MÉDIO | Money sem `HasPrecision()` | Usa precisão padrão (18,2) ao invés de (18,4) |
+| MÉDIO | Typo `SetAmout` | Método privado com nome incorreto (deveria ser `SetAmount`) |
+
+---
+
 ## Configuração
 
 ```json

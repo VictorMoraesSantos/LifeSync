@@ -38,6 +38,10 @@ Nutrition/
 │   ├── Controllers/
 │   │   ├── DailyProgressesController.cs
 │   │   ├── DiariesController.cs
+│   │   ├── FoodsController.cs
+│   │   ├── LiquidsController.cs
+│   │   ├── LiquidTypesController.cs
+│   │   ├── MealFoodsController.cs
 │   │   └── MealsController.cs
 │   ├── Program.cs
 │   ├── appsettings.json
@@ -46,13 +50,17 @@ Nutrition/
 │   ├── Contracts/
 │   │   ├── IDailyProgressService.cs
 │   │   ├── IDiaryService.cs
+│   │   ├── IFoodService.cs
 │   │   ├── ILiquidService.cs
+│   │   ├── ILiquidTypeService.cs
 │   │   ├── IMealFoodService.cs
 │   │   └── IMealService.cs
 │   ├── DTOs/
 │   │   ├── DailyProgress/
 │   │   ├── Diary/
+│   │   ├── Food/
 │   │   ├── Liquid/
+│   │   ├── LiquidType/
 │   │   ├── Meal/
 │   │   └── MealFood/
 │   ├── EventHandlers/
@@ -61,13 +69,19 @@ Nutrition/
 │   ├── Features/
 │   │   ├── DailyProgress/
 │   │   ├── Diary/
+│   │   ├── Food/
 │   │   ├── Liquid/
+│   │   ├── LiquidType/
 │   │   ├── Meal/
 │   │   └── MealFood/
 │   ├── Mapping/
 │   │   ├── DailyGoalMapper.cs
 │   │   ├── DailyProgressMapper.cs
 │   │   ├── DiaryMapper.cs
+│   │   ├── FoodMapper.cs
+│   │   ├── LiquidsMapper.cs
+│   │   ├── LiquidTypesMapper.cs
+│   │   ├── MealFoodMapper.cs
 │   │   └── MealMapper.cs
 │   └── Nutrition.Application.csproj
 ├── Nutrition.Domain/
@@ -82,33 +96,67 @@ Nutrition/
 │   ├── Errors/
 │   │   ├── DailyProgressErrors.cs
 │   │   ├── DiaryErrors.cs
+│   │   ├── FoodErrors.cs
 │   │   ├── LiquidErrors.cs
+│   │   ├── LiquidTypeErrors.cs
 │   │   ├── MealErrors.cs
 │   │   └── MealFoodErrors.cs
-│   ├── Events/MealAddedToDiaryEvent.cs
+│   ├── Events/
+│   │   ├── LiquidChangedEvent.cs
+│   │   ├── MealAddedToDiaryEvent.cs
+│   │   ├── MealFoodAddedEvent.cs
+│   │   └── MealFoodRemovedEvent.cs
 │   ├── Filters/
 │   │   ├── DailyProgressQueryFilter.cs
 │   │   ├── DiaryQueryFilter.cs
+│   │   ├── FoodQueryFilter.cs
+│   │   ├── LiquidQueryFilter.cs
+│   │   ├── LiquidTypeQueryFilter.cs
 │   │   ├── MealFoodQueryFilter.cs
-│   │   └── MealQueryFilter.cs
+│   │   ├── MealQueryFilter.cs
+│   │   └── Specifications/
+│   │       ├── DailyProgressSpecification.cs
+│   │       ├── DiarySpecification.cs
+│   │       ├── FoodSpecification.cs
+│   │       ├── LiquidSpecification.cs
+│   │       ├── LiquidTypeSpecification.cs
+│   │       ├── MealFoodSpecification.cs
+│   │       └── MealSpecification.cs
 │   ├── Repositories/
 │   │   ├── IDailyProgressRepository.cs
 │   │   ├── IDiaryRepository.cs
+│   │   ├── IFoodRepository.cs
 │   │   ├── ILiquidRepository.cs
+│   │   ├── ILiquidTypeRepository.cs
 │   │   ├── IMealFoodRepository.cs
 │   │   └── IMealRepository.cs
 │   ├── ValueObjects/DailyGoal.cs
 │   └── Nutrition.Domain.csproj
 └── Nutrition.Infrastructure/
     ├── Persistence/
-    │   ├── Data/ApplicationDbContext.cs
+    │   ├── Data/
+    │   │   ├── ApplicationDbContext.cs
+    │   │   └── MigrationHostedService.cs
     │   └── Repositories/
     │       ├── DailyProgressRepository.cs
     │       ├── DiaryRepository.cs
+    │       ├── FoodRepository.cs
     │       ├── LiquidRepository.cs
+    │       ├── LiquidTypeRepository.cs
     │       ├── MealFoodRepository.cs
     │       └── MealRepository.cs
-    ├── DataSeeders/Csv/CsvFiles/Food.csv
+    ├── Services/
+    │   ├── DailyProgressService.cs
+    │   ├── DiaryService.cs
+    │   ├── FoodService.cs
+    │   ├── LiquidService.cs
+    │   ├── LiquidTypeService.cs
+    │   ├── MealFoodService.cs
+    │   └── MealService.cs
+    ├── DataSeeders/
+    │   ├── Csv/CsvFiles/Food.csv
+    │   ├── TablesCsvSeeder.cs
+    │   └── SeederHostedService.cs
     ├── Migrations/
     └── Nutrition.Infrastructure.csproj
 ```
@@ -266,8 +314,9 @@ DailyGoal
 | Evento | Disparado por | Propriedades |
 |---|---|---|
 | `MealAddedToDiaryEvent` | `Diary.AddMeal()` | `UserId`, `Date`, `MealId` |
-| `MealFoodAddedEvent` | `Meal.AddMealFood()` | — |
-| `MealFoodRemovedEvent` | `Meal.RemoveMealFood()` | — |
+| `MealFoodAddedEvent` | `Meal.AddMealFood()` | `DiaryId`, `TotalCalories` |
+| `MealFoodRemovedEvent` | `Meal.RemoveMealFood()` | `DiaryId`, `TotalCalories` |
+| `LiquidChangedEvent` | `Diary.AddLiquid()` / `Diary.RemoveLiquid()` | `DiaryId` |
 
 ---
 
@@ -307,7 +356,12 @@ DailyGoal
 | `CreateLiquidCommand(DiaryId, LiquidTypeId, Quantity)` | `CreateLiquidResult(int Id)` | Registra líquido |
 | `UpdateLiquidCommand(Id, LiquidTypeId, Quantity)` | — | Atualiza líquido |
 | `DeleteLiquidCommand(Id)` | — | Remove líquido |
+| `CreateMealFoodCommand(MealId, FoodId, Quantity)` | `CreateMealFoodResult(int Id)` | Cria alimento na refeição |
+| `UpdateMealFoodCommand(Id, FoodId, Quantity)` | — | Atualiza alimento |
 | `DeleteMealFoodCommand(Id)` | — | Remove alimento da refeição |
+| `CreateLiquidTypeCommand(Name)` | `CreateLiquidTypeResult(int Id)` | Cria tipo de líquido |
+| `UpdateLiquidTypeCommand(Id, Name)` | — | Atualiza tipo |
+| `DeleteLiquidTypeCommand(Id)` | — | Remove tipo |
 
 ---
 
@@ -333,6 +387,14 @@ DailyGoal
 | `GetMealFoodQuery(id)` | `MealFoodDTO` | Alimento de refeição por ID |
 | `GetMealFoodsQuery()` | `IEnumerable<MealFoodDTO>` | Todos |
 | `GetByMealQuery(mealId)` | `IEnumerable<MealFoodDTO>` | Alimentos de uma refeição |
+| `GetMealFoodByFilterQuery(filter)` | Paginado | Filtro avançado de alimentos de refeição |
+| `GetFoodByIdQuery(id)` | `FoodDTO` | Alimento por ID |
+| `GetAllFoodsQuery()` | `IEnumerable<FoodDTO>` | Todos os alimentos |
+| `GetFoodByFilterQuery(filter)` | Paginado | Filtro avançado de alimentos |
+| `GetLiquidByFilterQuery(filter)` | Paginado | Filtro avançado de líquidos |
+| `GetLiquidTypeQuery(id)` | `LiquidTypeDTO` | Tipo de líquido por ID |
+| `GetAllLiquidTypesQuery()` | `IEnumerable<LiquidTypeDTO>` | Todos os tipos de líquidos |
+| `GetLiquidTypeByFilterQuery(filter)` | Paginado | Filtro avançado de tipos |
 
 ---
 
@@ -387,6 +449,12 @@ LiquidDTO(Id, DiaryId, CreatedAt, UpdatedAt, Name, Quantity)
 #### `LiquidQueryFilter`
 `Id`, `DiaryId`, `NameContains`, `QuantityEquals/GreaterThan/LessThan`, paginação
 
+#### `FoodQueryFilter`
+`Id`, `NameContains`, paginação
+
+#### `LiquidTypeQueryFilter`
+`Id`, `NameContains`, paginação
+
 ---
 
 ## Infraestrutura
@@ -400,6 +468,7 @@ LiquidDTO(Id, DiaryId, CreatedAt, UpdatedAt, Name, Quantity)
 | `MealFoods` | `DbSet<MealFood>` |
 | `Foods` | `DbSet<Food>` |
 | `Liquids` | `DbSet<Liquid>` |
+| `LiquidTypes` | `DbSet<LiquidType>` |
 | `DailyProgresses` | `DbSet<DailyProgress>` |
 
 **Configuração especial:** `DailyProgress.Goal` é configurado como owned entity:
@@ -417,6 +486,7 @@ LiquidDTO(Id, DiaryId, CreatedAt, UpdatedAt, Name, Quantity)
 | `20250523010658_update222` | 2025-05-23 |
 | `20250523010818_update2222` | 2025-05-23 |
 | `20250523222623_updatedb` | 2025-05-23 |
+| `20250524234610_update333` | 2025-05-24 |
 
 ### Seed de Dados
 
@@ -495,6 +565,57 @@ POST /api/meals/1/foods
 { "mealId": 1, "foodId": 5, "quantity": 2 }
 → { "isSuccess": true }
 ```
+
+---
+
+### `FoodsController` — `/api/foods`
+
+| Método | Rota | Body / Params | Descrição |
+|---|---|---|---|
+| GET | `/{id:int}` | `id` | Alimento por ID |
+| GET | `/search` | Filtros (query) | Busca paginada |
+| GET | `/` | — | Todos os alimentos |
+
+---
+
+### `LiquidsController` — `/api/liquids`
+
+| Método | Rota | Body / Params | Descrição |
+|---|---|---|---|
+| GET | `/{id:int}` | `id` | Líquido por ID |
+| GET | `/` | — | Todos os líquidos |
+| GET | `/diary/{diaryId:int}` | `diaryId` | Líquidos do diário |
+| GET | `/search` | Filtros (query) | Busca paginada |
+| POST | `/` | `CreateLiquidCommand` | Registrar líquido |
+| PUT | `/{id:int}` | `UpdateLiquidCommand` | Atualizar |
+| DELETE | `/{id:int}` | `id` | Remover |
+
+---
+
+### `LiquidTypesController` — `/api/liquid-types`
+
+| Método | Rota | Body / Params | Descrição |
+|---|---|---|---|
+| GET | `/{id:int}` | `id` | Tipo por ID |
+| GET | `/` | — | Todos os tipos |
+| GET | `/search` | Filtros (query) | Busca paginada |
+| POST | `/` | `CreateLiquidTypeCommand` | Criar tipo |
+| PUT | `/{id:int}` | `UpdateLiquidTypeCommand` | Atualizar |
+| DELETE | `/{id:int}` | `id` | Remover |
+
+---
+
+### `MealFoodsController` — `/api/meal-foods`
+
+| Método | Rota | Body / Params | Descrição |
+|---|---|---|---|
+| GET | `/{id:int}` | `id` | Alimento na refeição por ID |
+| GET | `/meal/{id:int}` | `mealId` | Alimentos de uma refeição |
+| GET | `/search` | Filtros (query) | Busca paginada |
+| GET | `/` | — | Todos |
+| POST | `/` | `CreateMealFoodCommand` | Criar |
+| PUT | `/{id:int}` | `UpdateMealFoodCommand` | Atualizar |
+| DELETE | `/{id:int}` | `id` | Remover |
 
 ---
 
