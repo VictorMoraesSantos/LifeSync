@@ -22,131 +22,66 @@
             <!-- Financeiro Tab -->
             <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=0}"
                     StrokeThickness="0"
-                    Padding="8,16"
-                    MinimumHeightRequest="46">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="100"/>
-                </Border.StrokeShape>
+                    WidthRequest="46" HeightRequest="46"
+                    StrokeShape="RoundRectangle 100">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="0"/>
                 </Border.GestureRecognizers>
-
-                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=financeiro}"
-                           WidthRequest="22"
-                           HeightRequest="22"
-                           HorizontalOptions="Center"/>
-                    <Label Text="FINANCEIRO"
-                           FontSize="9"
-                           FontAttributes="Bold"
-                           CharacterSpacing="0.5"
-                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=0}"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=financeiro}"
+                       WidthRequest="22" HeightRequest="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
             <!-- Acadêmico Tab -->
             <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=1}"
                     StrokeThickness="0"
-                    Padding="8,16"
-                    MinimumHeightRequest="46">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="100"/>
-                </Border.StrokeShape>
+                    WidthRequest="46" HeightRequest="46"
+                    StrokeShape="RoundRectangle 100">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="1"/>
                 </Border.GestureRecognizers>
-
-                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=academico}"
-                           WidthRequest="22"
-                           HeightRequest="22"
-                           HorizontalOptions="Center"/>
-                    <Label Text="ACADEMIA"
-                           FontSize="9"
-                           FontAttributes="Bold"
-                           CharacterSpacing="0.5"
-                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=1}"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=academico}"
+                       WidthRequest="22" HeightRequest="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
             <!-- Tarefas Tab -->
             <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=2}"
                     StrokeThickness="0"
-                    Padding="8,16"
-                    MinimumHeightRequest="46">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="100"/>
-                </Border.StrokeShape>
+                    WidthRequest="46" HeightRequest="46"
+                    StrokeShape="RoundRectangle 100">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="2"/>
                 </Border.GestureRecognizers>
-
-                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=tarefas}"
-                           WidthRequest="22"
-                           HeightRequest="22"
-                           HorizontalOptions="Center"/>
-                    <Label Text="TAREFAS"
-                           FontSize="9"
-                           FontAttributes="Bold"
-                           CharacterSpacing="0.5"
-                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=2}"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=tarefas}"
+                       WidthRequest="22" HeightRequest="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
             <!-- Nutrição Tab -->
             <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=3}"
                     StrokeThickness="0"
-                    Padding="8,16"
-                    MinimumHeightRequest="46">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="100"/>
-                </Border.StrokeShape>
+                    WidthRequest="46" HeightRequest="46"
+                    StrokeShape="RoundRectangle 100">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="3"/>
                 </Border.GestureRecognizers>
-
-                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=nutricao}"
-                           WidthRequest="22"
-                           HeightRequest="22"
-                           HorizontalOptions="Center"/>
-                    <Label Text="NUTRIÇÃO"
-                           FontSize="9"
-                           FontAttributes="Bold"
-                           CharacterSpacing="0.5"
-                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=3}"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=nutricao}"
+                       WidthRequest="22" HeightRequest="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
             <!-- Perfil Tab -->
             <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=4}"
                     StrokeThickness="0"
-                    Padding="8,16"
-                    MinimumHeightRequest="46">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="100"/>
-                </Border.StrokeShape>
+                    WidthRequest="46" HeightRequest="46"
+                    StrokeShape="RoundRectangle 100">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="4"/>
                 </Border.GestureRecognizers>
-
-                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=perfil}"
-                           WidthRequest="22"
-                           HeightRequest="22"
-                           HorizontalOptions="Center"/>
-                    <Label Text="PERFIL"
-                           FontSize="9"
-                           FontAttributes="Bold"
-                           CharacterSpacing="0.5"
-                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=4}"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=perfil}"
+                       WidthRequest="22" HeightRequest="22"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
         </FlexLayout>

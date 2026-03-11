@@ -38,9 +38,9 @@ namespace LifeSyncApp.Converters
             return tabName switch
             {
                 "financeiro" => "money_white.svg",
-                "academico" => "gym.svg", // Precisa criar versão branca
+                "academico" => "gym_white.svg",
                 "tarefas" => "task_white.svg",
-                "nutricao" => "nutrition.svg", // Precisa criar versão branca
+                "nutricao" => "nutrition_white.svg",
                 "perfil" => "account_white.svg",
                 _ => ""
             };
@@ -51,7 +51,7 @@ namespace LifeSyncApp.Converters
             return tabName switch
             {
                 "financeiro" => "money_black.svg",
-                "academico" => "gym.svg",
+                "academico" => "gym_black.svg",
                 "tarefas" => "task_black.svg",
                 "nutricao" => "nutrition.svg",
                 "perfil" => "account_black.svg",
