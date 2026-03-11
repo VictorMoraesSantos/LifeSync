@@ -2,6 +2,7 @@ using LifeSyncApp.ViewModels.Nutrition;
 using LifeSyncApp.Views.Academic;
 using LifeSyncApp.Views.Financial;
 using LifeSyncApp.Views.Nutrition;
+using LifeSyncApp.Views.Profile;
 using LifeSyncApp.Views.TaskManager.TaskItem;
 
 namespace LifeSyncApp;
@@ -83,6 +84,7 @@ public partial class MainPage : ContentPage
                     1 => _serviceProvider.GetRequiredService<AcademicPage>(),
                     2 => _serviceProvider.GetRequiredService<TaskItemPage>(),
                     3 => _serviceProvider.GetRequiredService<NutritionPage>(),
+                    4 => _serviceProvider.GetRequiredService<ProfilePage>(),
                     _ => throw new ArgumentException($"Tab index inválido: {tabIndex}")
                 };
                 System.Diagnostics.Debug.WriteLine($"✅ Página criada: {page.GetType().Name}");
@@ -230,6 +232,10 @@ public partial class MainPage : ContentPage
                 case 3 when bindingContext is NutritionViewModel nutritionVm:
                     System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de dados de nutrição");
                     await nutritionVm.InitializeAsync();
+                    break;
+                case 4 when bindingContext is ViewModels.Profile.ProfileViewModel profileVm:
+                    System.Diagnostics.Debug.WriteLine("🔵 Iniciando load de dados do perfil");
+                    await profileVm.InitializeAsync();
                     break;
             }
         }

@@ -123,6 +123,32 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Perfil Tab -->
+            <Border BackgroundColor="{Binding SelectedTab, Converter={StaticResource TabBackgroundConverter}, ConverterParameter=4}"
+                    StrokeThickness="0"
+                    Padding="8,16"
+                    MinimumHeightRequest="46">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="100"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectTabCommand}" CommandParameter="4"/>
+                </Border.GestureRecognizers>
+
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="{Binding SelectedTab, Converter={StaticResource TabIconConverter}, ConverterParameter=perfil}"
+                           WidthRequest="22"
+                           HeightRequest="22"
+                           HorizontalOptions="Center"/>
+                    <Label Text="PERFIL"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="0.5"
+                           TextColor="{Binding SelectedTab, Converter={StaticResource TabTextColorConverter}, ConverterParameter=4}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+
         </FlexLayout>
     </Border>
 </ContentView>

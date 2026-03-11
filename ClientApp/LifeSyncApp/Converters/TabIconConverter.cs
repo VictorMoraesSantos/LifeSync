@@ -20,6 +20,7 @@ namespace LifeSyncApp.Converters
                 "academico" => 1,
                 "tarefas" => 2,
                 "nutricao" => 3,
+                "perfil" => 4,
                 _ => -1
             };
 
@@ -40,6 +41,7 @@ namespace LifeSyncApp.Converters
                 "academico" => "gym.svg", // Precisa criar versão branca
                 "tarefas" => "task_white.svg",
                 "nutricao" => "nutrition.svg", // Precisa criar versão branca
+                "perfil" => "account_white.svg",
                 _ => ""
             };
         }
@@ -52,6 +54,7 @@ namespace LifeSyncApp.Converters
                 "academico" => "gym.svg",
                 "tarefas" => "task_black.svg",
                 "nutricao" => "nutrition.svg",
+                "perfil" => "account_black.svg",
                 _ => ""
             };
         }

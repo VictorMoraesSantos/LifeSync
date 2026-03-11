@@ -10,11 +10,13 @@ using LifeSyncApp.ViewModels.Financial;
 using LifeSyncApp.ViewModels.Financial.Category;
 using LifeSyncApp.ViewModels.Financial.Transaction;
 using LifeSyncApp.ViewModels.Nutrition;
+using LifeSyncApp.ViewModels.Profile;
 using LifeSyncApp.ViewModels.TaskManager;
 using LifeSyncApp.Views.Academic;
 using LifeSyncApp.Views.Auth;
 using LifeSyncApp.Views.Financial;
 using LifeSyncApp.Views.Nutrition;
+using LifeSyncApp.Views.Profile;
 using LifeSyncApp.Views.TaskManager.TaskItem;
 using LifeSyncApp.Views.TaskManager.TaskLabel;
 using Microsoft.Extensions.Logging;
@@ -138,6 +140,9 @@ namespace LifeSyncApp
             builder.Services.AddTransient<TransactionDetailViewModel>();
             builder.Services.AddTransient<FilterTransactionViewModel>();
 
+            // Profile ViewModel
+            builder.Services.AddSingleton<ProfileViewModel>();
+
             // Auth Views
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<RegisterPage>();
@@ -168,6 +173,7 @@ namespace LifeSyncApp
             builder.Services.AddTransient<FilterTaskItemPopup>();
             builder.Services.AddTransient<ManageTaskItemModal>();
             builder.Services.AddTransient<ManageTaskLabelModal>();
+            builder.Services.AddTransient<ProfilePage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
