@@ -78,7 +78,10 @@ namespace LifeSyncApp.ViewModels.Profile
                 var (success, error) = await _userProfileService.UpdateUserAsync(userId, dto);
 
                 if (success)
+                {
+                    UpdatedEmail = dto.Email;
                     OnSaved?.Invoke(this, EventArgs.Empty);
+                }
                 else
                     await Shell.Current.DisplayAlert("Erro", error ?? "Erro ao atualizar email.", "OK");
             }
@@ -91,5 +94,7 @@ namespace LifeSyncApp.ViewModels.Profile
                 IsBusy = false;
             }
         }
+
+        public string UpdatedEmail { get; private set; } = string.Empty;
     }
 }

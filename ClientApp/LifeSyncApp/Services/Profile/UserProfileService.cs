@@ -1,3 +1,4 @@
+using LifeSyncApp.DTOs.Auth;
 using LifeSyncApp.DTOs.Profile;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -15,6 +16,37 @@ namespace LifeSyncApp.Services.Profile
         {
             _httpClientFactory = httpClientFactory;
             _jsonOptions = jsonOptions;
+        }
+
+        public async Task<UserDTO?> GetUserAsync(int userId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient("LifeSyncApi");
+                var response = await client.GetAsync($"{UsersBaseUrl}/{userId}", cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                System.Diagnostics.Debug.WriteLine($"[UserProfileService] GET user response: {body}");
+
+                using var doc = JsonDocument.Parse(body);
+                var root = doc.RootElement;
+
+                if (!root.TryGetProperty("data", out var data))
+                    return null;
+
+                // Backend wraps in GetUserQueryResult: { "data": { "user": { ... } } }
+                var userElement = data.TryGetProperty("user", out var user) ? user : data;
+
+                return JsonSerializer.Deserialize<UserDTO>(userElement.GetRawText(), _jsonOptions);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[UserProfileService] Error getting user: {ex.Message}");
+                return null;
+            }
         }
 
         public async Task<(bool Success, string? Error)> UpdateUserAsync(int userId, UpdateUserRequest dto, CancellationToken cancellationToken = default)

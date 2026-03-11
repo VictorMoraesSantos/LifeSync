@@ -1,4 +1,6 @@
+using CommunityToolkit.Mvvm.Messaging;
 using LifeSyncApp.DTOs.Nutrition.Meal;
+using LifeSyncApp.Messages;
 using LifeSyncApp.ViewModels.Nutrition;
 
 namespace LifeSyncApp.Views.Nutrition;
@@ -18,12 +20,7 @@ public partial class MealDetailPage : ContentPage
         _nutritionViewModel = nutritionViewModel;
         BindingContext = _viewModel;
 
-        MessagingCenter.Subscribe<FoodSearchPage>(this, "MealFoodChanged", async (sender) =>
-        {
-            await _viewModel.RefreshMealAsync();
-        });
-
-        MessagingCenter.Subscribe<EditMealFoodModal>(this, "MealFoodChanged", async (sender) =>
+        WeakReferenceMessenger.Default.Register<MealFoodChangedMessage>(this, async (r, m) =>
         {
             await _viewModel.RefreshMealAsync();
         });
@@ -55,7 +52,6 @@ public partial class MealDetailPage : ContentPage
 
     ~MealDetailPage()
     {
-        MessagingCenter.Unsubscribe<FoodSearchPage>(this, "MealFoodChanged");
-        MessagingCenter.Unsubscribe<EditMealFoodModal>(this, "MealFoodChanged");
+        WeakReferenceMessenger.Default.UnregisterAll(this);
     }
 }

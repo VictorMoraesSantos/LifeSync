@@ -36,7 +36,7 @@ public partial class ChangeEmailModal : ContentPage
 
     private async void OnSaved(object? sender, EventArgs e)
     {
-        _profileViewModel.InvalidateCache();
+        _profileViewModel.UpdateUserInfo(_profileViewModel.UserName, _viewModel.UpdatedEmail);
         await Shell.Current.GoToAsync("..");
     }
 

@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.Messaging;
+using LifeSyncApp.Messages;
 using LifeSyncApp.ViewModels.Profile;
 
 namespace LifeSyncApp.Views.Profile;
@@ -12,6 +14,6 @@ public partial class ProfilePage : ContentPage
 
     private void OnBackTapped(object? sender, EventArgs e)
     {
-        MessagingCenter.Send<object>(this, "GoBackTab");
+        WeakReferenceMessenger.Default.Send(new GoBackTabMessage());
     }
 }

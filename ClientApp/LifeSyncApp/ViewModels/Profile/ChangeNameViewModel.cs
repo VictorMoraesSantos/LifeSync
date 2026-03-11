@@ -76,7 +76,10 @@ namespace LifeSyncApp.ViewModels.Profile
                 var (success, error) = await _userProfileService.UpdateUserAsync(userId, dto);
 
                 if (success)
+                {
+                    FullName = $"{dto.FirstName} {dto.LastName}".Trim();
                     OnSaved?.Invoke(this, EventArgs.Empty);
+                }
                 else
                     await Shell.Current.DisplayAlert("Erro", error ?? "Erro ao atualizar nome.", "OK");
             }
@@ -89,5 +92,7 @@ namespace LifeSyncApp.ViewModels.Profile
                 IsBusy = false;
             }
         }
+
+        public string FullName { get; private set; } = string.Empty;
     }
 }

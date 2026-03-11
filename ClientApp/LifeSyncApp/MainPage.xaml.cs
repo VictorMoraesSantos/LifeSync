@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.Messaging;
+using LifeSyncApp.Messages;
 using LifeSyncApp.ViewModels.Nutrition;
 using LifeSyncApp.Views.Academic;
 using LifeSyncApp.Views.Financial;
@@ -23,8 +25,8 @@ public partial class MainPage : ContentPage
             _serviceProvider = serviceProvider;
             System.Diagnostics.Debug.WriteLine("✅ MainPage: InitializeComponent OK");
 
-            MessagingCenter.Subscribe<object, int>(this, "SelectTab", (sender, tabIndex) => LoadPage(tabIndex));
-            MessagingCenter.Subscribe<object>(this, "GoBackTab", (sender) =>
+            WeakReferenceMessenger.Default.Register<SelectTabMessage>(this, (r, m) => LoadPage(m.Value));
+            WeakReferenceMessenger.Default.Register<GoBackTabMessage>(this, (r, m) =>
             {
                 var target = _previousTabIndex >= 0 ? _previousTabIndex : 0;
                 LoadPage(target);

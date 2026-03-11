@@ -36,7 +36,7 @@ public partial class ChangeNameModal : ContentPage
 
     private async void OnSaved(object? sender, EventArgs e)
     {
-        _profileViewModel.InvalidateCache();
+        _profileViewModel.UpdateUserInfo(_viewModel.FullName, _profileViewModel.UserEmail);
         await Shell.Current.GoToAsync("..");
     }
 

@@ -1,12 +1,13 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Windows.Input;
 using LifeSyncApp.Services.Auth;
+using LifeSyncApp.Services.Profile;
 
 namespace LifeSyncApp.ViewModels.Profile
 {
     public class ProfileViewModel : BaseViewModel
     {
         private readonly IAuthService _authService;
+        private readonly UserProfileService _userProfileService;
 
         private string _userName = string.Empty;
         public string UserName
@@ -43,9 +44,10 @@ namespace LifeSyncApp.ViewModels.Profile
 
         private DateTime? _lastRefresh;
 
-        public ProfileViewModel(IAuthService authService)
+        public ProfileViewModel(IAuthService authService, UserProfileService userProfileService)
         {
             _authService = authService;
+            _userProfileService = userProfileService;
             Title = "Configurações";
             LogoutCommand = new Command(async () => await LogoutAsync());
             ChangeNameCommand = new Command(async () => await Shell.Current.GoToAsync("ChangeNameModal"));
@@ -56,6 +58,14 @@ namespace LifeSyncApp.ViewModels.Profile
         public void InvalidateCache()
         {
             _lastRefresh = null;
+        }
+
+        public void UpdateUserInfo(string name, string email)
+        {
+            UserName = name;
+            UserEmail = email;
+            UpdateInitials();
+            _lastRefresh = DateTime.Now;
         }
 
         public async Task InitializeAsync()
@@ -81,38 +91,40 @@ namespace LifeSyncApp.ViewModels.Profile
 
         private async Task LoadUserInfoAsync()
         {
-            var token = await _authService.GetAccessTokenAsync();
-            if (string.IsNullOrEmpty(token)) return;
-
             try
             {
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
+                var userId = await _authService.GetUserIdAsync();
+                var user = await _userProfileService.GetUserAsync(userId);
 
-                var nameClaim = jwtToken.Claims.FirstOrDefault(c =>
-                    c.Type == "name" || c.Type == "unique_name" ||
-                    c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");
-
-                var emailClaim = jwtToken.Claims.FirstOrDefault(c =>
-                    c.Type == "email" ||
-                    c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
-
-                UserName = nameClaim?.Value ?? "Usuário";
-                UserEmail = emailClaim?.Value ?? string.Empty;
-
-                if (!string.IsNullOrEmpty(UserName))
+                if (user != null)
                 {
-                    var parts = UserName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    UserInitials = parts.Length >= 2
-                        ? $"{parts[0][0]}{parts[^1][0]}".ToUpper()
-                        : UserName[..Math.Min(2, UserName.Length)].ToUpper();
+                    UserName = !string.IsNullOrEmpty(user.FullName) ? user.FullName : $"{user.FirstName} {user.LastName}".Trim();
+                    UserEmail = user.Email;
                 }
+                else
+                {
+                    UserName = "Usuário";
+                    UserEmail = string.Empty;
+                }
+
+                UpdateInitials();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Erro ao ler token JWT: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Erro ao carregar dados do perfil: {ex.Message}");
                 UserName = "Usuário";
                 UserInitials = "US";
+            }
+        }
+
+        private void UpdateInitials()
+        {
+            if (!string.IsNullOrEmpty(UserName))
+            {
+                var parts = UserName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                UserInitials = parts.Length >= 2
+                    ? $"{parts[0][0]}{parts[^1][0]}".ToUpper()
+                    : UserName[..Math.Min(2, UserName.Length)].ToUpper();
             }
         }
 

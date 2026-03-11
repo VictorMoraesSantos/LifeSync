@@ -1,6 +1,7 @@
+using CommunityToolkit.Mvvm.Messaging;
 using LifeSyncApp.DTOs.Nutrition.MealFood;
+using LifeSyncApp.Messages;
 using LifeSyncApp.ViewModels.Nutrition;
-
 
 namespace LifeSyncApp.Views.Nutrition;
 
@@ -37,7 +38,7 @@ public partial class EditMealFoodModal : ContentPage
 
     private async void OnSaved(object? sender, EventArgs e)
     {
-        MessagingCenter.Send(this, "MealFoodChanged");
+        WeakReferenceMessenger.Default.Send(new MealFoodChangedMessage());
         await Shell.Current.GoToAsync("..");
     }
 
