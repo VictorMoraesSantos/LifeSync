@@ -10,6 +10,7 @@ using Users.Application.Features.Auth.Commands.Logout;
 using Users.Application.Features.Auth.Commands.ResetPassword;
 using Users.Application.Features.Auth.Commands.SendEmailConfirmation;
 using Users.Application.Features.Auth.Commands.ExternalLogin;
+using Users.Application.DTOs.Auth;
 using Users.Application.Features.Auth.Commands.SignUp;
 
 namespace Users.API.Controllers
@@ -174,7 +175,7 @@ namespace Users.API.Controllers
         }
 
         [HttpPost("change-password")]
-        public async Task<HttpResult<object>> ChangePassword([FromBody] ChangePasswordCommand request, CancellationToken cancellationToken)
+        public async Task<HttpResult<object>> ChangePassword([FromBody] ChangePasswordDTO request, CancellationToken cancellationToken)
         {
             var command = new ChangePasswordCommand(User, request.CurrentPassword, request.NewPassword);
             var result = await _sender.Send(command, cancellationToken);

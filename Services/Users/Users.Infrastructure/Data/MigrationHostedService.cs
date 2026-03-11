@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -15,10 +16,18 @@ namespace Users.Infrastructure.Data
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            // Cria um escopo, resolve o DbContext e aplica todas as migrations
             using var scope = _provider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             await db.Database.MigrateAsync(cancellationToken);
+
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+            string[] defaultRoles = ["User", "Admin"];
+
+            foreach (var role in defaultRoles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole<int>(role));
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

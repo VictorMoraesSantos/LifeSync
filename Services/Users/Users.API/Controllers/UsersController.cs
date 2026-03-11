@@ -43,7 +43,7 @@ namespace Users.API.Controllers
         public async Task<HttpResult<object>> UpdateUser(int userId, [FromBody] UpdateUserCommand command, CancellationToken cancellationToken)
         {
             var updateCommand = new UpdateUserCommand(userId, command.FirstName, command.LastName, command.Email, command.BirthDate);
-            var result = await _sender.Send(command, cancellationToken);
+            var result = await _sender.Send(updateCommand, cancellationToken);
 
             return result.IsSuccess
                 ? HttpResult<object>.Updated()

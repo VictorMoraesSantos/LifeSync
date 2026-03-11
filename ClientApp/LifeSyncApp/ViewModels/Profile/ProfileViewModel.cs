@@ -37,22 +37,37 @@ namespace LifeSyncApp.ViewModels.Profile
         }
 
         public ICommand LogoutCommand { get; }
+        public ICommand ChangeNameCommand { get; }
+        public ICommand ChangeEmailCommand { get; }
+        public ICommand ChangePasswordCommand { get; }
+
+        private DateTime? _lastRefresh;
 
         public ProfileViewModel(IAuthService authService)
         {
             _authService = authService;
             Title = "Configurações";
             LogoutCommand = new Command(async () => await LogoutAsync());
+            ChangeNameCommand = new Command(async () => await Shell.Current.GoToAsync("ChangeNameModal"));
+            ChangeEmailCommand = new Command(async () => await Shell.Current.GoToAsync("ChangeEmailModal"));
+            ChangePasswordCommand = new Command(async () => await Shell.Current.GoToAsync("ChangePasswordModal"));
+        }
+
+        public void InvalidateCache()
+        {
+            _lastRefresh = null;
         }
 
         public async Task InitializeAsync()
         {
             if (IsBusy) return;
+            if (!IsCacheExpired(_lastRefresh)) return;
 
             try
             {
                 IsBusy = true;
                 await LoadUserInfoAsync();
+                _lastRefresh = DateTime.Now;
             }
             catch (Exception ex)
             {

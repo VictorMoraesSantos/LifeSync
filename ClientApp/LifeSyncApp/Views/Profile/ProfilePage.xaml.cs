@@ -12,8 +12,6 @@ public partial class ProfilePage : ContentPage
 
     private void OnBackTapped(object? sender, EventArgs e)
     {
-        // The back arrow navigates to the first tab (Financeiro)
-        // In the MainPage tab system, we use MessagingCenter to communicate
-        MessagingCenter.Send<object, int>(this, "SelectTab", 0);
+        MessagingCenter.Send<object>(this, "GoBackTab");
     }
 }

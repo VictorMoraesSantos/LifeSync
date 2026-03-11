@@ -3,6 +3,7 @@ using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.Nutrition;
+using LifeSyncApp.Services.Profile;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.Services.UserSession;
 using LifeSyncApp.ViewModels.Auth;
@@ -115,6 +116,9 @@ namespace LifeSyncApp
             // Nutrition Services
             builder.Services.AddSingleton<NutritionService>();
 
+            // Profile Services
+            builder.Services.AddSingleton<UserProfileService>();
+
             // Auth ViewModels
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<RegisterViewModel>();
@@ -140,8 +144,11 @@ namespace LifeSyncApp
             builder.Services.AddTransient<TransactionDetailViewModel>();
             builder.Services.AddTransient<FilterTransactionViewModel>();
 
-            // Profile ViewModel
+            // Profile ViewModels
             builder.Services.AddSingleton<ProfileViewModel>();
+            builder.Services.AddSingleton<ChangeNameViewModel>();
+            builder.Services.AddSingleton<ChangeEmailViewModel>();
+            builder.Services.AddSingleton<ChangePasswordViewModel>();
 
             // Auth Views
             builder.Services.AddTransient<LoginPage>();
@@ -174,6 +181,9 @@ namespace LifeSyncApp
             builder.Services.AddTransient<ManageTaskItemModal>();
             builder.Services.AddTransient<ManageTaskLabelModal>();
             builder.Services.AddTransient<ProfilePage>();
+            builder.Services.AddTransient<ChangeNameModal>();
+            builder.Services.AddTransient<ChangeEmailModal>();
+            builder.Services.AddTransient<ChangePasswordModal>();
 
 #if DEBUG
             builder.Logging.AddDebug();

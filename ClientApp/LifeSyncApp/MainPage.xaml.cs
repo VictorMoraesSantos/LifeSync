@@ -12,6 +12,7 @@ public partial class MainPage : ContentPage
     private readonly IServiceProvider _serviceProvider;
     private ContentPage? _currentPage;
     private int _currentTabIndex = -1;
+    private int _previousTabIndex = -1;
 
     public MainPage(IServiceProvider serviceProvider)
     {
@@ -21,6 +22,13 @@ public partial class MainPage : ContentPage
             InitializeComponent();
             _serviceProvider = serviceProvider;
             System.Diagnostics.Debug.WriteLine("✅ MainPage: InitializeComponent OK");
+
+            MessagingCenter.Subscribe<object, int>(this, "SelectTab", (sender, tabIndex) => LoadPage(tabIndex));
+            MessagingCenter.Subscribe<object>(this, "GoBackTab", (sender) =>
+            {
+                var target = _previousTabIndex >= 0 ? _previousTabIndex : 0;
+                LoadPage(target);
+            });
 
             // Inicializar com a primeira tab (Financeiro)
             LoadPage(0);
@@ -166,6 +174,8 @@ public partial class MainPage : ContentPage
             // Exibir conteúdo
             ContentArea.Content = content;
             _currentPage = page;
+            if (_currentTabIndex >= 0)
+                _previousTabIndex = _currentTabIndex;
             _currentTabIndex = tabIndex;
             TabBar.SelectedTab = tabIndex;
 

@@ -1,6 +1,7 @@
 ﻿using LifeSyncApp.Views.Auth;
 using LifeSyncApp.Views.Financial;
 using LifeSyncApp.Views.Nutrition;
+using LifeSyncApp.Views.Profile;
 using LifeSyncApp.Views.TaskManager.TaskItem;
 using LifeSyncApp.Views.TaskManager.TaskLabel;
 
@@ -35,6 +36,9 @@ namespace LifeSyncApp
             Routing.RegisterRoute("DailyProgressPage", typeof(DailyProgressPage));
             Routing.RegisterRoute("DiaryHistoryPage", typeof(DiaryHistoryPage));
             Routing.RegisterRoute("CreateDiaryModal", typeof(CreateDiaryModal));
+            Routing.RegisterRoute("ChangeNameModal", typeof(ChangeNameModal));
+            Routing.RegisterRoute("ChangeEmailModal", typeof(ChangeEmailModal));
+            Routing.RegisterRoute("ChangePasswordModal", typeof(ChangePasswordModal));
         }
     }
 }

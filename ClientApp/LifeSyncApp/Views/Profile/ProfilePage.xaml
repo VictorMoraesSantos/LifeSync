@@ -78,6 +78,9 @@
                     <VerticalStackLayout>
                         <!-- Name Row -->
                         <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto,Auto">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangeNameCommand}"/>
+                            </Grid.GestureRecognizers>
                             <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
                                 <Image Source="user_green.svg"
                                        WidthRequest="18" HeightRequest="18"
@@ -107,6 +110,9 @@
 
                         <!-- Email Row -->
                         <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto,Auto">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangeEmailCommand}"/>
+                            </Grid.GestureRecognizers>
                             <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
                                 <Image Source="mail_green.svg"
                                        WidthRequest="18" HeightRequest="18"
@@ -136,6 +142,9 @@
 
                         <!-- Password Row -->
                         <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangePasswordCommand}"/>
+                            </Grid.GestureRecognizers>
                             <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
                                 <Image Source="lock_green.svg"
                                        WidthRequest="18" HeightRequest="18"
