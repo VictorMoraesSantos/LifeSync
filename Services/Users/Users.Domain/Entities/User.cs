@@ -36,6 +36,10 @@ namespace Users.Domain.Entities
         {
             Name = name;
             Contact = contact;
+            Email = contact.Email;
+            UserName = contact.Email;
+            NormalizedEmail = contact.Email.ToUpperInvariant();
+            NormalizedUserName = contact.Email.ToUpperInvariant();
             MarkAsUpdated();
         }
 
