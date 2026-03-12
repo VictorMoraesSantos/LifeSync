@@ -9,8 +9,8 @@
              Title=""
              BackgroundColor="#F5F4F1">
 
-    <Grid>
-        <Grid RowDefinitions="Auto,*">
+    <Grid BackgroundColor="#F5F4F1">
+        <Grid RowDefinitions="Auto,*" BackgroundColor="#F5F4F1">
 
             <!-- Header -->
             <Grid Grid.Row="0"
@@ -67,11 +67,130 @@
                 </Border>
             </Grid>
 
+            <!-- Skeleton Loading -->
+            <ScrollView Grid.Row="1"
+                        x:Name="SkeletonContainer"
+                        IsVisible="{Binding IsLoadingTasks}"
+                        BackgroundColor="#F5F4F1"
+                        Padding="0">
+                <VerticalStackLayout Spacing="20" Padding="20,0,20,20" BackgroundColor="#F5F4F1">
+
+                    <!-- Skeleton Filter Pill -->
+                    <Border HeightRequest="34"
+                            WidthRequest="90"
+                            BackgroundColor="#EDECEA"
+                            StrokeShape="RoundRectangle 100"
+                            Stroke="Transparent"
+                            StrokeThickness="0"
+                            HorizontalOptions="Start"/>
+
+                    <!-- Group 1 -->
+                    <VerticalStackLayout Spacing="12">
+                        <!-- Group 1 Header -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Border HeightRequest="16" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border Grid.Column="1" HeightRequest="12" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0"/>
+                        </Grid>
+
+                        <!-- Card 1 -->
+                        <Border Padding="16"
+                                StrokeShape="RoundRectangle 16"
+                                Stroke="#E5E4E1"
+                                StrokeThickness="1"
+                                BackgroundColor="White">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" WidthRequest="22" HeightRequest="22" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 11" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Start"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Border HeightRequest="16" WidthRequest="160" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                        <Border Grid.Column="1" HeightRequest="22" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 100" Stroke="Transparent" StrokeThickness="0"/>
+                                    </Grid>
+                                    <Border HeightRequest="20" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+
+                        <!-- Card 2 -->
+                        <Border Padding="16"
+                                StrokeShape="RoundRectangle 16"
+                                Stroke="#E5E4E1"
+                                StrokeThickness="1"
+                                BackgroundColor="White">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" WidthRequest="22" HeightRequest="22" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 11" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Start"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Border HeightRequest="16" WidthRequest="130" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                        <Border Grid.Column="1" HeightRequest="22" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 100" Stroke="Transparent" StrokeThickness="0"/>
+                                    </Grid>
+                                    <Border HeightRequest="20" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Group 2 -->
+                    <VerticalStackLayout Spacing="12">
+                        <!-- Group 2 Header -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Border HeightRequest="16" WidthRequest="90" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border Grid.Column="1" HeightRequest="12" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0"/>
+                        </Grid>
+
+                        <!-- Card 3 -->
+                        <Border Padding="16"
+                                StrokeShape="RoundRectangle 16"
+                                Stroke="#E5E4E1"
+                                StrokeThickness="1"
+                                BackgroundColor="White">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" WidthRequest="22" HeightRequest="22" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 11" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Start"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Border HeightRequest="16" WidthRequest="180" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                        <Border Grid.Column="1" HeightRequest="22" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 100" Stroke="Transparent" StrokeThickness="0"/>
+                                    </Grid>
+                                    <Border HeightRequest="20" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Group 3 -->
+                    <VerticalStackLayout Spacing="12">
+                        <!-- Group 3 Header -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Border HeightRequest="16" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border Grid.Column="1" HeightRequest="12" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0"/>
+                        </Grid>
+
+                        <!-- Card 4 -->
+                        <Border Padding="16"
+                                StrokeShape="RoundRectangle 16"
+                                Stroke="#E5E4E1"
+                                StrokeThickness="1"
+                                BackgroundColor="White">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" WidthRequest="22" HeightRequest="22" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 11" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Start"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Border HeightRequest="16" WidthRequest="150" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                        <Border Grid.Column="1" HeightRequest="22" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 100" Stroke="Transparent" StrokeThickness="0"/>
+                                    </Grid>
+                                    <Border HeightRequest="20" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+
             <!-- Task List -->
             <CollectionView Grid.Row="1"
                             ItemsSource="{Binding GroupedTasks}"
                             IsGrouped="True"
-                            SelectionMode="None">
+                            SelectionMode="None"
+                            IsVisible="{Binding IsLoadingTasks, Converter={StaticResource InvertedBoolConverter}}">
 
                 <CollectionView.Header>
                     <VerticalStackLayout Padding="20,16,20,0">

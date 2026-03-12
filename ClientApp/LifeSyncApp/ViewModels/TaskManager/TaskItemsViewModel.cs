@@ -16,6 +16,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
         private readonly TaskLabelService _taskLabelService;
         private readonly IUserSession _userSession;
         private bool _isLoadingTasks;
+        public bool IsLoadingTasks
+        {
+            get => _isLoadingTasks;
+            private set => SetProperty(ref _isLoadingTasks, value);
+        }
 
         // Cache management
         private DateTime? _lastTasksRefresh;
@@ -189,7 +194,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 return;
             }
 
-            if (_isLoadingTasks)
+            if (IsLoadingTasks)
             {
                 System.Diagnostics.Debug.WriteLine("⏳ Tasks already loading, skipping duplicate request");
                 return;
@@ -197,7 +202,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             try
             {
-                _isLoadingTasks = true;
+                IsLoadingTasks = true;
                 System.Diagnostics.Debug.WriteLine($"🔄 Loading tasks from API (forceRefresh: {forceRefresh})");
 
                 var query = new TaskItemFilterDTO(
@@ -230,7 +235,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
             finally
             {
-                _isLoadingTasks = false;
+                IsLoadingTasks = false;
             }
         }
 

@@ -14,6 +14,11 @@ namespace LifeSyncApp.ViewModels.TaskManager
         private readonly TaskLabelService _taskLabelService;
         private readonly IUserSession _userSession;
         private bool _isLoadingLabels;
+        public bool IsLoadingLabels
+        {
+            get => _isLoadingLabels;
+            private set => SetProperty(ref _isLoadingLabels, value);
+        }
 
         // Cache management
         private DateTime? _lastLabelsRefresh;
@@ -131,7 +136,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 return;
             }
 
-            if (_isLoadingLabels)
+            if (IsLoadingLabels)
             {
                 System.Diagnostics.Debug.WriteLine("⏳ Labels already loading, skipping duplicate request");
                 return;
@@ -139,7 +144,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             try
             {
-                _isLoadingLabels = true;
+                IsLoadingLabels = true;
                 await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
 
                 System.Diagnostics.Debug.WriteLine($"🔄 Loading labels from API (forceRefresh: {forceRefresh})");
@@ -161,7 +166,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             }
             finally
             {
-                _isLoadingLabels = false;
+                IsLoadingLabels = false;
                 await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
             }
         }

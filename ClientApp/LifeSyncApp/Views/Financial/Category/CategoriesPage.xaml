@@ -9,7 +9,7 @@
              Title=""
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource FinBackground}">
 
         <!-- Header -->
         <Grid Grid.Row="0"
@@ -34,10 +34,19 @@
 
             <Border Grid.Column="2"
                     HeightRequest="36"
+                    WidthRequest="80"
+                    StrokeShape="RoundRectangle 100"
+                    Stroke="Transparent"
+                    BackgroundColor="#EDECEA"
+                    IsVisible="{Binding IsLoadingCategories}"/>
+
+            <Border Grid.Column="2"
+                    HeightRequest="36"
                     StrokeShape="RoundRectangle 100"
                     Stroke="Transparent"
                     BackgroundColor="{StaticResource FinGreen}"
-                    Padding="14,8">
+                    Padding="14,8"
+                    IsVisible="{Binding IsLoadingCategories, Converter={StaticResource InvertedBoolConverter}}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding AddCategoryCommand}"/>
                 </Border.GestureRecognizers>
@@ -56,91 +65,193 @@
             </Border>
         </Grid>
 
+        <!-- Skeleton Loading -->
+        <ScrollView Grid.Row="1"
+                    x:Name="SkeletonContainer"
+                    IsVisible="{Binding IsLoadingCategories}"
+                    BackgroundColor="{StaticResource FinBackground}">
+            <VerticalStackLayout Padding="20,0,20,24" Spacing="20" BackgroundColor="{StaticResource FinBackground}">
+
+                <!-- New Category Button Skeleton -->
+                <Border HeightRequest="48"
+                        BackgroundColor="#EDECEA"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        HorizontalOptions="Fill"/>
+
+                <!-- Category List Skeleton -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="1"
+                        Stroke="#E5E4E1"
+                        StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout>
+                        <!-- Row 1 -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,16">
+                            <Border Grid.Column="0" WidthRequest="10" HeightRequest="10" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border HeightRequest="10" WidthRequest="170" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2" Spacing="12" VerticalOptions="Center">
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <Border HeightRequest="1" BackgroundColor="#E5E4E1" Stroke="Transparent" StrokeThickness="0"/>
+
+                        <!-- Row 2 -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,16">
+                            <Border Grid.Column="0" WidthRequest="10" HeightRequest="10" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="85" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border HeightRequest="10" WidthRequest="155" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2" Spacing="12" VerticalOptions="Center">
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <Border HeightRequest="1" BackgroundColor="#E5E4E1" Stroke="Transparent" StrokeThickness="0"/>
+
+                        <!-- Row 3 -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,16">
+                            <Border Grid.Column="0" WidthRequest="10" HeightRequest="10" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border HeightRequest="10" WidthRequest="110" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2" Spacing="12" VerticalOptions="Center">
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+                        <Border HeightRequest="1" BackgroundColor="#E5E4E1" Stroke="Transparent" StrokeThickness="0"/>
+
+                        <!-- Row 4 -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="18,16">
+                            <Border Grid.Column="0" WidthRequest="10" HeightRequest="10" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="75" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border HeightRequest="10" WidthRequest="125" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2" Spacing="12" VerticalOptions="Center">
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
         <!-- Content -->
-        <ScrollView Grid.Row="1">
+        <ScrollView Grid.Row="1"
+                    IsVisible="{Binding IsLoadingCategories, Converter={StaticResource InvertedBoolConverter}}">
             <VerticalStackLayout Padding="20,0,20,24"
                                  Spacing="20">
 
-        <!-- Category List Card -->
-        <Border BackgroundColor="{StaticResource FinCardBg}"
-                StrokeThickness="1"
-                Stroke="{StaticResource FinBorder}"
-                StrokeShape="RoundRectangle 16">
-            <Border.Shadow>
-                <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
-            </Border.Shadow>
+                <!-- New Category Button -->
+                <Border HeightRequest="48"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{StaticResource FinGreen}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AddCategoryCommand}"/>
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="8"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center">
+                        <Image Source="add.svg"
+                               WidthRequest="16"
+                               HeightRequest="16"/>
+                        <Label Text="Nova Categoria"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Border>
 
-            <CollectionView ItemsSource="{Binding Categories}"
-                            SelectionMode="None">
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout HorizontalOptions="Center"
-                                         VerticalOptions="Center"
-                                         Spacing="12"
-                                         Padding="20,40">
-                        <Label Text="Nenhuma categoria criada"
-                               FontSize="16"
-                               TextColor="{StaticResource FinMuted}"
-                               HorizontalOptions="Center"/>
-                        <Label Text="Toque em 'Nova Categoria' para criar sua primeira categoria"
-                               FontSize="14"
-                               TextColor="{StaticResource FinSecondaryText}"
-                               HorizontalTextAlignment="Center"
-                               HorizontalOptions="Center"/>
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
+                <!-- Category List Card -->
+                <Border BackgroundColor="{StaticResource FinCardBg}"
+                        StrokeThickness="1"
+                        Stroke="{StaticResource FinBorder}"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
+                    </Border.Shadow>
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="dto:CategoryDTO">
-                        <Grid ColumnDefinitions="Auto,*,Auto"
-                              ColumnSpacing="12"
-                              Padding="18,16">
-
-                            <Ellipse Grid.Column="0"
-                                     WidthRequest="10"
-                                     HeightRequest="10"
-                                     Fill="{StaticResource FinExpense}"
-                                     VerticalOptions="Center"/>
-
-                            <VerticalStackLayout Grid.Column="1"
-                                                 Spacing="2"
-                                                 VerticalOptions="Center">
-                                <Label Text="{Binding Name}"
-                                       FontSize="15"
-                                       FontAttributes="Bold"
-                                       TextColor="{StaticResource FinDark}"/>
-                                <Label Text="{Binding Description}"
-                                       FontSize="13"
+                    <CollectionView ItemsSource="{Binding Categories}"
+                                    SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="12"
+                                                 Padding="20,40">
+                                <Label Text="Nenhuma categoria criada"
+                                       FontSize="16"
                                        TextColor="{StaticResource FinMuted}"
-                                       LineBreakMode="TailTruncation"
-                                       IsVisible="{Binding Description, Converter={StaticResource HasItemsConverter}}"/>
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Toque em 'Nova Categoria' para criar sua primeira categoria"
+                                       FontSize="14"
+                                       TextColor="{StaticResource FinSecondaryText}"
+                                       HorizontalTextAlignment="Center"
+                                       HorizontalOptions="Center"/>
                             </VerticalStackLayout>
+                        </CollectionView.EmptyView>
 
-                            <HorizontalStackLayout Grid.Column="2"
-                                                   Spacing="12"
-                                                   VerticalOptions="Center">
-                                <Image Source="edit.svg"
-                                       WidthRequest="18"
-                                       HeightRequest="18">
-                                    <Image.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=EditCategoryCommand}"
-                                                              CommandParameter="{Binding .}"/>
-                                    </Image.GestureRecognizers>
-                                </Image>
-                                <Image Source="trash.svg"
-                                       WidthRequest="18"
-                                       HeightRequest="18">
-                                    <Image.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=DeleteCategoryCommand}"
-                                                              CommandParameter="{Binding .}"/>
-                                    </Image.GestureRecognizers>
-                                </Image>
-                            </HorizontalStackLayout>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </Border>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dto:CategoryDTO">
+                                <Grid ColumnDefinitions="Auto,*,Auto"
+                                      ColumnSpacing="12"
+                                      Padding="18,16">
 
+                                    <Ellipse Grid.Column="0"
+                                             WidthRequest="10"
+                                             HeightRequest="10"
+                                             Fill="{StaticResource FinExpense}"
+                                             VerticalOptions="Center"/>
+
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Spacing="2"
+                                                         VerticalOptions="Center">
+                                        <Label Text="{Binding Name}"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource FinDark}"/>
+                                        <Label Text="{Binding Description}"
+                                               FontSize="13"
+                                               TextColor="{StaticResource FinMuted}"
+                                               LineBreakMode="TailTruncation"
+                                               IsVisible="{Binding Description, Converter={StaticResource HasItemsConverter}}"/>
+                                    </VerticalStackLayout>
+
+                                    <HorizontalStackLayout Grid.Column="2"
+                                                           Spacing="12"
+                                                           VerticalOptions="Center">
+                                        <Image Source="edit.svg"
+                                               WidthRequest="18"
+                                               HeightRequest="18">
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=EditCategoryCommand}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </Image.GestureRecognizers>
+                                        </Image>
+                                        <Image Source="trash.svg"
+                                               WidthRequest="18"
+                                               HeightRequest="18">
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CategoriesViewModel}}, Path=DeleteCategoryCommand}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </Image.GestureRecognizers>
+                                        </Image>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Border>
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

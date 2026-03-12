@@ -12,6 +12,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         private MealDTO? _meal;
 
+        private bool _isLoadingMeal = true;
+        public bool IsLoadingMeal
+        {
+            get => _isLoadingMeal;
+            private set => SetProperty(ref _isLoadingMeal, value);
+        }
+
         public MealDTO? Meal
         {
             get => _meal;
@@ -25,6 +32,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     OnPropertyChanged(nameof(TotalProtein));
                     OnPropertyChanged(nameof(TotalLipids));
                     OnPropertyChanged(nameof(TotalCarbs));
+                    IsLoadingMeal = false;
                 }
             }
         }

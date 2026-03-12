@@ -20,6 +20,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
         private DateTime? _lastDataRefresh;
         private DateOnly _selectedDate;
 
+        private bool _isLoadingData;
+        public bool IsLoadingData
+        {
+            get => _isLoadingData;
+            private set => SetProperty(ref _isLoadingData, value);
+        }
+
         private DiaryDTO? _todayDiary;
         private DailyProgressDTO? _dailyProgress;
         private int _caloriesConsumed;
@@ -250,6 +257,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             try
             {
+                IsLoadingData = true;
                 IsBusy = true;
 
                 var date = _selectedDate;
@@ -312,6 +320,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     OnPropertyChanged(nameof(TotalLipidsDisplay));
                     OnPropertyChanged(nameof(TotalSodiumDisplay));
 
+                    IsLoadingData = false;
                     IsBusy = false;
                 });
 
@@ -320,7 +329,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading nutrition data: {ex.Message}");
-                await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    IsLoadingData = false;
+                    IsBusy = false;
+                });
             }
         }
 

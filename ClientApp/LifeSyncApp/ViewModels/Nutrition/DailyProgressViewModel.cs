@@ -13,6 +13,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
         private readonly IUserSession _userSession;
         private static readonly CultureInfo PtBr = new("pt-BR");
 
+        private bool _isLoadingData = true;
+        public bool IsLoadingData
+        {
+            get => _isLoadingData;
+            private set => SetProperty(ref _isLoadingData, value);
+        }
+
         private DailyProgressDTO? _dailyProgress;
         private DateOnly _selectedDate;
         private string _dateLabel = string.Empty;
@@ -172,6 +179,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 LiquidsGoalText = "2500";
             }
 
+            IsLoadingData = false;
             _ = LoadHistoryAsync();
         }
 

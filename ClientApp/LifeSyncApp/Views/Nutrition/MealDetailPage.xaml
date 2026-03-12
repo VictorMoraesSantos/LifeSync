@@ -9,7 +9,7 @@
              BackgroundColor="#F5F4F1"
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#F5F4F1">
 
         <!-- Nav Bar -->
         <HorizontalStackLayout Grid.Row="0"
@@ -28,15 +28,108 @@
                        VerticalOptions="Center"/>
             </Border>
 
+            <!-- Header skeleton placeholder -->
+            <Border HeightRequest="22" WidthRequest="180" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"
+                    IsVisible="{Binding IsLoadingMeal}"/>
+
             <Label Text="{Binding Meal.Name}"
                    FontSize="18"
                    FontFamily="OutfitSemiBold"
                    TextColor="#1A1918"
-                   VerticalOptions="Center"/>
+                   VerticalOptions="Center"
+                   IsVisible="{Binding IsLoadingMeal, Converter={StaticResource InvertedBoolConverter}}"/>
         </HorizontalStackLayout>
 
+        <!-- Skeleton Loading -->
+        <ScrollView Grid.Row="1"
+                    x:Name="SkeletonContainer"
+                    IsVisible="{Binding IsLoadingMeal}"
+                    BackgroundColor="#F5F4F1">
+            <VerticalStackLayout Padding="20,8,20,24" Spacing="20" BackgroundColor="#F5F4F1">
+
+                <!-- Meal Name & Description Skeleton -->
+                <VerticalStackLayout Spacing="8">
+                    <Border HeightRequest="22" WidthRequest="180" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                    <Border HeightRequest="12" WidthRequest="200" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                    <!-- Calorie badge skeleton -->
+                    <HorizontalStackLayout Spacing="6" Margin="0,4,0,0">
+                        <Border HeightRequest="16" WidthRequest="16" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                        <Border HeightRequest="12" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Nutritional Summary Card Skeleton -->
+                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="16" StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Spacing="12">
+                        <Border HeightRequest="14" WidthRequest="150" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4" HorizontalOptions="Center">
+                                <Border HeightRequest="16" WidthRequest="40" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                                <Border HeightRequest="10" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center">
+                                <Border HeightRequest="16" WidthRequest="40" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                                <Border HeightRequest="10" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="4" HorizontalOptions="Center">
+                                <Border HeightRequest="16" WidthRequest="40" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                                <Border HeightRequest="10" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Foods Section Skeleton -->
+                <Border HeightRequest="16" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+
+                <!-- Add button skeleton -->
+                <Border HeightRequest="44" BackgroundColor="Transparent" StrokeThickness="1" Stroke="#EDECEA" StrokeShape="RoundRectangle 10" HorizontalOptions="Fill"/>
+
+                <!-- Food Card Skeleton 1 -->
+                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="14" StrokeShape="RoundRectangle 12">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Border HeightRequest="14" WidthRequest="140" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border HeightRequest="10" WidthRequest="200" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" WidthRequest="20" HeightRequest="20" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Food Card Skeleton 2 -->
+                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="14" StrokeShape="RoundRectangle 12">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Border HeightRequest="14" WidthRequest="120" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border HeightRequest="10" WidthRequest="180" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" WidthRequest="20" HeightRequest="20" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Food Card Skeleton 3 -->
+                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="14" StrokeShape="RoundRectangle 12">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                            <Border HeightRequest="14" WidthRequest="110" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border HeightRequest="10" WidthRequest="160" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" WidthRequest="20" HeightRequest="20" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Action Buttons Skeleton -->
+                <VerticalStackLayout Spacing="10" Margin="0,8,0,0">
+                    <Border HeightRequest="40" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 10" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Fill"/>
+                    <Border HeightRequest="40" BackgroundColor="Transparent" StrokeThickness="1" Stroke="#EDECEA" StrokeShape="RoundRectangle 10" HorizontalOptions="Fill"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
         <!-- Content -->
-        <ScrollView Grid.Row="1">
+        <ScrollView Grid.Row="1"
+                    IsVisible="{Binding IsLoadingMeal, Converter={StaticResource InvertedBoolConverter}}">
             <VerticalStackLayout Padding="20,8,20,24" Spacing="20">
 
                 <!-- Meal Name & Description -->

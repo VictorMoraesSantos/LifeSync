@@ -10,6 +10,7 @@ public partial class MealDetailPage : ContentPage
 {
     private readonly MealDetailViewModel _viewModel;
     private readonly NutritionViewModel _nutritionViewModel;
+    private CancellationTokenSource? _skeletonAnimationCts;
 
     public MealDTO? Meal { get; set; }
 
@@ -29,6 +30,11 @@ public partial class MealDetailPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        if (_viewModel.IsLoadingMeal)
+            StartSkeletonAnimation();
+
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
         _viewModel.MealDeleted += OnMealDeleted;
 
         if (Meal != null)
@@ -41,13 +47,50 @@ public partial class MealDetailPage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
+        _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         _viewModel.MealDeleted -= OnMealDeleted;
         _nutritionViewModel.InvalidateDataCache();
+        StopSkeletonAnimation();
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MealDetailViewModel.IsLoadingMeal))
+        {
+            if (_viewModel.IsLoadingMeal)
+                StartSkeletonAnimation();
+            else
+                StopSkeletonAnimation();
+        }
     }
 
     private void OnMealDeleted(object? sender, EventArgs e)
     {
         _nutritionViewModel.InvalidateDataCache();
+    }
+
+    private void StartSkeletonAnimation()
+    {
+        StopSkeletonAnimation();
+        _skeletonAnimationCts = new CancellationTokenSource();
+        var token = _skeletonAnimationCts.Token;
+
+        Dispatcher.Dispatch(async () =>
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await SkeletonContainer.FadeTo(0.4, 800, Easing.SinInOut);
+                if (token.IsCancellationRequested) break;
+                await SkeletonContainer.FadeTo(1.0, 800, Easing.SinInOut);
+            }
+        });
+    }
+
+    private void StopSkeletonAnimation()
+    {
+        _skeletonAnimationCts?.Cancel();
+        _skeletonAnimationCts?.Dispose();
+        _skeletonAnimationCts = null;
     }
 
     ~MealDetailPage()

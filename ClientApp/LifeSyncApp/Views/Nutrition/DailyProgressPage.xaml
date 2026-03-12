@@ -8,7 +8,7 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="#F5F4F1">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#F5F4F1">
 
         <!-- Header -->
         <HorizontalStackLayout Grid.Row="0" Padding="24,16" Spacing="12">
@@ -21,14 +21,121 @@
                     <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
                 </Label.GestureRecognizers>
             </Label>
+
+            <!-- Header skeleton placeholder -->
+            <Border HeightRequest="22" WidthRequest="200" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"
+                    IsVisible="{Binding IsLoadingData}"/>
+
             <Label Text="Progresso Diário"
                    FontSize="22"
                    FontFamily="OutfitSemiBold"
                    TextColor="#1A1918"
-                   VerticalOptions="Center"/>
+                   VerticalOptions="Center"
+                   IsVisible="{Binding IsLoadingData, Converter={StaticResource InvertedBoolConverter}}"/>
         </HorizontalStackLayout>
 
-        <ScrollView Grid.Row="1">
+        <!-- Skeleton Loading -->
+        <ScrollView Grid.Row="1"
+                    x:Name="SkeletonContainer"
+                    IsVisible="{Binding IsLoadingData}"
+                    BackgroundColor="#F5F4F1">
+            <VerticalStackLayout Padding="24,0,24,24" Spacing="24" BackgroundColor="#F5F4F1">
+
+                <!-- Date Selector Skeleton -->
+                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="12,10" StrokeShape="RoundRectangle 12" HeightRequest="44">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Border Grid.Column="0" WidthRequest="18" HeightRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        <Border Grid.Column="1" HeightRequest="14" WidthRequest="160" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Border Grid.Column="2" WidthRequest="18" HeightRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Progress Cards Skeleton -->
+                <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">
+                    <!-- Calories Card Skeleton -->
+                    <Border Grid.Column="0" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="16" StrokeShape="RoundRectangle 16">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Border WidthRequest="80" HeightRequest="80" BackgroundColor="Transparent" StrokeThickness="6" Stroke="#EDECEA" StrokeShape="RoundRectangle 40" HorizontalOptions="Center"/>
+                            <Border HeightRequest="12" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                            <Border HeightRequest="14" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                            <Border HeightRequest="10" WidthRequest="30" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Hydration Card Skeleton -->
+                    <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="16" StrokeShape="RoundRectangle 16">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Border WidthRequest="80" HeightRequest="80" BackgroundColor="Transparent" StrokeThickness="6" Stroke="#EDECEA" StrokeShape="RoundRectangle 40" HorizontalOptions="Center"/>
+                            <Border HeightRequest="12" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                            <Border HeightRequest="14" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                            <Border HeightRequest="10" WidthRequest="20" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Goal Section Skeleton -->
+                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="18" StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Spacing="16">
+                        <Border HeightRequest="16" WidthRequest="120" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+
+                        <!-- Cal goal -->
+                        <VerticalStackLayout Spacing="8">
+                            <Border HeightRequest="12" WidthRequest="140" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border HeightRequest="44" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 12" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Fill"/>
+                        </VerticalStackLayout>
+
+                        <!-- Liquid goal -->
+                        <VerticalStackLayout Spacing="8">
+                            <Border HeightRequest="12" WidthRequest="130" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border HeightRequest="44" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 12" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Fill"/>
+                        </VerticalStackLayout>
+
+                        <!-- Buttons -->
+                        <Grid ColumnDefinitions="*,12,*" ColumnSpacing="0">
+                            <Border Grid.Column="0" HeightRequest="44" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 12" Stroke="Transparent" StrokeThickness="0"/>
+                            <Border Grid.Column="2" HeightRequest="44" BackgroundColor="Transparent" StrokeThickness="1" Stroke="#EDECEA" StrokeShape="RoundRectangle 12"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- History Section Skeleton -->
+                <VerticalStackLayout Spacing="12">
+                    <Border HeightRequest="16" WidthRequest="120" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+
+                    <!-- Day Row 1 -->
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="14" StrokeShape="RoundRectangle 12" HeightRequest="48">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                            <Border Grid.Column="0" HeightRequest="12" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Start"/>
+                            <Border Grid.Column="1" HeightRequest="10" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <Border Grid.Column="2" HeightRequest="10" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Day Row 2 -->
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="14" StrokeShape="RoundRectangle 12" HeightRequest="48">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                            <Border Grid.Column="0" HeightRequest="12" WidthRequest="90" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Start"/>
+                            <Border Grid.Column="1" HeightRequest="10" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <Border Grid.Column="2" HeightRequest="10" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Day Row 3 -->
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="14" StrokeShape="RoundRectangle 12" HeightRequest="48">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                            <Border Grid.Column="0" HeightRequest="12" WidthRequest="110" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center" HorizontalOptions="Start"/>
+                            <Border Grid.Column="1" HeightRequest="10" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <Border Grid.Column="2" HeightRequest="10" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1"
+                    IsVisible="{Binding IsLoadingData, Converter={StaticResource InvertedBoolConverter}}">
             <VerticalStackLayout Padding="24,0,24,24" Spacing="24">
 
                 <!-- Date Selector -->

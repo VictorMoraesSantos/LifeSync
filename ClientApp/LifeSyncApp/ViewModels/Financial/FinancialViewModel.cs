@@ -17,6 +17,11 @@ namespace LifeSyncApp.ViewModels.Financial
         private readonly IUserSession _userSession;
 
         private bool _isLoadingData;
+        public bool IsLoadingData
+        {
+            get => _isLoadingData;
+            private set => SetProperty(ref _isLoadingData, value);
+        }
         private DateTime? _lastDataRefresh;
 
         private string _currentMonthLabel = string.Empty;
@@ -123,11 +128,11 @@ namespace LifeSyncApp.ViewModels.Financial
         {
             if (!forceRefresh && !IsCacheExpired(_lastDataRefresh) && RecentTransactions.Any()) return;
 
-            if (_isLoadingData) return;
+            if (IsLoadingData) return;
 
             try
             {
-                _isLoadingData = true;
+                IsLoadingData = true;
                 IsBusy = true;
 
                 // Fetch categories and transactions in parallel, off the main thread
@@ -220,7 +225,7 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             finally
             {
-                _isLoadingData = false;
+                IsLoadingData = false;
             }
         }
 

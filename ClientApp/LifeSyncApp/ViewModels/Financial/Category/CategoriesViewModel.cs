@@ -13,6 +13,11 @@ namespace LifeSyncApp.ViewModels.Financial.Category
         private readonly IUserSession _userSession;
 
         private bool _isLoadingCategories;
+        public bool IsLoadingCategories
+        {
+            get => _isLoadingCategories;
+            private set => SetProperty(ref _isLoadingCategories, value);
+        }
         private DateTime? _lastCategoriesRefresh;
 
         public ObservableCollection<CategoryDTO> Categories { get; } = new();
@@ -43,11 +48,11 @@ namespace LifeSyncApp.ViewModels.Financial.Category
         {
             if (!forceRefresh && !IsCacheExpired(_lastCategoriesRefresh) && Categories.Any()) return;
 
-            if (_isLoadingCategories) return;
+            if (IsLoadingCategories) return;
 
             try
             {
-                _isLoadingCategories = true;
+                IsLoadingCategories = true;
                 IsBusy = true;
 
                 var categories = await _categoryService.GetCategoriesByUserIdAsync(_userSession.UserId);
@@ -65,7 +70,7 @@ namespace LifeSyncApp.ViewModels.Financial.Category
             }
             finally
             {
-                _isLoadingCategories = false;
+                IsLoadingCategories = false;
                 IsBusy = false;
             }
         }

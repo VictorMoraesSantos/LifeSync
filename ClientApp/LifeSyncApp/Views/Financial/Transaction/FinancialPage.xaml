@@ -10,7 +10,130 @@
              x:Name="page"
              BackgroundColor="{StaticResource FinBackground}">
 
-    <ScrollView>
+    <Grid BackgroundColor="{StaticResource FinBackground}">
+
+        <!-- Skeleton Loading -->
+        <ScrollView x:Name="SkeletonContainer"
+                    IsVisible="{Binding IsLoadingData}"
+                    BackgroundColor="{StaticResource FinBackground}">
+            <VerticalStackLayout Padding="20,0,20,100" Spacing="24" BackgroundColor="{StaticResource FinBackground}">
+
+                <!-- Header skeleton -->
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12" Padding="0,12,0,0">
+                    <Label Grid.Column="0" Text="Financeiro" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource FinDark}" VerticalOptions="Center"/>
+                    <Border Grid.Column="1" WidthRequest="22" HeightRequest="22" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                    <Border Grid.Column="2" HeightRequest="36" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 100" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                </Grid>
+
+                <!-- Balance Card skeleton -->
+                <Border BackgroundColor="{StaticResource FinDark}" StrokeThickness="0" Padding="20" StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Spacing="8">
+                        <Border HeightRequest="12" WidthRequest="120" BackgroundColor="#333331" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        <Border HeightRequest="32" WidthRequest="200" BackgroundColor="#333331" StrokeShape="RoundRectangle 8" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        <Border HeightRequest="10" WidthRequest="140" BackgroundColor="#333331" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Income/Expense chips skeleton -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border Grid.Column="0" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="16,14" StrokeShape="RoundRectangle 16">
+                        <HorizontalStackLayout Spacing="12">
+                            <Border WidthRequest="10" HeightRequest="10" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Spacing="4">
+                                <Border HeightRequest="10" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border HeightRequest="16" WidthRequest="90" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border HeightRequest="9" WidthRequest="55" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="16,14" StrokeShape="RoundRectangle 16">
+                        <HorizontalStackLayout Spacing="12">
+                            <Border WidthRequest="10" HeightRequest="10" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Spacing="4">
+                                <Border HeightRequest="10" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border HeightRequest="16" WidthRequest="90" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border HeightRequest="9" WidthRequest="55" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Top Categories skeleton -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Top Categorias de Despesas" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource FinDark}"/>
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="18,16" StrokeShape="RoundRectangle 16">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Border HeightRequest="14" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <Border Grid.Column="1" HeightRequest="14" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0"/>
+                            </Grid>
+                            <Border HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 100" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Fill"/>
+                            <Border HeightRequest="10" WidthRequest="150" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Stats row skeleton -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border Grid.Column="0" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="18,16" StrokeShape="RoundRectangle 16">
+                        <VerticalStackLayout Spacing="4">
+                            <Border HeightRequest="10" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border HeightRequest="18" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" Padding="18,16" StrokeShape="RoundRectangle 16">
+                        <VerticalStackLayout Spacing="4">
+                            <Border HeightRequest="10" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border HeightRequest="18" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Recent Transactions skeleton -->
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Transações Recentes" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource FinDark}"/>
+                        <Border Grid.Column="1" HeightRequest="12" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                    </Grid>
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" StrokeShape="RoundRectangle 16">
+                        <VerticalStackLayout>
+                            <!-- Row 1 -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                                <Border Grid.Column="0" WidthRequest="8" HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Border HeightRequest="14" WidthRequest="130" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                    <Border HeightRequest="10" WidthRequest="90" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                                <Border Grid.Column="2" HeightRequest="14" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            </Grid>
+                            <Border HeightRequest="1" BackgroundColor="#E5E4E1" Stroke="Transparent" StrokeThickness="0"/>
+                            <!-- Row 2 -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                                <Border Grid.Column="0" WidthRequest="8" HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Border HeightRequest="14" WidthRequest="150" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                    <Border HeightRequest="10" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                                <Border Grid.Column="2" HeightRequest="14" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            </Grid>
+                            <Border HeightRequest="1" BackgroundColor="#E5E4E1" Stroke="Transparent" StrokeThickness="0"/>
+                            <!-- Row 3 -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                                <Border Grid.Column="0" WidthRequest="8" HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Border HeightRequest="14" WidthRequest="110" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                    <Border HeightRequest="10" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 5" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+                                <Border Grid.Column="2" HeightRequest="14" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Real Content -->
+        <ScrollView IsVisible="{Binding IsLoadingData, Converter={StaticResource InvertedBoolConverter}}">
         <VerticalStackLayout Padding="20,0,20,100"
                              Spacing="24">
 
@@ -366,5 +489,6 @@
             </VerticalStackLayout>
 
         </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+    </Grid>
 </ContentPage>
