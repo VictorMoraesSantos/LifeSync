@@ -2,9 +2,9 @@
 
 namespace Core.Application.Interfaces
 {
-    public interface IDeleteService<TDelete>
+    public interface IDeleteService<TId>
     {
-        Task<Result<bool>> DeleteAsync(TDelete dto, CancellationToken cancellationToken = default);
-        Task<Result<bool>> DeleteRangeAsync(IEnumerable<TDelete> dtos, CancellationToken cancellationToken = default);
+        Task<Result<bool>> DeleteAsync(TId dto, CancellationToken cancellationToken = default);
+        Task<Result<bool>> DeleteRangeAsync(IEnumerable<TId> dtos, CancellationToken cancellationToken = default);
     }
 }

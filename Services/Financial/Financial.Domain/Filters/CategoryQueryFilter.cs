@@ -10,17 +10,17 @@ namespace Financial.Domain.Filters
         public string? DescriptionContains { get; private set; }
 
         public CategoryQueryFilter(
-        int? id = null,
-        int? userId = null,
-        string? nameContains = null,
-        string? descriptionContains = null,
-        DateOnly? createdAt = null,
-        DateOnly? updatedAt = null,
-        bool? isDeleted = null,
-        string? sortBy = null,
-        bool? sortDesc = null,
-        int? page = null,
-        int? pageSize = null)
+            int? id = null,
+            int? userId = null,
+            string? nameContains = null,
+            string? descriptionContains = null,
+            DateOnly? createdAt = null,
+            DateOnly? updatedAt = null,
+            bool? isDeleted = null,
+            string? sortBy = null,
+            bool? sortDesc = null,
+            int? page = null,
+            int? pageSize = null)
         {
             Id = id;
             UserId = userId;

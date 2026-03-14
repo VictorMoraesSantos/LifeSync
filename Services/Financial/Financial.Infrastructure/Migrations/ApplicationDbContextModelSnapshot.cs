@@ -17,7 +17,7 @@ namespace Financial.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -52,6 +52,55 @@ namespace Financial.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("Financial.Domain.Entities.RecurrenceSchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Frequency")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("MaxOccurrences")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("NextOccurrence")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OccurrencesGenerated")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TransactionId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionId")
+                        .IsUnique();
+
+                    b.ToTable("RecurrenceSchedule");
                 });
 
             modelBuilder.Entity("Financial.Domain.Entities.Transaction", b =>
@@ -100,6 +149,17 @@ namespace Financial.Infrastructure.Migrations
                     b.ToTable("Transactions");
                 });
 
+            modelBuilder.Entity("Financial.Domain.Entities.RecurrenceSchedule", b =>
+                {
+                    b.HasOne("Financial.Domain.Entities.Transaction", "Transaction")
+                        .WithOne("RecurrenceSchedule")
+                        .HasForeignKey("Financial.Domain.Entities.RecurrenceSchedule", "TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Transaction");
+                });
+
             modelBuilder.Entity("Financial.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("Financial.Domain.Entities.Category", "Category")
@@ -129,6 +189,11 @@ namespace Financial.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Financial.Domain.Entities.Transaction", b =>
+                {
+                    b.Navigation("RecurrenceSchedule");
                 });
 #pragma warning restore 612, 618
         }

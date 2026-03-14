@@ -17,6 +17,7 @@ namespace Financial.Domain.Entities
         public string Description { get; private set; }
         public DateTime TransactionDate { get; private set; }
         public bool IsRecurring { get; private set; } = false;
+        public RecurrenceSchedule? RecurrenceSchedule { get; private set; }
 
         private Transaction() { }
 
@@ -56,7 +57,6 @@ namespace Financial.Domain.Entities
             SetAmout(amount);
             SetDescription(description);
 
-            // Only validate categoryId when a value was provided
             if (categoryId.HasValue && categoryId.Value <= 0)
                 throw new DomainException(TransactionErrors.InvalidCategoryId);
 

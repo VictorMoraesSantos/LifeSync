@@ -28,6 +28,21 @@ namespace Financial.Application.Features.Transactions.Commands.Create
             RuleFor(command => command.TransactionDate)
                 .NotEmpty().WithMessage("A data da transação é obrigatória.")
                 .LessThanOrEqualTo(DateTime.Now.AddDays(1)).WithMessage("A data da transação não pode ser futura além de 1 dia.");
+
+            When(command => command.IsRecurring, () =>
+            {
+                RuleFor(command => command.Frequency)
+                    .NotNull().WithMessage("A frequência de recorrência é obrigatória para transações recorrentes.")
+                    .IsInEnum().WithMessage("A frequência de recorrência informada é inválida.");
+
+                RuleFor(command => command.RecurrenceEndDate)
+                    .GreaterThan(command => command.TransactionDate).WithMessage("A data de término da recorrência deve ser posterior à data da transação.")
+                    .When(command => command.RecurrenceEndDate.HasValue);
+
+                RuleFor(command => command.MaxOccurrences)
+                    .GreaterThan(0).WithMessage("O número máximo de ocorrências deve ser maior que zero.")
+                    .When(command => command.MaxOccurrences.HasValue);
+            });
         }
     }
 }

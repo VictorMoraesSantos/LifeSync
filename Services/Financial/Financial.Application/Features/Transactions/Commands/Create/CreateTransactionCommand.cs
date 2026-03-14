@@ -12,6 +12,9 @@ namespace Financial.Application.Features.Transactions.Commands.Create
         Money Amount,
         string Description,
         DateTime TransactionDate,
-        bool IsRecurring = false) : ICommand<CreateTransactionResult>;
+        bool IsRecurring = false,
+        RecurrenceFrequency? Frequency = null,
+        DateTime? RecurrenceEndDate = null,
+        int? MaxOccurrences = null) : ICommand<CreateTransactionResult>;
     public record CreateTransactionResult(int TransactionId);
 }
