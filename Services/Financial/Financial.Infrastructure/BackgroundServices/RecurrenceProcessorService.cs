@@ -31,8 +31,8 @@ namespace Financial.Infrastructure.BackgroundServices
                     var result = await service.ProcessDueSchedulesAsync(stoppingToken);
                     if (!result.IsSuccess)
                     {
-                        _logger.LogInformation("Falha no processamento: {Error}", result.Error?.Description);
-                        return;
+                        _logger.LogWarning("Falha no processamento: {Error}", result.Error?.Description);
+                        continue;
                     }
 
                     _logger.LogInformation("Processamento concluído: {Count} transações geradas", result.Value);
