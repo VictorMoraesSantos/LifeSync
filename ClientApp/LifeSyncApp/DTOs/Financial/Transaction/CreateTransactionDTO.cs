@@ -10,5 +10,8 @@ namespace LifeSyncApp.DTOs.Financial.Transaction
         Money Amount,
         string Description,
         DateTime TransactionDate,
-        bool IsRecurring = false);
+        bool IsRecurring = false,
+        RecurrenceFrequency? Frequency = null,
+        DateTime? RecurrenceEndDate = null,
+        int? MaxOccurrences = null);
 }

@@ -40,6 +40,8 @@
             <financialConverters:BoolToPaymentMethodTextColorConverter x:Key="BoolToPaymentMethodTextColorConverter"/>
             <financialConverters:StringEqualToBackgroundConverter x:Key="StringEqualToBackgroundConverter"/>
             <financialConverters:StringEqualToTextColorConverter x:Key="StringEqualToTextColorConverter"/>
+            <financialConverters:FrequencyToBackgroundConverter x:Key="FrequencyToBackgroundConverter"/>
+            <financialConverters:FrequencyToBorderConverter x:Key="FrequencyToBorderConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

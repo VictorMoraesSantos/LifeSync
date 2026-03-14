@@ -44,7 +44,7 @@
                       ColumnDefinitions="*,Auto"
                       Padding="24,16">
                     <Label Grid.Column="0"
-                           Text="{Binding ModalTitle}"
+                           Text="{Binding Title}"
                            FontSize="20"
                            FontAttributes="Bold"
                            TextColor="{StaticResource FinDark}"
@@ -61,7 +61,7 @@
 
                 <!-- Scrollable Form -->
                 <ScrollView Grid.Row="2"
-                            MaximumHeightRequest="550">
+                            MaximumHeightRequest="650">
                     <VerticalStackLayout Padding="24,0,24,24"
                                          Spacing="24">
 
@@ -259,6 +259,163 @@
                                             BackgroundColor="Transparent"
                                             Format="dd/MM/yyyy"/>
                             </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Recurring Toggle -->
+                        <VerticalStackLayout Spacing="10"
+                                             IsVisible="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}">
+                            <Grid ColumnDefinitions="*,Auto"
+                                  HeightRequest="44">
+                                <Label Grid.Column="0"
+                                       Text="Transação Recorrente"
+                                       FontSize="14"
+                                       TextColor="{StaticResource FinSecondaryText}"
+                                       VerticalOptions="Center"/>
+                                <Switch Grid.Column="1"
+                                        IsToggled="{Binding IsRecurring}"
+                                        OnColor="{StaticResource FinGreen}"
+                                        VerticalOptions="Center"/>
+                            </Grid>
+
+                            <!-- Recurrence Options (visible when IsRecurring = true) -->
+                            <VerticalStackLayout Spacing="16"
+                                                 IsVisible="{Binding IsRecurring}">
+
+                                <!-- Frequency -->
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="Frequência"
+                                           FontSize="14"
+                                           TextColor="{StaticResource FinSecondaryText}"/>
+                                    <Grid ColumnDefinitions="*,*,*,*"
+                                          ColumnSpacing="8">
+                                        <Border Grid.Column="0"
+                                                HeightRequest="40"
+                                                StrokeShape="RoundRectangle 10"
+                                                StrokeThickness="1"
+                                                Stroke="{Binding SelectedFrequency, Converter={StaticResource FrequencyToBorderConverter}, ConverterParameter=Daily}"
+                                                BackgroundColor="{Binding SelectedFrequency, Converter={StaticResource FrequencyToBackgroundConverter}, ConverterParameter=Daily}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SetFrequencyCommand}"
+                                                                      CommandParameter="Daily"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="Diário"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource FinSecondaryText}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+
+                                        <Border Grid.Column="1"
+                                                HeightRequest="40"
+                                                StrokeShape="RoundRectangle 10"
+                                                StrokeThickness="1"
+                                                Stroke="{Binding SelectedFrequency, Converter={StaticResource FrequencyToBorderConverter}, ConverterParameter=Weekly}"
+                                                BackgroundColor="{Binding SelectedFrequency, Converter={StaticResource FrequencyToBackgroundConverter}, ConverterParameter=Weekly}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SetFrequencyCommand}"
+                                                                      CommandParameter="Weekly"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="Semanal"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource FinSecondaryText}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+
+                                        <Border Grid.Column="2"
+                                                HeightRequest="40"
+                                                StrokeShape="RoundRectangle 10"
+                                                StrokeThickness="1"
+                                                Stroke="{Binding SelectedFrequency, Converter={StaticResource FrequencyToBorderConverter}, ConverterParameter=Monthly}"
+                                                BackgroundColor="{Binding SelectedFrequency, Converter={StaticResource FrequencyToBackgroundConverter}, ConverterParameter=Monthly}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SetFrequencyCommand}"
+                                                                      CommandParameter="Monthly"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="Mensal"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource FinSecondaryText}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+
+                                        <Border Grid.Column="3"
+                                                HeightRequest="40"
+                                                StrokeShape="RoundRectangle 10"
+                                                StrokeThickness="1"
+                                                Stroke="{Binding SelectedFrequency, Converter={StaticResource FrequencyToBorderConverter}, ConverterParameter=Yearly}"
+                                                BackgroundColor="{Binding SelectedFrequency, Converter={StaticResource FrequencyToBackgroundConverter}, ConverterParameter=Yearly}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SetFrequencyCommand}"
+                                                                      CommandParameter="Yearly"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="Anual"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource FinSecondaryText}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+                                    </Grid>
+                                </VerticalStackLayout>
+
+                                <!-- Recurrence End Date (optional) -->
+                                <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0"
+                                               Text="Data Final (opcional)"
+                                               FontSize="14"
+                                               TextColor="{StaticResource FinSecondaryText}"
+                                               VerticalOptions="Center"/>
+                                        <Switch Grid.Column="1"
+                                                IsToggled="{Binding HasRecurrenceEndDate}"
+                                                OnColor="{StaticResource FinGreen}"
+                                                VerticalOptions="Center"/>
+                                    </Grid>
+                                    <Border HeightRequest="48"
+                                            StrokeShape="RoundRectangle 12"
+                                            StrokeThickness="1"
+                                            Stroke="{StaticResource FinBorder}"
+                                            BackgroundColor="Transparent"
+                                            Padding="14,0"
+                                            IsVisible="{Binding HasRecurrenceEndDate}">
+                                        <DatePicker Date="{Binding RecurrenceEndDateValue}"
+                                                    TextColor="{StaticResource FinDark}"
+                                                    FontSize="14"
+                                                    BackgroundColor="Transparent"
+                                                    Format="dd/MM/yyyy"/>
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <!-- Max Occurrences (optional) -->
+                                <VerticalStackLayout Spacing="8">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0"
+                                               Text="Limite de Repetições (opcional)"
+                                               FontSize="14"
+                                               TextColor="{StaticResource FinSecondaryText}"
+                                               VerticalOptions="Center"/>
+                                        <Switch Grid.Column="1"
+                                                IsToggled="{Binding HasMaxOccurrences}"
+                                                OnColor="{StaticResource FinGreen}"
+                                                VerticalOptions="Center"/>
+                                    </Grid>
+                                    <Border HeightRequest="48"
+                                            StrokeShape="RoundRectangle 12"
+                                            StrokeThickness="1"
+                                            Stroke="{StaticResource FinBorder}"
+                                            BackgroundColor="Transparent"
+                                            Padding="14,0"
+                                            IsVisible="{Binding HasMaxOccurrences}">
+                                        <Entry Text="{Binding MaxOccurrencesText}"
+                                               Placeholder="Ex: 12"
+                                               Keyboard="Numeric"
+                                               PlaceholderColor="{StaticResource FinMuted}"
+                                               TextColor="{StaticResource FinDark}"
+                                               FontSize="14"
+                                               BackgroundColor="Transparent"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                 </ScrollView>

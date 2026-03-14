@@ -23,6 +23,10 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         private PaymentMethod _paymentMethod = PaymentMethod.Cash;
         private CategoryDTO? _selectedCategory;
         private bool _isEditing;
+        private bool _isRecurring;
+        private RecurrenceFrequency _selectedFrequency = RecurrenceFrequency.Monthly;
+        private DateTime? _recurrenceEndDate;
+        private int? _maxOccurrences;
 
         public string Description
         {
@@ -66,14 +70,89 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             private set => SetProperty(ref _isEditing, value);
         }
 
+        public bool IsRecurring
+        {
+            get => _isRecurring;
+            set => SetProperty(ref _isRecurring, value);
+        }
+
+        public RecurrenceFrequency SelectedFrequency
+        {
+            get => _selectedFrequency;
+            set => SetProperty(ref _selectedFrequency, value);
+        }
+
+        public DateTime? RecurrenceEndDate
+        {
+            get => _recurrenceEndDate;
+            set
+            {
+                if (SetProperty(ref _recurrenceEndDate, value))
+                    OnPropertyChanged(nameof(RecurrenceEndDateValue));
+            }
+        }
+
+        public int? MaxOccurrences
+        {
+            get => _maxOccurrences;
+            set => SetProperty(ref _maxOccurrences, value);
+        }
+
+        public DateTime RecurrenceEndDateValue
+        {
+            get => _recurrenceEndDate ?? TransactionDate.AddMonths(3);
+            set => RecurrenceEndDate = value;
+        }
+
+        public bool HasRecurrenceEndDate
+        {
+            get => _recurrenceEndDate.HasValue;
+            set
+            {
+                if (value && !_recurrenceEndDate.HasValue)
+                    RecurrenceEndDate = TransactionDate.AddMonths(3);
+                else if (!value)
+                    RecurrenceEndDate = null;
+                OnPropertyChanged(nameof(HasRecurrenceEndDate));
+                OnPropertyChanged(nameof(RecurrenceEndDateValue));
+            }
+        }
+
+        public bool HasMaxOccurrences
+        {
+            get => _maxOccurrences.HasValue;
+            set
+            {
+                if (value && !_maxOccurrences.HasValue)
+                    MaxOccurrences = 12;
+                else if (!value)
+                    MaxOccurrences = null;
+                OnPropertyChanged(nameof(HasMaxOccurrences));
+            }
+        }
+
+        public string MaxOccurrencesText
+        {
+            get => _maxOccurrences?.ToString() ?? string.Empty;
+            set
+            {
+                if (int.TryParse(value, out var parsed) && parsed > 0)
+                    MaxOccurrences = parsed;
+                else if (string.IsNullOrWhiteSpace(value))
+                    MaxOccurrences = null;
+            }
+        }
+
         public ObservableCollection<CategoryDTO> Categories { get; } = new();
         public ObservableCollection<TransactionType> TransactionTypes { get; } = new();
         public ObservableCollection<SelectablePaymentMethodItem> PaymentMethods { get; } = new();
+        public ObservableCollection<RecurrenceFrequency> Frequencies { get; } = new();
 
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
         public ICommand SetTransactionTypeCommand { get; }
         public ICommand TogglePaymentMethodCommand { get; }
+        public ICommand SetFrequencyCommand { get; }
 
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
@@ -85,10 +164,11 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             _userSession = userSession;
             Title = "Nova Transação";
 
-            SaveCommand = new Command(async () => await SaveAsync(), CanSave);
+            SaveCommand = new Command(async () => await SaveAsync());
             CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
             SetTransactionTypeCommand = new Command<string>(SetTransactionType);
             TogglePaymentMethodCommand = new Command<SelectablePaymentMethodItem>(TogglePaymentMethod);
+            SetFrequencyCommand = new Command<string>(SetFrequency);
 
             LoadEnums();
         }
@@ -98,6 +178,11 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             foreach (TransactionType type in Enum.GetValues(typeof(TransactionType)))
             {
                 TransactionTypes.Add(type);
+            }
+
+            foreach (RecurrenceFrequency frequency in Enum.GetValues(typeof(RecurrenceFrequency)))
+            {
+                Frequencies.Add(frequency);
             }
 
             foreach (PaymentMethod method in Enum.GetValues(typeof(PaymentMethod)))
@@ -116,6 +201,12 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         {
             if (Enum.TryParse<TransactionType>(typeString, out var type))
                 TransactionType = type;
+        }
+
+        private void SetFrequency(string frequencyString)
+        {
+            if (Enum.TryParse<RecurrenceFrequency>(frequencyString, out var frequency))
+                SelectedFrequency = frequency;
         }
 
         private void TogglePaymentMethod(SelectablePaymentMethodItem? item)
@@ -147,6 +238,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
                 TransactionDate = _transaction.TransactionDate;
                 TransactionType = _transaction.TransactionType;
                 PaymentMethod = _transaction.PaymentMethod;
+                IsRecurring = _transaction.IsRecurring;
 
                 foreach (var method in PaymentMethods)
                 {
@@ -163,6 +255,10 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
                 TransactionType = TransactionType.Expense;
                 PaymentMethod = PaymentMethod.Cash;
                 SelectedCategory = null;
+                IsRecurring = false;
+                SelectedFrequency = RecurrenceFrequency.Monthly;
+                RecurrenceEndDate = null;
+                MaxOccurrences = null;
 
                 foreach (var method in PaymentMethods)
                 {
@@ -183,6 +279,12 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         private async Task SaveAsync()
         {
             if (IsBusy) return;
+
+            if (!CanSave())
+            {
+                await Shell.Current.DisplayAlert("Atenção", "Preencha a descrição e informe um valor maior que zero.", "OK");
+                return;
+            }
 
             IsBusy = true;
 
@@ -214,7 +316,11 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
                         TransactionType,
                         Money.FromDecimal(Amount),
                         Description,
-                        TransactionDate);
+                        TransactionDate,
+                        IsRecurring,
+                        IsRecurring ? SelectedFrequency : null,
+                        IsRecurring ? RecurrenceEndDate : null,
+                        IsRecurring ? MaxOccurrences : null);
 
                     var (id, error) = await _transactionService.CreateTransactionAsync(dto);
                     if (id.HasValue)

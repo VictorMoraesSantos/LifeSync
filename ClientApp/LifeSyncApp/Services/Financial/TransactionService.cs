@@ -1,4 +1,5 @@
 using LifeSyncApp.DTOs.Common;
+using LifeSyncApp.DTOs.Financial.RecurrenceSchedule;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -105,17 +106,36 @@ namespace LifeSyncApp.Services.Financial
                 var client = _httpClientFactory.CreateClient("LifeSyncApi");
                 var response = await client.PostAsJsonAsync(BaseUrl, dto, _jsonOptions, cancellationToken);
 
+                var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                System.Diagnostics.Debug.WriteLine(
+                    $"[TransactionService] Create response. Status: {response.StatusCode}, Body: {responseBody}");
+
                 if (!response.IsSuccessStatusCode)
+                    return (null, ExtractErrorMessage(responseBody));
+
+                // response is 2xx — transaction was created successfully
+                int? transactionId = null;
+                try
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-                    System.Diagnostics.Debug.WriteLine(
-                        $"Error creating transaction. Status: {response.StatusCode}, Content: {errorContent}");
-                    return (null, ExtractErrorMessage(errorContent));
+                    using var doc = JsonDocument.Parse(responseBody);
+                    var root = doc.RootElement;
+
+                    if (TryGetJsonProperty(root, "data", out var data))
+                    {
+                        if (data.ValueKind == JsonValueKind.Number && data.TryGetInt32(out var directId))
+                            transactionId = directId;
+                        else if (data.ValueKind == JsonValueKind.Object &&
+                                 TryGetJsonProperty(data, "transactionId", out var txId) &&
+                                 txId.TryGetInt32(out var txIdValue))
+                            transactionId = txIdValue;
+                    }
+                }
+                catch
+                {
+                    System.Diagnostics.Debug.WriteLine("[TransactionService] Could not parse response body for ID");
                 }
 
-                var result =
-                    await response.Content.ReadFromJsonAsync<ApiSingleResponse<int>>(_jsonOptions, cancellationToken);
-                return (result?.Data, null);
+                return (transactionId ?? 0, null);
             }
             catch (Exception ex)
             {
@@ -172,6 +192,51 @@ namespace LifeSyncApp.Services.Financial
             }
         }
 
+        public async Task<RecurrenceScheduleDTO?> GetScheduleByTransactionIdAsync(int transactionId,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient("LifeSyncApi");
+                var url = $"/financial-service/api/recurrenceschedule/search?TransactionId={transactionId}";
+                var response = await client.GetAsync(url, cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] Schedule response: {responseBody}");
+
+                using var doc = JsonDocument.Parse(responseBody);
+                var root = doc.RootElement;
+
+                if (!TryGetJsonProperty(root, "data", out var data))
+                    return null;
+
+                JsonElement firstItem;
+                if (data.ValueKind == JsonValueKind.Array)
+                {
+                    if (data.GetArrayLength() == 0) return null;
+                    firstItem = data[0];
+                }
+                else if (data.ValueKind == JsonValueKind.Object)
+                {
+                    firstItem = data;
+                }
+                else
+                {
+                    return null;
+                }
+
+                return JsonSerializer.Deserialize<RecurrenceScheduleDTO>(firstItem.GetRawText(), _jsonOptions);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TransactionService] Error getting schedule: {ex.Message}");
+                return null;
+            }
+        }
+
         private string BuildQueryString(TransactionFilterDTO filter)
         {
             var parameters = new List<string>();
@@ -194,6 +259,30 @@ namespace LifeSyncApp.Services.Financial
                 parameters.Add($"PageSize={filter.PageSize}");
 
             return string.Join("&", parameters);
+        }
+
+        private static bool TryGetJsonProperty(JsonElement element, string propertyName, out JsonElement value)
+        {
+            if (element.TryGetProperty(propertyName, out value))
+                return true;
+
+            // try PascalCase
+            var pascal = char.ToUpper(propertyName[0]) + propertyName[1..];
+            if (element.TryGetProperty(pascal, out value))
+                return true;
+
+            // try case-insensitive
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (string.Equals(prop.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = prop.Value;
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
         }
 
         private static string? ExtractErrorMessage(string responseBody)

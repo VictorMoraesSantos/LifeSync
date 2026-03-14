@@ -22,7 +22,7 @@ namespace LifeSyncApp.Views.Financial
             BindingContext = _viewModel;
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -31,7 +31,7 @@ namespace LifeSyncApp.Views.Financial
             _viewModel.OnDeleted += OnDeleted;
 
             if (Transaction != null)
-                _viewModel.Initialize(Transaction);
+                await _viewModel.InitializeAsync(Transaction);
         }
 
         protected override void OnDisappearing()

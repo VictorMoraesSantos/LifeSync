@@ -1,4 +1,6 @@
+using LifeSyncApp.DTOs.Financial.RecurrenceSchedule;
 using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
 using System.Windows.Input;
 
@@ -8,12 +10,33 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
     {
         private readonly TransactionService _transactionService;
         private TransactionDTO? _transaction;
+        private RecurrenceScheduleDTO? _schedule;
 
         public TransactionDTO? Transaction
         {
             get => _transaction;
             private set => SetProperty(ref _transaction, value);
         }
+
+        public RecurrenceScheduleDTO? Schedule
+        {
+            get => _schedule;
+            private set
+            {
+                if (SetProperty(ref _schedule, value))
+                    OnPropertyChanged(nameof(HasSchedule));
+            }
+        }
+
+        public bool HasSchedule => _schedule != null;
+
+        public string FrequencyDisplay => _schedule?.Frequency.ToDisplayString() ?? string.Empty;
+        public string NextOccurrenceDisplay => _schedule?.NextOccurrence.ToString("dd/MM/yyyy") ?? string.Empty;
+        public string ScheduleStatusDisplay => _schedule?.IsActive == true ? "Ativo" : "Inativo";
+        public string OccurrencesDisplay => _schedule?.MaxOccurrences.HasValue == true
+            ? $"{_schedule.OccurrencesGenerated}/{_schedule.MaxOccurrences}"
+            : $"{_schedule?.OccurrencesGenerated ?? 0} geradas";
+        public string EndDateDisplay => _schedule?.EndDate?.ToString("dd/MM/yyyy") ?? "Sem data final";
 
         public ICommand CloseCommand { get; }
         public ICommand EditCommand { get; }
@@ -33,9 +56,21 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             DeleteCommand = new Command(async () => await OnDeleteAsync());
         }
 
-        public void Initialize(TransactionDTO transaction)
+        public async Task InitializeAsync(TransactionDTO transaction)
         {
             Transaction = transaction;
+            Schedule = null;
+
+            if (transaction.IsRecurring)
+            {
+                var schedule = await _transactionService.GetScheduleByTransactionIdAsync(transaction.Id);
+                Schedule = schedule;
+                OnPropertyChanged(nameof(FrequencyDisplay));
+                OnPropertyChanged(nameof(NextOccurrenceDisplay));
+                OnPropertyChanged(nameof(ScheduleStatusDisplay));
+                OnPropertyChanged(nameof(OccurrencesDisplay));
+                OnPropertyChanged(nameof(EndDateDisplay));
+            }
         }
 
         private void OnEdit()
