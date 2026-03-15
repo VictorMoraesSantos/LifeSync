@@ -7,6 +7,8 @@ namespace Financial.Domain.Filters.Specifications
     {
         public RecurrenceScheduleSpecification(RecurrenceScheduleQueryFilter filter)
         {
+            AddInclude(r => r.Transaction);
+
             ApplyBaseFilters(filter);
             AddIf(filter.Id.HasValue, r => r.Id == filter.Id!.Value);
             AddIf(filter.TransactionId.HasValue, r => r.TransactionId == filter.TransactionId!.Value);

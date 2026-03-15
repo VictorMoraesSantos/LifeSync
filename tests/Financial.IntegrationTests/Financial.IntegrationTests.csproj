@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,16 +8,39 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="8.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <!-- Test Framework -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <!-- Assertions -->
+    <PackageReference Include="FluentAssertions" Version="8.8.0" />
+
+    <!-- Containers -->
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.11.0" />
+
+    <!-- Database Cleanup -->
+    <PackageReference Include="Respawn" Version="7.0.0" />
+
+    <!-- Test Data -->
+    <PackageReference Include="Bogus" Version="35.6.5" />
+
+    <!-- EF Core (for DbContext in tests) -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Services\Financial\Financial.Domain\Financial.Domain.csproj" />
+    <ProjectReference Include="..\..\Services\Financial\Financial.Application\Financial.Application.csproj" />
+    <ProjectReference Include="..\..\Services\Financial\Financial.Infrastructure\Financial.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

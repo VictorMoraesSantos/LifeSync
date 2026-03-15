@@ -17,13 +17,14 @@ Responsável pelo gerenciamento financeiro pessoal no LifeSync.
 
 ## Visão Geral
 
-O Financial Service permite que usuários controlem suas finanças pessoais — registrando receitas, despesas e categorizando transações. Suporta múltiplos métodos de pagamento, transações recorrentes e mais de 140 moedas internacionais através do value object `Money`.
+O Financial Service permite que usuários controlem suas finanças pessoais — registrando receitas, despesas e categorizando transações. Suporta múltiplos métodos de pagamento, transações recorrentes com agendamento automático e mais de 140 moedas internacionais através do value object `Money`.
 
 ### Responsabilidades
 
 - CRUD de transações financeiras (receitas e despesas)
 - CRUD de categorias personalizadas por usuário
 - Suporte a múltiplos métodos de pagamento e moedas
+- Agendamento de transações recorrentes (`RecurrenceSchedule`) com geração automática via Background Service
 - Filtros avançados por tipo, categoria, período e valor
 - Relatórios financeiros (placeholder para implementação futura)
 
@@ -37,6 +38,7 @@ Financial/
 │   ├── Controllers/
 │   │   ├── CategoriesController.cs
 │   │   ├── TransactionsController.cs
+│   │   ├── RecurrenceScheduleController.cs
 │   │   └── ReportsController.cs         # Placeholder (vazio)
 │   ├── Program.cs
 │   ├── appsettings.json
@@ -44,7 +46,8 @@ Financial/
 ├── Financial.Application/
 │   ├── Contracts/
 │   │   ├── ICategoryService.cs
-│   │   └── ITransactionService.cs
+│   │   ├── ITransactionService.cs
+│   │   └── IRecurrenceScheduleService.cs
 │   ├── DTOs/
 │   │   ├── Category/
 │   │   │   ├── CategoryDTO.cs
@@ -56,6 +59,11 @@ Financial/
 │   │   │   ├── TransactionFilterDTO.cs
 │   │   │   ├── CreateTransactionDTO.cs
 │   │   │   └── UpdateTransactionDTO.cs
+│   │   ├── RecurrenceSchedule/
+│   │   │   ├── RecurrenceScheduleDTO.cs
+│   │   │   ├── RecurrenceScheduleFilterDTO.cs
+│   │   │   ├── CreateRecurrenceScheduleDTO.cs
+│   │   │   └── UpdateRecurrenceScheduleDTO.cs
 │   │   └── Report/
 │   │       ├── UserBalanceSummaryDTO.cs
 │   │       └── AccountBalanceDTO.cs
@@ -63,46 +71,60 @@ Financial/
 │   │   ├── Categories/
 │   │   │   ├── Commands/        # Create, Update, Delete
 │   │   │   └── Queries/         # GetAll, GetById, GetByUser, GetByFilter
-│   │   └── Transactions/
-│   │       ├── Commands/        # Create, Update, Delete
-│   │       └── Queries/         # GetAll, GetById, GetByUser, GetByFilter
+│   │   ├── Transactions/
+│   │   │   ├── Commands/        # Create, Update, Delete
+│   │   │   └── Queries/         # GetAll, GetById, GetByUser, GetByFilter
+│   │   └── RecurrenceSchedules/
+│   │       ├── Commands/        # Update, Delete, Deactivate
+│   │       └── Queries/         # GetById, GetByUserId, GetByFilter
 │   ├── Mappings/
 │   │   ├── CategoryMapper.cs
-│   │   └── TransactionMapper.cs
+│   │   ├── TransactionMapper.cs
+│   │   └── RecurrencyScheduleMapper.cs
 │   └── Financial.Application.csproj
 ├── Financial.Domain/
 │   ├── Entities/
 │   │   ├── Category.cs
-│   │   └── Transaction.cs
+│   │   ├── Transaction.cs
+│   │   └── RecurrenceSchedule.cs
 │   ├── Enums/
 │   │   ├── TransactionType.cs
 │   │   ├── PaymentMethod.cs
-│   │   └── Currency.cs
+│   │   ├── Currency.cs
+│   │   └── RecurrenceFrequency.cs
 │   ├── Errors/
 │   │   ├── CategoryErrors.cs
-│   │   └── TransactionErrors.cs
+│   │   ├── TransactionErrors.cs
+│   │   └── RecurrenceScheduleErrors.cs
 │   ├── Filters/
 │   │   ├── CategoryQueryFilter.cs
 │   │   ├── TransactionQueryFilter.cs
+│   │   ├── RecurrenceScheduleQueryFilter.cs
 │   │   └── Specifications/
 │   │       ├── CategorySpecification.cs
-│   │       └── TransactionSpecification.cs
+│   │       ├── TransactionSpecification.cs
+│   │       └── RecurrenceScheduleSpecification.cs
 │   ├── Repositories/
 │   │   ├── ICategoryRepository.cs
-│   │   └── ITransactionRepository.cs
+│   │   ├── ITransactionRepository.cs
+│   │   └── IRecurrenceScheduleRepository.cs
 │   ├── ValueObjects/Money.cs
 │   └── Financial.Domain.csproj
 └── Financial.Infrastructure/
+    ├── BackgroundServices/
+    │   └── RecurrenceProcessorService.cs
     ├── Configuration/TransactionConfiguration.cs
     ├── Persistence/
     │   ├── ApplicationDbContext.cs
     │   ├── MigrationHostedService.cs
     │   └── Repositories/
     │       ├── CategoryRepository.cs
-    │       └── TransactionRepository.cs
+    │       ├── TransactionRepository.cs
+    │       └── RecurrenceScheduleRepository.cs
     ├── Services/
     │   ├── CategoryService.cs
-    │   └── TransactionService.cs
+    │   ├── TransactionService.cs
+    │   └── RecurrenceScheduleService.cs
     ├── Migrations/
     └── Financial.Infrastructure.csproj
 ```
@@ -153,6 +175,39 @@ Herda de `BaseEntity<int>`.
 
 ---
 
+### Entidade: `RecurrenceSchedule`
+
+Herda de `BaseEntity<int>`. Representa o agendamento de uma transação recorrente — armazena a configuração de repetição e gera cópias da transação original automaticamente.
+
+| Propriedade | Tipo | Regras |
+|---|---|---|
+| `TransactionId` | `int` | Obrigatório, > 0, FK para Transaction |
+| `Transaction` | `Transaction` | Navigation property |
+| `Frequency` | `RecurrenceFrequency` | Enum obrigatório |
+| `StartDate` | `DateTime` | Obrigatório |
+| `EndDate` | `DateTime?` | Opcional, deve ser posterior a StartDate |
+| `NextOccurrence` | `DateTime` | Próxima data de geração |
+| `MaxOccurrences` | `int?` | Opcional, > 0 |
+| `OccurrencesGenerated` | `int` | Contador de transações geradas (default 0) |
+| `IsActive` | `bool` | Indica se o agendamento está ativo |
+
+**Métodos de domínio:**
+
+| Método | Descrição |
+|---|---|
+| `Update(frequency, endDate?, maxOccurrences?)` | Atualiza frequência e limites com validação |
+| `GenerateTransaction()` | Gera cópia da transação original na data `NextOccurrence`, incrementa contador e calcula próxima ocorrência. Desativa automaticamente ao atingir `MaxOccurrences` ou `EndDate` |
+| `CanGenerateNext()` | Verifica se pode gerar a próxima transação (ativo, dentro dos limites) |
+| `Activate()` | Ativa o agendamento |
+| `Deactivate()` | Desativa o agendamento |
+
+**Regras de negócio:**
+- Uma Transaction só pode ter um RecurrenceSchedule associado
+- A Transaction deve ter `IsRecurring = true` para criar um schedule
+- O schedule se desativa automaticamente quando `MaxOccurrences` é atingido ou `NextOccurrence` ultrapassa `EndDate`
+
+---
+
 ### Value Object: `Money`
 
 Record type imutável para representar valores monetários.
@@ -185,6 +240,17 @@ Record type imutável para representar valores monetários.
 | `BankTransfer` | 4 |
 | `Pix` | 5 |
 | `Other` | 6 |
+
+#### `RecurrenceFrequency`
+
+| Valor | Int |
+|---|---|
+| `Daily` | 1 |
+| `Weekly` | 2 |
+| `Monthly` | 3 |
+| `Yearly` | 4 |
+
+Extensão `ToFriendlyString()` retorna o nome em inglês.
 
 #### `Currency`
 
@@ -234,6 +300,26 @@ Extensão `ToSymbol()` converte para símbolo da moeda.
 
 ---
 
+#### `RecurrenceScheduleErrors`
+
+| Erro | Mensagem |
+|---|---|
+| `InvalidId` | O ID do agendamento deve ser maior que zero |
+| `InvalidFrequency` | A frequência de recorrência é inválida |
+| `InvalidStartDate` | A data de início é obrigatória |
+| `EndDateBeforeStartDate` | A data final deve ser posterior à data de início |
+| `InvalidMaxOccurrences` | O número máximo de ocorrências deve ser maior que zero |
+| `InvalidTransaction` | A transação de origem é obrigatória |
+| `NotFound(id)` | Agendamento com ID {id} não encontrado |
+| `InactiveSchedule` | Este agendamento está inativo |
+| `MaxOccurrencesReached` | Número máximo de ocorrências atingido |
+| `TransactionNotLoaded` | A transação de origem não foi carregada |
+| `TransactionNotRecurring` | A transação de origem não está marcada como recorrente |
+| `ScheduleAlreadyExists` | Já existe um agendamento para esta transação |
+| `CreateError`, `UpdateError`, `DeleteError` | Erros de operação |
+
+---
+
 ### Filtros e Especificações
 
 #### `CategoryQueryFilter`
@@ -243,6 +329,10 @@ Extensão `ToSymbol()` converte para símbolo da moeda.
 #### `TransactionQueryFilter`
 
 `Id`, `UserId`, `CategoryId`, `PaymentMethod`, `TransactionType`, `AmountEquals/GreaterThan/LessThan`, `CurrencyEquals`, `DescriptionContains`, `TransactionDate`, `TransactionDateFrom`, `TransactionDateTo`, paginação
+
+#### `RecurrenceScheduleQueryFilter`
+
+`Id`, `TransactionId`, `UserId`, `Frequency`, `IsActive`, `StartDateFrom`, `StartDateTo`, `CreatedAt`, `UpdatedAt`, `IsDeleted`, `SortBy`, `SortDesc`, `Page`, `PageSize`
 
 ---
 
@@ -255,6 +345,16 @@ Extensão `ToSymbol()` converte para símbolo da moeda.
 | `CreateCategoryCommand(UserId, Name, Description?)` | `CreateCategoryResult(int Id)` | Nome: 2-50 chars; Descrição: max 200 | Cria categoria |
 | `UpdateCategoryCommand(Id, Name, Description?)` | `UpdateCategoryResult(bool)` | Mesmo que Create | Atualiza |
 | `DeleteCategoryCommand(Id)` | `DeleteCategoryResult(bool)` | — | Remove |
+
+### Commands — RecurrenceSchedule
+
+| Command | Retorno | Descrição |
+|---|---|---|
+| `UpdateRecurrenceScheduleCommand(Id, Frequency, EndDate?, MaxOccurrences?)` | `UpdateRecurrenceScheduleResult(bool)` | Atualiza frequência e limites |
+| `DeleteRecurrenceScheduleCommand(Id)` | `DeleteRecurrenceScheduleResult(bool)` | Remove agendamento |
+| `DeactivateRecurrenceScheduleCommand(Id)` | `DeactivateRecurrenceScheduleResult(bool)` | Desativa agendamento |
+
+> **Nota:** A criação do `RecurrenceSchedule` é feita automaticamente pelo `CreateTransactionCommandHandler` quando `IsRecurring = true` e os dados de recorrência são informados.
 
 ### Commands — Transaction
 
@@ -284,6 +384,14 @@ Extensão `ToSymbol()` converte para símbolo da moeda.
 | `GetTransactionsByUserIdQuery(userId)` | `IEnumerable<TransactionDTO>` | Transações do usuário |
 | `GetTransactionsByFilterQuery(filter)` | Paginado | Filtro avançado |
 
+### Queries — RecurrenceSchedule
+
+| Query | Retorno | Descrição |
+|---|---|---|
+| `GetRecurrenceScheduleByIdQuery(id)` | `RecurrenceScheduleDTO` | Agendamento por ID |
+| `GetRecurrenceScheduleByUserIdQuery(userId)` | `IEnumerable<RecurrenceScheduleDTO>` | Agendamentos do usuário |
+| `GetRecurrenceScheduleByFilterQuery(filter)` | Paginado | Filtro avançado |
+
 ---
 
 ### DTOs
@@ -306,6 +414,26 @@ CreateTransactionDTO(UserId, CategoryId?, PaymentMethod, TransactionType, Amount
 #### `TransactionFilterDTO`
 ```
 TransactionFilterDTO(Id?, UserId?, CategoryId?, PaymentMethod?, TransactionType?, AmountEquals?, AmountGreaterThan?, AmountLessThan?, CurrencyEquals?, DescriptionContains?, TransactionDate?, TransactionDateFrom?, TransactionDateTo?, ...paginação)
+```
+
+#### `RecurrenceScheduleDTO`
+```
+RecurrenceScheduleDTO(Id, TransactionId, Transaction: TransactionDTO, CreatedAt, UpdatedAt, Frequency, StartDate, EndDate, NextOccurrence, MaxOccurrences?, OccurrencesGenerated, IsActive)
+```
+
+#### `CreateRecurrenceScheduleDTO`
+```
+CreateRecurrenceScheduleDTO(TransactionId, Frequency, StartDate, EndDate?, MaxOccurrences?)
+```
+
+#### `UpdateRecurrenceScheduleDTO`
+```
+UpdateRecurrenceScheduleDTO(Id, Frequency, EndDate?, MaxOccurrences?)
+```
+
+#### `RecurrenceScheduleFilterDTO`
+```
+RecurrenceScheduleFilterDTO(Id?, TransactionId?, UserId?, Frequency?, IsActive?, StartDateFrom?, StartDateTo?, CreatedAt?, UpdatedAt?, IsDeleted?, SortBy?, SortDesc?, Page?, PageSize?)
 ```
 
 #### DTOs de Relatório (estrutura futura)
@@ -353,6 +481,27 @@ DeleteAsync(id)
 DeleteRangeAsync(ids)
 ```
 
+#### `IRecurrenceScheduleService`
+
+```
+GetByIdAsync(id)
+GetAllAsync()
+GetByFilterAsync(filter)
+GetPagedAsync(page, pageSize)
+FindAsync(predicate)
+CountAsync(predicate?)
+CreateAsync(dto)
+CreateRangeAsync(dtos)
+UpdateAsync(dto)
+DeleteAsync(id)
+DeleteRangeAsync(ids)
+GetByTransactionIdAsync(transactionId)
+GetActiveByUserIdAsync(userId)
+DeactiveScheduleAsync(id)
+ActiveScheduleAsync(id)
+ProcessDueSchedulesAsync()
+```
+
 ---
 
 ## Infraestrutura
@@ -363,6 +512,7 @@ DeleteRangeAsync(ids)
 |---|---|
 | `Categories` | `DbSet<Category>` |
 | `Transactions` | `DbSet<Transaction>` |
+| `RecurrenceSchedules` | `DbSet<RecurrenceSchedule>` |
 
 ### `TransactionConfiguration`
 
@@ -376,6 +526,27 @@ O value object `Money` é configurado como owned entity usando `OwnsOne`:
 |---|---|
 | `20250609025157_initialCreate` | 2025-06-09 |
 | `20250609025413_initialCreate321123` | 2025-06-09 |
+| `20260314214026_add_recurrence_schedule` | 2026-03-14 |
+
+### `IRecurrenceScheduleRepository` — Métodos customizados
+
+```
+GetByTransactionId(transactionId, cancellationToken)   → RecurrenceSchedule
+GetActiveByUserId(userId, cancellationToken)            → IEnumerable<RecurrenceSchedule>
+GetDueSchedules(referenceDate, cancellationToken)       → IEnumerable<RecurrenceSchedule>
+```
+
+### Background Services
+
+#### `RecurrenceProcessorService`
+
+`BackgroundService` que executa a cada **1 hora** e processa agendamentos pendentes:
+
+1. Busca schedules com `NextOccurrence <= DateTime.UtcNow` via `GetDueSchedules()`
+2. Para cada schedule, chama `GenerateTransaction()` em loop enquanto `CanGenerateNext()` e `NextOccurrence <= now`
+3. Persiste as transações geradas e atualiza o schedule (incrementa `OccurrencesGenerated`, recalcula `NextOccurrence`)
+
+Registrado em `DependencyInjection.cs` via `services.AddHostedService<RecurrenceProcessorService>()`.
 
 ### `ICategoryRepository` — Métodos customizados
 
@@ -425,6 +596,24 @@ GetByUserIdAsync(userId, startDate, endDate, categoryId?, type?)  → IEnumerabl
 
 **Parâmetros de busca (`/search`):**
 `id`, `userId`, `categoryId`, `paymentMethod`, `transactionType`, `amountEquals`, `amountGreaterThan`, `amountLessThan`, `currencyEquals`, `descriptionContains`, `transactionDate`, `transactionDateFrom`, `transactionDateTo`, `createdAt`, `updatedAt`, `isDeleted`, `sortBy`, `sortDesc`, `page`, `pageSize`
+
+---
+
+### `RecurrenceScheduleController` — `/api/recurrenceschedule`
+
+| Método | Rota | Body / Params | Retorno |
+|---|---|---|---|
+| GET | `/{id}` | `id` | `RecurrenceScheduleDTO` |
+| GET | `/user/{userId}` | `userId` | `IEnumerable<RecurrenceScheduleDTO>` |
+| GET | `/search` | Filtros (query) | Paginado |
+| PUT | `/{id}` | `UpdateRecurrenceScheduleCommand` | `{ isSuccess }` |
+| PATCH | `/{id}/deactivate` | `id` | `{ isSuccess }` |
+| DELETE | `/{id}` | `id` | `204` |
+
+**Parâmetros de busca (`/search`):**
+`id`, `transactionId`, `userId`, `frequency`, `isActive`, `startDateFrom`, `startDateTo`, `createdAt`, `updatedAt`, `isDeleted`, `sortBy`, `sortDesc`, `page`, `pageSize`
+
+> **Nota:** A criação do RecurrenceSchedule não possui endpoint dedicado — é criado automaticamente pelo `CreateTransactionCommandHandler` quando a transação é marcada como recorrente.
 
 ---
 
@@ -525,19 +714,19 @@ dotnet test tests/Financial.UnitTests
 ### Schema do Banco
 
 ```
-Categories              Transactions
-──────────────────      ─────────────────────────────
-Id (PK)                 Id (PK)
-UserId                  UserId
-Name                    CategoryId (FK, nullable) ──→ Categories
-Description?            PaymentMethod (int enum)
-CreatedAt               TransactionType (int enum)
-UpdatedAt               Amount (int — centavos)
-IsDeleted               Currency (int enum)
-                        Description
-                        TransactionDate
-                        IsRecurring
-                        CreatedAt
-                        UpdatedAt
+Categories              Transactions                        RecurrenceSchedules
+──────────────────      ─────────────────────────────       ─────────────────────────────
+Id (PK)                 Id (PK)                             Id (PK)
+UserId                  UserId                              TransactionId (FK) ──→ Transactions
+Name                    CategoryId (FK, nullable) ──→ Categories   Frequency (int enum)
+Description?            PaymentMethod (int enum)            StartDate
+CreatedAt               TransactionType (int enum)          EndDate?
+UpdatedAt               Amount (int — centavos)             NextOccurrence
+IsDeleted               Currency (int enum)                 MaxOccurrences?
+                        Description                         OccurrencesGenerated
+                        TransactionDate                     IsActive
+                        IsRecurring                         CreatedAt
+                        CreatedAt                           UpdatedAt
+                        UpdatedAt                           IsDeleted
                         IsDeleted
 ```

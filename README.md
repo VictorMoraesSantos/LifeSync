@@ -45,7 +45,7 @@ YARP API Gateway (:6006)
   ├──► Users API         (autenticação, perfil)
   ├──► TaskManager API   (tarefas, labels)
   ├──► Nutrition API     (diários, refeições, alimentos)
-  ├──► Financial API     (transações, categorias, moedas)
+  ├──► Financial API     (transações, categorias, moedas, recorrências)
   └──► Gym API           (exercícios, rotinas, sessões)
         │
         ▼ (eventos de integração via RabbitMQ)
@@ -97,12 +97,13 @@ Acompanhamento de nutrição com diários, refeições, alimentos e ingestão de
 - Endpoints: 5 controllers cobrindo todos os agregados
 
 ### Financial Service
-Controle financeiro com transações, categorias e suporte a múltiplas moedas.
+Controle financeiro com transações, categorias, transações recorrentes e suporte a múltiplas moedas.
 
-- Entidades: `Transaction`, `Category`
+- Entidades: `Transaction`, `Category`, `RecurrenceSchedule`
 - Value Object `Money` (Amount + Currency) com suporte a 140+ moedas e símbolo via `ToSymbol()`
-- Enumerações: `TransactionType` (Income/Expense), `PaymentMethod` (6 métodos)
-- `ReportsController` (placeholder para futuras funcionalidades)
+- Enumerações: `TransactionType` (Income/Expense), `PaymentMethod` (6 métodos), `RecurrenceFrequency` (Daily/Weekly/Monthly/Yearly)
+- Background Service `RecurrenceProcessorService` que gera transações automaticamente a cada 1h com base nos agendamentos ativos
+- Endpoints: CRUD de transações + categorias + gestão de agendamentos recorrentes
 
 ### Gym Service
 Gerenciamento de treinos com exercícios, rotinas e sessões de treino.
@@ -215,7 +216,8 @@ A documentação técnica completa de cada microserviço — incluindo todas as 
 | [users-service.md](./documentations/users-service.md) | Autenticação, JWT, Identity, perfil de usuário |
 | [taskmanager-service.md](./documentations/taskmanager-service.md) | Tarefas, labels, lembrete de vencimento |
 | [nutrition-service.md](./documentations/nutrition-service.md) | Diários, refeições, alimentos, líquidos, metas |
-| [financial-service.md](./documentations/financial-service.md) | Transações, categorias, moedas |
+| [financial-service.md](./documentations/services/financial-service.md) | Transações, categorias, moedas, recorrências |
+| [RecurringTransactions.md](./documentations/services/RecurringTransactions.md) | Decisão arquitetural e fluxo de transações recorrentes |
 | [gym-service.md](./documentations/gym-service.md) | Exercícios, rotinas, sessões de treino |
 | [notification-service.md](./documentations/notification-service.md) | E-mails via RabbitMQ + SMTP |
 | [building-blocks.md](./documentations/building-blocks.md) | Building Blocks & Core — CQRS, Result Pattern, Messaging, Domain |

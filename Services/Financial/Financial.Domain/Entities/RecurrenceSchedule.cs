@@ -39,6 +39,8 @@ namespace Financial.Domain.Entities
             StartDate = startDate;
             EndDate = endDate;
             MaxOccurrences = maxOccurrences;
+            NextOccurrence = CalculateNextOccurrence(startDate, frequency);
+            IsActive = true;
         }
 
         public void Update(

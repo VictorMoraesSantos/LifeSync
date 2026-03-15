@@ -51,7 +51,7 @@ namespace Financial.API.Controllers
                 : HttpResult<object>.BadRequest(result.Error!.Description);
         }
 
-        [HttpGet("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<HttpResult<object>> Update(int id, [FromBody] UpdateRecurrenceScheduleCommand command, CancellationToken cancellationToken)
         {
             var updatedCommand = new UpdateRecurrenceScheduleCommand(id, command.Frequency, command.EndDate, command.MaxOccurrences);

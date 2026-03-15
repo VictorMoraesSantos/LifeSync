@@ -57,8 +57,11 @@ namespace TaskManager.E2ETests.Fixtures
                 services.AddHostedService<MigrationHostedService>();
 
                 // Configure test authentication
-                services.AddAuthentication("TestScheme")
-                    .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", _ => { });
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = "TestScheme";
+                    options.DefaultChallengeScheme = "TestScheme";
+                }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", _ => { });
             });
 
             builder.UseEnvironment("Testing");
