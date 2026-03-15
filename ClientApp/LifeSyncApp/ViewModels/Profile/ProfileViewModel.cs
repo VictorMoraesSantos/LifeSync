@@ -42,6 +42,13 @@ namespace LifeSyncApp.ViewModels.Profile
         public ICommand ChangeEmailCommand { get; }
         public ICommand ChangePasswordCommand { get; }
 
+        private bool _isLoadingData;
+        public bool IsLoadingData
+        {
+            get => _isLoadingData;
+            private set => SetProperty(ref _isLoadingData, value);
+        }
+
         private DateTime? _lastRefresh;
 
         public ProfileViewModel(IAuthService authService, UserProfileService userProfileService)
@@ -76,6 +83,7 @@ namespace LifeSyncApp.ViewModels.Profile
             try
             {
                 IsBusy = true;
+                IsLoadingData = true;
                 await LoadUserInfoAsync();
                 _lastRefresh = DateTime.Now;
             }
@@ -85,6 +93,7 @@ namespace LifeSyncApp.ViewModels.Profile
             }
             finally
             {
+                IsLoadingData = false;
                 IsBusy = false;
             }
         }

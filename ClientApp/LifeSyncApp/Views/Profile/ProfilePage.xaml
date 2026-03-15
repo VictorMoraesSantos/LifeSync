@@ -5,230 +5,342 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource FinBackground}">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="24" Padding="24,16,24,24">
+    <Grid BackgroundColor="{StaticResource FinBackground}">
 
-            <!-- Header -->
-            <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
-                <Image Source="arrow_back.svg"
-                       WidthRequest="22" HeightRequest="22"
-                       VerticalOptions="Center">
-                    <Image.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnBackTapped"/>
-                    </Image.GestureRecognizers>
-                </Image>
-                <Label Text="Configurações"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="22"
-                       TextColor="{StaticResource FinDark}"
-                       VerticalOptions="Center"/>
-            </HorizontalStackLayout>
+        <!-- Skeleton Loading -->
+        <ScrollView x:Name="SkeletonContainer"
+                    IsVisible="{Binding IsLoadingData}"
+                    BackgroundColor="{StaticResource FinBackground}">
+            <VerticalStackLayout Spacing="24" Padding="24,16,24,24" BackgroundColor="{StaticResource FinBackground}">
 
-            <!-- Profile Card -->
-            <Border BackgroundColor="{StaticResource FinCardBg}"
-                    StrokeThickness="0"
-                    Padding="20"
-                    StrokeShape="RoundRectangle 16">
-                <Border.Shadow>
-                    <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
-                </Border.Shadow>
+                <!-- Header skeleton -->
+                <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                    <Border HeightRequest="22" WidthRequest="22" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                    <Border HeightRequest="22" WidthRequest="170" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0"/>
+                </HorizontalStackLayout>
 
-                <HorizontalStackLayout Spacing="16">
-                    <!-- Avatar Circle -->
-                    <Border BackgroundColor="#C8F0D8"
-                            StrokeThickness="0"
-                            WidthRequest="56" HeightRequest="56"
-                            StrokeShape="RoundRectangle 100">
-                        <Label Text="{Binding UserInitials}"
-                               FontFamily="OutfitSemiBold"
-                               FontSize="20"
-                               TextColor="{StaticResource FinGreen}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
+                <!-- Profile Card skeleton -->
+                <Border BackgroundColor="White" StrokeThickness="0" Padding="20" StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
+                    </Border.Shadow>
+                    <HorizontalStackLayout Spacing="16">
+                        <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 100" Stroke="Transparent" StrokeThickness="0"/>
+                        <VerticalStackLayout Spacing="6" VerticalOptions="Center">
+                            <Border HeightRequest="16" WidthRequest="120" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                            <Border HeightRequest="12" WidthRequest="170" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Account Section skeleton -->
+                <VerticalStackLayout Spacing="12">
+                    <Border HeightRequest="16" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                    <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                        <Border.Shadow>
+                            <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
+                        </Border.Shadow>
+                        <VerticalStackLayout>
+                            <!-- Name Row skeleton -->
+                            <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                                <HorizontalStackLayout Spacing="10" Grid.Column="0" VerticalOptions="Center">
+                                    <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="14" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout Spacing="8" Grid.Column="2" VerticalOptions="Center">
+                                    <Border HeightRequest="12" WidthRequest="90" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="16" WidthRequest="16" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                            </Grid>
+                            <BoxView HeightRequest="1" Color="#F0EFEC"/>
+                            <!-- Email Row skeleton -->
+                            <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                                <HorizontalStackLayout Spacing="10" Grid.Column="0" VerticalOptions="Center">
+                                    <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="14" WidthRequest="45" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout Spacing="8" Grid.Column="2" VerticalOptions="Center">
+                                    <Border HeightRequest="12" WidthRequest="130" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="16" WidthRequest="16" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                            </Grid>
+                            <BoxView HeightRequest="1" Color="#F0EFEC"/>
+                            <!-- Password Row skeleton -->
+                            <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                                <HorizontalStackLayout Spacing="10" Grid.Column="0" VerticalOptions="Center">
+                                    <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="14" WidthRequest="95" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                                <Border Grid.Column="2" HeightRequest="16" WidthRequest="16" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            </Grid>
+                        </VerticalStackLayout>
                     </Border>
+                </VerticalStackLayout>
 
-                    <!-- Name and Email -->
-                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
-                        <Label Text="{Binding UserName}"
-                               FontFamily="OutfitSemiBold"
-                               FontSize="17"
-                               TextColor="{StaticResource FinDark}"/>
-                        <Label Text="{Binding UserEmail}"
-                               FontFamily="OutfitRegular"
-                               FontSize="13"
-                               TextColor="#6D6C6A"/>
-                    </VerticalStackLayout>
-                </HorizontalStackLayout>
-            </Border>
-
-            <!-- Account Section -->
-            <VerticalStackLayout Spacing="12">
-                <Label Text="Conta"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="18"
-                       TextColor="{StaticResource FinDark}"/>
-
-                <Border BackgroundColor="{StaticResource FinCardBg}"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 12">
-                    <Border.Shadow>
-                        <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
-                    </Border.Shadow>
-
-                    <VerticalStackLayout>
-                        <!-- Name Row -->
-                        <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto,Auto">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ChangeNameCommand}"/>
-                            </Grid.GestureRecognizers>
-                            <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
-                                <Image Source="user_green.svg"
-                                       WidthRequest="18" HeightRequest="18"
-                                       VerticalOptions="Center"/>
-                                <Label Text="Nome"
-                                       FontFamily="OutfitRegular"
-                                       FontSize="14"
-                                       TextColor="{StaticResource FinDark}"
-                                       VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                            <Label Grid.Column="2"
-                                   Text="{Binding UserName}"
-                                   FontFamily="OutfitRegular"
-                                   FontSize="13"
-                                   TextColor="#9C9B99"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="End"
-                                   Margin="0,0,6,0"/>
-                            <Image Grid.Column="3"
-                                   Source="chevron_right_gray.svg"
-                                   WidthRequest="16" HeightRequest="16"
-                                   VerticalOptions="Center"/>
-                        </Grid>
-
-                        <!-- Divider -->
-                        <BoxView HeightRequest="1" Color="#F0EFEC"/>
-
-                        <!-- Email Row -->
-                        <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto,Auto">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ChangeEmailCommand}"/>
-                            </Grid.GestureRecognizers>
-                            <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
-                                <Image Source="mail_green.svg"
-                                       WidthRequest="18" HeightRequest="18"
-                                       VerticalOptions="Center"/>
-                                <Label Text="Email"
-                                       FontFamily="OutfitRegular"
-                                       FontSize="14"
-                                       TextColor="{StaticResource FinDark}"
-                                       VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                            <Label Grid.Column="2"
-                                   Text="{Binding UserEmail}"
-                                   FontFamily="OutfitRegular"
-                                   FontSize="13"
-                                   TextColor="#9C9B99"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="End"
-                                   Margin="0,0,6,0"/>
-                            <Image Grid.Column="3"
-                                   Source="chevron_right_gray.svg"
-                                   WidthRequest="16" HeightRequest="16"
-                                   VerticalOptions="Center"/>
-                        </Grid>
-
-                        <!-- Divider -->
-                        <BoxView HeightRequest="1" Color="#F0EFEC"/>
-
-                        <!-- Password Row -->
+                <!-- Preferences Section skeleton -->
+                <VerticalStackLayout Spacing="12">
+                    <Border HeightRequest="16" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                    <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                        <Border.Shadow>
+                            <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
+                        </Border.Shadow>
                         <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ChangePasswordCommand}"/>
-                            </Grid.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="10" Grid.Column="0" VerticalOptions="Center">
+                                <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                <Border HeightRequest="14" WidthRequest="90" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                            </HorizontalStackLayout>
+                            <Border Grid.Column="2" HeightRequest="24" WidthRequest="44" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 12" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Logout Button skeleton -->
+                <Border BackgroundColor="Transparent"
+                        Stroke="#EDECEA"
+                        StrokeThickness="1"
+                        HeightRequest="48"
+                        StrokeShape="RoundRectangle 12">
+                    <HorizontalStackLayout Spacing="8"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center">
+                        <Border HeightRequest="18" WidthRequest="18" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                        <Border HeightRequest="14" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Version skeleton -->
+                <Border HeightRequest="10" WidthRequest="100" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Center"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Real Content -->
+        <ScrollView IsVisible="{Binding IsLoadingData, Converter={StaticResource InvertedBoolConverter}}">
+            <VerticalStackLayout Spacing="24" Padding="24,16,24,24">
+
+                <!-- Header -->
+                <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                    <Image Source="arrow_back.svg"
+                           WidthRequest="22" HeightRequest="22"
+                           VerticalOptions="Center">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnBackTapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Label Text="Configurações"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="22"
+                           TextColor="{StaticResource FinDark}"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <!-- Profile Card -->
+                <Border BackgroundColor="{StaticResource FinCardBg}"
+                        StrokeThickness="0"
+                        Padding="20"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
+                    </Border.Shadow>
+
+                    <HorizontalStackLayout Spacing="16">
+                        <!-- Avatar Circle -->
+                        <Border BackgroundColor="#C8F0D8"
+                                StrokeThickness="0"
+                                WidthRequest="56" HeightRequest="56"
+                                StrokeShape="RoundRectangle 100">
+                            <Label Text="{Binding UserInitials}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="20"
+                                   TextColor="{StaticResource FinGreen}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <!-- Name and Email -->
+                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                            <Label Text="{Binding UserName}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="17"
+                                   TextColor="{StaticResource FinDark}"/>
+                            <Label Text="{Binding UserEmail}"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="13"
+                                   TextColor="#6D6C6A"/>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Account Section -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Conta"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="18"
+                           TextColor="{StaticResource FinDark}"/>
+
+                    <Border BackgroundColor="{StaticResource FinCardBg}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 12">
+                        <Border.Shadow>
+                            <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
+                        </Border.Shadow>
+
+                        <VerticalStackLayout>
+                            <!-- Name Row -->
+                            <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto,Auto">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ChangeNameCommand}"/>
+                                </Grid.GestureRecognizers>
+                                <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
+                                    <Image Source="user_green.svg"
+                                           WidthRequest="18" HeightRequest="18"
+                                           VerticalOptions="Center"/>
+                                    <Label Text="Nome"
+                                           FontFamily="OutfitRegular"
+                                           FontSize="14"
+                                           TextColor="{StaticResource FinDark}"
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <Label Grid.Column="2"
+                                       Text="{Binding UserName}"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="13"
+                                       TextColor="#9C9B99"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="End"
+                                       Margin="0,0,6,0"/>
+                                <Image Grid.Column="3"
+                                       Source="chevron_right_gray.svg"
+                                       WidthRequest="16" HeightRequest="16"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+
+                            <!-- Divider -->
+                            <BoxView HeightRequest="1" Color="#F0EFEC"/>
+
+                            <!-- Email Row -->
+                            <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto,Auto">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ChangeEmailCommand}"/>
+                                </Grid.GestureRecognizers>
+                                <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
+                                    <Image Source="mail_green.svg"
+                                           WidthRequest="18" HeightRequest="18"
+                                           VerticalOptions="Center"/>
+                                    <Label Text="Email"
+                                           FontFamily="OutfitRegular"
+                                           FontSize="14"
+                                           TextColor="{StaticResource FinDark}"
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <Label Grid.Column="2"
+                                       Text="{Binding UserEmail}"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="13"
+                                       TextColor="#9C9B99"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="End"
+                                       Margin="0,0,6,0"/>
+                                <Image Grid.Column="3"
+                                       Source="chevron_right_gray.svg"
+                                       WidthRequest="16" HeightRequest="16"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+
+                            <!-- Divider -->
+                            <BoxView HeightRequest="1" Color="#F0EFEC"/>
+
+                            <!-- Password Row -->
+                            <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ChangePasswordCommand}"/>
+                                </Grid.GestureRecognizers>
+                                <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
+                                    <Image Source="lock_green.svg"
+                                           WidthRequest="18" HeightRequest="18"
+                                           VerticalOptions="Center"/>
+                                    <Label Text="Alterar senha"
+                                           FontFamily="OutfitRegular"
+                                           FontSize="14"
+                                           TextColor="{StaticResource FinDark}"
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <Image Grid.Column="2"
+                                       Source="chevron_right_gray.svg"
+                                       WidthRequest="16" HeightRequest="16"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Preferences Section -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Preferências"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="18"
+                           TextColor="{StaticResource FinDark}"/>
+
+                    <Border BackgroundColor="{StaticResource FinCardBg}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 12">
+                        <Border.Shadow>
+                            <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
+                        </Border.Shadow>
+
+                        <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
                             <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
-                                <Image Source="lock_green.svg"
+                                <Image Source="bell_green.svg"
                                        WidthRequest="18" HeightRequest="18"
                                        VerticalOptions="Center"/>
-                                <Label Text="Alterar senha"
+                                <Label Text="Notificações"
                                        FontFamily="OutfitRegular"
                                        FontSize="14"
                                        TextColor="{StaticResource FinDark}"
                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
-                            <Image Grid.Column="2"
-                                   Source="chevron_right_gray.svg"
-                                   WidthRequest="16" HeightRequest="16"
-                                   VerticalOptions="Center"/>
+                            <Switch Grid.Column="2"
+                                    IsToggled="{Binding NotificationsEnabled}"
+                                    OnColor="{StaticResource FinGreen}"
+                                    ThumbColor="White"
+                                    VerticalOptions="Center"/>
                         </Grid>
-                    </VerticalStackLayout>
-                </Border>
-            </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
 
-            <!-- Preferences Section -->
-            <VerticalStackLayout Spacing="12">
-                <Label Text="Preferências"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="18"
-                       TextColor="{StaticResource FinDark}"/>
-
-                <Border BackgroundColor="{StaticResource FinCardBg}"
-                        StrokeThickness="0"
+                <!-- Logout Button -->
+                <Border BackgroundColor="Transparent"
+                        Stroke="{StaticResource FinExpense}"
+                        StrokeThickness="1"
+                        HeightRequest="48"
                         StrokeShape="RoundRectangle 12">
-                    <Border.Shadow>
-                        <Shadow Brush="#1A1918" Offset="0,1" Radius="6" Opacity="0.03"/>
-                    </Border.Shadow>
-
-                    <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
-                        <HorizontalStackLayout Spacing="12" Grid.Column="0" VerticalOptions="Center">
-                            <Image Source="bell_green.svg"
-                                   WidthRequest="18" HeightRequest="18"
-                                   VerticalOptions="Center"/>
-                            <Label Text="Notificações"
-                                   FontFamily="OutfitRegular"
-                                   FontSize="14"
-                                   TextColor="{StaticResource FinDark}"
-                                   VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-                        <Switch Grid.Column="2"
-                                IsToggled="{Binding NotificationsEnabled}"
-                                OnColor="{StaticResource FinGreen}"
-                                ThumbColor="White"
-                                VerticalOptions="Center"/>
-                    </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding LogoutCommand}"/>
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="8"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center">
+                        <Image Source="logout_red.svg"
+                               WidthRequest="18" HeightRequest="18"
+                               VerticalOptions="Center"/>
+                        <Label Text="Sair da conta"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="15"
+                               TextColor="{StaticResource FinExpense}"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
                 </Border>
+
+                <!-- Version -->
+                <Label Text="LifeSync v1.0.0"
+                       FontFamily="OutfitRegular"
+                       FontSize="12"
+                       TextColor="#9C9B99"
+                       HorizontalOptions="Center"/>
+
             </VerticalStackLayout>
+        </ScrollView>
 
-            <!-- Logout Button -->
-            <Border BackgroundColor="Transparent"
-                    Stroke="{StaticResource FinExpense}"
-                    StrokeThickness="1"
-                    HeightRequest="48"
-                    StrokeShape="RoundRectangle 12">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding LogoutCommand}"/>
-                </Border.GestureRecognizers>
-                <HorizontalStackLayout Spacing="8"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center">
-                    <Image Source="logout_red.svg"
-                           WidthRequest="18" HeightRequest="18"
-                           VerticalOptions="Center"/>
-                    <Label Text="Sair da conta"
-                           FontFamily="OutfitSemiBold"
-                           FontSize="15"
-                           TextColor="{StaticResource FinExpense}"
-                           VerticalOptions="Center"/>
-                </HorizontalStackLayout>
-            </Border>
-
-            <!-- Version -->
-            <Label Text="LifeSync v1.0.0"
-                   FontFamily="OutfitRegular"
-                   FontSize="12"
-                   TextColor="#9C9B99"
-                   HorizontalOptions="Center"/>
-
-        </VerticalStackLayout>
-    </ScrollView>
+    </Grid>
 
 </ContentPage>
