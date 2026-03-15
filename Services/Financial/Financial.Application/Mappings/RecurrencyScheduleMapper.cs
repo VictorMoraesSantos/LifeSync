@@ -26,7 +26,7 @@ namespace Financial.Application.Mappings
                 entity.UpdatedAt,
                 entity.Frequency,
                 entity.StartDate,
-                entity.EndDate.Value,
+                entity.EndDate,
                 entity.NextOccurrence,
                 entity.MaxOccurrences,
                 entity.OccurrencesGenerated,

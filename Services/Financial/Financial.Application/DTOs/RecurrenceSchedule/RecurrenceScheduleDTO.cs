@@ -12,7 +12,7 @@ namespace Financial.Application.DTOs.RecurrenceSchedule
         DateTime? UpdatedAt,
         RecurrenceFrequency Frequency,
         DateTime StartDate,
-        DateTime EndDate,
+        DateTime? EndDate,
         DateTime NextOccurrence,
         int? MaxOccurrences,
         int OccurrencesGenerated,
