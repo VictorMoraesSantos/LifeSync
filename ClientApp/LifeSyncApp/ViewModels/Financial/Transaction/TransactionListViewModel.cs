@@ -17,6 +17,13 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         private bool _filterSetFromNavigation = false;
         private DateTime? _lastTransactionsRefresh;
         private TransactionFilterDTO? _cachedFilter;
+        private bool _isLoadingData;
+
+        public bool IsLoadingData
+        {
+            get => _isLoadingData;
+            private set => SetProperty(ref _isLoadingData, value);
+        }
 
         public ObservableCollection<TransactionGroup> GroupedTransactions { get; } = new();
 
@@ -90,12 +97,12 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 
         private async Task FetchAndGroupTransactionsAsync(string errorMsg)
         {
-            if (IsBusy) return;
-
-            IsBusy = true;
+            if (IsLoadingData) return;
 
             try
             {
+                IsLoadingData = true;
+                IsBusy = true;
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
                 var filter = _currentFilter with { UserId = _userSession.UserId };
@@ -117,6 +124,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             }
             finally
             {
+                IsLoadingData = false;
                 IsBusy = false;
             }
         }

@@ -55,8 +55,132 @@
             </Border>
         </Grid>
 
+        <!-- Skeleton Loading -->
+        <ScrollView Grid.Row="1"
+                    IsVisible="{Binding IsLoadingData}"
+                    BackgroundColor="{StaticResource FinBackground}">
+            <VerticalStackLayout Padding="20,0,20,24" Spacing="20">
+
+                <!-- Filter Chip skeleton -->
+                <HorizontalStackLayout>
+                    <Border BackgroundColor="White" StrokeShape="RoundRectangle 100" StrokeThickness="1" Stroke="#EDECEA" Padding="14,8">
+                        <HorizontalStackLayout Spacing="6">
+                            <Border WidthRequest="14" HeightRequest="14" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                            <Border WidthRequest="40" HeightRequest="12" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </HorizontalStackLayout>
+
+                <!-- Date Group 1 -->
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Border HeightRequest="12" WidthRequest="170" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        <Border Grid.Column="1" HeightRequest="10" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                    </Grid>
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" StrokeShape="RoundRectangle 16">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                            <Border Grid.Column="0" WidthRequest="8" HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="180" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <HorizontalStackLayout Spacing="6">
+                                    <Border HeightRequest="18" WidthRequest="60" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="18" WidthRequest="75" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" HeightRequest="14" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Date Group 2 -->
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Border HeightRequest="12" WidthRequest="170" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        <Border Grid.Column="1" HeightRequest="10" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                    </Grid>
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" StrokeShape="RoundRectangle 16">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                            <Border Grid.Column="0" WidthRequest="8" HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="160" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <HorizontalStackLayout Spacing="6">
+                                    <Border HeightRequest="18" WidthRequest="40" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="18" WidthRequest="65" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" HeightRequest="14" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Date Group 3 -->
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Border HeightRequest="12" WidthRequest="165" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        <Border Grid.Column="1" HeightRequest="10" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                    </Grid>
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" StrokeShape="RoundRectangle 16">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                            <Border Grid.Column="0" WidthRequest="8" HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="200" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <HorizontalStackLayout Spacing="6">
+                                    <Border HeightRequest="18" WidthRequest="55" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="18" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" HeightRequest="14" WidthRequest="75" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Date Group 4 -->
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Border HeightRequest="12" WidthRequest="155" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        <Border Grid.Column="1" HeightRequest="10" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                    </Grid>
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" StrokeShape="RoundRectangle 16">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                            <Border Grid.Column="0" WidthRequest="8" HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="190" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <HorizontalStackLayout Spacing="6">
+                                    <Border HeightRequest="18" WidthRequest="80" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="18" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" HeightRequest="14" WidthRequest="65" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Date Group 5 -->
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Border HeightRequest="12" WidthRequest="160" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                        <Border Grid.Column="1" HeightRequest="10" WidthRequest="70" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                    </Grid>
+                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="#E5E4E1" StrokeShape="RoundRectangle 16">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,14">
+                            <Border Grid.Column="0" WidthRequest="8" HeightRequest="8" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Border HeightRequest="14" WidthRequest="140" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" HorizontalOptions="Start"/>
+                                <HorizontalStackLayout Spacing="6">
+                                    <Border HeightRequest="18" WidthRequest="85" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                    <Border HeightRequest="18" WidthRequest="50" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 4" Stroke="Transparent" StrokeThickness="0"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                            <Border Grid.Column="2" HeightRequest="14" WidthRequest="85" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
         <!-- Content -->
         <RefreshView Grid.Row="1"
+                     IsVisible="{Binding IsLoadingData, Converter={StaticResource InvertedBoolConverter}}"
                      IsRefreshing="{Binding IsBusy}"
                      Command="{Binding RefreshCommand}">
             <ScrollView>
