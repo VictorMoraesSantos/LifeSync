@@ -38,6 +38,7 @@ namespace Financial.IntegrationTests.Services
             return new RecurrenceScheduleService(
                 scheduleRepo,
                 transactionRepo,
+                context,
                 NullLogger<RecurrenceScheduleService>.Instance);
         }
 

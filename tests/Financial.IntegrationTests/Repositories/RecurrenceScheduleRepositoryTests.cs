@@ -203,7 +203,7 @@ namespace Financial.IntegrationTests.Repositories
             var (_, transaction) = await CreatePrerequisitesAsync();
             var schedule = TestDataFactory.CreateRecurrenceSchedule(
                 transaction.Id,
-                startDate: DateTime.UtcNow.AddDays(-1));
+                startDate: DateTime.UtcNow.AddMonths(-2));
             schedule.Activate();
 
             var repoCreate = new RecurrenceScheduleRepository(_fixture.CreateNewContext());
@@ -211,7 +211,7 @@ namespace Financial.IntegrationTests.Repositories
 
             // Act
             var repo = new RecurrenceScheduleRepository(_fixture.CreateNewContext());
-            var result = await repo.GetDueSchedules(DateTime.UtcNow.AddDays(1), CancellationToken.None);
+            var result = await repo.GetDueSchedules(DateTime.UtcNow, CancellationToken.None);
 
             // Assert
             result.Should().NotBeEmpty();
