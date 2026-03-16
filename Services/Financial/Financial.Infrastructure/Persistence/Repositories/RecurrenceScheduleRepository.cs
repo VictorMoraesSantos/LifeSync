@@ -33,7 +33,8 @@ namespace Financial.Infrastructure.Persistence.Repositories
 
         public async Task Delete(RecurrenceSchedule entity, CancellationToken cancellationToken = default)
         {
-            _context.Update(entity);
+            entity.MarkAsDeleted();
+            _context.RecurrenceSchedule.Update(entity);
             await _context.SaveChangesAsync(cancellationToken);
         }
 

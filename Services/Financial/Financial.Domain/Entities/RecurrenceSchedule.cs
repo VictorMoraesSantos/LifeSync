@@ -2,6 +2,7 @@
 using Core.Domain.Exceptions;
 using Financial.Domain.Enums;
 using Financial.Domain.Errors;
+using FinancialControl.Domain.ValueObjects;
 
 namespace Financial.Domain.Entities
 {
@@ -77,7 +78,7 @@ namespace Financial.Domain.Entities
                 Transaction.CategoryId,
                 Transaction.PaymentMethod,
                 Transaction.TransactionType,
-                Transaction.Amount,
+                Money.Create(Transaction.Amount.Amount, Transaction.Amount.Currency),
                 Transaction.Description,
                 NextOccurrence,
                 isRecurring: false);
@@ -101,7 +102,6 @@ namespace Financial.Domain.Entities
             if (!IsActive)
                 throw new DomainException(RecurrenceScheduleErrors.InactiveSchedule);
 
-            OccurrencesGenerated++;
             NextOccurrence = CalculateNextOccurrence(NextOccurrence, Frequency);
 
             if (MaxOccurrences.HasValue && OccurrencesGenerated >= MaxOccurrences.Value)

@@ -6,7 +6,7 @@ namespace Financial.Domain.Repositories
 {
     public interface IRecurrenceScheduleRepository : IRepository<RecurrenceSchedule, int, RecurrenceScheduleQueryFilter>
     {
-        Task<RecurrenceSchedule> GetByTransactionId(int transactionId, CancellationToken cancellationToken);
+        Task<RecurrenceSchedule?> GetByTransactionId(int transactionId, CancellationToken cancellationToken);
         Task<IEnumerable<RecurrenceSchedule>> GetActiveByUserId(int userId, CancellationToken cancellationToken);
         Task<IEnumerable<RecurrenceSchedule>> GetDueSchedules(DateTime referenceDate, CancellationToken cancellationToken);
     }
