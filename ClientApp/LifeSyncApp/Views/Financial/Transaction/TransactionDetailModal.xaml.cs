@@ -31,7 +31,7 @@ namespace LifeSyncApp.Views.Financial
             _viewModel.OnDeleted += OnDeleted;
 
             if (Transaction != null)
-                await _viewModel.InitializeAsync(Transaction);
+                _viewModel.Initialize(Transaction);
         }
 
         protected override void OnDisappearing()

@@ -147,10 +147,10 @@
                             BackgroundColor="White"
                             Padding="0">
                         <Border.Shadow>
-                            <Shadow Brush="#1A191808"
+                            <Shadow Brush="#1A1918"
                                     Offset="0,2"
                                     Radius="12"
-                                    Opacity="1"/>
+                                    Opacity="0.03"/>
                         </Border.Shadow>
 
                         <CollectionView ItemsSource="{Binding TaskLabels}"

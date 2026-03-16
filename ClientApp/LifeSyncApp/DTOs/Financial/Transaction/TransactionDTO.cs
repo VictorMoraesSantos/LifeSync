@@ -1,4 +1,5 @@
 using LifeSyncApp.DTOs.Financial.Category;
+using LifeSyncApp.DTOs.Financial.RecurrenceSchedule;
 using LifeSyncApp.Models.Financial;
 
 namespace LifeSyncApp.DTOs.Financial.Transaction
@@ -14,5 +15,6 @@ namespace LifeSyncApp.DTOs.Financial.Transaction
         Money Amount,
         string Description,
         DateTime TransactionDate,
-        bool IsRecurring = false);
+        bool IsRecurring = false,
+        RecurrenceScheduleInfoDTO? RecurrenceSchedule = null);
 }

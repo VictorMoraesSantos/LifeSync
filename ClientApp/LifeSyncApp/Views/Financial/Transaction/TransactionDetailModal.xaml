@@ -7,7 +7,7 @@
              Shell.PresentationMode="ModalAnimated"
              BackgroundColor="{StaticResource FinBackground}">
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,*">
 
         <!-- Nav Bar -->
         <Grid Grid.Row="0"
@@ -83,7 +83,7 @@
                                 <DataTrigger TargetType="Border"
                                              Binding="{Binding Transaction.TransactionType}"
                                              Value="Expense">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource FinDestructiveBg}"/>
+                                    <Setter Property="BackgroundColor" Value="#FFEBEE"/>
                                 </DataTrigger>
                             </Border.Triggers>
                             <Image WidthRequest="24"
@@ -235,45 +235,10 @@
                                    TextColor="{StaticResource FinDark}"
                                    VerticalOptions="Center"/>
                         </Grid>
-                        <BoxView HeightRequest="1" Color="{StaticResource FinBorder}"/>
-
-                        <!-- Recurring Row -->
-                        <Grid ColumnDefinitions="*,Auto"
-                              Padding="20,16">
-                            <Label Grid.Column="0"
-                                   Text="Recorrente"
-                                   FontSize="13"
-                                   TextColor="{StaticResource FinMuted}"
-                                   VerticalOptions="Center"/>
-                            <Border Grid.Column="1"
-                                    StrokeShape="RoundRectangle 8"
-                                    StrokeThickness="0"
-                                    Padding="10,4"
-                                    BackgroundColor="{Binding Transaction.IsRecurring, Converter={StaticResource TransactionTypeToBackgroundConverter}, ConverterParameter=Income}">
-                                <Label FontSize="13"
-                                       FontAttributes="Bold"
-                                       VerticalOptions="Center">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding Transaction.IsRecurring}"
-                                                     Value="True">
-                                            <Setter Property="Text" Value="Sim"/>
-                                            <Setter Property="TextColor" Value="#00A63E"/>
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Label"
-                                                     Binding="{Binding Transaction.IsRecurring}"
-                                                     Value="False">
-                                            <Setter Property="Text" Value="Não"/>
-                                            <Setter Property="TextColor" Value="{StaticResource FinMuted}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </Border>
-                        </Grid>
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Recurrence Details Card -->
+                <!-- Recurrence Card -->
                 <Border BackgroundColor="{StaticResource FinCardBg}"
                         StrokeThickness="1"
                         Stroke="{StaticResource FinBorder}"
@@ -285,12 +250,53 @@
 
                     <VerticalStackLayout>
 
-                        <!-- Header -->
-                        <Label Text="Detalhes da Recorrência"
-                               FontSize="15"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource FinDark}"
-                               Padding="20,16,20,0"/>
+                        <!-- Title Row with Status Badge -->
+                        <Grid ColumnDefinitions="*,Auto"
+                              Padding="20,16">
+                            <Label Grid.Column="0"
+                                   Text="Recorrência"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource FinDark}"
+                                   VerticalOptions="Center"/>
+                            <Border Grid.Column="1"
+                                    StrokeShape="RoundRectangle 100"
+                                    StrokeThickness="0"
+                                    Padding="12,4"
+                                    VerticalOptions="Center">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding Schedule.IsActive}"
+                                                 Value="True">
+                                        <Setter Property="BackgroundColor" Value="#E8F5E9"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding Schedule.IsActive}"
+                                                 Value="False">
+                                        <Setter Property="BackgroundColor" Value="#F5F5F5"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label FontSize="12"
+                                       FontAttributes="Bold"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding Schedule.IsActive}"
+                                                     Value="True">
+                                            <Setter Property="Text" Value="Ativa"/>
+                                            <Setter Property="TextColor" Value="#2E7D32"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding Schedule.IsActive}"
+                                                     Value="False">
+                                            <Setter Property="Text" Value="Inativa"/>
+                                            <Setter Property="TextColor" Value="{StaticResource FinMuted}"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="{StaticResource FinBorder}"/>
 
                         <!-- Frequency Row -->
                         <Grid ColumnDefinitions="*,Auto"
@@ -300,28 +306,17 @@
                                    FontSize="13"
                                    TextColor="{StaticResource FinMuted}"
                                    VerticalOptions="Center"/>
-                            <Label Grid.Column="1"
-                                   Text="{Binding FrequencyDisplay}"
-                                   FontSize="14"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource FinDark}"
-                                   VerticalOptions="Center"/>
-                        </Grid>
-                        <BoxView HeightRequest="1" Color="{StaticResource FinBorder}"/>
-
-                        <!-- Status Row -->
-                        <Grid ColumnDefinitions="*,Auto"
-                              Padding="20,16">
-                            <Label Grid.Column="0"
-                                   Text="Status"
-                                   FontSize="13"
-                                   TextColor="{StaticResource FinMuted}"
-                                   VerticalOptions="Center"/>
-                            <Label Grid.Column="1"
-                                   Text="{Binding ScheduleStatusDisplay}"
-                                   FontSize="14"
-                                   TextColor="{StaticResource FinDark}"
-                                   VerticalOptions="Center"/>
+                            <HorizontalStackLayout Grid.Column="1"
+                                                   Spacing="6">
+                                <Image Source="repeat.svg"
+                                       WidthRequest="16"
+                                       HeightRequest="16"
+                                       VerticalOptions="Center"/>
+                                <Label Text="{Binding FrequencyDisplay}"
+                                       FontSize="14"
+                                       TextColor="{StaticResource FinDark}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
                         </Grid>
                         <BoxView HeightRequest="1" Color="{StaticResource FinBorder}"/>
 
@@ -329,15 +324,21 @@
                         <Grid ColumnDefinitions="*,Auto"
                               Padding="20,16">
                             <Label Grid.Column="0"
-                                   Text="Próxima Ocorrência"
+                                   Text="Próxima ocorrência"
                                    FontSize="13"
                                    TextColor="{StaticResource FinMuted}"
                                    VerticalOptions="Center"/>
-                            <Label Grid.Column="1"
-                                   Text="{Binding NextOccurrenceDisplay}"
-                                   FontSize="14"
-                                   TextColor="{StaticResource FinDark}"
-                                   VerticalOptions="Center"/>
+                            <HorizontalStackLayout Grid.Column="1"
+                                                   Spacing="6">
+                                <Image Source="calendar_clock.svg"
+                                       WidthRequest="16"
+                                       HeightRequest="16"
+                                       VerticalOptions="Center"/>
+                                <Label Text="{Binding NextOccurrenceDisplay}"
+                                       FontSize="14"
+                                       TextColor="{StaticResource FinDark}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
                         </Grid>
                         <BoxView HeightRequest="1" Color="{StaticResource FinBorder}"/>
 
@@ -361,69 +362,73 @@
                         <Grid ColumnDefinitions="*,Auto"
                               Padding="20,16">
                             <Label Grid.Column="0"
-                                   Text="Data Final"
+                                   Text="Data de término"
                                    FontSize="13"
                                    TextColor="{StaticResource FinMuted}"
                                    VerticalOptions="Center"/>
-                            <Label Grid.Column="1"
-                                   Text="{Binding EndDateDisplay}"
-                                   FontSize="14"
-                                   TextColor="{StaticResource FinDark}"
-                                   VerticalOptions="Center"/>
+                            <HorizontalStackLayout Grid.Column="1"
+                                                   Spacing="6">
+                                <Image Source="calendar.svg"
+                                       WidthRequest="16"
+                                       HeightRequest="16"
+                                       VerticalOptions="Center"/>
+                                <Label Text="{Binding EndDateDisplay}"
+                                       FontSize="14"
+                                       TextColor="{StaticResource FinDark}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
+
+                <!-- Action Buttons -->
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12">
+
+                    <Border Grid.Column="0"
+                            HeightRequest="50"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1.5"
+                            Stroke="#EF5350"
+                            BackgroundColor="Transparent">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding DeleteCommand}"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center">
+                            <Image Source="trash.svg"
+                                   WidthRequest="18"
+                                   HeightRequest="18"/>
+                            <Label Text="Excluir"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   TextColor="#C62828"/>
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            HeightRequest="50"
+                            StrokeShape="RoundRectangle 14"
+                            Stroke="Transparent"
+                            BackgroundColor="{StaticResource FinDark}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding EditCommand}"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center">
+                            <Image Source="edit.svg"
+                                   WidthRequest="18"
+                                   HeightRequest="18"/>
+                            <Label Text="Editar"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   TextColor="White"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </Grid>
             </VerticalStackLayout>
         </ScrollView>
-
-        <!-- Action Buttons -->
-        <Grid Grid.Row="2"
-              ColumnDefinitions="*,*"
-              ColumnSpacing="12"
-              Padding="20,12,20,20">
-
-            <Border Grid.Column="0"
-                    HeightRequest="50"
-                    StrokeShape="RoundRectangle 14"
-                    StrokeThickness="1.5"
-                    Stroke="{StaticResource FinDestructiveBorder}"
-                    BackgroundColor="Transparent">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding DeleteCommand}"/>
-                </Border.GestureRecognizers>
-                <HorizontalStackLayout Spacing="8"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center">
-                    <Image Source="trash.svg"
-                           WidthRequest="18"
-                           HeightRequest="18"/>
-                    <Label Text="Excluir"
-                           FontSize="15"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource FinDestructive}"/>
-                </HorizontalStackLayout>
-            </Border>
-
-            <Border Grid.Column="1"
-                    HeightRequest="50"
-                    StrokeShape="RoundRectangle 14"
-                    Stroke="Transparent"
-                    BackgroundColor="{StaticResource FinDark}">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding EditCommand}"/>
-                </Border.GestureRecognizers>
-                <HorizontalStackLayout Spacing="8"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center">
-                    <Image Source="edit.svg"
-                           WidthRequest="18"
-                           HeightRequest="18"/>
-                    <Label Text="Editar"
-                           FontSize="15"
-                           FontAttributes="Bold"
-                           TextColor="White"/>
-                </HorizontalStackLayout>
-            </Border>
-        </Grid>
     </Grid>
 </ContentPage>

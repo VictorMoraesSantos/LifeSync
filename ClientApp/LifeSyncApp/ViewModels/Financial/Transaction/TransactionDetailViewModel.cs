@@ -10,33 +10,34 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
     {
         private readonly TransactionService _transactionService;
         private TransactionDTO? _transaction;
-        private RecurrenceScheduleDTO? _schedule;
 
         public TransactionDTO? Transaction
         {
             get => _transaction;
-            private set => SetProperty(ref _transaction, value);
-        }
-
-        public RecurrenceScheduleDTO? Schedule
-        {
-            get => _schedule;
             private set
             {
-                if (SetProperty(ref _schedule, value))
+                if (SetProperty(ref _transaction, value))
+                {
                     OnPropertyChanged(nameof(HasSchedule));
+                    OnPropertyChanged(nameof(Schedule));
+                    OnPropertyChanged(nameof(FrequencyDisplay));
+                    OnPropertyChanged(nameof(NextOccurrenceDisplay));
+                    OnPropertyChanged(nameof(OccurrencesDisplay));
+                    OnPropertyChanged(nameof(EndDateDisplay));
+                }
             }
         }
 
-        public bool HasSchedule => _schedule != null;
+        public RecurrenceScheduleInfoDTO? Schedule => _transaction?.RecurrenceSchedule;
 
-        public string FrequencyDisplay => _schedule?.Frequency.ToDisplayString() ?? string.Empty;
-        public string NextOccurrenceDisplay => _schedule?.NextOccurrence.ToString("dd/MM/yyyy") ?? string.Empty;
-        public string ScheduleStatusDisplay => _schedule?.IsActive == true ? "Ativo" : "Inativo";
-        public string OccurrencesDisplay => _schedule?.MaxOccurrences.HasValue == true
-            ? $"{_schedule.OccurrencesGenerated}/{_schedule.MaxOccurrences}"
-            : $"{_schedule?.OccurrencesGenerated ?? 0} geradas";
-        public string EndDateDisplay => _schedule?.EndDate?.ToString("dd/MM/yyyy") ?? "Sem data final";
+        public bool HasSchedule => _transaction?.RecurrenceSchedule != null;
+
+        public string FrequencyDisplay => Schedule?.Frequency.ToDisplayString() ?? string.Empty;
+        public string NextOccurrenceDisplay => Schedule?.NextOccurrence.ToString("dd/MM/yyyy") ?? string.Empty;
+        public string OccurrencesDisplay => Schedule?.MaxOccurrences.HasValue == true
+            ? $"{Schedule.OccurrencesGenerated} / {Schedule.MaxOccurrences}"
+            : $"{Schedule?.OccurrencesGenerated ?? 0} geradas";
+        public string EndDateDisplay => Schedule?.EndDate?.ToString("dd/MM/yyyy") ?? "Sem data final";
 
         public ICommand CloseCommand { get; }
         public ICommand EditCommand { get; }
@@ -56,21 +57,9 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             DeleteCommand = new Command(async () => await OnDeleteAsync());
         }
 
-        public async Task InitializeAsync(TransactionDTO transaction)
+        public void Initialize(TransactionDTO transaction)
         {
             Transaction = transaction;
-            Schedule = null;
-
-            if (transaction.IsRecurring)
-            {
-                var schedule = await _transactionService.GetScheduleByTransactionIdAsync(transaction.Id);
-                Schedule = schedule;
-                OnPropertyChanged(nameof(FrequencyDisplay));
-                OnPropertyChanged(nameof(NextOccurrenceDisplay));
-                OnPropertyChanged(nameof(ScheduleStatusDisplay));
-                OnPropertyChanged(nameof(OccurrencesDisplay));
-                OnPropertyChanged(nameof(EndDateDisplay));
-            }
         }
 
         private void OnEdit()
