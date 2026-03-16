@@ -379,10 +379,12 @@ namespace Financial.Infrastructure.Services
                         {
                             var nextDate = schedule.NextOccurrence;
 
+                            var amount = schedule.Transaction.Amount;
                             var alreadyExists = await _dbContext.Transactions.AnyAsync(
                                 t => t.UserId == schedule.Transaction.UserId
                                      && t.Description == schedule.Transaction.Description
-                                     && t.Amount == schedule.Transaction.Amount
+                                     && t.Amount.Amount == amount.Amount
+                                     && t.Amount.Currency == amount.Currency
                                      && t.TransactionDate == nextDate
                                      && !t.IsDeleted,
                                 cancellationToken);
