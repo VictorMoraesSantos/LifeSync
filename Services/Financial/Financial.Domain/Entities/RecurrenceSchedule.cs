@@ -36,10 +36,10 @@ namespace Financial.Domain.Entities
 
             TransactionId = transactionId;
             Frequency = frequency;
-            StartDate = startDate;
-            EndDate = endDate;
+            StartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
+            EndDate = endDate.HasValue ? DateTime.SpecifyKind(endDate.Value, DateTimeKind.Utc) : endDate;
             MaxOccurrences = maxOccurrences;
-            NextOccurrence = CalculateNextOccurrence(startDate, frequency);
+            NextOccurrence = CalculateNextOccurrence(StartDate, Frequency);
             IsActive = true;
         }
 
@@ -55,9 +55,9 @@ namespace Financial.Domain.Entities
                 throw new DomainException(RecurrenceScheduleErrors.InvalidMaxOccurrences);
 
             Frequency = frequency;
-            EndDate = endDate;
+            EndDate = endDate.HasValue ? DateTime.SpecifyKind(endDate.Value, DateTimeKind.Utc) : endDate;
             MaxOccurrences = maxOccurrences;
-            
+
             MarkAsUpdated();
         }
 
