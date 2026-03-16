@@ -4,9 +4,11 @@ using Financial.Domain.Entities;
 using Financial.Domain.Enums;
 using Financial.Domain.Errors;
 using Financial.Domain.Repositories;
+using Financial.Infrastructure.Persistence;
 using Financial.Infrastructure.Services;
 using FinancialControl.Domain.ValueObjects;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -15,20 +17,33 @@ namespace Financial.UnitTests.Application
 {
     [Trait("Category", "Unit")]
     [Trait("Layer", "Application")]
-    public class RecurrenceScheduleServiceTests
+    public class RecurrenceScheduleServiceTests : IDisposable
     {
         private readonly Mock<IRecurrenceScheduleRepository> _scheduleRepoMock;
         private readonly Mock<ITransactionRepository> _transactionRepoMock;
+        private readonly ApplicationDbContext _dbContext;
         private readonly RecurrenceScheduleService _service;
 
         public RecurrenceScheduleServiceTests()
         {
             _scheduleRepoMock = new Mock<IRecurrenceScheduleRepository>();
             _transactionRepoMock = new Mock<ITransactionRepository>();
+
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            _dbContext = new ApplicationDbContext(options);
+
             _service = new RecurrenceScheduleService(
                 _scheduleRepoMock.Object,
                 _transactionRepoMock.Object,
+                _dbContext,
                 NullLogger<RecurrenceScheduleService>.Instance);
+        }
+
+        public void Dispose()
+        {
+            _dbContext.Dispose();
         }
 
         #region CreateAsync Tests

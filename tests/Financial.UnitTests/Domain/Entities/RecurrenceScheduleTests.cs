@@ -260,14 +260,16 @@ namespace Financial.UnitTests.Domain.Entities
                 .WithStartDate(startDate)
                 .WithEndDate(endDate)
                 .Build();
-            schedule.Activate();
 
-            // NextOccurrence is default(DateTime) = DateTime.MinValue, which is before endDate
-            // So CanGenerateNext will be true because NextOccurrence <= EndDate
-            // We need to set NextOccurrence to after endDate via reflection
+            // Set NextOccurrence to after endDate via reflection to trigger the condition
             typeof(RecurrenceSchedule)
                 .GetProperty("NextOccurrence")!
                 .SetValue(schedule, endDate.AddDays(1));
+
+            // Ensure the schedule is active via reflection (Activate() now validates conditions)
+            typeof(RecurrenceSchedule)
+                .GetProperty("IsActive")!
+                .SetValue(schedule, true);
 
             // Act & Assert
             schedule.CanGenerateNext().Should().BeFalse();
