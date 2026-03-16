@@ -9,7 +9,7 @@ namespace Financial.Infrastructure.BackgroundServices
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<RecurrenceProcessorService> _logger;
-        private readonly TimeSpan _interval = TimeSpan.FromMinutes(10);
+        private readonly TimeSpan _interval = TimeSpan.FromHours(12);
 
         public RecurrenceProcessorService(IServiceScopeFactory scopeFactory, ILogger<RecurrenceProcessorService> logger)
         {
