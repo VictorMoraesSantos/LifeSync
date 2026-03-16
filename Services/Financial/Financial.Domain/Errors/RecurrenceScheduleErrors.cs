@@ -25,6 +25,7 @@ namespace Financial.Domain.Errors
         public static Error TransactionNotLoaded => Error.Failure("A transação de origem não foi carregada");
         public static Error TransactionNotRecurring => Error.Failure("A transação de origem não está marcada como recorrente");
         public static Error ScheduleAlreadyExists => Error.Failure("Já existe um agendamento para esta transação");
+        public static Error CannotReactivate => Error.Failure("Não é possível reativar: o agendamento já atingiu o limite de ocorrências ou ultrapassou a data final");
         public static Error ProcessingError => Error.Problem("Erro ao processar transações recorrentes");
     }
 }

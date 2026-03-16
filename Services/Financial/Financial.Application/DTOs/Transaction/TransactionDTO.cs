@@ -1,5 +1,6 @@
 ﻿using Core.Application.DTO;
 using Financial.Application.DTOs.Category;
+using Financial.Application.DTOs.RecurrenceSchedule;
 using Financial.Domain.Enums;
 using FinancialControl.Domain.ValueObjects;
 
@@ -16,6 +17,7 @@ namespace Financial.Application.DTOs.Transaction
         Money Amount,
         string Description,
         DateTime TransactionDate,
-        bool IsRecurring = false)
+        bool IsRecurring = false,
+        RecurrenceScheduleInfoDTO? RecurrenceSchedule = null)
         : DTOBase(Id, CreatedAt, UpdatedAt);
 }

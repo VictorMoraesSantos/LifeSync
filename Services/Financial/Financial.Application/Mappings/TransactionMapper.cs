@@ -1,4 +1,5 @@
-﻿using Financial.Application.DTOs.Transaction;
+﻿using Financial.Application.DTOs.RecurrenceSchedule;
+using Financial.Application.DTOs.Transaction;
 using Financial.Domain.Entities;
 
 namespace Financial.Application.Mappings
@@ -32,8 +33,22 @@ namespace Financial.Application.Mappings
                 entity.Amount,
                 entity.Description,
                 entity.TransactionDate,
-                entity.IsRecurring);
+                entity.IsRecurring,
+                entity.RecurrenceSchedule != null ? MapScheduleInfo(entity.RecurrenceSchedule) : null);
             return dto;
+        }
+
+        private static RecurrenceScheduleInfoDTO MapScheduleInfo(RecurrenceSchedule schedule)
+        {
+            return new RecurrenceScheduleInfoDTO(
+                schedule.Id,
+                schedule.Frequency,
+                schedule.StartDate,
+                schedule.EndDate,
+                schedule.NextOccurrence,
+                schedule.MaxOccurrences,
+                schedule.OccurrencesGenerated,
+                schedule.IsActive);
         }
     }
 }

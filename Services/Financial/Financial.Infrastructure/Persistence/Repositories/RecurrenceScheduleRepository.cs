@@ -97,7 +97,6 @@ namespace Financial.Infrastructure.Persistence.Repositories
             RecurrenceSchedule? entity = await _context.RecurrenceSchedule
                 .Include(r => r.Transaction)
                     .ThenInclude(t => t.Category)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.TransactionId == transactionId, cancellationToken);
 
             return entity;
@@ -108,7 +107,7 @@ namespace Financial.Infrastructure.Persistence.Repositories
             IEnumerable<RecurrenceSchedule> entities = await _context.RecurrenceSchedule
                 .Include(r => r.Transaction)
                     .ThenInclude(t => t.Category)
-                .Where(r => r.IsActive && r.NextOccurrence <= referenceDate)
+                .Where(r => r.IsActive && !r.IsDeleted && r.NextOccurrence <= referenceDate)
                 .ToListAsync(cancellationToken);
 
             return entities;

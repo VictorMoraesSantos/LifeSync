@@ -22,6 +22,7 @@ namespace Financial.Domain.Filters.Specifications
             AddIf(filter.TransactionDateFrom.HasValue, t => DateOnly.FromDateTime(t.TransactionDate) >= filter.TransactionDateFrom!.Value);
             AddIf(filter.TransactionDateTo.HasValue, t => DateOnly.FromDateTime(t.TransactionDate) <= filter.TransactionDateTo!.Value);
             AddInclude(t => t.Category);
+            AddInclude(t => t.RecurrenceSchedule);
         }
     }
 }

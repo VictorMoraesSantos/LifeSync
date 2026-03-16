@@ -80,7 +80,7 @@ namespace Financial.Domain.Entities
                 Transaction.Amount,
                 Transaction.Description,
                 NextOccurrence,
-                Transaction.IsRecurring);
+                isRecurring: false);
 
             OccurrencesGenerated++;
             NextOccurrence = CalculateNextOccurrence(NextOccurrence, Frequency);
@@ -94,6 +94,23 @@ namespace Financial.Domain.Entities
             MarkAsUpdated();
 
             return transaction;
+        }
+
+        public void SkipOccurrence()
+        {
+            if (!IsActive)
+                throw new DomainException(RecurrenceScheduleErrors.InactiveSchedule);
+
+            OccurrencesGenerated++;
+            NextOccurrence = CalculateNextOccurrence(NextOccurrence, Frequency);
+
+            if (MaxOccurrences.HasValue && OccurrencesGenerated >= MaxOccurrences.Value)
+                IsActive = false;
+
+            if (EndDate.HasValue && NextOccurrence > EndDate.Value)
+                IsActive = false;
+
+            MarkAsUpdated();
         }
 
         public bool CanGenerateNext()
@@ -112,6 +129,12 @@ namespace Financial.Domain.Entities
 
         public void Activate()
         {
+            if (MaxOccurrences.HasValue && OccurrencesGenerated >= MaxOccurrences.Value)
+                throw new DomainException(RecurrenceScheduleErrors.CannotReactivate);
+
+            if (EndDate.HasValue && NextOccurrence > EndDate.Value)
+                throw new DomainException(RecurrenceScheduleErrors.CannotReactivate);
+
             IsActive = true;
             MarkAsUpdated();
         }

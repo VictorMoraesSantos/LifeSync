@@ -6,11 +6,10 @@ using Financial.Domain.Entities;
 using Financial.Domain.Errors;
 using Financial.Domain.Filters;
 using Financial.Domain.Repositories;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Financial.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
-using System.Numerics;
 
 namespace Financial.Infrastructure.Services
 {
@@ -18,13 +17,19 @@ namespace Financial.Infrastructure.Services
     {
         private readonly IRecurrenceScheduleRepository _scheduleRepository;
         private readonly ITransactionRepository _transactionRepository;
+        private readonly ApplicationDbContext _dbContext;
         private readonly ILogger<RecurrenceScheduleService> _logger;
 
-        public RecurrenceScheduleService(IRecurrenceScheduleRepository scheduleRepository, ITransactionRepository transactionRepository, ILogger<RecurrenceScheduleService> logger)
+        public RecurrenceScheduleService(
+            IRecurrenceScheduleRepository scheduleRepository,
+            ITransactionRepository transactionRepository,
+            ApplicationDbContext dbContext,
+            ILogger<RecurrenceScheduleService> logger)
         {
             _scheduleRepository = scheduleRepository;
-            _logger = logger;
             _transactionRepository = transactionRepository;
+            _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<Result<bool>> ActiveScheduleAsync(int id, CancellationToken cancellationToken = default)
@@ -51,7 +56,12 @@ namespace Financial.Infrastructure.Services
             try
             {
                 var all = await _scheduleRepository.GetAll(cancellationToken);
-                var total = all.Count();
+                var dtos = all.Select(RecurrencyScheduleMapper.ToDTO);
+
+                var total = predicate != null
+                    ? dtos.AsQueryable().Where(predicate).Count()
+                    : dtos.Count();
+
                 return Result.Success(total);
             }
             catch (Exception ex)
@@ -96,7 +106,24 @@ namespace Financial.Infrastructure.Services
             {
                 if (dtos is null || !dtos.Any()) return Result.Failure<IEnumerable<int>>(Error.NullValue);
 
-                var entities = dtos.Select(dto => RecurrencyScheduleMapper.ToEntity(dto)).ToList();
+                var entities = new List<RecurrenceSchedule>();
+
+                foreach (var dto in dtos)
+                {
+                    var transaction = await _transactionRepository.GetById(dto.TransactionId, cancellationToken);
+                    if (transaction == null)
+                        return Result.Failure<IEnumerable<int>>(RecurrenceScheduleErrors.InvalidTransaction);
+
+                    if (!transaction.IsRecurring)
+                        return Result.Failure<IEnumerable<int>>(RecurrenceScheduleErrors.TransactionNotRecurring);
+
+                    var existing = await _scheduleRepository.GetByTransactionId(dto.TransactionId, cancellationToken);
+                    if (existing != null)
+                        return Result.Failure<IEnumerable<int>>(RecurrenceScheduleErrors.ScheduleAlreadyExists);
+
+                    entities.Add(RecurrencyScheduleMapper.ToEntity(dto));
+                }
+
                 await _scheduleRepository.CreateRange(entities, cancellationToken);
                 return Result.Success(entities.Select(e => e.Id));
             }
@@ -337,19 +364,54 @@ namespace Financial.Infrastructure.Services
             try
             {
                 var now = DateTime.UtcNow;
-                var dueSchedule = await _scheduleRepository.GetDueSchedules(now, cancellationToken);
+                var dueSchedules = await _scheduleRepository.GetDueSchedules(now, cancellationToken);
                 var transactionsCreated = 0;
 
-                foreach (var schedule in dueSchedule)
+                foreach (var schedule in dueSchedules)
                 {
-                    while (schedule.CanGenerateNext() && schedule.NextOccurrence <= now)
+                    try
                     {
-                        var transaction = schedule.GenerateTransaction();
-                        await _transactionRepository.Create(transaction, cancellationToken);
-                        transactionsCreated++;
-                    }
+                        await using var dbTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-                    await _scheduleRepository.Update(schedule, cancellationToken);
+                        var scheduleBatchCount = 0;
+
+                        while (schedule.CanGenerateNext() && schedule.NextOccurrence <= now)
+                        {
+                            var nextDate = schedule.NextOccurrence;
+
+                            var alreadyExists = await _dbContext.Transactions.AnyAsync(
+                                t => t.UserId == schedule.Transaction.UserId
+                                     && t.Description == schedule.Transaction.Description
+                                     && t.Amount == schedule.Transaction.Amount
+                                     && t.TransactionDate == nextDate
+                                     && !t.IsDeleted,
+                                cancellationToken);
+
+                            if (alreadyExists)
+                            {
+                                _logger.LogWarning(
+                                    "Transação duplicada detectada para schedule {ScheduleId} na data {Date}. Avançando NextOccurrence.",
+                                    schedule.Id, nextDate);
+
+                                schedule.SkipOccurrence();
+                                continue;
+                            }
+
+                            var transaction = schedule.GenerateTransaction();
+                            await _dbContext.Transactions.AddAsync(transaction, cancellationToken);
+                            scheduleBatchCount++;
+                        }
+
+                        _dbContext.RecurrenceSchedule.Update(schedule);
+                        await _dbContext.SaveChangesAsync(cancellationToken);
+                        await dbTransaction.CommitAsync(cancellationToken);
+
+                        transactionsCreated += scheduleBatchCount;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Erro ao processar schedule {ScheduleId}. Continuando com os demais.", schedule.Id);
+                    }
                 }
 
                 _logger.LogInformation("Processamento concluído. {Count} transações criadas", transactionsCreated);

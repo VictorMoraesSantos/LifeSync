@@ -46,7 +46,10 @@ namespace Financial.Application.Features.Transactions.Commands.Create
 
                 var scheduleResult = await _recurrenceScheduleService.CreateAsync(scheduleDTO, cancellationToken);
                 if (!scheduleResult.IsSuccess)
+                {
+                    await _transactionService.DeleteAsync(transactionId, cancellationToken);
                     return Result.Failure<CreateTransactionResult>(scheduleResult.Error!);
+                }
             }
 
             return Result.Success(new CreateTransactionResult(result.Value!));
