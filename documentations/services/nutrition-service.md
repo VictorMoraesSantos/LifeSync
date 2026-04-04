@@ -628,6 +628,126 @@ GET /health
 
 ---
 
+## Problemas Críticos
+
+> **Fonte:** Code Review - NUTRITION_CODE_REVIEW.md  
+> **Data:** 03/03/2026  
+> **Nota Geral:** 5.5/10
+
+### Resumo por Severidade
+
+| Severidade | Quantidade |
+|------------|-----------|
+| CRÍTICO | 6 |
+| ALTO | 7 |
+| MÉDIO | 5 |
+| BAIXO | 1 |
+| INFO | 1 |
+
+### Issues Críticos
+
+| # | Camada | Arquivo | Problema | Impacto |
+|---|--------|---------|----------|---------|
+| 1 | Domain | `Food.cs` | Entidade totalmente anêmica com public setters | Zero encapsulamento, sem validação |
+| 2 | Domain | `Meal.cs` | Bug NullReference em `RemoveMealFood()` | `mealFood.TotalCalories` lança exceção se não encontrado |
+| 3 | Infrastructure | `DailyProgressService.cs`, `DiaryService.cs`, `MealService.cs` | Paginação em memória | Carrega todos os registros antes de paginar |
+| 4 | Infrastructure | Repository | `FindAsync` carrega tudo em memória | Filtragem sobre DTOs em memória |
+| 5 | API | Controllers | Sem `[Authorize]` | Endpoints públicos sem autenticação |
+| 6 | API | `appsettings.json` | JWT Secret hardcoded | Segurança comprometida |
+
+### Issues de Alta Prioridade
+
+| # | Camada | Arquivo | Problema |
+|---|--------|---------|----------|
+| 7 | Application | Commands | Ausência de FluentValidation |
+| 8 | Application | `MealFoodAddedEventHandler.cs` | Event handlers com falha silenciosa |
+| 9 | Infrastructure | Repository | Specification pagination perdida |
+| 10 | Infrastructure | Database | Ausência de indexes (UserId, Date, DiaryId, MealId) |
+| 11 | Infrastructure | API | Sem isolamento de dados por usuário |
+| 12 | Infrastructure | DbContext | Sem Global Query Filter para soft delete |
+| 13 | API | — | Sem Global Exception Handler |
+
+---
+
+## Recomendações de Correção
+
+### Prioridade 1 — Críticos
+
+| # | Item | Esforço Estimado | Arquivo |
+|---|------|------------------|---------|
+| 1 | Encapsular entidade Food (private setters + validação) | 2h | `Food.cs` |
+| 2 | Corrigir NullReference no `Meal.RemoveMealFood()` | 15 min | `Meal.cs` |
+| 3 | Adicionar `[Authorize]` nos controllers | 10 min | `*Controller.cs` |
+| 4 | Remover JWT Key do `appsettings.json` | 30 min | `appsettings.json` |
+| 5 | Corrigir paginação em memória (3 services) | 3h | `*Service.cs` |
+| 6 | Corrigir `FindAsync` para filtrar no banco | 2h | `*Repository.cs` |
+
+### Prioridade 2 — Altos
+
+| # | Item | Esforço Estimado |
+|---|------|------------------|
+| 7 | Adicionar FluentValidation nos commands | 4h |
+| 8 | Corrigir event handlers com falha silenciosa | 1h |
+| 9 | Adicionar indexes no banco | 30 min |
+| 10 | Implementar isolamento de dados por usuário | 2h |
+| 11 | Adicionar Global Query Filter | 30 min |
+| 12 | Corrigir specification pagination | 1h |
+| 13 | Adicionar Global Exception Handler | 2h |
+
+### Prioridade 3 — Médios
+
+| # | Item | Esforço Estimado |
+|---|------|------------------|
+| 14 | Cachear `TotalCalories` computado | 2h |
+| 15 | Implementar Unit of Work | 4h |
+| 16 | Consolidar namespaces (Contracts vs Interfaces) | 30 min |
+| 17 | Corrigir `LiquidType` falha silenciosa | 15 min |
+| 18 | Corrigir typo no nome do arquivo (`DiaryService..cs`) | 5 min |
+
+---
+
+## Score / Qualidade
+
+### Avaliação Geral
+
+| Dimensão | Nota | Observação |
+|----------|------|------------|
+| **Nota Geral** | 5.5/10 | Requer atenção imediata |
+| Domain Model | 6/10 | Bom uso de DDD e Events, mas Food anêmico |
+| Application Layer | 5/10 | Falta validação e error handling |
+| Infrastructure | 4/10 | Performance crítica (paginação, N+1) |
+| API/Security | 3/10 | Sem autenticação, JWT exposto |
+| Testabilidade | 0/10 | Nenhum projeto de teste existente |
+
+### Pontos Positivos
+
+- Uso efetivo de Domain Events (`MealAddedToDiaryEvent`, `MealFoodAddedEvent`, `MealFoodRemovedEvent`)
+- Value Object `DailyGoal` bem implementado
+- Estrutura de erros através de classes `*Errors` centralizadas
+- Specification Pattern implementado para filtros
+- Separação clara das camadas (Domain, Application, Infrastructure, API)
+
+### Pontos de Atenção
+
+- **Performance:** Paginação em memória e N+1 queries
+- **Segurança:** Ausência de autenticação nos endpoints
+- **Testes:** Cobertura zero — projeto de testes não existe
+- **Validação:** Food entity sem encapsulamento permite dados inválidos
+- **Bug:** `Meal.RemoveMealFood()` pode lançar NullReferenceException
+
+### Plano de Testes Recomendado
+
+| Tipo | Qtd. Testes | Meta Cobertura | Status |
+|------|-------------|----------------|--------|
+| Unit Tests | ~230 | 95% Domain, 90% Application | A criar |
+| Integration Tests | ~65 | 80% Infrastructure | A criar |
+| E2E Tests | ~40 | 75% API | A criar |
+| **TOTAL** | **~335** | **85%** | — |
+
+> **Nota:** O teste mais crítico é o de `Meal.RemoveMealFood()` para garantir que o bug de NullReference seja coberto e corrigido.
+
+---
+
 ## Configuração
 
 ```json

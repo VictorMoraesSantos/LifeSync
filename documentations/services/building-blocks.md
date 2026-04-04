@@ -660,6 +660,191 @@ public class ApiController : ControllerBase { }
 
 ---
 
+## Problemas Críticos
+
+Issues identificadas nas bibliotecas BuildingBlocks que requerem atenção imediata.
+
+### Tabela de Issues
+
+| ID | Severidade | Biblioteca | Componente | Descrição | Impacto |
+|----|------------|------------|------------|-----------|---------|
+| **BB-001** | 🔴 Crítica | BuildingBlocks | Result Pattern | `Result<T>.Value` lança exceção `InvalidOperationException` quando `IsFailure == true` | Runtime exceptions em fluxo normal de execução; violação do princípio de tratamento funcional |
+| **BB-002** | 🔴 Crítica | BuildingBlocks | ValidationBehavior | `ValidationBehavior` lança `ValidationException` em vez de retornar `Result<Unit>.Failure()` | Interrompe o pipeline CQRS abruptamente; não permite tratamento uniforme de erros |
+| **BB-003** | 🟠 Alta | BuildingBlocks.Messaging | EventBus | `EventBus.PublishAsync` não trata exceções de serialização JSON | Mensagens podem ser perdidas sem notificação ao publisher |
+| **BB-004** | 🟠 Alta | Core.Domain | Domain Events | Eventos de domínio são acumulados mas **não há mecanismo automático de dispatch** | Eventos nunca são publicados/consumidos; perda de consistência eventual |
+| **BB-005** | 🟠 Alta | BuildingBlocks | Repository Pattern | `IRepository` não expõe `IUnitOfWork` | Transações distribuídas não são suportadas; múltiplos repositórios não podem participar da mesma transação |
+| **BB-006** | 🟡 Média | BuildingBlocks | HttpResult | `HttpResult.BadRequest(errors)` recebe `string[]` mas o formato RFC 7231 espera `Dictionary<string, string[]>` | Incompatibilidade de formato na resposta de validação |
+| **BB-007** | 🟡 Média | BuildingBlocks.Messaging | PersistentConnection | Reconexão usa `Thread.Sleep` bloqueante (backoff exponencial) | Bloqueia threads durante reconexão; degrada performance em cenários de falha |
+| **BB-008** | 🟡 Média | Core.Infrastructure | SpecificationEvaluator | `GetQuery` não valida se `spec.Criteria` é null antes de aplicar `Where` | Pode resultar em query inválida ou exceção em runtime |
+| **BB-009** | 🟢 Baixa | Core.Application | DTOs | DTOs não possuem validação integrada ( FluentValidation não é aplicado a DTOs de entrada ) | Validação depende exclusivamente dos validators do CQRS |
+| **BB-010** | 🟢 Baixa | BuildingBlocks | JwtAuthentication | `ClockSkew = TimeSpan.Zero` pode causar falha em tokens legítimos devido a diferenças de relógio | Autenticação pode falhar em ambientes com clocks dessincronizados |
+
+### Detalhamento das Issues Críticas
+
+#### BB-001: Acesso a `Result<T>.Value` em estado de falha
+
+```csharp
+// Código que causa problema
+var result = Result<int>.Failure(Error.NotFound("Item não encontrado"));
+var value = result.Value; // Lança InvalidOperationException
+```
+
+**Recomendação:** Sempre verificar `IsSuccess` ou usar match/pattern matching:
+
+```csharp
+if (result.IsSuccess)
+    return result.Value;
+// Tratar erro adequadamente
+```
+
+#### BB-002: Validação lança exceção em vez de retornar Failure
+
+O `ValidationBehavior` interrompe o pipeline lançando exceção, impedindo que outros behaviors (como logging) processem a requisição.
+
+**Recomendação:** Retornar `Result<Unit>.Failure(validationErrors)` para permitir tratamento uniforme.
+
+#### BB-004: Domain Events sem Dispatch
+
+Os eventos são acumulados em `BaseEntity` via `AddDomainEvent()`, mas não existe mecanismo no `Core.Infrastructure` para consumi-los e publicá-los no Event Bus após o `SaveChanges`.
+
+**Recomendação:** Implementar `IDomainEventDispatcher` integrado ao EF Core `SaveChangesInterceptor`.
+
+---
+
+## Recomendações de Correção
+
+### Curto Prazo (1-2 semanas)
+
+1. **Adicionar null-check em `SpecificationEvaluator.GetQuery`**
+   ```csharp
+   if (spec.Criteria != null)
+       query = query.Where(spec.Criteria);
+   ```
+
+2. **Corrigir formato de erros em `HttpResult.BadRequest`**
+   ```csharp
+   // Alterar de string[] para Dictionary<string, string[]>
+   public static HttpResult BadRequest(Dictionary<string, string[]> errors)
+   ```
+
+3. **Adicionar logging no `EventBus.PublishAsync`**
+   ```csharp
+   try {
+       // publishing logic
+   } catch (Exception ex) {
+       _logger.LogError(ex, "Failed to publish event {EventType}", typeof(TEvent).Name);
+       throw;
+   }
+   ```
+
+### Médio Prazo (1 mês)
+
+4. **Implementar Unit of Work Pattern**
+   ```csharp
+   public interface IUnitOfWork
+   {
+       Task<Result> SaveChangesAsync(CancellationToken ct = default);
+       Task<Result> SaveChangesAsync<TDomainEvent>(
+           TDomainEvent domainEvent,
+           CancellationToken ct = default) where TDomainEvent : IDomainEvent;
+   }
+   ```
+
+5. **Implementar Domain Event Dispatcher**
+   - Criar `IDomainEventDispatcher` interface
+   - Implementar `DomainEventDispatcher` que usa `IPublisher`
+   - Integrar via `SaveChangesInterceptor` no EF Core
+
+6. **Substituir `Thread.Sleep` por `Task.Delay` no PersistentConnection**
+   ```csharp
+   await Task.Delay(backoffTime, cancellationToken);
+   ```
+
+### Longo Prazo (2-3 meses)
+
+7. **Refatorar ValidationBehavior para retornar Result**
+   - Alterar pipeline para retornar `Result<Unit>.Failure()` em vez de lançar
+   - Permitir que outros behaviors processem erros de validação
+
+8. **Adicionar FluentValidation aos DTOs de entrada**
+   - Criar validators base para `CreateDTO` e `UpdateDTO`
+   - Integrar ao pipeline CQRS automaticamente
+
+9. **Configurar tolerância de clock skew no JWT**
+   ```csharp
+   .Net:
+   options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(5);
+   ```
+
+10. **Adicionar health checks para RabbitMQ**
+    ```csharp
+    services.AddHealthChecks()
+        .AddRabbitMQ(rabbitConnectionString, name: "rabbitmq");
+    ```
+
+---
+
+## Score / Qualidade das Bibliotecas
+
+### Avaliação Geral
+
+| Biblioteca | Completude | Testabilidade | Manutenibilidade | Documentação | **Score Final** |
+|------------|------------|---------------|------------------|--------------|-----------------|
+| BuildingBlocks | ⭐⭐⭐⭐ (80%) | ⭐⭐⭐⭐ (75%) | ⭐⭐⭐⭐ (80%) | ⭐⭐⭐⭐⭐ (90%) | **81% (B+)** |
+| BuildingBlocks.Messaging | ⭐⭐⭐ (65%) | ⭐⭐⭐ (60%) | ⭐⭐⭐⭐ (75%) | ⭐⭐⭐⭐ (70%) | **68% (C)** |
+| Core.Domain | ⭐⭐⭐⭐⭐ (95%) | ⭐⭐⭐⭐⭐ (90%) | ⭐⭐⭐⭐⭐ (95%) | ⭐⭐⭐⭐ (80%) | **92% (A-)** |
+| Core.Application | ⭐⭐⭐⭐ (85%) | ⭐⭐⭐⭐ (85%) | ⭐⭐⭐⭐⭐ (90%) | ⭐⭐⭐⭐⭐ (90%) | **88% (A-)** |
+| Core.Infrastructure | ⭐⭐⭐⭐ (75%) | ⭐⭐⭐⭐ (70%) | ⭐⭐⭐⭐ (80%) | ⭐⭐⭐⭐ (75%) | **75% (B)** |
+| Core.API | ⭐⭐⭐ (60%) | ⭐⭐⭐ (70%) | ⭐⭐⭐⭐⭐ (90%) | ⭐⭐⭐ (60%) | **70% (C+)** |
+
+### Detalhamento por Critério
+
+#### Completude
+- **Core.Domain (95%):**patterns completos (Entity, Value Object, Specification, Repository, Domain Events)
+- **BuildingBlocks (80%):** CQRS, Result Pattern, Validação implementados; falta Unit of Work
+- **BuildingBlocks.Messaging (65%):** Pub/Sub implementado; falta retry policy, dead letter queue
+
+#### Testabilidade
+- **Core.Domain (90%):** entidades POCO sem dependências externas; fácil de testar
+- **Core.Application (85%):** interfaces bem definidas; mocks trivias
+- **BuildingBlocks.Messaging (60%):** acoplamento forte com RabbitMQ.Client dificulta unit tests
+
+#### Manutenibilidade
+- **Core.Domain (95%):** código limpo, sem dependências externas, princípios SOLID seguidos
+- **Core.API (90%):** controllers minimalistas, lógica nos serviços
+- **BuildingBlocks.Messaging (75%):** código procedural; refatoração para async/await beneficiaria
+
+#### Documentação
+- **BuildingBlocks (90%):** interfaces documentadas, exemplos de uso presentes
+- **Core.Application (90%):** XML documentation completa
+- **Core.API (60%):** falta documentação sobre convenções de API e códigos de erro
+
+### Indicadores de Qualidade
+
+| Métrica | Status | Observação |
+|---------|--------|------------|
+| Cobertura de testes | ⚠️ Não mensurado | Recomenda-se >70% para bibliotecas compartilhadas |
+| SonarQube Issues | ✅ Aprovado | `SonarAnalyzer.CSharp` ativo em todos os projetos |
+| Dependency Vulnerability | ✅ Nenhuma | Dependências atualizadas (Outdated: none) |
+| Breaking Changes | ⚠️ Risco | Métodos como `HttpResult.BadRequest(string[])` podem quebrar consumidores |
+
+### Recomendações de Melhoria Prioritárias
+
+1. **Alta Prioridade**
+   - Implementar Unit of Work para suportar transações distribuídas
+   - Criar mecanismo de dispatch de Domain Events
+
+2. **Média Prioridade**
+   - Adicionar health checks para RabbitMQ
+   - Implementar retry policy com Polly no EventBus
+   - Configurar tolerância de ClockSkew no JWT
+
+3. **Baixa Prioridade**
+   - Adicionar mais exemplos de uso na documentação
+   - Criar templates de测试 para novos microsserviços
+
+---
+
 ## Dependências
 
 ### BuildingBlocks.csproj

@@ -373,6 +373,86 @@ Todos os endpoints retornam `HttpResult<object>`:
 
 ---
 
+## Problemas Críticos (Code Review)
+
+> Fonte: [USERS_CODE_REVIEW.md](../code-reviews/USERS_CODE_REVIEW.md)
+> Data do Review: 03/03/2026
+
+| Severidade | ID | Problema | Arquivo | Impacto |
+|---|---|---|---|---|
+| CRÍTICO | 1.1 | Política de senha fraca (OWASP Non-Compliant) | `DependencyInjection.cs` | Senha "aaaaaa" aceita. Requer 12+ chars com mixed case e special chars |
+| CRÍTICO | 1.2 | JWT Secret Hardcoded | `appsettings.json` | Chave exposta no controle de versão |
+| CRÍTICO | 1.3 | Sem Token Blacklist/Revogação | `AuthService.cs` | Token roubado permanece válido até expirar (60 min) |
+| CRÍTICO | 2.1 | Soft Delete Não Filtrado | `UserService.cs` | Usuários deletados aparecem nas listas e podem fazer login |
+| CRÍTICO | 4.1 | N+1 em `GetAllUsersDetailsAsync` | `UserService.cs` | 1000 usuários = 1001 queries |
+| CRÍTICO | 5.1 | Bug no `UsersController.UpdateUser` | `UsersController.cs` | Variável `updateCommand` ignorada — usa command original |
+| ALTO | 1.4 | `LastLoginAt` nunca atualizado | `AuthService.LoginAsync()` | Campo permanece null eternamente |
+| ALTO | 1.5 | Email alterado sem verificação | `UpdateUserProfileAsync()` | Risco de account takeover |
+| ALTO | 1.6 | Refresh Token Expiry hardcoded | `AuthService.cs` | Ignora `JwtSettings.RefreshTokenExpiryDays` |
+| ALTO | 2.2 | BirthDate aceita datas futuras | Domain `User` | Validação existe mas não é aplicada |
+| ALTO | 2.3 | `DeleteUserCommandHandler` vazio | `DeleteUserCommandHandler.cs` | Funcionalidade não implementada |
+| ALTO | 5.2 | Inconsistência de tipos de ID | DTOs | `UserDTO.Id` (string) vs `UpdateUserDTO.Id` (int) |
+| ALTO | 6.1 | Sem HTTPS Enforcement | `Program.cs` | Ausência de `UseHsts()` e `UseHttpsRedirection()` |
+| ALTO | 6.2 | CORS Permissivo | `Program.cs` | `AllowAnyMethod()` e `AllowAnyHeader()` |
+| ALTO | 6.3 | Sem Rate Limiting | Controllers | Vulnerável a brute force |
+
+---
+
+## Recomendações de Correção
+
+### Prioridade 1 — Críticos (Esforço Total: ~8h)
+
+| # | Recomendação | Arquivo | Tempo |
+|---|---|---|---|
+| 1 | Fortalecer política de senha para OWASP (12+ chars, mixed case, special chars) | `DependencyInjection.cs` | 15 min |
+| 2 | Mover JWT Key para variável de ambiente | `appsettings.json` | 30 min |
+| 3 | Filtrar `IsDeleted` em todas as queries do `UserService` | `UserService.cs` | 1h |
+| 4 | Corrigir bug no `UsersController.UpdateUser` (usar `updateCommand`) | `UsersController.cs` | 10 min |
+| 5 | Corrigir N+1 com JOIN em `GetAllUsersDetailsAsync` | `UserService.cs` | 2h |
+| 6 | Implementar token blacklist (Redis ou DB) | `AuthService.cs` | 4h |
+
+### Prioridade 2 — Altos (Esforço Total: ~10h)
+
+| # | Recomendação | Arquivo | Tempo |
+|---|---|---|---|
+| 7 | Chamar `UpdateLastLogin()` após login bem-sucedido | `AuthService.LoginAsync()` | 15 min |
+| 8 | Exigir verificação de email antes de confirmar mudança | `UpdateUserProfileAsync()` | 4h |
+| 9 | Implementar `DeleteUserCommandHandler` | `DeleteUserCommandHandler.cs` | 2h |
+| 10 | Validar `BirthDate` no construtor do `User` | `User.cs` | 15 min |
+| 11 | Padronizar tipos de ID para `int` em todos os DTOs | DTOs | 1h |
+| 12 | Implementar paginação com `Skip().Take()` | `UserService.cs` | 1h |
+| 13 | Adicionar rate limiting | `Program.cs` | 1h |
+
+### Prioridade 3 — Médios (Esforço Total: ~8h)
+
+| # | Recomendação | Arquivo | Tempo |
+|---|---|---|---|
+| 14 | Melhorar regex de email (`Contact`) | `Contact.cs` | 15 min |
+| 15 | Adicionar validação FluentValidation nos DTOs | DTOs | 2h |
+| 16 | Renomear `LoginDTO.UserNameOrEmail` para `Email` | `LoginDTO.cs` | 15 min |
+| 17 | Implementar Outbox Pattern no SignUp | `SignUpCommandHandler` | 4h |
+| 18 | Remover token do body do email de reset | `EmailService.cs` | 15 min |
+| 19 | Configurar CORS restritivo | `Program.cs` | 30 min |
+| 20 | Implementar MFA (opcional mas recomendado) | — | 8h+ |
+
+---
+
+## Score / Qualidade
+
+| Dimensão | Nota | Observações |
+|---|---|---|
+| **Segurança Geral** | 3/10 | Senha fraca, sem blacklist, CORS permissivo, sem rate limiting |
+| **Arquitetura** | 7/10 | Good separation, Value Objects, Domain Events, mas faltam transações |
+| **Código** | 5/10 | N+1, bug no UpdateUser, handler vazio, inconsistência de tipos |
+| **API/Contrato** | 6/10 | Estrutura clara, mas sem paginação e DTOs sem validação |
+| **Compliance** | 4/10 | OWASP non-compliant, sem HTTPS enforcement |
+
+### Nota Geral: **5/10**
+
+> **Atenção:** Por ser o serviço de autenticação, os problemas de segurança têm peso elevado. As 6 issues críticas representam riscos reais e devem ser tratadas com urgência.
+
+---
+
 ## Problemas Conhecidos
 
 | Severidade | Problema | Descrição |

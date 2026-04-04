@@ -30,8 +30,8 @@ A feature de **Transações Recorrentes** permite que os usuários, ao criar uma
 | Problema | Explicação |
 |----------|-----------|
 | **Mistura de conceitos** | `Transaction` = fato financeiro que aconteceu. Campos como `NextOccurrence`, `MaxOccurrences`, `Frequency` não fazem sentido em transações normais |
-| **Poluição na listagem** | Ao listar transações, os campos de recorrência estariam null em 90%+ dos registros |
-| **Filtros confusos** | Campos nullable dificultam queries e especificações |
+| **Pollable dificultam queries eluição na listagem** | Ao listar transações, os campos de recorrência estariam null em 90%+ dos registros |
+| **Filtros confusos** | Campos nu especificações |
 | **Princípio SRP** | Uma entidade não deve ser ao mesmo tempo "registro" e "agendador" |
 
 ### A solução: `RecurrenceSchedule` (entidade enxuta)

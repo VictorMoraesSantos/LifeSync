@@ -350,6 +350,135 @@ GET /health
 
 ---
 
+## Problemas Críticos
+
+> **Fonte:** Code Review Senior (03/03/2026)  
+> **Nota Geral:** 3.5/10
+
+### Tabela de Issues
+
+| # | Severidade | Categoria | Arquivo | Problema | Impacto |
+|---|------------|-----------|---------|----------|---------|
+| 1 | CRÍTICO | Event Consumption | `RabbitMqEventConsumer.cs` | Consumer sem error handling | JSON malformado ou exceções crasham o consumer |
+| 2 | CRÍTICO | Event Consumption | `RabbitMqEventConsumer.cs` | Blocking async (.GetAwaiter().GetResult()) | Thread pool starvation sob alta carga |
+| 3 | CRÍTICO | SMTP | `EmailService.cs` | Conexão SMTP sem criptografia (SecureSocketOptions.None) | Credenciais e conteúdo em texto plano |
+| 4 | CRÍTICO | SMTP | `EmailService.cs` | Nenhum error handling no envio | Exceções SMTP crasham o handler sem logging |
+| 5 | CRÍTICO | Segurança | `appsettings.json` | Credenciais hardcoded (guest/guest) | Exposição de credenciais no repositório |
+| 6 | ALTO | Event Consumption | RabbitMQ | Sem Dead Letter Queue (DLQ) | Mensagens com falha são perdidas permanentemente |
+| 7 | ALTO | Event Consumption | RabbitMQ | Sem ACK/NACK explícito | Comportamento imprevisível em falhas |
+| 8 | ALTO | Persistência | `EmailMessageRepository.cs` | Database implementada mas nunca utilizada | Overhead de infraestrutura sem valor |
+| 9 | ALTO | SMTP | `EmailService.cs` | Emails hardcoded sem template | Sem personalização, sem Razor/Liquid, apenas texto plano |
+| 10 | ALTO | SMTP | `EmailService.cs` | Sem validação de email | Destinatário pode ser string vazia ou inválida |
+| 11 | ALTO | SMTP | `EmailService.cs` | Nova conexão SMTP por email | Overhead de TCP+autenticação a cada envio |
+| 12 | ALTO | Segurança | `EmailService.cs` | Sem rate limiting | Risco de sobrecarga ou blacklisting do SMTP |
+| 13 | ALTO | Qualidade | Todas | Zero logging (ILogger) | Impossível diagnosticar problemas em produção |
+| 14 | ALTO | Qualidade | - | Zero testes | Nenhum projeto de teste encontrado |
+| 15 | ALTO | Aplicação | `ProcessEmailEventUseCase.cs` | Strategy não encontrada retorna silenciosamente | Falha silenciosa sem logging |
+| 16 | MÉDIO | Persistência | `EmailMessageRepository.cs` | Repository com NotImplementedException | Métodos `Update` e `CreateEmail` não implementados |
+| 17 | MÉDIO | Persistência | `EmailMessageRepository.cs` | Typo no parâmetro (`cancellationTokeno`) | Erro de compilação em potencial |
+| 18 | MÉDIO | Código | `EmailService.cs` | Dead code - `EmailMessage` criado e não usado | Objeto criado mas `MimeMessage` é criado separadamente |
+| 19 | MÉDIO | Segurança | Namespaces | Inconsistência de namespaces (EmailSender → Notification) | Refatoração incompleta |
+| 20 | MÉDIO | SMTP | `SmtpSettings.cs` | `EnableSsl` configurado mas ignorado | propriedade existe mas não é usada |
+
+### Resumo de Severidade
+
+| Severidade | Quantidade |
+|------------|-----------|
+| CRÍTICO | 5 |
+| ALTO | 10 |
+| MÉDIO | 5 |
+| BAIXO | 0 |
+
+---
+
+## Recomendações de Correção
+
+### Prioridade 1 — Críticos (Esforço: ~3h 45min)
+
+| # | Ação | Arquivo | Solução |
+|---|------|---------|---------|
+| 1 | Adicionar try-catch no consumer | `RabbitMqEventConsumer.cs` | Implementar tratamento de `JsonException` e `Exception` genérica com logging |
+| 2 | Corrigir blocking async | `RabbitMqEventConsumer.cs` | Refatorar `OnMessage` para `async Task` e usar `await` |
+| 3 | Habilitar TLS no SMTP | `EmailService.cs` | Alterar `SecureSocketOptions.None` → `SecureSocketOptions.StartTls` |
+| 4 | Adicionar error handling no EmailService | `EmailService.cs` | Wrapping com try-catch em todas as operações SMTP |
+| 5 | Remover credenciais hardcoded | `appsettings.json` | Usar variáveis de ambiente ou secrets management |
+
+### Prioridade 2 — Altos (Esforço: ~22h 30min)
+
+| # | Ação | Esforço |
+|---|------|---------|
+| 6 | Implementar Dead Letter Queue | 3h |
+| 7 | Adicionar logging (ILogger) em todas as classes | 2h |
+| 8 | Implementar templates de email (Razor ou Liquid) | 4h |
+| 9 | Adicionar validação de formato de email | 30min |
+| 10 | Implementar connection pooling SMTP | 2h |
+| 11 | Persistir emails no banco (ou remover DB) | 2h |
+| 12 | Criar testes unitários e de integração | 6h |
+| 13 | Adicionar rate limiting de envio | 2h |
+| 14 | Implementar handler para `TaskDueReminderIntegrationEvent` | 1h |
+
+### Prioridade 3 — Médios (Esforço: ~5h)
+
+| # | Ação | Esforço |
+|---|------|---------|
+| 15 | Remover dead code (objeto EmailMessage não usado) | 10min |
+| 16 | Corrigir NotImplementedException nos repositories | 30min |
+| 17 | Corrigir typo `cancellationTokeno` → `cancellationToken` | 5min |
+| 18 | Padronizar namespaces (EmailSender → Notification) | 1h |
+| 19 | Logar quando strategy não encontrada | 15min |
+| 20 | Adicionar suporte a HTML emails | 2h |
+
+---
+
+## Score / Qualidade
+
+### Nota Geral: 3.5 / 10
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Notification Service - Score de Qualidade                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Segurança           ██████░░░░░░░░░░░░░░  30%  CRÍTICO    │
+│  Error Handling      ███░░░░░░░░░░░░░░░░░░  15%  CRÍTICO    │
+│  Arquitetura         █████░░░░░░░░░░░░░░░░  25%  ALTO       │
+│  Observabilidade     █░░░░░░░░░░░░░░░░░░░░  5%   CRÍTICO    │
+│  Testabilidade       ░░░░░░░░░░░░░░░░░░░░░  0%   CRÍTICO    │
+│  Performance         ████░░░░░░░░░░░░░░░░░  20%  ALTO       │
+│  Código Limpo        ███░░░░░░░░░░░░░░░░░░  15%  ALTO       │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│  NOTA GERAL          ███░░░░░░░░░░░░░░░░░░  35%  3.5/10    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Detalhamento por Categoria
+
+| Categoria | Nota | Justificativa |
+|-----------|------|---------------|
+| **Segurança** | 3/10 | SMTP sem TLS, credenciais hardcoded, sem rate limiting |
+| **Error Handling** | 1.5/10 | Zero try-catch, exceções crasham o serviço, falhas silenciosas |
+| **Arquitetura** | 2.5/10 | Strategy pattern bom, mas DB não utilizada, sem DLQ, consumer bloqueante |
+| **Observabilidade** | 0.5/10 | Zero logging em todo o serviço |
+| **Testabilidade** | 0/10 | Nenhum teste encontrado |
+| **Performance** | 2/10 | Nova conexão SMTP por email, blocking async |
+| **Código Limpo** | 1.5/10 | Dead code, namespaces mistos, typos, NotImplementedException |
+
+### Histórico de Mudanças de Qualidade
+
+| Data | Nota | Observação |
+|------|------|------------|
+| 03/03/2026 | 3.5/10 | Code review inicial - diversos issues críticos identificados |
+
+### Recomendação
+
+> ⚠️ **Este é o microservice com a menor nota do sistema LifeSync.**
+> Requer refatoração significativa antes de qualquer uso em produção.
+> Issues críticos de segurança e error handling devem ser tratados imediatamente.
+
+---
+
 ## Limitações Conhecidas
 
 | Severidade | Problema | Descrição |

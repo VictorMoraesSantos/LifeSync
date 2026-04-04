@@ -654,6 +654,159 @@ dotnet test tests/Financial.UnitTests
 
 ---
 
+## Problemas Críticos
+
+> **Fonte:** Code Review Completo (FINANCIAL_CODE_REVIEW.md)  
+> **Data da Análise:** 03/03/2026  
+> **Nota Geral:** 5.5/10
+
+### Resumo de Issues por Severidade
+
+| Severidade | Quantidade |
+|------------|-----------|
+| CRÍTICO | 7 |
+| ALTO | 8 |
+| MÉDIO | 5 |
+| BAIXO | 0 |
+| INFO | 1 |
+
+### Tabela Completa de Issues
+
+#### CRÍTICO
+
+| # | Arquivo | Problema | Impacto |
+|---|---------|----------|---------|
+| 1 | `Transaction.cs` | Bug de dupla atribuição no `Update()`: `Amount` atribuído duas vezes + typo `SetAmout` | Setter privado perde propósito; código confuso |
+| 2 | `Money.cs` | Valor negativo não permitido (`amount < 0` lança exceção) | Impossível representar despesas; contradição com `TransactionType.Expense` |
+| 3 | `CategoryService.cs` | Paginação em memória - `GetPagedAsync` carrega TODOS os registros | Performance O(n) - 100k registros em memória |
+| 4 | `CategoryService.cs` | `FindAsync` carrega tudo e filtra em memória sobre DTOs | Performance O(n) - carrega todos, converte, depois filtra |
+| 5 | `CategoryService.cs` | N+1 em `DeleteRangeAsync` - loop com `GetById()` para cada ID | N queries ao banco para deletar N registros |
+| 6 | `CategoriesController.cs` | Sem `[Authorize]` em nenhum controller | Todos os endpoints são públicos - sem autenticação |
+| 7 | `appsettings.json` | JWT Secret hardcoded `"SuperSecretKeyForJWTAuthentication2024!@#$%"` | Segurança comprometida em produção |
+
+#### ALTO
+
+| # | Arquivo | Problema | Impacto |
+|---|---------|----------|---------|
+| 8 | `Category.cs`, `Transaction.cs` | Inconsistência de exceções - `DomainException` vs `ArgumentOutOfRangeException` | Handlers capturam `Exception` genérica e mascaram o tipo real |
+| 9 | `CreateTransactionCommandValidator.cs` | Validador `.Must(amount => amount.Amount > 0 \|\| amount.Amount < 0)` SEMPRE retorna true | Validação ineficaz - qualquer valor é aceito |
+| 10 | `CategoryService.cs` | `GetByNameAsync` valida `userId` mas IGNORA na query | Retorna categorias de TODOS os usuários - vazamento de dados |
+| 11 | `ApplicationDbContext.cs` | Índices faltando: `Categories.UserId`, `Transactions.UserId`, `Transactions.TransactionDate`, `Transactions.PaymentMethod` | Queries lentas sem índices adequados |
+| 12 | `ApplicationDbContext.cs` | Ausência de Global Query Filter para `IsDeleted` | Registros deletados aparecem em todas as queries |
+| 13 | `TransactionMapper.cs` | `Category` mapeado como nullable no mapper, mas `TransactionDTO` declara como non-nullable | Potencial `NullReferenceException` |
+| 14 | `CategoriesController.cs` | `GetAll()` retorna dados de TODOS os usuários | Sem filtro por usuário autenticado |
+
+#### MÉDIO
+
+| # | Arquivo | Problema | Impacto |
+|---|---------|----------|---------|
+| 15 | `CategoriesController.cs` | Comparação de erros por string (`result.Error.Description.Contains("NotFound")`) | Frágil - se mensagem mudar, mapeamento de status HTTP quebra |
+| 16 | `CategoryService.cs` | `AccountBalanceDTO` e `UserBalanceSummaryDTO` definidos mas nunca utilizados | DTOs órfãos no código |
+| 17 | `ReportsController.cs` | Controller vazio (stub sem implementação) | Confunde desenvolvedores; não cumpre promessa de funcionalidade |
+| 18 | `TransactionConfiguration.cs` | Money `OwnsOne` sem `HasPrecision()` - usa default (18,2) | Para valores financeiros, deveria ser (18,4) ou mais |
+| 19 | `Transaction.cs` | Documentação ausente da estratégia (Amount positivo + `TransactionType` indica direção) | Contradição entre `Money` não permitir negativo e domínio financeiro |
+
+#### INFO
+
+| # | Arquivo | Problema | Impacto |
+|---|---------|----------|---------|
+| 20 | `TransactionTests.cs`, `CategoryTests.cs` | Bons testes unitários (20+ casos) mas usando `Assert` nativo | Recomenda migração para FluentAssertions |
+
+---
+
+## Recomendações de Correção
+
+### Prioridade 1 — Críticos (7 items)
+
+| # | Ação | Esforço | Arquivo(s) |
+|---|------|---------|------------|
+| 1 | Adicionar `[Authorize]` em todos os controllers | 10 min | `*Controller.cs` |
+| 2 | Remover JWT Key do `appsettings.json` e usar Secret Manager ou env vars | 30 min | `appsettings.json`, `Program.cs` |
+| 3 | Corrigir paginação em memória — usar `IQueryable.Skip().Take()` no banco | 2h | `CategoryService.cs`, `TransactionService.cs` |
+| 4 | Corrigir `FindAsync` para filtrar no banco — traduzir predicado de DTO para Entity | 2h | `CategoryService.cs`, `TransactionService.cs` |
+| 5 | Corrigir N+1 no `DeleteRangeAsync` — criar `GetByIds(IEnumerable<int>)` no repository | 1h | `CategoryRepository.cs`, `CategoryService.cs` |
+| 6 | Corrigir bug dupla atribuição no `Transaction.Update()` — remover `Amount = amount` duplicado e corrigir typo `SetAmout` → `SetAmount` | 15 min | `Transaction.cs` |
+| 7 | Corrigir validador `.Must()` que sempre retorna true — usar `.Must(amount => amount.Amount != 0)` | 10 min | `CreateTransactionCommandValidator.cs` |
+
+### Prioridade 2 — Altos (7 items)
+
+| # | Ação | Esforço | Arquivo(s) |
+|---|------|---------|------------|
+| 8 | Filtrar `GetByNameAsync` por `userId` — corrigir query para usar parâmetro | 30 min | `CategoryService.cs`, `CategoryRepository.cs` |
+| 9 | Adicionar índices no banco: `Categories.UserId`, `Transactions.UserId`, `Transactions.TransactionDate`, `Transactions.PaymentMethod` | 30 min | `ApplicationDbContext.cs` |
+| 10 | Adicionar Global Query Filter para `IsDeleted` em todas as entidades | 30 min | `ApplicationDbContext.cs` |
+| 11 | Corrigir `TransactionDTO` nullability — `Category` deve ser nullable ou mapper deve garantir valor | 30 min | `TransactionMapper.cs`, `TransactionDTO.cs` |
+| 12 | Filtrar `GetAll` por usuário autenticado — extrair `UserId` do JWT | 1h | `CategoriesController.cs`, `TransactionsController.cs` |
+| 13 | Padronizar exceções de domínio — usar `DomainException` em todas as entidades | 1h | `Category.cs`, `Transaction.cs` |
+| 14 | Implementar testes de integração (~40 testes) | 8h | `Financial.IntegrationTests/*` |
+
+### Prioridade 3 — Médios (5 items)
+
+| # | Ação | Esforço | Arquivo(s) |
+|---|------|---------|------------|
+| 15 | Usar `ErrorType` ao invés de comparação por string (`result.Error.Type == ErrorType.NotFound`) | 1h | `CategoriesController.cs` |
+| 16 | Remover DTOs não utilizados (`AccountBalanceDTO`, `UserBalanceSummaryDTO`) | 15 min | `Report/*.cs` |
+| 17 | Implementar ou remover `ReportsController` — não deixar stub vazio | 2h | `ReportsController.cs` |
+| 18 | Definir precisão decimal para Money `(18, 4)` no EF Core | 15 min | `TransactionConfiguration.cs` |
+| 19 | Documentar estratégia de Amount positivo + `TransactionType` indica direção, ou permitir valores negativos no Money | 30 min | `Money.cs`, `Transaction.cs` |
+
+---
+
+## Score / Qualidade do Serviço
+
+### Nota Geral: **5.5/10**
+
+| Dimensão | Nota | Observações |
+|----------|------|-------------|
+| **Arquitetura** | 7/10 | Clean Architecture bem aplicada; CQRS implementado; Repository Pattern correto |
+| **Domínio** | 6/10 | Entidades bem definidas; Value Objects corretos; bugs críticos de lógica presentes |
+| **Infraestrutura** | 4/10 | Performance crítica (paginação em memória, N+1); ausência de índices; sem Global Query Filter |
+| **API/Segurança** | 3/10 | Sem autenticação; JWT hardcoded; vazamento de dados entre usuários |
+| **Testes** | 4/10 | Testes unitários bons (24 casos); integração ausente; cobertura insuficiente |
+| **Código Limpo** | 6/10 | Typos, inconsistências de exceções, DTOs órfãos |
+
+### Principais Pontos Fortes
+
+- Estrutura de Clean Architecture bem definida e seguida
+- CQRS implementado com Commands e Queries separados
+- Value Objects (`Money`) e Domain Errors corretamente implementados
+- Testes unitários de domínio com boa cobertura de casos
+- Background Service para processamento de recorrências
+
+### Principais Pontos Fracos
+
+- **Segurança crítica:** endpoints públicos + JWT exposto + vazamento de dados
+- **Performance crítica:** paginação e filtragem em memória com O(n) total
+- **Bugs de lógica:** validador sempre verdadeiro + dupla atribuição + contradição de domínio
+- **Testes incompletos:** sem integração e E2E
+- **Código técnico:** inconsistências de padrão de exceções
+
+### Plano de Ação Resumido
+
+```
+SEMANA 1 (Críticos):
+├── Adicionar [Authorize] nos controllers
+├── Remover JWT hardcoded
+├── Corrigir paginação em memória
+├── Corrigir N+1 em DeleteRange
+└── Corrigir bug dupla atribuição
+
+SEMANA 2 (Altos):
+├── Filtrar queries por UserId
+├── Adicionar índices no banco
+├── Global Query Filter para IsDeleted
+├── Corrigir nullability de Category no DTO
+└── Iniciar testes de integração
+
+SEMANA 3 (Melhorias):
+├── Migrar testes para FluentAssertions
+├── Implementar relatórios (ou remover stubs)
+├── Padronizar exceções de domínio
+└── Documentar estratégia de valores negativos
+```
+
+---
+
 ## Problemas Conhecidos
 
 | Severidade | Problema | Descrição |

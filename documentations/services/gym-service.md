@@ -513,7 +513,132 @@ GET /health
 
 ---
 
-## Problemas Conhecidos
+## Problemas Críticos (Code Review 03/03/2026)
+
+> **Fonte:** Análise Code Review Completo — Todas as camadas (Domain, Application, Infrastructure, API)
+
+### PROBLEMAS CRÍTICOS
+
+| # | Severidade | Camada | Problema | Impacto | Arquivo |
+|---|---|---|---|---|---|
+| 1 | CRÍTICO | Application | **RoutineMapper - Parâmetros invertidos** | Nome e descrição de TODAS as rotinas estão trocados na API | `RoutineMapper.cs:101-102` |
+| 2 | CRÍTICO | Infrastructure | **Paginação em memória** | Performance O(n) em todas as listagens — carrega TODOS os registros para内存 | `ExerciseService.cs`, `RoutineService.cs`, `TrainingSessionService.cs`, `CompletedExerciseService.cs` |
+| 3 | CRÍTICO | Infrastructure | **RoutineExerciseSpecification - Semântica incorreta** | Filtro `SetsEquals` usa `<=` ao invés de `==` — usuários buscando "5 sets" recebem 1,2,3,4,5 | `RoutineExerciseSpecification.cs:155` |
+| 4 | CRÍTICO | API | **Controllers sem `[Authorize]`** | Todos os endpoints são públicos — sem autenticação | Todos os Controllers |
+| 5 | CRÍTICO | API | **JWT Secret hardcoded** | Chave de autenticação exposta no appsettings.json | `appsettings.json:253` |
+
+### PROBLEMAS DE ALTA PRIORIDADE
+
+| # | Severidade | Camada | Problema | Impacto | Arquivo |
+|---|---|---|---|---|---|
+| 6 | ALTO | Domain | **`CompletedAt` nunca inicializado** | `CompletedAt` fica com `default(DateTime)` (01/01/0001) — dados inválidos no banco | `CompletedExercise.cs` |
+| 7 | ALTO | Domain | **Inconsistência de exceções** | Exercise usa `ArgumentException`, Routine usa `DomainException` — padrão不一致 | `Exercise.cs`, `Routine.cs` |
+| 8 | ALTO | Infrastructure | **NullReferenceException potencial** | `Notes.Contains()` lança exceção se `Notes` for null no banco | `TrainingSessionSpecification.cs:169-170` |
+| 9 | ALTO | Infrastructure | **Configuração duplicada** | `OwnsOne(ce => ce.SetsCompleted)` registrado duas vezes | `CompletedExerciseConfiguration.cs:185-187` |
+| 10 | ALTO | Infrastructure | **Ausência de índices** | Consultas por `Exercise.Name`, `TrainingSession.UserId`, etc. sem index — performance degradada | `ApplicationDbContext.cs` |
+| 11 | ALTO | Infrastructure | **Sem isolamento de dados por usuário** | Qualquer usuário pode consultar treinos de outros | `TrainingSessionService.cs:208` |
+| 12 | ALTO | Infrastructure | **FindAsync carrega tudo em memória** | Mesmo padrão de paginação — O(n) desnecessário | `ExerciseService.cs`, etc. |
+| 13 | ALTO | API | **Validação ID route vs body ausente** | `command.Id` diferente do route `id` é sobrescrito silenciosamente | Controllers |
+
+### PROBLEMAS DE MÉDIA PRIORIDADE
+
+| # | Severidade | Camada | Problema | Impacto |
+|---|---|---|---|---|
+| 14 | MÉDIO | Application | **Camada Service redundante** | Fluxo: Controller → Handler → Service → Repository — uma camada poderia ser eliminada |
+| 15 | MÉDIO | Infrastructure | **Eager Loading inconsistente** | ExerciseRepository: nenhum include; RoutineRepository: inclui `RoutineExercises`; TrainingSessionRepository: inclui `Routine` e `CompletedExercises` |
+| 16 | MÉDIO | Infrastructure | **Sem Unit of Work** | Operações como "criar rotina + adicionar exercícios" não são atômicas |
+| 17 | MÉDIO | Domain | **Coleção nullable desnecessária** | `IReadOnlyCollection<CompletedExercise?>` — `?` no tipo cria confusão |
+| 18 | MÉDIO | Domain | **Domain events comentados** | Eventos de domínio declarados mas desativados — infraestrutura ociosa |
+| 19 | MÉDIO | Application | **Arquivos com extensão duplicada** | `UpdateRoutineExerciseDTO.cs.cs`, `UpdateTrainingSessionDTO.cs.cs` |
+
+### PROBLEMAS DE BAIXA PRIORIDADE
+
+| # | Severidade | Problema |
+|---|---|---|
+| 20 | BAIXO | Mensagens de erro em idiomas misturados (inglês e português) |
+
+---
+
+## Recomendações de Correção
+
+### Prioridade 1 — Críticos (Esforço: ~5h)
+
+| # | Ação | Tempo Estimado | Dependência |
+|---|---|---|---|
+| 1 | Corrigir `RoutineMapper` — inverter ordem de `Name` e `Description` no `ToDTO()` | 10 min | — |
+| 2 | Adicionar `[Authorize]` em todos os Controllers | 10 min | — |
+| 3 | Remover JWT Key do `appsettings.json` — usar variáveis de ambiente | 30 min | — |
+| 4 | Corrigir paginação em memória — mover `Skip/Take` para query do banco (4 services) | 4h | Repositórios |
+| 5 | Corrigir `SetsEquals` na specification — mudar `<=` para `==` | 15 min | — |
+
+### Prioridade 2 — Altos (Esforço: ~6h)
+
+| # | Ação | Tempo Estimado | Dependência |
+|---|---|---|---|
+| 6 | Corrigir NullReference na `TrainingSessionSpecification` — adicionar null check | 15 min | — |
+| 7 | Remover duplicata `CompletedExerciseConfiguration` | 10 min | — |
+| 8 | Adicionar índices no banco via Fluent API | 30 min | — |
+| 9 | Implementar isolamento de dados por usuário — validar `UserId` autenticado | 2h | Auth |
+| 10 | Inicializar `CompletedAt = DateTime.UtcNow` no construtor ou chamar `MarkCompleted()` | 15 min | — |
+| 11 | Padronizar exceções para `DomainException` em todas as entidades | 1h | — |
+| 12 | Corrigir `FindAsync` para filtrar no banco ao invés de em memória | 2h | Repositórios |
+
+### Prioridade 3 — Médios (Esforço: ~10h)
+
+| # | Ação | Tempo Estimado |
+|---|---|---|
+| 13 | Implementar Unit of Work para operações atômicas | 4h |
+| 14 | Definir estratégia consistente de Eager Loading | 2h |
+| 15 | Remover `?` nullable da coleção `CompletedExercises` | 15 min |
+| 16 | Habilitar Domain Events (descomentar) | 2h |
+| 17 | Padronizar idioma das mensagens de erro (escolher PT-BR ou EN) | 1h |
+| 18 | Renomear arquivos com extensão duplicada | 5 min |
+
+---
+
+## Score / Qualidade do Serviço
+
+### Nota Geral: **5/10**
+
+| Dimensão | Score | Observações |
+|---|---|---|
+| **Domínio** | 6/10 | Bom uso de Value Objects, porém `CompletedAt` nunca inicializado e exceções inconsistentes |
+| **Application** | 5/10 | Bug crítico no Mapper (parâmetros invertidos), camada service redundante |
+| **Infrastructure** | 4/10 | Paginação em memória, specifications com bugs, sem índices, sem Unit of Work |
+| **API** | 4/10 | Sem autenticação, JWT exposto, validação ID insuficiente |
+| **Testes** | 2/10 | Apenas stub vazio — 0 testes implementados (conforme test-plan) |
+| **Segurança** | 3/10 | Endpoints públicos, sem isolamento de dados, secrets em config |
+
+### Resumo de Issues por Severidade
+
+| Severidade | Quantidade |
+|---|---|
+| CRÍTICO | 5 |
+| ALTO | 7 |
+| MÉDIO | 6 |
+| BAIXO | 2 |
+| **TOTAL** | **20** |
+
+### Indicadores de Cobertura de Testes (Meta)
+
+| Tipo | Meta | Status Atual |
+|---|---|---|
+| Unitários | ~200 testes | 0 (stub vazio) |
+| Integração | ~60 testes | 0 |
+| E2E | ~35 testes | 0 |
+| **Total** | **~295 testes** | **0** |
+| **Cobertura** | **85%+** | **N/A** |
+
+### Débitos Técnicos Acumulados
+
+- **Bug em produção:** Mapper com parâmetros invertidos troca Name/Description
+- **Performance:** Todas as listagens carregam dados em memória (O(n))
+- **Segurança:** API sem autenticação, dados de usuários acessíveis entre si
+- **Dados inválidos:** `CompletedAt` com valor default (01/01/0001)
+
+---
+
+## Problemas Conhecidos (Legado)
 
 | Severidade | Problema | Descrição |
 |---|---|---|

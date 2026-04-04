@@ -16,6 +16,132 @@ Responsável pelo gerenciamento de tarefas e labels no LifeSync.
 
 ---
 
+## Problemas Críticos
+
+> **Fonte:** Code Review - 03/03/2026  
+> **Alerta:** Issues que impedem o serviço de ir para produção
+
+### Tabela de Issues Críticos e Altos
+
+| # | Severidade | Camada | Issue | Arquivo | Impacto |
+|---|-----------|--------|-------|---------|---------|
+| 1 | **CRÍTICO** | API | JWT Secret Key hardcoded no appsettings.json | `appsettings.json` | Segurança: chave exposta no repositório |
+| 2 | **CRÍTICO** | API | `[Authorize]` comentado no ApiController base | `ApiController.cs:675` | Segurança: todos os endpoints abertos |
+| 3 | **CRÍTICO** | Application | UserId passado no body em vez de extraído do JWT | `*CommandHandler.cs` | Segurança: usuários podem acessar dados de outros |
+| 4 | **CRÍTICO** | Infrastructure | Paginação em memória (carrega todos os registros antes de paginar) | `TaskItemService.cs:379` | Performance: OutOfMemoryException com 100k+ registros |
+| 5 | **CRÍTICO** | Infrastructure | SaveChanges individual em operações batch | `TaskItemRepository.cs:416` | Performance: 50 itens = 50 round-trips ao banco |
+| 6 | **ALTO** | Infrastructure | Ausência de Unit of Work explícito | Repository pattern | Consistência: impossível operações atômicas entre repositórios |
+| 7 | **ALTO** | Infrastructure | Global Query Filter para soft delete ausente | `ApplicationDbContext.cs` | Consistência: registros deletados retornam em queries |
+| 8 | **ALTO** | Domain | Enum `Status` e `LabelColor` sem validação com `Enum.IsDefined()` | `TaskItem.cs`, `TaskLabel.cs` | Integridade: valores inválidos podem ser persistidos |
+| 9 | **ALTO** | Domain | Erros de query/paginação no Domain (violação de fronteira) | `TaskLabelErrors.cs` | Arquitetura: Domain conhece conceitos de Application |
+| 10 | **ALTO** | Domain | Aggregate Root não declarado (`IAggregateRoot` não implementado) | `TaskItem.cs`, `TaskLabel.cs` | DDD: sem fronteiras claras de aggregates |
+| 11 | **ALTO** | Application | Validação duplicada (FluentValidation vs Domain entity) | Múltiplos | Manutenção: regras divergentes entre camadas |
+| 12 | **ALTO** | Application | `UpdateTaskItemCommandValidator` não valida `DueDate >= hoje` | `UpdateTaskItemCommandValidator.cs` | Biz: é possível atualizar task com data no passado |
+| 13 | **ALTO** | Infrastructure | DueDateReminderService fire-and-forget sem retry | `DueDateReminderService.cs` | Confiabilidade: lembretes perdidos silenciosamente |
+| 14 | **ALTO** | Infrastructure | DueDateReminderService sem controle de duplicatas | `DueDateReminderService.cs` | UX: usuários recebem múltiplos lembretes da mesma tarefa |
+
+### Resumo Quantitativo
+
+| Severidade | Quantidade | Status |
+|------------|-----------|--------|
+| CRÍTICO | 5 | Requer correção imediata |
+| ALTO | 9 | Corrigir no próximo sprint |
+| MÉDIO | 13 | Backlog |
+| BAIXO | 6 | Longo prazo |
+
+---
+
+## Recomendações de Correção
+
+### Prioridade 1 — Críticos (Sprint Atual)
+
+| # | Correção | Esforço | Arquivos |
+|---|----------|---------|-----------|
+| 1 | Descomentar `[Authorize]` no ApiController | 5 min | `Core.API/Controllers/ApiController.cs` |
+| 2 | Remover JWT Key do appsettings.json, usar User Secrets | 30 min | `appsettings.json`, `Program.cs` |
+| 3 | Extrair UserId do JWT via `IHttpContextAccessor` | 2h | `*CommandHandler.cs` |
+| 4 | Corrigir paginação — usar Skip/Take no IQueryable | 2h | `TaskItemService.cs`, `TaskItemRepository.cs` |
+
+### Prioridade 2 — Altos (Próximo Sprint)
+
+| # | Correção | Esforço | Arquivos |
+|---|----------|---------|-----------|
+| 5 | Implementar Global Exception Handler | 2h | `Program.cs` |
+| 6 | Adicionar Global Query Filter para `IsDeleted` | 30 min | `ApplicationDbContext.cs` |
+| 7 | Implementar Unit of Work | 4h | `IUnitOfWork.cs`, repositories |
+| 8 | Resolver validação duplicada (handlers vs pipeline) | 2h | `*Handler.cs`, `ValidationBehavior.cs` |
+| 9 | Mover erros de query do Domain para Application | 1h | `TaskLabelErrors.cs` |
+| 10 | Adicionar controle de duplicatas no DueDateReminderService | 3h | `DueDateReminderService.cs` |
+| 11 | Implementar Rate Limiting | 1h | `Program.cs` |
+| 12 | Health checks com verificação de dependências | 1h | `Program.cs` |
+
+### Prioridade 3 — Médios (Backlog)
+
+| # | Correção | Esforço |
+|---|----------|---------|
+| 13 | Padronizar validação de enums no Domain | 1h |
+| 14 | Case-insensitive search (`EF.Functions.ILike`) | 1h |
+| 15 | Cachear tipos no CQRS Sender | 2h |
+| 16 | Adicionar métodos funcionais ao `Result<T>` | 2h |
+| 17 | Configurar CORS | 30 min |
+| 18 | Implementar API Versioning | 2h |
+| 19 | Configurar Swagger com JWT | 30 min |
+| 20 | Logging estruturado com Serilog | 2h |
+| 21 | Adicionar índices compostos no banco | 30 min |
+| 22 | Batch size limit nos endpoints | 30 min |
+| 23 | Auto-migration condicional por environment | 30 min |
+| 24 | Eager loading condicional | 1h |
+
+### Prioridade 4 — Baixos / Longo Prazo
+
+| # | Correção | Esforço |
+|---|----------|---------|
+| 25 | Padronizar enums para 1-based | 30 min |
+| 26 | Renomear `Priority.ToString()` para `ToFriendlyString()` | 15 min |
+| 27 | Implementar `IAggregateRoot` | 1h |
+| 28 | Domain Events em entidades | 4h |
+| 29 | Value Objects (`TaskTitle`, `TaskDescription`) | 8h |
+| 30 | Caching strategy (Redis/Memory) | 4h |
+| 31 | Outbox Pattern para eventos | 8h |
+| 32 | Testes de concorrência | 4h |
+
+---
+
+## Score / Qualidade do Serviço
+
+### Avaliação Geral
+
+| Dimensão | Score | Observação |
+|----------|-------|------------|
+| **Arquitetura** | 7.5/10 | Clean Architecture bem implementada com CQRS e Repository Pattern |
+| **Segurança** | 3.0/10 | CRÍTICO: Authorize desabilitado, JWT exposto, UserId no body |
+| **Performance** | 5.0/10 | Paginação em memória, SaveChanges individual em batch |
+| **Código** | 6.5/10 | Padrões bem aplicados, mas com inconsistências |
+| **Testes** | 6.0/10 | 42 testes unitários, carece de integração e E2E |
+| **DDD** | 5.5/10 | Aggregate Roots não declarados, Domain Events não utilizados |
+
+### Score Consolidado: **5.5/10**
+
+> **Nota:** O serviço possui uma arquitetura sólida de base (Clean Architecture + CQRS), porém apresenta **falhas críticas de segurança** e **problemas de performance** que impedem sua utilização em produção. As correções de Prioriade 1 devem ser implementadas antes de qualquer deploy.
+
+### Principais Pontos Fortes
+
+- Clean Architecture bem definida com separação clara de responsabilidades
+- CQRS implementado com Commands/Queries e Handlers
+- Repository Pattern com Specification Pattern
+- Result Pattern para tratamento de erros
+- Validação com FluentValidation
+- Background service para lembretes via RabbitMQ
+
+### Principais Pontos Fracos
+
+- **Segurança:** Autorização desabilitada e JWT exposto
+- **Performance:** Paginação em memória e operações batch ineficientes
+- **DDD:** Aggregate Roots não declarados, Domain Events não disparados
+- **Consistência:** Unit of Work ausente, Global Query Filter ausente
+
+---
+
 ## Visão Geral
 
 O TaskManager Service gerencia o ciclo de vida completo de tarefas dos usuários — criação, atualização, organização com labels, prioridades e status. Um background service monitora tarefas próximas do vencimento e publica eventos de lembrete via RabbitMQ para o Notification Service.
