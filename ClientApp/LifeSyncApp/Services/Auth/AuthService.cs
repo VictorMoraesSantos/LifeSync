@@ -91,7 +91,7 @@ namespace LifeSyncApp.Services.Auth
             var launch = context.PackageManager!.GetLaunchIntentForPackage(context.PackageName!);
             if (launch != null)
             {
-                launch.AddFlags(Android.Content.ActivityFlags.SingleTop);
+                launch.AddFlags(Android.Content.ActivityFlags.NewTask | Android.Content.ActivityFlags.SingleTop);
                 context.StartActivity(launch);
             }
 #endif

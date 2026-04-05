@@ -85,11 +85,10 @@ namespace Users.API.Controllers
             var appScheme = _configuration["GoogleAuth:AppScheme"] ?? "com.lifesync.app";
 
             if (string.IsNullOrEmpty(code))
-                return BuildDeepLinkPage($"{appScheme}://callback?error=no_code");
+                return Redirect($"{appScheme}://callback?error=no_code");
 
             try
             {
-                // Trocar authorization code por ID token
                 var clientId = _configuration["GoogleAuth:ClientId"];
                 var clientSecret = _configuration["GoogleAuth:ClientSecret"];
                 var redirectUri = _configuration["GoogleAuth:RedirectUri"];
@@ -108,58 +107,34 @@ namespace Users.API.Controllers
                 var tokenJson = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
 
                 if (!tokenResponse.IsSuccessStatusCode)
-                    return BuildDeepLinkPage($"{appScheme}://callback?error=token_exchange_failed");
+                    return Redirect($"{appScheme}://callback?error=token_exchange_failed");
 
                 var tokenDoc = System.Text.Json.JsonDocument.Parse(tokenJson);
                 var idToken = tokenDoc.RootElement.GetProperty("id_token").GetString();
 
                 if (string.IsNullOrEmpty(idToken))
-                    return BuildDeepLinkPage($"{appScheme}://callback?error=no_id_token");
+                    return Redirect($"{appScheme}://callback?error=no_id_token");
 
-                // Usar o fluxo existente de external login
                 var command = new ExternalLoginCommand(idToken, "Google");
                 var result = await _sender.Send(command, cancellationToken);
 
                 if (!result.IsSuccess)
-                    return BuildDeepLinkPage($"{appScheme}://callback?error={Uri.EscapeDataString(result.Error!.Description)}");
+                    return Redirect($"{appScheme}://callback?error={Uri.EscapeDataString(result.Error!.Description)}");
 
                 var authResult = result.Value!;
-                return BuildDeepLinkPage(
+                var callbackUrl =
                     $"{appScheme}://callback" +
                     $"?access_token={Uri.EscapeDataString(authResult.AccessToken)}" +
                     $"&refresh_token={Uri.EscapeDataString(authResult.RefreshToken)}" +
                     $"&user_id={Uri.EscapeDataString(authResult.User.Id)}" +
-                    $"&state={Uri.EscapeDataString(state ?? "")}");
+                    $"&state={Uri.EscapeDataString(state ?? "")}";
+
+                return Redirect(callbackUrl);
             }
             catch (Exception ex)
             {
-                return BuildDeepLinkPage($"{appScheme}://callback?error={Uri.EscapeDataString(ex.Message)}");
+                return Redirect($"{appScheme}://callback?error={Uri.EscapeDataString(ex.Message)}");
             }
-        }
-
-        /// <summary>
-        /// Returns an HTML page that navigates to the app via JavaScript deep link.
-        /// This is more reliable than a 302 redirect to a custom scheme, because
-        /// some Chrome versions block or silently ignore HTTP redirects to non-HTTP
-        /// URLs, leaving the Custom Tab on a blank white screen.
-        /// </summary>
-        private static ContentResult BuildDeepLinkPage(string callbackUrl)
-        {
-            var jsUrl = System.Text.Json.JsonSerializer.Serialize(callbackUrl);
-
-            var html = "<!DOCTYPE html>" +
-                "<html><head><title>Redirecting</title></head><body>" +
-                "<p style=\"font-family:sans-serif;text-align:center;margin-top:40px\">" +
-                "Redirecting to LifeSync...</p>" +
-                "<script>window.location.replace(" + jsUrl + ");</script>" +
-                "</body></html>";
-
-            return new ContentResult
-            {
-                Content = html,
-                ContentType = "text/html",
-                StatusCode = 200
-            };
         }
 
         [HttpPost("logout")]
