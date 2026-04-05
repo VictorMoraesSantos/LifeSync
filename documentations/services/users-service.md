@@ -1,6 +1,10 @@
-# Users Service
+# 👤 Users Service
 
-Responsável pelo gerenciamento de usuários, autenticação e autorização no LifeSync.
+Microserviço responsável pelo **gerenciamento de usuários, autenticação e autorização** no LifeSync.
+
+> **Stack:** ASP.NET Core Identity · JWT + Refresh Token · Google OAuth · PostgreSQL · RabbitMQ  
+> **Porta:** `5001` · **Schema:** `users`  
+> **Padrões:** CQRS · DDD · Result Pattern · Clean Architecture
 
 ## Índice
 
@@ -12,6 +16,7 @@ Responsável pelo gerenciamento de usuários, autenticação e autorização no 
 - [API](#api)
 - [Configuração](#configuração)
 - [Dependências](#dependências)
+- [📚 Documentação Relacionada](#-documentação-relacionada)
 
 ---
 
@@ -419,6 +424,21 @@ Todos os endpoints retornam `HttpResult<object>`:
 | 8 | Exigir verificação de email antes de confirmar mudança | `UpdateUserProfileAsync()` | 4h |
 | 9 | Implementar `DeleteUserCommandHandler` | `DeleteUserCommandHandler.cs` | 2h |
 | 10 | Validar `BirthDate` no construtor do `User` | `User.cs` | 15 min |
+
+---
+
+## 📚 Documentação Relacionada
+
+| Tipo | Documento | Descrição |
+|------|-----------|----------|
+| 📋 Code Review | [USERS_CODE_REVIEW.md](../code-reviews/USERS_CODE_REVIEW.md) | Revisão detalhada de código com issues por severidade |
+| 📧 Integração | [notification-service.md](notification-service.md) | Consome o evento `UserRegisteredEvent` publicado por este serviço |
+| 🔐 Google Auth | [GOOGLE-AUTH-IMPLEMENTATION.md](../deployment/GOOGLE-AUTH-IMPLEMENTATION.md) | Guia de implementação do login OAuth com Google |
+| 🔧 Building Blocks | [building-blocks.md](building-blocks.md) | Bibliotecas compartilhadas (CQRS, Result Pattern, Messaging) |
+| 🏗️ Arquitetura | [API-GATEWAY.md](../architecture/API-GATEWAY.md) | Gateway que roteia chamadas para este serviço |
+| 📊 Review Consolidado | [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](../code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Visão consolidada de todos os serviços |
+
+[← Voltar ao Índice de Documentação](../README.md)
 | 11 | Padronizar tipos de ID para `int` em todos os DTOs | DTOs | 1h |
 | 12 | Implementar paginação com `Skip().Take()` | `UserService.cs` | 1h |
 | 13 | Adicionar rate limiting | `Program.cs` | 1h |

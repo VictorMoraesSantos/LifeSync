@@ -1,6 +1,9 @@
-# Building Blocks & Core
+# 🔧 Building Blocks & Core
 
-Bibliotecas internas compartilhadas por todos os microserviços do LifeSync.
+Bibliotecas internas compartilhadas por todos os microserviços do LifeSync — a fundação arquitetural do ecossistema.
+
+> **Projetos:** `BuildingBlocks` · `BuildingBlocks.Messaging` · `Core.Domain` · `Core.Application` · `Core.Infrastructure` · `Core.API`  
+> **Padrões:** CQRS · Result Pattern · Specification · Repository · Domain Events · Event Bus
 
 ## Índice
 
@@ -25,6 +28,7 @@ Bibliotecas internas compartilhadas por todos os microserviços do LifeSync.
 - [Core.Infrastructure](#coreinfrastructure)
 - [Core.API](#coreapi)
 - [Dependências](#dependências)
+- [📚 Documentação Relacionada](#-documentação-relacionada)
 
 ---
 
@@ -882,3 +886,27 @@ Os eventos são acumulados em `BaseEntity` via `AddDomainEvent()`, mas não exis
 | `Microsoft.EntityFrameworkCore` | 10.0.3 | ORM |
 | `Microsoft.AspNetCore.Identity.EntityFrameworkCore` | 10.0.3 | Identity |
 | `Newtonsoft.Json` | 13.0.4 | Serialização JSON |
+
+---
+
+## 📚 Documentação Relacionada
+
+| Tipo | Documento | Descrição |
+|------|-----------|----------|
+| 📊 Review Consolidado | [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](../code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Visão consolidada de todos os serviços |
+| 🏗️ Arquitetura Geral | [API-GATEWAY.md](../architecture/API-GATEWAY.md) | Gateway que consome Building Blocks |
+| 📝 Documentação | [DOCUMENTATION.md](../architecture/DOCUMENTATION.md) | Guia de documentação do projeto |
+| 🚀 Deploy | [DEPLOY-VPS-DOCKER.md](../deployment/DEPLOY-VPS-DOCKER.md) | Guia de deploy com Docker |
+
+### Serviços que utilizam Building Blocks
+
+| Serviço | Documentação |
+|---------|-------------|
+| 👤 Users | [users-service.md](users-service.md) |
+| ✅ TaskManager | [taskmanager-service.md](taskmanager-service.md) |
+| 💰 Financial | [financial-service.md](financial-service.md) |
+| 🏋️ Gym | [gym-service.md](gym-service.md) |
+| 📧 Notification | [notification-service.md](notification-service.md) |
+| 🥗 Nutrition | [nutrition-service.md](nutrition-service.md) |
+
+[← Voltar ao Índice de Documentação](../README.md)

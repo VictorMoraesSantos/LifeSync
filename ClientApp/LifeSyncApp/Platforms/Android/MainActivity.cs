@@ -10,7 +10,6 @@ namespace LifeSyncApp
         protected override void OnNewIntent(Intent? intent)
         {
             base.OnNewIntent(intent);
-            Intent = intent;
             Platform.OnNewIntent(intent);
         }
 

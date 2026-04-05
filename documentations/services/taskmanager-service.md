@@ -1,6 +1,10 @@
-# TaskManager Service
+# ✅ TaskManager Service
 
-Responsável pelo gerenciamento de tarefas e labels no LifeSync.
+Microserviço responsável pelo **gerenciamento de tarefas pessoais com labels coloridas**, prioridades, status e lembretes de vencimento no LifeSync.
+
+> **Stack:** ASP.NET Core · EF Core · PostgreSQL · RabbitMQ  
+> **Porta:** `5000` · **Schema:** `taskmanager`
+> **Padrões:** CQRS · DDD · Result Pattern · Background Service · Clean Architecture
 
 ## Índice
 
@@ -13,6 +17,7 @@ Responsável pelo gerenciamento de tarefas e labels no LifeSync.
 - [Testes](#testes)
 - [Configuração](#configuração)
 - [Dependências](#dependências)
+- [📚 Documentação Relacionada](#-documentação-relacionada)
 
 ---
 
@@ -512,6 +517,22 @@ Serviço em background que monitora tarefas próximas do vencimento:
 | Opção | Padrão | Descrição |
 |---|---|---|
 | `ReminderThreshold` | 1 dia | Antecedência para enviar lembrete |
+
+---
+
+## 📚 Documentação Relacionada
+
+| Tipo | Documento | Descrição |
+|------|-----------|----------|
+| 📋 Code Review | [TASKMANAGER_CODE_REVIEW.md](../code-reviews/TASKMANAGER_CODE_REVIEW.md) | Revisão detalhada de código com issues por severidade |
+| 🧪 Test Plan | [TaskManager-Test-Plan.md](../test-plans/TaskManager-Test-Plan.md) | Plano de testes unitários, integração e E2E |
+| 📖 Documentação Estendida | [TASKMANAGER_DOCUMENTATION.md](TASKMANAGER_DOCUMENTATION.md) | Documentação complementar do serviço |
+| 📧 Integração | [notification-service.md](notification-service.md) | Consome o evento `TaskDueReminderIntegrationEvent` deste serviço |
+| 🔧 Building Blocks | [building-blocks.md](building-blocks.md) | Bibliotecas compartilhadas (CQRS, Result Pattern, Messaging) |
+| 🏗️ Arquitetura | [API-GATEWAY.md](../architecture/API-GATEWAY.md) | Gateway que roteia chamadas para este serviço |
+| 📊 Review Consolidado | [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](../code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Visão consolidada de todos os serviços |
+
+[← Voltar ao Índice de Documentação](../README.md)
 | `PollingInterval` | 1 hora | Intervalo entre verificações |
 | `ExchangeName` | `task_exchange` | Exchange RabbitMQ |
 | `RoutingKey` | `task.due.reminder` | Routing key |

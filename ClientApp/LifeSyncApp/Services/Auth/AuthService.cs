@@ -82,6 +82,20 @@ namespace LifeSyncApp.Services.Auth
                     CallbackUrl = new Uri("com.lifesync.app://callback")
                 });
 
+#if ANDROID
+            // After WebAuthenticator completes, the Chrome Custom Tab may still
+            // be visible on top. Bring the app back to the foreground. At this
+            // point the WebAuthenticatorIntermediateActivity has already finished,
+            // so this is safe and will not interfere with the auth flow.
+            var context = Android.App.Application.Context;
+            var launch = context.PackageManager!.GetLaunchIntentForPackage(context.PackageName!);
+            if (launch != null)
+            {
+                launch.AddFlags(Android.Content.ActivityFlags.SingleTop);
+                context.StartActivity(launch);
+            }
+#endif
+
             var error = authResult?.Get("error");
             if (!string.IsNullOrEmpty(error))
                 throw new InvalidOperationException($"Erro no login com Google: {Uri.UnescapeDataString(error)}");

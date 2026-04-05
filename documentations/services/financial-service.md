@@ -1,6 +1,10 @@
-# Financial Service
+# 💰 Financial Service
 
-Responsável pelo gerenciamento financeiro pessoal no LifeSync.
+Microserviço responsável pelo **controle financeiro pessoal** no LifeSync.
+
+> **Stack:** ASP.NET Core · EF Core · PostgreSQL · Background Service  
+> **Porta:** `5003` · **Schema:** `financial`
+> **Padrões:** CQRS · DDD · Result Pattern · Specification · Clean Architecture
 
 ## Índice
 
@@ -12,6 +16,7 @@ Responsável pelo gerenciamento financeiro pessoal no LifeSync.
 - [API](#api)
 - [Configuração](#configuração)
 - [Dependências](#dependências)
+- [📚 Documentação Relacionada](#-documentação-relacionada)
 
 ---
 
@@ -883,3 +888,18 @@ IsDeleted               Currency (int enum)                 MaxOccurrences?
                         UpdatedAt                           IsDeleted
                         IsDeleted
 ```
+
+---
+
+## 📚 Documentação Relacionada
+
+| Tipo | Documento | Descrição |
+|------|-----------|----------|
+| 📋 Code Review | [FINANCIAL_CODE_REVIEW.md](../code-reviews/FINANCIAL_CODE_REVIEW.md) | Revisão detalhada de código com issues por severidade |
+| 🧪 Test Plan | [Financial-Test-Plan.md](../test-plans/Financial-Test-Plan.md) | Plano de testes unitários, integração e E2E |
+| 📖 Transações Recorrentes | [RecurringTransactions.md](RecurringTransactions.md) | Documentação detalhada do sistema de recorrências |
+| 🔧 Building Blocks | [building-blocks.md](building-blocks.md) | Bibliotecas compartilhadas (CQRS, Result Pattern, Messaging) |
+| 🏗️ Arquitetura | [API-GATEWAY.md](../architecture/API-GATEWAY.md) | Gateway que roteia chamadas para este serviço |
+| 📊 Review Consolidado | [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](../code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Visão consolidada de todos os serviços |
+
+[← Voltar ao Índice de Documentação](../README.md)

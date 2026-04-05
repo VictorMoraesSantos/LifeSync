@@ -1,6 +1,10 @@
-# Notification Service
+# 📧 Notification Service
 
-Responsável pelo envio de notificações e e-mails no LifeSync.
+Microserviço responsável pelo **envio de notificações e e-mails transacionais** no LifeSync.
+
+> **Stack:** ASP.NET Core · MailKit · RabbitMQ · PostgreSQL  
+> **Porta:** `5126` · **Schema:** `notification`
+> **Padrões:** Strategy Pattern · Event-Driven · CQRS · Clean Architecture
 
 ## Índice
 
@@ -12,6 +16,7 @@ Responsável pelo envio de notificações e e-mails no LifeSync.
 - [API](#api)
 - [Configuração](#configuração)
 - [Dependências](#dependências)
+- [📚 Documentação Relacionada](#-documentação-relacionada)
 
 ---
 
@@ -416,6 +421,21 @@ GET /health
 | 12 | Criar testes unitários e de integração | 6h |
 | 13 | Adicionar rate limiting de envio | 2h |
 | 14 | Implementar handler para `TaskDueReminderIntegrationEvent` | 1h |
+
+---
+
+## 📚 Documentação Relacionada
+
+| Tipo | Documento | Descrição |
+|------|-----------|----------|
+| 📋 Code Review | [NOTIFICATION_CODE_REVIEW.md](../code-reviews/NOTIFICATION_CODE_REVIEW.md) | Revisão detalhada de código com issues por severidade |
+| 👤 Integração (Users) | [users-service.md](users-service.md) | Publica `UserRegisteredEvent` consumido por este serviço |
+| ✅ Integração (TaskManager) | [taskmanager-service.md](taskmanager-service.md) | Publica `TaskDueReminderIntegrationEvent` consumido por este serviço |
+| 🔧 Building Blocks | [building-blocks.md](building-blocks.md) | Bibliotecas compartilhadas (CQRS, Result Pattern, Messaging) |
+| 🏗️ Arquitetura | [API-GATEWAY.md](../architecture/API-GATEWAY.md) | Gateway que roteia chamadas para este serviço |
+| 📊 Review Consolidado | [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](../code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Visão consolidada de todos os serviços |
+
+[← Voltar ao Índice de Documentação](../README.md)
 
 ### Prioridade 3 — Médios (Esforço: ~5h)
 

@@ -209,18 +209,47 @@ Soft delete habilitado em todas as entidades através do `IsDeleted` configurado
 
 ## Documentação Detalhada
 
-A documentação técnica completa de cada microserviço — incluindo todas as entidades, endpoints, configurações e dependências — está disponível na pasta [`documentations/`](./documentations/):
+A documentação técnica completa do projeto está organizada na pasta [`documentations/`](./documentations/):
+
+### 📄 Microserviços
 
 | Arquivo | Conteúdo |
 |---|---|
-| [users-service.md](./documentations/users-service.md) | Autenticação, JWT, Identity, perfil de usuário |
-| [taskmanager-service.md](./documentations/taskmanager-service.md) | Tarefas, labels, lembrete de vencimento |
-| [nutrition-service.md](./documentations/nutrition-service.md) | Diários, refeições, alimentos, líquidos, metas |
+| [users-service.md](./documentations/services/users-service.md) | Autenticação, JWT, Identity, perfil de usuário |
+| [taskmanager-service.md](./documentations/services/taskmanager-service.md) | Tarefas, labels, lembrete de vencimento |
+| [nutrition-service.md](./documentations/services/nutrition-service.md) | Diários, refeições, alimentos, líquidos, metas |
 | [financial-service.md](./documentations/services/financial-service.md) | Transações, categorias, moedas, recorrências |
 | [RecurringTransactions.md](./documentations/services/RecurringTransactions.md) | Decisão arquitetural e fluxo de transações recorrentes |
-| [gym-service.md](./documentations/gym-service.md) | Exercícios, rotinas, sessões de treino |
-| [notification-service.md](./documentations/notification-service.md) | E-mails via RabbitMQ + SMTP |
-| [building-blocks.md](./documentations/building-blocks.md) | Building Blocks & Core — CQRS, Result Pattern, Messaging, Domain |
+| [gym-service.md](./documentations/services/gym-service.md) | Exercícios, rotinas, sessões de treino |
+| [notification-service.md](./documentations/services/notification-service.md) | E-mails via RabbitMQ + SMTP |
+| [building-blocks.md](./documentations/services/building-blocks.md) | Building Blocks & Core — CQRS, Result Pattern, Messaging, Domain |
+
+### 🏗️ Arquitetura & Deployment
+
+| Arquivo | Conteúdo |
+|---|---|
+| [API-GATEWAY.md](./documentations/architecture/API-GATEWAY.md) | Configuração e roteamento do YARP API Gateway |
+| [CLIENTAPP.md](./documentations/architecture/CLIENTAPP.md) | Arquitetura do frontend Blazor WebAssembly |
+| [FEATURE-ROADMAP.md](./documentations/architecture/FEATURE-ROADMAP.md) | Roadmap de features futuras |
+| [DEPLOY-VPS-DOCKER.md](./documentations/deployment/DEPLOY-VPS-DOCKER.md) | Guia de deploy em VPS com Docker |
+| [GOOGLE-AUTH-IMPLEMENTATION.md](./documentations/deployment/GOOGLE-AUTH-IMPLEMENTATION.md) | Implementação Google OAuth |
+
+### 🔍 Code Reviews & Qualidade
+
+| Arquivo | Conteúdo |
+|---|---|
+| [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](./documentations/code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Code review consolidado de todos os serviços |
+| [CRITICAL_ISSUES.md](./documentations/CRITICAL_ISSUES.md) | Issues críticas que requerem atenção imediata |
+| [ANALISE-ESTRATEGICA-COMPLETA.md](./documentations/ANALISE-ESTRATEGICA-COMPLETA.md) | Análise estratégica completa do projeto |
+
+### 🧪 Planos de Teste
+
+| Arquivo | Serviço |
+|---|---|
+| [Financial-Test-Plan.md](./documentations/test-plans/Financial-Test-Plan.md) | Financial |
+| [Gym-Test-Plan.md](./documentations/test-plans/Gym-Test-Plan.md) | Gym |
+| [Nutrition-Test-Plan.md](./documentations/test-plans/Nutrition-Test-Plan.md) | Nutrition |
+| [TaskManager-Test-Plan.md](./documentations/test-plans/TaskManager-Test-Plan.md) | TaskManager |
 
 ---
 

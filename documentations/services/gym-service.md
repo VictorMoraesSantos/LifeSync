@@ -1,6 +1,10 @@
-# Gym Service
+# 🏋️ Gym Service
 
-Responsável pelo gerenciamento de treinos, exercícios e sessões de academia no LifeSync.
+Microserviço responsável pelo **gerenciamento de treinos, exercícios e sessões de academia** no LifeSync.
+
+> **Stack:** ASP.NET Core · EF Core · PostgreSQL  
+> **Porta:** `5004` · **Schema:** `gym`  
+> **Padrões:** CQRS · DDD (6 Value Objects) · Result Pattern · Specification · Clean Architecture
 
 ## Índice
 
@@ -12,6 +16,7 @@ Responsável pelo gerenciamento de treinos, exercícios e sessões de academia n
 - [API](#api)
 - [Configuração](#configuração)
 - [Dependências](#dependências)
+- [📚 Documentação Relacionada](#-documentação-relacionada)
 
 ---
 
@@ -716,3 +721,17 @@ Exercises ──→ RoutineExercises ──→ Routines
 - `CompletedExercise.SetsCompleted` → `SetsCompleted_Value`
 - `CompletedExercise.RepetitionsCompleted` → `RepetitionsCompleted_Value`
 - `CompletedExercise.WeightUsed` → `WeightUsed_Value`, `WeightUsed_Unit`
+
+---
+
+## 📚 Documentação Relacionada
+
+| Tipo | Documento | Descrição |
+|------|-----------|----------|
+| 📋 Code Review | [GYM_CODE_REVIEW.md](../code-reviews/GYM_CODE_REVIEW.md) | Revisão detalhada de código com issues por severidade |
+| 🧪 Test Plan | [Gym-Test-Plan.md](../test-plans/Gym-Test-Plan.md) | Plano de testes unitários, integração e E2E |
+| 🔧 Building Blocks | [building-blocks.md](building-blocks.md) | Bibliotecas compartilhadas (CQRS, Result Pattern, Messaging) |
+| 🏗️ Arquitetura | [API-GATEWAY.md](../architecture/API-GATEWAY.md) | Gateway que roteia chamadas para este serviço |
+| 📊 Review Consolidado | [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](../code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Visão consolidada de todos os serviços |
+
+[← Voltar ao Índice de Documentação](../README.md)
