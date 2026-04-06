@@ -275,7 +275,8 @@
                                                                 <Border BackgroundColor="{StaticResource FinSurface}"
                                                                         StrokeThickness="0"
                                                                         Padding="8,3"
-                                                                        StrokeShape="RoundRectangle 6">
+                                                                        StrokeShape="RoundRectangle 6"
+                                                                        IsVisible="{Binding Category, Converter={StaticResource IsNotNullConverter}}">
                                                                     <Label Text="{Binding Category.Name}"
                                                                            FontSize="11"
                                                                            TextColor="{StaticResource FinSecondaryText}"/>

@@ -67,8 +67,14 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         public bool IsEditing
         {
             get => _isEditing;
-            private set => SetProperty(ref _isEditing, value);
+            private set
+            {
+                if (SetProperty(ref _isEditing, value))
+                    OnPropertyChanged(nameof(SaveButtonText));
+            }
         }
+
+        public string SaveButtonText => IsEditing ? "Editar" : "Criar";
 
         public bool IsRecurring
         {

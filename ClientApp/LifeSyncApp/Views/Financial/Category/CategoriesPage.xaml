@@ -39,30 +39,6 @@
                     Stroke="Transparent"
                     BackgroundColor="#EDECEA"
                     IsVisible="{Binding IsLoadingCategories}"/>
-
-            <Border Grid.Column="2"
-                    HeightRequest="36"
-                    StrokeShape="RoundRectangle 100"
-                    Stroke="Transparent"
-                    BackgroundColor="{StaticResource FinGreen}"
-                    Padding="14,8"
-                    IsVisible="{Binding IsLoadingCategories, Converter={StaticResource InvertedBoolConverter}}">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding AddCategoryCommand}"/>
-                </Border.GestureRecognizers>
-                <HorizontalStackLayout Spacing="6"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center">
-                    <Image Source="add.svg"
-                           WidthRequest="14"
-                           HeightRequest="14"/>
-                    <Label Text="Nova"
-                           FontSize="13"
-                           FontAttributes="Bold"
-                           TextColor="White"
-                           VerticalOptions="Center"/>
-                </HorizontalStackLayout>
-            </Border>
         </Grid>
 
         <!-- Skeleton Loading -->

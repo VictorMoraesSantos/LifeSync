@@ -92,6 +92,9 @@ namespace LifeSyncApp.ViewModels.Financial
         public SafeObservableCollection<CategoryExpense> TopCategories { get; } = new();
         public SafeObservableCollection<CategoryDTO> Categories { get; } = new();
 
+        public bool HasRecentTransactions => RecentTransactions.Count > 0;
+        public bool HasNoRecentTransactions => RecentTransactions.Count == 0;
+
         public bool HasTopCategories => TopCategories.Count > 0;
         public bool HasNoTopCategories => TopCategories.Count == 0;
 
@@ -204,6 +207,8 @@ namespace LifeSyncApp.ViewModels.Financial
                     HighestExpense = highestExpense;
                     RecentTransactions.ReplaceAll(recentTransactions);
                     TopCategories.ReplaceAll(topCategories);
+                    OnPropertyChanged(nameof(HasRecentTransactions));
+                    OnPropertyChanged(nameof(HasNoRecentTransactions));
                     OnPropertyChanged(nameof(HasTopCategories));
                     OnPropertyChanged(nameof(HasNoTopCategories));
                     System.Diagnostics.Debug.WriteLine($"[FinancialVM] UI updated - TopCategories.Count: {TopCategories.Count}, HasTopCategories: {HasTopCategories}");

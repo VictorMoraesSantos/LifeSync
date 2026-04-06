@@ -417,10 +417,18 @@
                     </Label>
                 </Grid>
 
+                <Label Text="Nenhuma transação este mês"
+                       FontSize="13"
+                       TextColor="{StaticResource FinMuted}"
+                       HorizontalOptions="Center"
+                       Margin="0,12"
+                       IsVisible="{Binding HasNoRecentTransactions}"/>
+
                 <Border BackgroundColor="{StaticResource FinCardBg}"
                         StrokeThickness="1"
                         Stroke="{StaticResource FinBorder}"
-                        StrokeShape="RoundRectangle 16">
+                        StrokeShape="RoundRectangle 16"
+                        IsVisible="{Binding HasRecentTransactions}">
                     <Border.Shadow>
                         <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
                     </Border.Shadow>
@@ -461,7 +469,8 @@
                                             <Border BackgroundColor="{StaticResource FinSurface}"
                                                     StrokeThickness="0"
                                                     Padding="8,3"
-                                                    StrokeShape="RoundRectangle 6">
+                                                    StrokeShape="RoundRectangle 6"
+                                                    IsVisible="{Binding Category, Converter={StaticResource IsNotNullConverter}}">
                                                 <Label Text="{Binding Category.Name}"
                                                        FontSize="11"
                                                        TextColor="{StaticResource FinSecondaryText}"/>

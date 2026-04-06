@@ -21,6 +21,7 @@
             <converters:LabelColorToLightColorConverter  x:Key="LabelColorToLightColorConverter"/>
             <converters:HasItemsConverter x:Key="HasItemsConverter"/>
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <converters:IsNotNullConverter x:Key="IsNotNullConverter"/>
 
             <!-- Tab Converters -->
             <converters:TabBackgroundConverter x:Key="TabBackgroundConverter"/>

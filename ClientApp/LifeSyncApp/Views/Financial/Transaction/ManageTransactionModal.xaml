@@ -456,7 +456,7 @@
                             <Image Source="add.svg"
                                    WidthRequest="18"
                                    HeightRequest="18"/>
-                            <Label Text="Criar"
+                            <Label Text="{Binding SaveButtonText}"
                                    FontSize="15"
                                    FontAttributes="Bold"
                                    TextColor="White"/>
