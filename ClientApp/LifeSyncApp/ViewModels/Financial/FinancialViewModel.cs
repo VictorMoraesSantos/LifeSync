@@ -39,6 +39,8 @@ namespace LifeSyncApp.ViewModels.Financial
         private int _expenseCount;
         private decimal _highestIncome;
         private decimal _highestExpense;
+        private TransactionDTO? _highestIncomeTransaction;
+        private TransactionDTO? _highestExpenseTransaction;
 
         public decimal Balance
         {
@@ -88,6 +90,18 @@ namespace LifeSyncApp.ViewModels.Financial
             set => SetProperty(ref _highestExpense, value);
         }
 
+        public TransactionDTO? HighestIncomeTransaction
+        {
+            get => _highestIncomeTransaction;
+            private set => SetProperty(ref _highestIncomeTransaction, value);
+        }
+
+        public TransactionDTO? HighestExpenseTransaction
+        {
+            get => _highestExpenseTransaction;
+            private set => SetProperty(ref _highestExpenseTransaction, value);
+        }
+
         public SafeObservableCollection<TransactionDTO> RecentTransactions { get; } = new();
         public SafeObservableCollection<CategoryExpense> TopCategories { get; } = new();
         public SafeObservableCollection<CategoryDTO> Categories { get; } = new();
@@ -105,6 +119,8 @@ namespace LifeSyncApp.ViewModels.Financial
         public ICommand ViewAllTransactionsCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand OpenCategoryTransactionsCommand { get; }
+        public ICommand OpenHighestIncomeDetailCommand { get; }
+        public ICommand OpenHighestExpenseDetailCommand { get; }
 
         public FinancialViewModel(TransactionService transactionService, CategoryService categoryService, IUserSession userSession)
         {
@@ -120,6 +136,8 @@ namespace LifeSyncApp.ViewModels.Financial
             ViewAllTransactionsCommand = new Command(async () => await ViewAllTransactionsAsync());
             RefreshCommand = new Command(async () => await LoadDataAsync(forceRefresh: true));
             OpenCategoryTransactionsCommand = new Command<CategoryExpense>(async (cat) => await OpenCategoryTransactionsAsync(cat));
+            OpenHighestIncomeDetailCommand = new Command(async () => await OpenHighestIncomeDetailAsync());
+            OpenHighestExpenseDetailCommand = new Command(async () => await OpenHighestExpenseDetailAsync());
         }
 
         public async Task InitializeAsync()
@@ -167,6 +185,8 @@ namespace LifeSyncApp.ViewModels.Financial
                 var expenseCount = expenses.Count;
                 var highestIncome = incomes.Any() ? incomes.Max(t => t.Amount?.ToDecimal() ?? 0m) : 0;
                 var highestExpense = expenses.Any() ? expenses.Max(t => t.Amount?.ToDecimal() ?? 0m) : 0;
+                var highestIncomeTransaction = incomes.FirstOrDefault(t => (t.Amount?.ToDecimal() ?? 0m) == highestIncome);
+                var highestExpenseTransaction = expenses.FirstOrDefault(t => (t.Amount?.ToDecimal() ?? 0m) == highestExpense);
 
                 var recentTransactions = transactions.OrderByDescending(t => t.TransactionDate).Take(5).ToList();
 
@@ -205,6 +225,8 @@ namespace LifeSyncApp.ViewModels.Financial
                     ExpenseCount = expenseCount;
                     HighestIncome = highestIncome;
                     HighestExpense = highestExpense;
+                    HighestIncomeTransaction = highestIncomeTransaction;
+                    HighestExpenseTransaction = highestExpenseTransaction;
                     RecentTransactions.ReplaceAll(recentTransactions);
                     TopCategories.ReplaceAll(topCategories);
                     OnPropertyChanged(nameof(HasRecentTransactions));
@@ -334,6 +356,18 @@ namespace LifeSyncApp.ViewModels.Financial
             {
                 { "Filter", filter }
             });
+        }
+
+        private async Task OpenHighestIncomeDetailAsync()
+        {
+            if (HighestIncomeTransaction == null) return;
+            await OpenDetailAsync(HighestIncomeTransaction);
+        }
+
+        private async Task OpenHighestExpenseDetailAsync()
+        {
+            if (HighestExpenseTransaction == null) return;
+            await OpenDetailAsync(HighestExpenseTransaction);
         }
     }
 }

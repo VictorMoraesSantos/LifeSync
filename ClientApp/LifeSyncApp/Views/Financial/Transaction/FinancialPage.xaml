@@ -365,6 +365,9 @@
                     <Border.Shadow>
                         <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
                     </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenHighestIncomeDetailCommand}"/>
+                    </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Maior receita"
                                FontSize="11"
@@ -386,6 +389,9 @@
                     <Border.Shadow>
                         <Shadow Brush="#1A1918" Offset="0,2" Radius="12" Opacity="0.03"/>
                     </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenHighestExpenseDetailCommand}"/>
+                    </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Maior despesa"
                                FontSize="11"
