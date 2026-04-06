@@ -146,6 +146,28 @@ namespace LifeSyncApp.Services.Nutrition
             }
         }
 
+        public async Task<DiaryDTO?> GetDiaryByDateAsync(int userId, DateOnly date, CancellationToken ct = default)
+        {
+            var cacheKey = $"diary_user_{userId}_date_{date:yyyy-MM-dd}";
+            var cached = GetFromCache<DiaryDTO>(cacheKey);
+            if (cached != null) return cached;
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient("LifeSyncApi");
+                var response = await client.GetAsync($"{DiariesBase}/user/{userId}/date/{date:yyyy-MM-dd}", ct);
+                if (!response.IsSuccessStatusCode) { await LogErrorAsync(response, "GetDiaryByDate"); return GetStaleFromCache<DiaryDTO>(cacheKey); }
+                var result = await response.Content.ReadFromJsonAsync<ApiSingleResponse<DiaryDTO>>(_jsonOptions, ct);
+                if (result?.Data != null) SetCache(cacheKey, result.Data);
+                return result?.Data;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NutritionService] GetDiaryByDate exception: {ex.Message}");
+                return GetStaleFromCache<DiaryDTO>(cacheKey);
+            }
+        }
+
         public async Task<(int? Id, string? Error)> CreateDiaryAsync(CreateDiaryDTO dto, CancellationToken ct = default)
         {
             try

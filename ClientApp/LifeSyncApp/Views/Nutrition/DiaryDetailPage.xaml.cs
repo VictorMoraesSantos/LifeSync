@@ -36,7 +36,6 @@ public partial class DiaryDetailPage : ContentPage, IQueryAttributable
     {
         base.OnDisappearing();
         _viewModel.DiaryDeleted -= OnDiaryDeleted;
-        _nutritionViewModel.InvalidateDataCache();
     }
 
     private void OnDiaryDeleted(object? sender, EventArgs e)

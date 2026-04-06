@@ -349,31 +349,48 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (TodayDiary != null) return;
 
-            // Force reload from API (skip cache)
-            InvalidateDataCache();
-            await LoadDataAsync(forceRefresh: true);
-            if (TodayDiary != null) return;
+            var date = _selectedDate;
 
-            // Diary doesn't exist, create it
-            var dto = new CreateDiaryDTO(_userSession.UserId, _selectedDate);
-            var (diaryId, error) = await _nutritionService.CreateDiaryAsync(dto);
+            // First, try to get just the diary for this date (lightweight call)
+            var diary = await _nutritionService.GetDiaryByDateAsync(_userSession.UserId, date);
 
-            if (diaryId == null && error != null && error.Contains("Já existe"))
+            if (diary != null)
             {
-                // Diary exists but cache was stale - just reload
-                InvalidateDataCache();
-                await LoadDataAsync(forceRefresh: true);
+                TodayDiary = diary;
                 return;
             }
 
+            // Diary doesn't exist, create it directly
+            var dto = new CreateDiaryDTO(_userSession.UserId, date);
+            var (diaryId, error) = await _nutritionService.CreateDiaryAsync(dto);
+
             if (diaryId == null)
             {
+                if (error != null && error.Contains("Já existe"))
+                {
+                    // Race condition: diary was created by another request, fetch it
+                    diary = await _nutritionService.GetDiaryByDateAsync(_userSession.UserId, date);
+                    if (diary != null)
+                    {
+                        TodayDiary = diary;
+                        return;
+                    }
+                }
                 await Shell.Current.DisplayAlert("Erro", error ?? "Não foi possível criar o diário.", "OK");
                 return;
             }
 
-            InvalidateDataCache();
-            await LoadDataAsync(forceRefresh: true);
+            // Create succeeded - set the diary locally without full refresh
+            TodayDiary = new DiaryDTO(
+                diaryId.Value,
+                _userSession.UserId,
+                date,
+                DateTime.Now,
+                null,
+                0,
+                new List<MealDTO>(),
+                new List<LiquidDTO>()
+            );
         }
 
         private async Task OpenManageMealModalAsync()

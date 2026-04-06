@@ -54,8 +54,7 @@ public partial class ManageLiquidModal : ContentPage, IQueryAttributable
         await _viewModel.InitializeAsync(_diaryId, _liquid);
         UpdateButtonStyles(_viewModel.SelectedQuickQuantity);
 
-        // Apply initial liquid type selection style after visual tree is ready
-        ApplyInitialLiquidTypeStyle(0);
+        Dispatcher.Dispatch(() => UpdateAllLiquidTypeStyles());
     }
 
     protected override void OnDisappearing()
@@ -70,29 +69,6 @@ public partial class ManageLiquidModal : ContentPage, IQueryAttributable
     {
         if (e.PropertyName == nameof(ManageLiquidViewModel.SelectedQuickQuantity))
             UpdateButtonStyles(_viewModel.SelectedQuickQuantity);
-    }
-
-    private void ApplyInitialLiquidTypeStyle(int attempt)
-    {
-        if (_viewModel.SelectedLiquidType == null || attempt > 10) return;
-
-        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(150), () =>
-        {
-            var found = false;
-            var selectedItem = _viewModel.SelectedLiquidType;
-            foreach (var child in LiquidTypesLayout.GetVisualTreeDescendants())
-            {
-                if (child is Border border && border.BindingContext is DTOs.Nutrition.LiquidType.LiquidTypeDTO dto)
-                {
-                    var isSelected = dto == selectedItem;
-                    UpdateLiquidTypeItemStyle(border, isSelected);
-                    if (isSelected) found = true;
-                }
-            }
-
-            if (!found)
-                ApplyInitialLiquidTypeStyle(attempt + 1);
-        });
     }
 
     private void OnLiquidTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)

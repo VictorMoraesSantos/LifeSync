@@ -23,7 +23,7 @@ public partial class NutritionPage : ContentPage
 
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
 
-        await _viewModel.LoadDataAsync(forceRefresh: true);
+        await _viewModel.LoadDataAsync(forceRefresh: false);
     }
 
     protected override void OnDisappearing()

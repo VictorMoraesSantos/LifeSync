@@ -49,7 +49,6 @@ public partial class MealDetailPage : ContentPage
         base.OnDisappearing();
         _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         _viewModel.MealDeleted -= OnMealDeleted;
-        _nutritionViewModel.InvalidateDataCache();
         StopSkeletonAnimation();
     }
 
