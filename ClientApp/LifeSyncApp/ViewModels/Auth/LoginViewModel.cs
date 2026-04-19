@@ -92,6 +92,7 @@ namespace LifeSyncApp.ViewModels.Auth
             if (IsBusy) return;
             IsBusy = true;
             HasError = false;
+            System.Diagnostics.Debug.WriteLine("[LoginVM] Google login started");
 
             try
             {
@@ -99,10 +100,19 @@ namespace LifeSyncApp.ViewModels.Auth
                 await _userSession.InitializeAsync();
 
                 await Shell.Current.GoToAsync("//MainPage");
+                System.Diagnostics.Debug.WriteLine("[LoginVM] Google login completed successfully");
             }
-            catch (TaskCanceledException)
+            catch (TimeoutException ex)
             {
-                // Usuario cancelou o login - nao faz nada
+                HasError = true;
+                ErrorMessage = ex.Message;
+                System.Diagnostics.Debug.WriteLine($"[LoginVM] Google login timeout: {ex.Message}");
+            }
+            catch (TaskCanceledException ex)
+            {
+                HasError = true;
+                ErrorMessage = ex.Message;
+                System.Diagnostics.Debug.WriteLine($"[LoginVM] Google login canceled: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -113,6 +123,7 @@ namespace LifeSyncApp.ViewModels.Auth
             finally
             {
                 IsBusy = false;
+                System.Diagnostics.Debug.WriteLine("[LoginVM] Google login flow finalized (IsBusy=false)");
             }
         }
 

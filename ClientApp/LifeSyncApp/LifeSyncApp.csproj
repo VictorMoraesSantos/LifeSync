@@ -96,4 +96,9 @@
 	  </MauiXaml>
 	</ItemGroup>
 
+	<ItemGroup>
+		<Compile Remove="Tests\**\*.cs" />
+		<None Include="Tests\**\*" Exclude="Tests\**\bin\**;Tests\**\obj\**" />
+	</ItemGroup>
+
 </Project>

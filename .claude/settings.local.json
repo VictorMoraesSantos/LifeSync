@@ -9,7 +9,9 @@
       "WebSearch",
       "Bash(gh search:*)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:source.dot.net)"
+      "WebFetch(domain:source.dot.net)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Skill(update-config)"
     ]
   },
   "enabledMcpjsonServers": [

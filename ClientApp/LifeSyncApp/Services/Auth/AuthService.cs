@@ -13,10 +13,12 @@ namespace LifeSyncApp.Services.Auth
         private const string RefreshTokenKey = "refresh_token";
         private const string UserIdKey = "user_id";
         private const string BaseUrl = "/auth";
+        private static readonly TimeSpan GoogleLoginTimeout = TimeSpan.FromSeconds(90);
 
         private readonly HttpClient _httpClient;
         private readonly ILogger<AuthService> _logger;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly GoogleSignInAttemptTracker _googleSignInAttemptTracker = new();
 
         public AuthService(
             IHttpClientFactory httpClientFactory,
@@ -26,13 +28,6 @@ namespace LifeSyncApp.Services.Auth
             _httpClient = httpClientFactory.CreateClient("LifeSyncApi");
             _logger = logger;
             _jsonOptions = jsonOptions;
-
-            // Force WebAuthenticator static initialization before first use.
-            // This eliminates the race condition where the first OAuth callback
-            // arrives before the static event handlers are registered.
-#if ANDROID
-            _ = WebAuthenticator.Default;
-#endif
         }
 
         public async Task<AuthResult> LoginAsync(LoginRequest request)
@@ -77,60 +72,91 @@ namespace LifeSyncApp.Services.Auth
 
         public async Task<AuthResult> GoogleLoginAsync()
         {
-            System.Diagnostics.Debug.WriteLine("[Auth] Starting Google login via backend OAuth flow");
+            var attempt = _googleSignInAttemptTracker.BeginAttempt();
+            LogGoogleSignInEvent("sign_in_started", attempt.AttemptId);
 
-            // Force WebAuthenticator initialization before the first authentication.
-            // In Release builds with AOT compilation, the static initialization
-            // might be delayed, causing the first OAuth callback to fail.
-#if ANDROID
-            var _ = WebAuthenticator.Default;
-#endif
+            using var timeoutCts = new CancellationTokenSource(GoogleLoginTimeout);
 
-            var baseAddress = _httpClient.BaseAddress?.ToString().TrimEnd('/');
-            var state = Guid.NewGuid().ToString("N");
-
-            var authResult = await WebAuthenticator.Default.AuthenticateAsync(
-                new WebAuthenticatorOptions
+            try
+            {
+                var baseAddress = _httpClient.BaseAddress?.ToString().TrimEnd('/');
+                if (string.IsNullOrWhiteSpace(baseAddress))
                 {
-                    Url = new Uri($"{baseAddress}/auth/google-login?state={state}"),
-                    CallbackUrl = new Uri("com.lifesync.app://callback")
-                });
+                    throw new InvalidOperationException("BaseAddress da API nao configurada para login Google.");
+                }
 
-#if ANDROID
-            // After WebAuthenticator completes, the Chrome Custom Tab or system browser may still
-            // be visible on top. Bring the app back to the foreground aggressively.
-            // Using FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP ensures the existing
-            // activity is brought to foreground instead of creating a new instance.
-            var context = Android.App.Application.Context;
-            var launch = context.PackageManager!.GetLaunchIntentForPackage(context.PackageName!);
-            if (launch != null)
-            {
-                launch.AddFlags(Android.Content.ActivityFlags.ClearTop | Android.Content.ActivityFlags.SingleTop | Android.Content.ActivityFlags.NewTask);
-                context.StartActivity(launch);
+                var authResult = await WebAuthenticator.Default.AuthenticateAsync(
+                    new WebAuthenticatorOptions
+                    {
+                        Url = new Uri($"{baseAddress}/auth/google-login?state={attempt.AttemptId}"),
+                        CallbackUrl = new Uri("com.lifesync.app://callback")
+                    },
+                    timeoutCts.Token);
+
+                var callbackState = authResult?.Get("state");
+                if (!_googleSignInAttemptTracker.TryAcceptCallback(attempt.AttemptId, callbackState, out var callbackError))
+                {
+                    LogGoogleSignInEvent("callback_ignored", attempt.AttemptId, callbackError);
+                    throw new InvalidOperationException(callbackError);
+                }
+
+                LogGoogleSignInEvent("callback_received", attempt.AttemptId);
+
+                var error = authResult?.Get("error");
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    var decodedError = Uri.UnescapeDataString(error);
+                    _googleSignInAttemptTracker.TryMarkFailed(attempt.AttemptId, decodedError);
+                    LogGoogleSignInEvent("sign_in_failure", attempt.AttemptId, "provider_error");
+                    throw new InvalidOperationException($"Erro no login com Google: {decodedError}");
+                }
+
+                _googleSignInAttemptTracker.TryMarkTokenExchange(attempt.AttemptId);
+                LogGoogleSignInEvent("callback_processed", attempt.AttemptId);
+
+                var accessToken = authResult?.Get("access_token");
+                var refreshToken = authResult?.Get("refresh_token");
+                var userId = authResult?.Get("user_id");
+
+                if (string.IsNullOrWhiteSpace(accessToken) || string.IsNullOrWhiteSpace(refreshToken) || string.IsNullOrWhiteSpace(userId))
+                {
+                    _googleSignInAttemptTracker.TryMarkFailed(attempt.AttemptId, "Resposta incompleta do login Google.");
+                    LogGoogleSignInEvent("sign_in_failure", attempt.AttemptId, "incomplete_response");
+                    throw new InvalidOperationException("Resposta incompleta do login com Google.");
+                }
+
+                await SecureStorage.SetAsync(AccessTokenKey, accessToken);
+                await SecureStorage.SetAsync(RefreshTokenKey, refreshToken);
+                await SecureStorage.SetAsync(UserIdKey, userId);
+
+                _googleSignInAttemptTracker.TryMarkSucceeded(attempt.AttemptId);
+                LogGoogleSignInEvent("sign_in_success", attempt.AttemptId);
+
+                return new AuthResult
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    User = new UserDTO { Id = userId }
+                };
             }
-#endif
-
-            var error = authResult?.Get("error");
-            if (!string.IsNullOrEmpty(error))
-                throw new InvalidOperationException($"Erro no login com Google: {Uri.UnescapeDataString(error)}");
-
-            var accessToken = authResult?.Get("access_token");
-            var refreshToken = authResult?.Get("refresh_token");
-            var userId = authResult?.Get("user_id");
-
-            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(userId))
-                throw new InvalidOperationException("Resposta incompleta do login com Google.");
-
-            await SecureStorage.SetAsync(AccessTokenKey, accessToken);
-            await SecureStorage.SetAsync(RefreshTokenKey, refreshToken);
-            await SecureStorage.SetAsync(UserIdKey, userId);
-
-            return new AuthResult
+            catch (TaskCanceledException ex) when (!timeoutCts.IsCancellationRequested)
             {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-                User = new UserDTO { Id = userId }
-            };
+                _googleSignInAttemptTracker.TryMarkCanceled(attempt.AttemptId, "Fluxo de login Google cancelado pelo usuario.");
+                LogGoogleSignInEvent("sign_in_canceled", attempt.AttemptId);
+                throw new TaskCanceledException("Login com Google cancelado pelo usuario.", ex);
+            }
+            catch (OperationCanceledException ex) when (timeoutCts.IsCancellationRequested)
+            {
+                _googleSignInAttemptTracker.TryMarkTimedOut(attempt.AttemptId, "Tempo limite excedido no login Google.");
+                LogGoogleSignInEvent("sign_in_timeout", attempt.AttemptId);
+                throw new TimeoutException("Tempo esgotado no login com Google. Tente novamente.", ex);
+            }
+            catch (Exception ex)
+            {
+                _googleSignInAttemptTracker.TryMarkFailed(attempt.AttemptId, ex.Message);
+                LogGoogleSignInEvent("sign_in_failure", attempt.AttemptId, ex.GetType().Name);
+                throw;
+            }
         }
 
         public async Task LogoutAsync()
@@ -245,6 +271,17 @@ namespace LifeSyncApp.Services.Auth
             catch { }
 
             return null;
+        }
+
+        private void LogGoogleSignInEvent(string eventName, string attemptId, string? detail = null)
+        {
+            var state = _googleSignInAttemptTracker.GetState(attemptId)?.ToString() ?? "unknown";
+            _logger.LogInformation(
+                "[GoogleSignIn] Event={EventName} AttemptId={AttemptId} State={State} Detail={Detail}",
+                eventName,
+                attemptId,
+                state,
+                detail ?? "-");
         }
     }
 }

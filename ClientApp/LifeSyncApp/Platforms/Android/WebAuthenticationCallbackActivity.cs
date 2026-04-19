@@ -2,27 +2,38 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
+using Android.Util;
 
-namespace LifeSyncApp
+namespace LifeSyncApp;
+
+[Activity(NoHistory = true, LaunchMode = LaunchMode.SingleTop, Exported = true)]
+[IntentFilter(new[] { Android.Content.Intent.ActionView },
+              Categories = new[] { Android.Content.Intent.CategoryDefault, Android.Content.Intent.CategoryBrowsable },
+              DataScheme = "com.lifesync.app")]
+public class WebAuthenticationCallbackActivity : Microsoft.Maui.Authentication.WebAuthenticatorCallbackActivity
 {
-    [Activity(NoHistory = true, LaunchMode = LaunchMode.SingleTop, Exported = true)]
-    [IntentFilter(
-        new[] { Intent.ActionView },
-        Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
-        DataScheme = "com.lifesync.app",
-        DataHost = "callback")]
-    public class WebAuthenticationCallbackActivity : WebAuthenticatorCallbackActivity
+    private const string Tag = "LS.GoogleAuthCallback";
+
+    protected override void OnCreate(Bundle? savedInstanceState)
     {
-        protected override void OnCreate(Bundle? savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-            // Process intent on create
-            if (Intent != null)
-            {
-                OnNewIntent(Intent);
-            }
-            // Finish immediately after processing to return to the app
-            Finish();
-        }
+        LogIntent("OnCreate", Intent);
+        base.OnCreate(savedInstanceState);
+    }
+
+    protected override void OnNewIntent(Intent? intent)
+    {
+        LogIntent("OnNewIntent", intent);
+        base.OnNewIntent(intent);
+    }
+
+    private static void LogIntent(string lifecycleEvent, Intent? intent)
+    {
+        var data = intent?.Data;
+        Log.Info(Tag, "Event={Event} Action={Action} Scheme={Scheme} Host={Host} Path={Path}",
+            lifecycleEvent,
+            intent?.Action ?? "-",
+            data?.Scheme ?? "-",
+            data?.Host ?? "-",
+            data?.Path ?? "-");
     }
 }
