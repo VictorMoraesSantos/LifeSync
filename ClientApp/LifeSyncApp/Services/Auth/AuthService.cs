@@ -79,6 +79,13 @@ namespace LifeSyncApp.Services.Auth
         {
             System.Diagnostics.Debug.WriteLine("[Auth] Starting Google login via backend OAuth flow");
 
+            // Force WebAuthenticator initialization before the first authentication.
+            // In Release builds with AOT compilation, the static initialization
+            // might be delayed, causing the first OAuth callback to fail.
+#if ANDROID
+            var _ = WebAuthenticator.Default;
+#endif
+
             var baseAddress = _httpClient.BaseAddress?.ToString().TrimEnd('/');
             var state = Guid.NewGuid().ToString("N");
 
@@ -90,15 +97,15 @@ namespace LifeSyncApp.Services.Auth
                 });
 
 #if ANDROID
-            // After WebAuthenticator completes, the Chrome Custom Tab may still
-            // be visible on top. Bring the app back to the foreground. At this
-            // point the WebAuthenticatorIntermediateActivity has already finished,
-            // so this is safe and will not interfere with the auth flow.
+            // After WebAuthenticator completes, the Chrome Custom Tab or system browser may still
+            // be visible on top. Bring the app back to the foreground aggressively.
+            // Using FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP ensures the existing
+            // activity is brought to foreground instead of creating a new instance.
             var context = Android.App.Application.Context;
             var launch = context.PackageManager!.GetLaunchIntentForPackage(context.PackageName!);
             if (launch != null)
             {
-                launch.AddFlags(Android.Content.ActivityFlags.NewTask | Android.Content.ActivityFlags.SingleTop);
+                launch.AddFlags(Android.Content.ActivityFlags.ClearTop | Android.Content.ActivityFlags.SingleTop | Android.Content.ActivityFlags.NewTask);
                 context.StartActivity(launch);
             }
 #endif

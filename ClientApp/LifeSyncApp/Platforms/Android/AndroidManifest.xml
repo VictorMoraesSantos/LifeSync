@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- Required for package visibility on Android 11+ for Chrome Custom Tabs -->
+	<queries>
+		<intent>
+			<action android:name="android.support.customtabs.action.CustomTabsService" />
+		</intent>
+	</queries>
 	<application
 		android:allowBackup="true"
 		android:icon="@mipmap/appicon"

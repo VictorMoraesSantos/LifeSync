@@ -16,19 +16,13 @@ namespace LifeSyncApp
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            // Explicitly forward the intent to ensure the base class processes it.
-            // This helps with the race condition on first authentication attempt
-            // where the callback may arrive before the WebAuthenticator is fully initialized.
+            // Process intent on create
             if (Intent != null)
             {
                 OnNewIntent(Intent);
             }
-        }
-
-        protected override void OnNewIntent(Intent? intent)
-        {
-            base.OnNewIntent(intent);
-            // Base class WebAuthenticatorCallbackActivity handles the callback signaling
+            // Finish immediately after processing to return to the app
+            Finish();
         }
     }
 }
