@@ -1,0 +1,43 @@
+name: Validate OpenAPI Specifications
+
+on:
+  push:
+    paths:
+      - 'documentations/services/openapi/**/*.yaml'
+      - 'documentations/services/openapi/**/*.yml'
+  pull_request:
+    paths:
+      - 'documentations/services/openapi/**/*.yaml'
+      - 'documentations/services/openapi/**/*.yml'
+
+jobs:
+  validate-openapi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install swagger-cli
+        run: npm install -g swagger-cli@4.0.4
+
+      - name: Validate all OpenAPI specs
+        run: |
+          for file in documentations/services/openapi/*.yaml documentations/services/openapi/*.yml; do
+            echo "Validating $file..."
+            swagger-cli validate "$file"
+          done
+
+      - name: Check for linting issues
+        run: |
+          for file in documentations/services/openapi/*.yaml documentations/services/openapi/*.yml; do
+            echo "Checking style of $file..."
+            # Basic style checks
+            if grep -q "description:\s*$" "$file"; then
+              echo "Warning: $file has empty descriptions"
+            fi
+          done

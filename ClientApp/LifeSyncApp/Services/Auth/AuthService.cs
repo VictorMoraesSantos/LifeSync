@@ -26,6 +26,13 @@ namespace LifeSyncApp.Services.Auth
             _httpClient = httpClientFactory.CreateClient("LifeSyncApi");
             _logger = logger;
             _jsonOptions = jsonOptions;
+
+            // Force WebAuthenticator static initialization before first use.
+            // This eliminates the race condition where the first OAuth callback
+            // arrives before the static event handlers are registered.
+#if ANDROID
+            _ = WebAuthenticator.Default;
+#endif
         }
 
         public async Task<AuthResult> LoginAsync(LoginRequest request)
