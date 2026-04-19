@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(openspec new:*)",
+      "Bash(openspec status:*)",
+      "Bash(openspec instructions:*)",
+      "Bash(python3 -c \"import yaml; yaml.safe_load\\(open\\('C:/Users/Victor/source/repos/LifeSync/documentations/services/openapi/notification-openapi.yaml'\\)\\); print\\('Valid YAML'\\)\")"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "Playwright",
+    "Figma MCP Server"
+  ]
 }

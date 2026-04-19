@@ -651,6 +651,57 @@ GET /health
 
 ---
 
+## API Examples
+
+### Create Food
+
+```bash
+curl -X POST http://localhost:5005/api/foods \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Chicken Breast", "caloriesPer100g": 165, "proteinPer100g": 31, "carbsPer100g": 0, "fatPer100g": 3.6}'
+```
+
+### Create Diary
+
+```bash
+curl -X POST http://localhost:5005/api/diaries \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"userId": 1, "date": "2024-01-15"}'
+```
+
+### Add Meal to Diary
+
+```bash
+curl -X POST http://localhost:5005/api/meals \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"diaryId": 1, "name": "Lunch", "description": "Midday meal"}'
+```
+
+### Set Daily Goal
+
+```bash
+curl -X POST http://localhost:5005/api/daily-progresses/1/set-goal \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"calories": 2000, "quantityMl": 2500}'
+```
+
+---
+
+## Erros
+
+| Código | HTTP Status | Mensagem | Remediation |
+|--------|-------------|----------|-------------|
+| FOOD_NOT_FOUND | 404 | Alimento não encontrado | Verificar se o ID do alimento existe |
+| DIARY_NOT_FOUND | 404 | Diário não encontrado | Verificar se o ID do diário existe |
+| MEAL_NOT_FOUND | 404 | Refeição não encontrada | Verificar se o ID da refeição existe |
+| INVALID_NUTRITIONAL_VALUE | 400 | Valor nutricional inválido | Verificar se calorias, proteínas, carboidratos e gorduras são valores positivos |
+
+---
+
 ## 📚 Documentação Relacionada
 
 | Tipo | Documento | Descrição |

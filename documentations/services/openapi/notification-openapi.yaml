@@ -1,0 +1,258 @@
+openapi: 3.0.3
+info:
+  title: Notification Service
+  description: |
+    Event-driven microservice responsible for sending transactional emails in the LifeSync platform.
+
+    ## Overview
+    - **Stack:** ASP.NET Core 10 · MailKit · RabbitMQ · PostgreSQL
+    - **Port:** 5126
+    - **Pattern:** Strategy Pattern for email templates · Event-Driven · CQRS
+    - **Note:** This service has no public REST API for sending emails. It is purely event-driven,
+      consuming messages from RabbitMQ and dispatching emails via SMTP.
+
+    ## Architecture
+    ```
+    RabbitMQ Message → EventConsumer → CQRS Publisher → EventHandler
+                                                        → ProcessEmailEventUseCase
+                                                        → EmailEventStrategyResolver
+                                                        → EmailStrategy (template)
+                                                        → EmailService.SendEmailAsync()
+                                                        → MailKit/SMTP
+    ```
+
+    ## Email Templates (Strategy Pattern)
+    - **UserRegisteredEmailStrategy** — sends welcome email on user registration
+    - **OrderPlacedEmailStrategy** — sends order confirmation (placeholder)
+  version: 1.0.0
+  contact:
+    name: LifeSync Backend Team
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:5126
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Service health and readiness
+  - name: Events
+    description: RabbitMQ event consumption schemas
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check endpoint
+      description: Returns the current health status of the Notification service.
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: healthy
+                service: Notification
+                timestamp: "2026-04-18T12:00:00Z"
+                environment: Development
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - service
+        - timestamp
+        - environment
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - degraded
+            - unhealthy
+          description: Current health status of the service
+          example: healthy
+        service:
+          type: string
+          description: Name of the service
+          example: Notification
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the health check was performed
+          example: "2026-04-18T12:00:00Z"
+        environment:
+          type: string
+          description: Application environment (e.g., Development, Staging, Production)
+          example: Development
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    # RabbitMQ Event Schemas
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    UserRegisteredIntegrationEvent:
+      type: object
+      description: |
+        Integration event consumed from RabbitMQ when a new user registers.
+        Published by the Users Service via exchange `user_exchange` with routing key `user.registered`.
+        Triggers the welcome email via `UserRegisteredEmailStrategy`.
+      required:
+        - userId
+        - email
+        - occurredOn
+      properties:
+        userId:
+          type: integer
+          format: int32
+          description: Unique identifier of the newly registered user
+          example: 42
+        email:
+          type: string
+          format: email
+          description: Email address of the newly registered user (used as email recipient)
+          example: user@example.com
+        occurredOn:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred
+          example: "2026-04-18T10:30:00Z"
+      tags:
+        - Events
+
+    TaskDueReminderIntegrationEvent:
+      type: object
+      description: |
+        Integration event consumed from RabbitMQ when a task is approaching its due date.
+        Published by the TaskManager Service via exchange `task_exchange` with routing key `task.due.reminder`.
+        **Note:** Event is consumed but no handler is currently implemented — messages are silently ignored.
+      required:
+        - taskId
+        - userId
+        - taskTitle
+        - dueDate
+        - occurredOn
+      properties:
+        taskId:
+          type: integer
+          format: int32
+          description: Unique identifier of the task
+          example: 7
+        userId:
+          type: integer
+          format: int32
+          description: Identifier of the user who owns the task
+          example: 15
+        taskTitle:
+          type: string
+          description: Title of the task
+          example: "Finish quarterly report"
+        dueDate:
+          type: string
+          format: date
+          description: Due date of the task (DateOnly format)
+          example: "2026-04-20"
+        occurredOn:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred
+          example: "2026-04-18T09:00:00Z"
+      tags:
+        - Events
+
+    EmailMessageDTO:
+      type: object
+      description: Internal DTO used to carry email data through the Strategy Pattern pipeline.
+      required:
+        - to
+        - subject
+        - body
+      properties:
+        to:
+          type: string
+          format: email
+          description: Recipient email address
+          example: user@example.com
+        subject:
+          type: string
+          description: Email subject line
+          example: "Welcome!"
+        body:
+          type: string
+          description: Email body content (plain text)
+          example: "Thanks for registering."
+      tags:
+        - Events
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    # RabbitMQ Consumer Configuration
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    RabbitMqConsumerConfiguration:
+      type: object
+      description: |
+        RabbitMQ consumer bindings configured in the Notification Service.
+        Each entry defines the exchange, queue, routing key, and event type consumed.
+      properties:
+        consumers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsumerDefinition'
+
+    ConsumerDefinition:
+      type: object
+      required:
+        - exchange
+        - exchangeType
+        - queue
+        - routingKey
+        - eventType
+        - durable
+        - autoDelete
+      properties:
+        exchange:
+          type: string
+          description: Name of the RabbitMQ exchange
+          example: user_exchange
+        exchangeType:
+          type: string
+          enum:
+            - direct
+            - topic
+            - fanout
+            - headers
+          description: Type of the exchange
+          example: topic
+        queue:
+          type: string
+          description: Name of the consumer queue
+          example: email_events.user_registered
+        routingKey:
+          type: string
+          description: Routing key pattern for message binding
+          example: user.registered
+        eventType:
+          type: string
+          description: Fully qualified .NET type name of the integration event
+          example: EmailSender.Domain.Events.UserRegisteredIntegrationEvent
+        durable:
+          type: boolean
+          description: Whether the queue survives broker restarts
+          example: true
+        autoDelete:
+          type: boolean
+          description: Whether the queue is deleted when all consumers disconnect
+          example: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Security
+  # ─────────────────────────────────────────────────────────────────────────────
+
+security:
+  - BearerAuth: []

@@ -1,0 +1,569 @@
+openapi: 3.0.3
+info:
+  title: Users Service API
+  description: API for user authentication and user management
+  version: 1.0.0
+servers:
+  - url: /api
+    description: Base API path
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCommand'
+            example:
+              email: user@example.com
+              password: string
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResultDTO'
+        '400':
+          description: Bad request - invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpCommand'
+            example:
+              email: user@example.com
+              password: string
+              firstName: John
+              lastName: Doe
+      responses:
+        '200':
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResultDTO'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/external-login:
+    post:
+      tags:
+        - Auth
+      summary: External login (e.g., Apple, Facebook)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalLoginCommand'
+            example:
+              idToken: string
+              provider: string
+      responses:
+        '200':
+          description: Successful external login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResultDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/google-login:
+    get:
+      tags:
+        - Auth
+      summary: Initiate Google OAuth flow
+      parameters:
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+          description: State parameter for OAuth security
+      responses:
+        '200':
+          description: Redirect to Google OAuth
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/google-callback:
+    get:
+      tags:
+        - Auth
+      summary: Google OAuth callback
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Authorization code from Google
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+          description: State parameter from initial request
+      responses:
+        '200':
+          description: Successful Google OAuth callback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResultDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout the current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful logout
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/send-email-confirmation:
+    post:
+      tags:
+        - Auth
+      summary: Send email confirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendEmailConfirmationCommand'
+            example:
+              email: user@example.com
+      responses:
+        '200':
+          description: Email confirmation sent
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/forgot-password:
+    post:
+      tags:
+        - Auth
+      summary: Forgot password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordCommand'
+            example:
+              email: user@example.com
+      responses:
+        '200':
+          description: Password reset email sent
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordCommand'
+            example:
+              token: string
+              newPassword: string
+      responses:
+        '200':
+          description: Password reset successful
+        '400':
+          description: Bad request - invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/change-password:
+    post:
+      tags:
+        - Auth
+      summary: Change password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordDTO'
+            example:
+              currentPassword: string
+              newPassword: string
+      responses:
+        '200':
+          description: Password changed successfully
+        '400':
+          description: Bad request - incorrect current password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: User ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Users
+      summary: Update user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserCommand'
+            example:
+              firstName: John
+              lastName: Doe
+              email: user@example.com
+              birthDate: '2000-01-15T00:00:00Z'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginCommand:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          example: string
+
+    SignUpCommand:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          example: string
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+
+    ExternalLoginCommand:
+      type: object
+      required:
+        - idToken
+        - provider
+      properties:
+        idToken:
+          type: string
+          example: string
+        provider:
+          type: string
+          example: string
+
+    SendEmailConfirmationCommand:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+
+    ForgotPasswordCommand:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+
+    ResetPasswordCommand:
+      type: object
+      required:
+        - token
+        - newPassword
+      properties:
+        token:
+          type: string
+          example: string
+        newPassword:
+          type: string
+          example: string
+
+    ChangePasswordDTO:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+      properties:
+        currentPassword:
+          type: string
+          example: string
+        newPassword:
+          type: string
+          example: string
+
+    UpdateUserCommand:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        birthDate:
+          type: string
+          format: date-time
+          example: '2000-01-15T00:00:00Z'
+
+    AuthResultDTO:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: string
+        refreshToken:
+          type: string
+          example: string
+        expiresIn:
+          type: integer
+          format: int32
+          example: 3600
+        user:
+          $ref: '#/components/schemas/UserDTO'
+
+    UserDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '123'
+        email:
+          type: string
+          example: user@example.com
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        birthDate:
+          type: string
+          format: date-time
+          example: '2000-01-15T00:00:00Z'
+        roles:
+          type: array
+          items:
+            type: string
+          example:
+            - User
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Error message
+        errors:
+          type: array
+          items:
+            type: string
+          example:
+            - Validation error 1
+            - Validation error 2

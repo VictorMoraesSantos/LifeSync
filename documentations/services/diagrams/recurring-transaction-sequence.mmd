@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant BackgroundService
+    participant FinancialAPI
+    participant PostgreSQL
+
+    BackgroundService->>FinancialAPI: Check due recurrences
+    FinancialAPI->>PostgreSQL: Query due RecurrenceSchedules
+    PostgreSQL-->>FinancialAPI: Due schedules
+    loop For each schedule
+        FinancialAPI->>PostgreSQL: Create Transaction
+        PostgreSQL-->>FinancialAPI: Transaction created
+    end
+    FinancialAPI-->>BackgroundService: 10 transactions generated

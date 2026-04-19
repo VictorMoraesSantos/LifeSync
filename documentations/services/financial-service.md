@@ -891,6 +891,152 @@ IsDeleted               Currency (int enum)                 MaxOccurrences?
 
 ---
 
+## API Examples
+
+### Create Transaction (Expense)
+
+```bash
+curl -X POST http://localhost:5003/api/transactions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "categoryId": 5,
+    "paymentMethod": 2,
+    "transactionType": 2,
+    "amount": {
+      "amount": 5000,
+      "currency": "BRL"
+    },
+    "description": "Monthly grocery shopping",
+    "transactionDate": "2024-01-15T10:00:00Z",
+    "isRecurring": false
+  }'
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "transactionId": 42
+  },
+  "errors": []
+}
+```
+
+### Get Transactions by Type and Date Range
+
+```bash
+curl -X GET "http://localhost:5003/api/transactions?type=expense&from=2024-01-01&to=2024-01-31" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": [
+    {
+      "id": 42,
+      "userId": 1,
+      "category": {
+        "id": 5,
+        "userId": 1,
+        "name": "Groceries",
+        "description": "Food and household items",
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": null
+      },
+      "paymentMethod": "CreditCard",
+      "transactionType": "Expense",
+      "amount": {
+        "amount": 5000,
+        "currency": "BRL"
+      },
+      "description": "Monthly grocery shopping",
+      "transactionDate": "2024-01-15T10:00:00Z",
+      "isRecurring": false,
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": null
+    }
+  ],
+  "errors": []
+}
+```
+
+### Create Category
+
+```bash
+curl -X POST http://localhost:5003/api/categories \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "name": "Education",
+    "description": "Courses, books and educational materials"
+  }'
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "id": 12
+  },
+  "errors": []
+}
+```
+
+### Create Recurrence Schedule
+
+```bash
+curl -X POST http://localhost:5003/api/recurrenceschedule \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transactionId": 42,
+    "frequency": 3,
+    "startDate": "2024-02-01T00:00:00Z",
+    "endDate": "2024-12-01T00:00:00Z",
+    "maxOccurrences": 11
+  }'
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "id": 7,
+    "transactionId": 42,
+    "frequency": "Monthly",
+    "startDate": "2024-02-01T00:00:00Z",
+    "endDate": "2024-12-01T00:00:00Z",
+    "nextOccurrence": "2024-02-01T00:00:00Z",
+    "maxOccurrences": 11,
+    "occurrencesGenerated": 0,
+    "isActive": true
+  },
+  "errors": []
+}
+```
+
+---
+
+## Erros
+
+| Código | HTTP Status | Mensagem | Remediation |
+|--------|-------------|----------|-------------|
+| TRANSACTION_NOT_FOUND | 404 | Transaction not found | Verify transaction ID exists |
+| CATEGORY_NOT_FOUND | 404 | Category not found | Verify category ID exists |
+| INVALID_CURRENCY | 400 | Invalid or unsupported currency | Use a supported currency code (e.g., BRL, USD, EUR) |
+| INVALID_AMOUNT | 400 | Invalid transaction amount | Ensure amount is a positive integer representing cents |
+
+---
+
 ## 📚 Documentação Relacionada
 
 | Tipo | Documento | Descrição |

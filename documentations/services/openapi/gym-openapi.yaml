@@ -1,0 +1,1330 @@
+openapi: 3.0.3
+info:
+  title: Gym Service API
+  description: API for managing exercises, routines, training sessions and completed exercises
+  version: 1.0.0
+  contact:
+    name: LifeSync Support
+
+servers:
+  - url: /api
+    description: Base API server
+
+tags:
+  - name: Exercises
+    description: Exercise management endpoints
+  - name: Routines
+    description: Routine management endpoints
+  - name: Routine Exercises
+    description: Routine exercise relationship management
+  - name: Training Sessions
+    description: Training session management endpoints
+  - name: Completed Exercises
+    description: Completed exercise tracking endpoints
+
+paths:
+  /exercises:
+    get:
+      tags:
+        - Exercises
+      summary: List exercises
+      responses:
+        '200':
+          description: List of exercises
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExerciseDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Exercises
+      summary: Create a new exercise
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExerciseDTO'
+            example:
+              name: "Bench Press"
+              description: "Lie on a flat bench and press the barbell up"
+              muscleGroup: "chest"
+              exerciseType: "strength"
+              equipmentType: "barbell"
+      responses:
+        '201':
+          description: Exercise created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /exercises/{id}:
+    get:
+      tags:
+        - Exercises
+      summary: Get exercise by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Exercise details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseDTO'
+        '404':
+          description: Exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Exercises
+      summary: Update an exercise
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExerciseDTO'
+            example:
+              id: 1
+              name: "Incline Bench Press"
+              description: "Press at an incline angle"
+              muscleGroup: "chest"
+              exerciseType: "strength"
+              equipmentType: "barbell"
+      responses:
+        '200':
+          description: Exercise updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Exercises
+      summary: Delete an exercise
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Exercise deleted successfully
+        '404':
+          description: Exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /routines:
+    get:
+      tags:
+        - Routines
+      summary: List routines
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: User ID to filter routines
+      responses:
+        '200':
+          description: List of routines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoutineDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Routines
+      summary: Create a new routine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoutineDTO'
+            example:
+              name: "Upper Body Workout"
+              description: "Push and pull exercises for upper body"
+              userId: 1
+              difficultyLevel: "intermediate"
+      responses:
+        '201':
+          description: Routine created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /routines/{id}:
+    get:
+      tags:
+        - Routines
+      summary: Get routine by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Routine details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineDTO'
+        '404':
+          description: Routine not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Routines
+      summary: Update a routine
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoutineDTO'
+            example:
+              id: 1
+              name: "Updated Upper Body Workout"
+              description: "Enhanced push and pull routine"
+      responses:
+        '200':
+          description: Routine updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Routine not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Routines
+      summary: Delete a routine
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Routine deleted successfully
+        '404':
+          description: Routine not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /routine-exercises:
+    get:
+      tags:
+        - Routine Exercises
+      summary: List routine exercises
+      parameters:
+        - name: routineId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Routine ID to filter routine exercises
+      responses:
+        '200':
+          description: List of routine exercises
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoutineExerciseDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Routine Exercises
+      summary: Add exercise to routine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoutineExerciseDTO'
+            example:
+              routineId: 1
+              exerciseId: 1
+              sets: 3
+              repetitions: 10
+              restBetweenSets: 60
+              recommendedWeight:
+                value: 80
+                unit: "kilogram"
+              instructions: "Keep back straight during movement"
+      responses:
+        '201':
+          description: Routine exercise created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineExerciseDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /routine-exercises/{id}:
+    get:
+      tags:
+        - Routine Exercises
+      summary: Get routine exercise by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Routine exercise details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineExerciseDTO'
+        '404':
+          description: Routine exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Routine Exercises
+      summary: Update routine exercise
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoutineExerciseDTO'
+            example:
+              id: 1
+              sets: 4
+              repetitions: 8
+              restBetweenSets: 90
+              recommendedWeight:
+                value: 100
+                unit: "kilogram"
+              instructions: "Slow controlled movement"
+      responses:
+        '200':
+          description: Routine exercise updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineExerciseDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Routine exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Routine Exercises
+      summary: Remove exercise from routine
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Routine exercise deleted successfully
+        '404':
+          description: Routine exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /training-sessions:
+    get:
+      tags:
+        - Training Sessions
+      summary: List training sessions
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: User ID to filter training sessions
+        - name: routineId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Routine ID to filter training sessions
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Start date filter (inclusive)
+        - name: toDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: End date filter (inclusive)
+      responses:
+        '200':
+          description: List of training sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingSessionDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Training Sessions
+      summary: Create a new training session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTrainingSessionDTO'
+            example:
+              userId: 1
+              routineId: 1
+              startTime: "2026-04-18T09:00:00Z"
+              endTime: "2026-04-18T10:30:00Z"
+              notes: "Felt strong today"
+      responses:
+        '201':
+          description: Training session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingSessionDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /training-sessions/{id}:
+    get:
+      tags:
+        - Training Sessions
+      summary: Get training session by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Training session details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingSessionDTO'
+        '404':
+          description: Training session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Training Sessions
+      summary: Update a training session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTrainingSessionDTO'
+            example:
+              id: 1
+              routineId: 1
+              startTime: "2026-04-18T09:00:00Z"
+              endTime: "2026-04-18T11:00:00Z"
+              notes: "Extended session for extra sets"
+      responses:
+        '200':
+          description: Training session updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingSessionDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Training session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Training Sessions
+      summary: Delete a training session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Training session deleted successfully
+        '404':
+          description: Training session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /completed-exercises:
+    get:
+      tags:
+        - Completed Exercises
+      summary: List completed exercises
+      parameters:
+        - name: trainingSessionId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Training session ID to filter completed exercises
+      responses:
+        '200':
+          description: List of completed exercises
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompletedExerciseDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Completed Exercises
+      summary: Record completed exercise
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompletedExerciseDTO'
+            example:
+              trainingSessionId: 1
+              exerciseId: 1
+              routineExerciseId: 1
+              setsCompleted: 3
+              repetitionsCompleted: 10
+              weightUsed:
+                value: 80
+                unit: "kilogram"
+              notes: "All sets completed as planned"
+      responses:
+        '201':
+          description: Completed exercise recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompletedExerciseDTO'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    MuscleGroup:
+      type: string
+      enum:
+        - chest
+        - back
+        - shoulders
+        - biceps
+        - triceps
+        - forearms
+        - abs
+        - quadriceps
+        - hamstrings
+        - calves
+        - glutes
+        - lowerback
+        - traps
+        - neck
+        - fullbody
+        - core
+      description: Target muscle group for the exercise
+
+    ExerciseType:
+      type: string
+      enum:
+        - strength
+        - hypertrophy
+        - endurance
+        - power
+        - flexibility
+        - cardio
+        - hiit
+        - recovery
+      description: Type of exercise
+
+    ExerciseEquipment:
+      type: string
+      enum:
+        - none
+        - barbell
+        - dumbbell
+        - machine
+        - cable
+        - bodyweight
+      description: Equipment required for the exercise
+
+    DifficultyLevel:
+      type: string
+      enum:
+        - beginner
+        - intermediate
+        - advanced
+      description: Difficulty level for the routine
+
+    MeasurementUnit:
+      type: string
+      enum:
+        - kilogram
+        - pound
+      description: Unit of measurement for weight
+
+    Weight:
+      type: object
+      properties:
+        value:
+          type: integer
+          example: 80
+        unit:
+          $ref: '#/components/schemas/MeasurementUnit'
+      description: Weight value object
+
+    SetCount:
+      type: object
+      properties:
+        value:
+          type: integer
+          minimum: 1
+          example: 3
+      description: Number of sets
+
+    RepetitionCount:
+      type: object
+      properties:
+        value:
+          type: integer
+          minimum: 1
+          example: 10
+      description: Number of repetitions per set
+
+    RestTime:
+      type: object
+      properties:
+        value:
+          type: integer
+          minimum: 0
+          description: Rest time in seconds
+          example: 60
+      description: Rest time between sets
+
+    ExerciseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Bench Press"
+        description:
+          type: string
+          example: "Lie on a flat bench and press the barbell up"
+        muscleGroup:
+          $ref: '#/components/schemas/MuscleGroup'
+        exerciseType:
+          $ref: '#/components/schemas/ExerciseType'
+        equipmentType:
+          $ref: '#/components/schemas/ExerciseEquipment'
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-18T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-18T10:00:00Z"
+
+    CreateExerciseDTO:
+      type: object
+      required:
+        - name
+        - description
+        - muscleGroup
+        - exerciseType
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Bench Press"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+          example: "Lie on a flat bench and press the barbell up"
+        muscleGroup:
+          $ref: '#/components/schemas/MuscleGroup'
+        exerciseType:
+          $ref: '#/components/schemas/ExerciseType'
+        equipmentType:
+          $ref: '#/components/schemas/ExerciseEquipment'
+          nullable: true
+          example: "barbell"
+
+    UpdateExerciseDTO:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - muscleGroup
+        - exerciseType
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Incline Bench Press"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+          example: "Press at an incline angle"
+        muscleGroup:
+          $ref: '#/components/schemas/MuscleGroup'
+        exerciseType:
+          $ref: '#/components/schemas/ExerciseType'
+        equipmentType:
+          $ref: '#/components/schemas/ExerciseEquipment'
+          nullable: true
+          example: "barbell"
+
+    RoutineDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Upper Body Workout"
+        description:
+          type: string
+          example: "Push and pull exercises for upper body"
+        difficultyLevel:
+          $ref: '#/components/schemas/DifficultyLevel'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-18T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-18T10:00:00Z"
+
+    CreateRoutineDTO:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Upper Body Workout"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+          example: "Push and pull exercises for upper body"
+        difficultyLevel:
+          $ref: '#/components/schemas/DifficultyLevel'
+          example: "intermediate"
+
+    UpdateRoutineDTO:
+      type: object
+      required:
+        - id
+        - name
+        - description
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Updated Upper Body Workout"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+          example: "Enhanced push and pull routine"
+        difficultyLevel:
+          $ref: '#/components/schemas/DifficultyLevel'
+          example: "advanced"
+
+    RoutineExerciseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        routineId:
+          type: integer
+          example: 1
+        exerciseId:
+          type: integer
+          example: 1
+        sets:
+          $ref: '#/components/schemas/SetCount'
+        repetitions:
+          $ref: '#/components/schemas/RepetitionCount'
+        restBetweenSets:
+          $ref: '#/components/schemas/RestTime'
+        recommendedWeight:
+          $ref: '#/components/schemas/Weight'
+          nullable: true
+        instructions:
+          type: string
+          nullable: true
+          example: "Keep back straight during movement"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-18T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-18T10:00:00Z"
+
+    CreateRoutineExerciseDTO:
+      type: object
+      required:
+        - routineId
+        - exerciseId
+        - sets
+        - repetitions
+      properties:
+        routineId:
+          type: integer
+          example: 1
+        exerciseId:
+          type: integer
+          example: 1
+        sets:
+          $ref: '#/components/schemas/SetCount'
+        repetitions:
+          $ref: '#/components/schemas/RepetitionCount'
+        restBetweenSets:
+          $ref: '#/components/schemas/RestTime'
+          example: 60
+        recommendedWeight:
+          $ref: '#/components/schemas/Weight'
+          nullable: true
+        instructions:
+          type: string
+          nullable: true
+          example: "Keep back straight during movement"
+
+    UpdateRoutineExerciseDTO:
+      type: object
+      required:
+        - id
+        - sets
+        - repetitions
+      properties:
+        id:
+          type: integer
+          example: 1
+        sets:
+          $ref: '#/components/schemas/SetCount'
+        repetitions:
+          $ref: '#/components/schemas/RepetitionCount'
+        restBetweenSets:
+          $ref: '#/components/schemas/RestTime'
+          example: 90
+        recommendedWeight:
+          $ref: '#/components/schemas/Weight'
+          nullable: true
+        instructions:
+          type: string
+          nullable: true
+          example: "Slow controlled movement"
+
+    TrainingSessionDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        routineId:
+          type: integer
+          example: 1
+        startTime:
+          type: string
+          format: date-time
+          example: "2026-04-18T09:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-18T10:30:00Z"
+        notes:
+          type: string
+          nullable: true
+          example: "Felt strong today"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-18T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-18T10:00:00Z"
+
+    CreateTrainingSessionDTO:
+      type: object
+      required:
+        - userId
+        - routineId
+        - startTime
+      properties:
+        userId:
+          type: integer
+          example: 1
+        routineId:
+          type: integer
+          example: 1
+        startTime:
+          type: string
+          format: date-time
+          example: "2026-04-18T09:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-18T10:30:00Z"
+        notes:
+          type: string
+          nullable: true
+          example: "Felt strong today"
+
+    UpdateTrainingSessionDTO:
+      type: object
+      required:
+        - id
+        - routineId
+        - startTime
+        - endTime
+      properties:
+        id:
+          type: integer
+          example: 1
+        routineId:
+          type: integer
+          example: 1
+        startTime:
+          type: string
+          format: date-time
+          example: "2026-04-18T09:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2026-04-18T11:00:00Z"
+        notes:
+          type: string
+          nullable: true
+          example: "Extended session for extra sets"
+
+    CompletedExerciseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        trainingSessionId:
+          type: integer
+          example: 1
+        exerciseId:
+          type: integer
+          example: 1
+        routineExerciseId:
+          type: integer
+          example: 1
+        setsCompleted:
+          $ref: '#/components/schemas/SetCount'
+        repetitionsCompleted:
+          $ref: '#/components/schemas/RepetitionCount'
+        weightUsed:
+          $ref: '#/components/schemas/Weight'
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+          example: "All sets completed as planned"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-18T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-18T10:00:00Z"
+
+    CreateCompletedExerciseDTO:
+      type: object
+      required:
+        - trainingSessionId
+        - exerciseId
+        - routineExerciseId
+        - setsCompleted
+        - repetitionsCompleted
+      properties:
+        trainingSessionId:
+          type: integer
+          example: 1
+        exerciseId:
+          type: integer
+          example: 1
+        routineExerciseId:
+          type: integer
+          example: 1
+        setsCompleted:
+          $ref: '#/components/schemas/SetCount'
+        repetitionsCompleted:
+          $ref: '#/components/schemas/RepetitionCount'
+        weightUsed:
+          $ref: '#/components/schemas/Weight'
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+          example: "All sets completed as planned"
+
+    UpdateCompletedExerciseDTO:
+      type: object
+      required:
+        - id
+        - setsCompleted
+        - repetitionsCompleted
+      properties:
+        id:
+          type: integer
+          example: 1
+        setsCompleted:
+          $ref: '#/components/schemas/SetCount'
+        repetitionsCompleted:
+          $ref: '#/components/schemas/RepetitionCount'
+        weightUsed:
+          $ref: '#/components/schemas/Weight'
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+          example: "Increased weight by 5kg"
+
+    ErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Invalid request parameters"
+        error:
+          type: string
+          example: "Bad Request"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-04-18T14:30:00Z"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

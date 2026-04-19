@@ -424,21 +424,6 @@ Todos os endpoints retornam `HttpResult<object>`:
 | 8 | Exigir verificação de email antes de confirmar mudança | `UpdateUserProfileAsync()` | 4h |
 | 9 | Implementar `DeleteUserCommandHandler` | `DeleteUserCommandHandler.cs` | 2h |
 | 10 | Validar `BirthDate` no construtor do `User` | `User.cs` | 15 min |
-
----
-
-## 📚 Documentação Relacionada
-
-| Tipo | Documento | Descrição |
-|------|-----------|----------|
-| 📋 Code Review | [USERS_CODE_REVIEW.md](../code-reviews/USERS_CODE_REVIEW.md) | Revisão detalhada de código com issues por severidade |
-| 📧 Integração | [notification-service.md](notification-service.md) | Consome o evento `UserRegisteredEvent` publicado por este serviço |
-| 🔐 Google Auth | [GOOGLE-AUTH-IMPLEMENTATION.md](../deployment/GOOGLE-AUTH-IMPLEMENTATION.md) | Guia de implementação do login OAuth com Google |
-| 🔧 Building Blocks | [building-blocks.md](building-blocks.md) | Bibliotecas compartilhadas (CQRS, Result Pattern, Messaging) |
-| 🏗️ Arquitetura | [API-GATEWAY.md](../architecture/API-GATEWAY.md) | Gateway que roteia chamadas para este serviço |
-| 📊 Review Consolidado | [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](../code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Visão consolidada de todos os serviços |
-
-[← Voltar ao Índice de Documentação](../README.md)
 | 11 | Padronizar tipos de ID para `int` em todos os DTOs | DTOs | 1h |
 | 12 | Implementar paginação com `Skip().Take()` | `UserService.cs` | 1h |
 | 13 | Adicionar rate limiting | `Program.cs` | 1h |
@@ -496,63 +481,165 @@ Todos os endpoints retornam `HttpResult<object>`:
 
 ---
 
-## Configuração
+## API Examples
 
-### `appsettings.json`
+### Login
 
+```bash
+curl -X POST http://localhost:5001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"userNameOrEmail": "user@example.com", "password": "Password123!", "rememberMe": false}'
+```
+
+**Response (200 OK):**
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=5432;User Id=postgres;Password=postgres;Database=LifeSync;Include Error Detail=true;"
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+    "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2...",
+    "expiresIn": 3600,
+    "user": {
+      "id": "123",
+      "email": "user@example.com",
+      "firstName": "John",
+      "lastName": "Doe"
+    }
   },
-  "JwtSettings": {
-    "Key": "SuperSecretKeyForJWTAuthentication2024!@#$%",
-    "Issuer": "LifeSyncAPI",
-    "Audience": "LifeSyncApp",
-    "ExpiryMinutes": 60,
-    "RefreshTokenExpiryDays": 7
+  "errors": []
+}
+```
+
+### Register
+
+```bash
+curl -X POST http://localhost:5001/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"firstName": "John", "lastName": "Doe", "email": "user@example.com", "password": "Password123!"}'
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+    "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2...",
+    "expiresIn": 3600,
+    "user": {
+      "id": "123",
+      "email": "user@example.com",
+      "firstName": "John",
+      "lastName": "Doe"
+    }
   },
-  "SmtpSettings": {
-    "Host": "localhost",
-    "Port": 1025,
-    "From": "no-reply@test.local",
-    "EnableSsl": false
+  "errors": []
+}
+```
+
+### Forgot Password
+
+```bash
+curl -X POST http://localhost:5001/api/auth/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com"}'
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "message": "If the email exists, a password reset link has been sent"
   },
-  "RabbitMQSettings": {
-    "Host": "rabbitmq",
-    "User": "guest",
-    "Password": "guest",
-    "Port": 5672
-  }
+  "errors": []
+}
+```
+
+### Get User
+
+```bash
+curl -X GET http://localhost:5001/api/users/123 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "id": "123",
+    "email": "user@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "fullName": "John Doe",
+    "birthDate": "1990-01-15",
+    "createdAt": "2025-01-15T10:30:00Z",
+    "lastLoginAt": "2025-06-01T08:00:00Z",
+    "isActive": true,
+    "roles": ["User"]
+  },
+  "errors": []
+}
+```
+
+### Update User
+
+```bash
+curl -X PUT http://localhost:5001/api/users/123 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." \
+  -H "Content-Type: application/json" \
+  -d '{"id": 123, "firstName": "John", "lastName": "Smith", "email": "john.smith@example.com", "birthDate": "1990-01-15"}'
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "id": "123",
+    "email": "john.smith@example.com",
+    "firstName": "John",
+    "lastName": "Smith",
+    "fullName": "John Smith",
+    "birthDate": "1990-01-15",
+    "createdAt": "2025-01-15T10:30:00Z",
+    "lastLoginAt": null,
+    "isActive": true,
+    "roles": ["User"]
+  },
+  "errors": []
 }
 ```
 
 ---
 
-## Dependências
+## Erros
 
-### Pacotes NuGet
+| Código | HTTP Status | Mensagem | Remediation |
+|--------|-------------|----------|-------------|
+| AUTH_INVALID_CREDENTIALS | 401 | Invalid email or password | Check credentials and try again |
+| USER_NOT_FOUND | 404 | User not found | Verify user ID exists |
+| EMAIL_ALREADY_EXISTS | 409 | Email already registered | Use a different email address |
+| INVALID_TOKEN | 401 | Invalid or expired token | Request a new password reset token |
+| PASSWORD_TOO_WEAK | 400 | Password does not meet requirements | Use at least 6 characters with mixed case and special characters |
 
-| Pacote | Versão | Uso |
-|---|---|---|
-| `Microsoft.AspNetCore.Authentication.JwtBearer` | 10.0.1 | Autenticação JWT |
-| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` | 10.0.1 | Identity + EF Core |
-| `Microsoft.EntityFrameworkCore` | 10.0.1 | ORM |
-| `Npgsql.EntityFrameworkCore.PostgreSQL` | 10.0.0 | Provider PostgreSQL |
-| `Swashbuckle.AspNetCore` | 10.1.0 | Swagger/OpenAPI |
-| `MediatR` | 14.0.0 | CQRS dispatcher |
+---
 
-### Referências Internas
+## 📚 Documentação Relacionada
 
-| Projeto | Uso |
-|---|---|
-| `BuildingBlocks` | CQRS, Result, Validation, JWT |
-| `BuildingBlocks.Messaging` | RabbitMQ (publicar `UserRegisteredEvent`) |
-| `Core.Domain` | BaseEntity, ValueObject, IDomainEvent |
-| `Core.API` | ApiController base |
+| Tipo | Documento | Descrição |
+|------|-----------|----------|
+| 📋 Code Review | [USERS_CODE_REVIEW.md](../code-reviews/USERS_CODE_REVIEW.md) | Revisão detalhada de código com issues por severidade |
+| 📧 Integração | [notification-service.md](notification-service.md) | Consome o evento `UserRegisteredEvent` publicado por este serviço |
+| 🔐 Google Auth | [GOOGLE-AUTH-IMPLEMENTATION.md](../deployment/GOOGLE-AUTH-IMPLEMENTATION.md) | Guia de implementação do login OAuth com Google |
+| 🔧 Building Blocks | [building-blocks.md](building-blocks.md) | Bibliotecas compartilhadas (CQRS, Result Pattern, Messaging) |
+| 🏗️ Arquitetura | [API-GATEWAY.md](../architecture/API-GATEWAY.md) | Gateway que roteia chamadas para este serviço |
+| 📊 Review Consolidado | [LIFESYNC_CODE_REVIEW_CONSOLIDADO.md](../code-reviews/LIFESYNC_CODE_REVIEW_CONSOLIDADO.md) | Visão consolidada de todos os serviços |
 
-### RabbitMQ — Eventos Publicados
-
-| Exchange | Routing Key | Evento |
-|---|---|---|
-| `user_exchange` | `user.registered` | `UserRegisteredEvent` |
+[← Voltar ao Índice de Documentação](../README.md)

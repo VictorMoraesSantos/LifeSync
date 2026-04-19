@@ -424,6 +424,55 @@ GET /health
 
 ---
 
+## API Examples
+
+O Notification Service é orientado a eventos via RabbitMQ, não expondo API REST direta. Os exemplos abaixo mostram os eventos consumidos.
+
+### User Registered Event (RabbitMQ)
+
+```json
+{
+  "eventType": "UserRegistered",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "data": {
+    "userId": "123",
+    "email": "user@example.com",
+    "firstName": "John"
+  }
+}
+```
+
+**Exchange:** `user_exchange` | **Routing Key:** `user.registered`
+
+### Task Due Reminder Event (RabbitMQ)
+
+```json
+{
+  "eventType": "TaskDueReminder",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "data": {
+    "taskId": 456,
+    "userId": 123,
+    "taskTitle": "Complete project report",
+    "dueDate": "2024-01-20"
+  }
+}
+```
+
+**Exchange:** `task_exchange` | **Routing Key:** `task.due.reminder`
+
+---
+
+## Erros
+
+| Código | HTTP Status | Mensagem | Remediation |
+|--------|-------------|----------|-------------|
+| EMAIL_SEND_FAILED | 500 | Falha ao enviar e-mail via SMTP | Verificar configuração do servidor SMTP e credenciais |
+| TEMPLATE_NOT_FOUND | 500 | Template de e-mail não encontrado para o tipo de evento | Registrar strategy correspondente ao eventType |
+| INVALID_EVENT_TYPE | 400 | Tipo de evento inválido ou não suportado | Verificar eventType conforme EmailEventTypes |
+
+---
+
 ## 📚 Documentação Relacionada
 
 | Tipo | Documento | Descrição |

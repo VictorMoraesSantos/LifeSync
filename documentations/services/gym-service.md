@@ -724,6 +724,48 @@ Exercises ──→ RoutineExercises ──→ Routines
 
 ---
 
+## API Examples
+
+### Create Exercise
+
+```bash
+curl -X POST http://localhost:5004/api/exercises \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Bench Press", "description": "Chest exercise", "muscleGroups": ["chest", "triceps"], "difficultyLevel": "intermediate"}'
+```
+
+### Create Routine
+
+```bash
+curl -X POST http://localhost:5004/api/routines \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Push Day", "description": "Upper body pushing exercises"}'
+```
+
+### Start Training Session
+
+```bash
+curl -X POST http://localhost:5004/api/training-sessions \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"userId": 1, "routineId": 1, "startTime": "2024-01-15T10:00:00Z"}'
+```
+
+---
+
+## Erros
+
+| Código | HTTP Status | Mensagem | Remediation |
+|--------|-------------|----------|-------------|
+| EXERCISE_NOT_FOUND | 404 | Exercício não encontrado | Verificar se o ID do exercício existe |
+| ROUTINE_NOT_FOUND | 404 | Rotina não encontrada | Verificar se o ID da rotina existe |
+| TRAINING_SESSION_NOT_FOUND | 404 | Sessão de treino não encontrada | Verificar se o ID da sessão existe |
+| INVALID_DIFFICULTY | 400 | Nível de dificuldade inválido | Usar valores válidos: beginner, intermediate, advanced, expert |
+
+---
+
 ## 📚 Documentação Relacionada
 
 | Tipo | Documento | Descrição |

@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Client
+    participant UsersAPI
+    participant PostgreSQL
+    participant RabbitMQ
+    participant NotificationAPI
+    participant SMTP
+
+    Client->>UsersAPI: POST /api/auth/register
+    UsersAPI->>PostgreSQL: Create User
+    PostgreSQL-->>UsersAPI: User created
+    UsersAPI->>RabbitMQ: Publish UserRegisteredEvent
+    UsersAPI-->>Client: 200 OK (AuthResult)
+
+    RabbitMQ->>NotificationAPI: Deliver Event
+    NotificationAPI->>NotificationAPI: Select Strategy
+    NotificationAPI->>SMTP: Send Welcome Email
+    SMTP-->>NotificationAPI: Email sent

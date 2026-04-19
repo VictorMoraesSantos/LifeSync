@@ -1,0 +1,14 @@
+C4Context
+    ContainerDb(usersDb, "Users DB", "PostgreSQL", "Stores user accounts, profiles, roles")
+    Container(messaging, "RabbitMQ", "RabbitMQ", "Message broker for events")
+
+    System_Ext(emailProvider, "Email Provider", "SMTP Server")
+
+    Container(usersApi, "Users API", "ASP.NET Core", "Handles auth, users, JWT")
+
+    System_Ext(google, "Google", "OAuth 2.0", "External identity provider")
+
+    BiRel(usersApi, usersDb, "Reads/Writes", "PostgreSQL")
+    BiRel(usersApi, messaging, "Publishes events", "AMQP")
+    BiRel(messaging, emailProvider, "Delivers emails", "SMTP")
+    BiRel(usersApi, google, "Authenticates", "OAuth2")

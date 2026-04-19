@@ -368,3 +368,6 @@ Keys/
 # Environment variables
 .env
 deploy/.env
+
+.claude
+openspec

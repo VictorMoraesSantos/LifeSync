@@ -1,0 +1,9 @@
+C4Context
+    ContainerDb(financialDb, "Financial DB", "PostgreSQL", "Stores transactions, categories")
+
+    Container(financialApi, "Financial API", "ASP.NET Core", "Financial operations")
+
+    System_Ext(externalApi, "External API", "Exchange Rates", "Currency conversion")
+
+    BiRel(financialApi, financialDb, "Reads/Writes", "PostgreSQL")
+    BiRel(financialApi, externalApi, "Gets rates", "REST")

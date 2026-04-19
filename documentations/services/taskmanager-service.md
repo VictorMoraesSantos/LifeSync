@@ -147,6 +147,46 @@ Microserviço responsável pelo **gerenciamento de tarefas pessoais com labels c
 
 ---
 
+## API Examples
+
+### Create Task
+
+```bash
+curl -X POST http://localhost:5002/api/tasks \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Buy groceries", "description": "Weekly shopping", "priority": "medium", "dueDate": "2024-01-20T18:00:00Z"}'
+```
+
+### Create Label
+
+```bash
+curl -X POST http://localhost:5002/api/task-labels \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Shopping", "labelColor": "blue"}'
+```
+
+### Get Tasks by Filter
+
+```bash
+curl -X GET "http://localhost:5002/api/task-items/search?status=pending&priority=high" \
+  -H "Authorization: Bearer {token}"
+```
+
+---
+
+## Erros
+
+| Código | HTTP Status | Mensagem | Remediation |
+|--------|-------------|----------|-------------|
+| TASK_NOT_FOUND | 404 | Tarefa não encontrada | Verificar se o ID da tarefa existe |
+| LABEL_NOT_FOUND | 404 | Label não encontrado | Verificar se o ID do label existe |
+| INVALID_STATUS | 400 | Status inválido | Usar valores válidos: pending, in_progress, completed |
+| INVALID_PRIORITY | 400 | Prioridade inválida | Usar valores válidos: low, medium, high, urgent |
+
+---
+
 ## Visão Geral
 
 O TaskManager Service gerencia o ciclo de vida completo de tarefas dos usuários — criação, atualização, organização com labels, prioridades e status. Um background service monitora tarefas próximas do vencimento e publica eventos de lembrete via RabbitMQ para o Notification Service.

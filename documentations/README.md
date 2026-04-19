@@ -10,8 +10,13 @@ Documentação técnica completa do ecossistema de microserviços LifeSync — a
 
 ```
 documentations/
-├── services/              → Documentação técnica detalhada de cada microserviço
-├── architecture/           → Decisões arquiteturais, roadmap e tarefas
+├── services/
+│   ├── openapi/           → OpenAPI 3.0 specs (YAML) por serviço
+│   ├── diagrams/          → Diagramas C4 e sequência (Mermaid)
+│   └── *.md              → Documentação técnica detalhada de cada microserviço
+├── architecture/
+│   ├── adr/              → Architecture Decision Records (ADR-001, ADR-002, etc.)
+│   └── *.md              → Decisões arquiteturais, roadmap e tarefas
 ├── code-reviews/           → Code reviews consolidados por serviço
 ├── test-plans/             → Planos de teste por microserviço
 ├── deployment/             → Guias de deploy e configuração
@@ -23,17 +28,25 @@ documentations/
 
 ## 🧩 Documentação dos Microserviços
 
-Cada arquivo cobre: visão geral, estrutura de pastas, modelo de domínio (entidades, value objects, enums, eventos, erros), camada de aplicação (commands, queries, handlers, validators, DTOs, contratos), infraestrutura (DbContext, repositórios, migrations), endpoints da API, configuração e dependências.
+Cada arquivo cobre: visão geral, estrutura de pastas, modelo de domínio (entidades, value objects, enums, eventos, erros), camada de aplicação (commands, queries, handlers, validators, DTOs, contratos), infraestrutura (DbContext, repositórios, migrations), **API Examples (exemplos curl)**, **Erros (catálogo)**, endpoints da API, configuração e dependências.
 
-| Serviço | Arquivo | Descrição |
-|---------|---------|-----------|
-| 👤 **Users** | [users-service.md](./services/users-service.md) | Autenticação, JWT, ASP.NET Identity, perfil, Google OAuth |
-| ✅ **TaskManager** | [taskmanager-service.md](./services/taskmanager-service.md) | Tarefas, labels coloridas, prioridades, lembretes de vencimento |
-| 🥗 **Nutrition** | [nutrition-service.md](./services/nutrition-service.md) | Diários alimentares, refeições, alimentos, líquidos, metas diárias |
-| 💰 **Financial** | [financial-service.md](./services/financial-service.md) | Transações, categorias, múltiplas moedas, recorrências |
-| 🏋️ **Gym** | [gym-service.md](./services/gym-service.md) | Exercícios, rotinas, sessões de treino, value objects ricos |
-| 📧 **Notification** | [notification-service.md](./services/notification-service.md) | E-mails via RabbitMQ + SMTP, Strategy Pattern |
-| 🔧 **Building Blocks & Core** | [building-blocks.md](./services/building-blocks.md) | CQRS, Result Pattern, Messaging, BaseEntity, Specifications |
+| Serviço | Arquivo | OpenAPI Spec |
+|---------|---------|--------------|
+| 👤 **Users** | [users-service.md](./services/users-service.md) | [openapi.yaml](./services/openapi/users-openapi.yaml) |
+| ✅ **TaskManager** | [taskmanager-service.md](./services/taskmanager-service.md) | [openapi.yaml](./services/openapi/taskmanager-openapi.yaml) |
+| 🥗 **Nutrition** | [nutrition-service.md](./services/nutrition-service.md) | [openapi.yaml](./services/openapi/nutrition-openapi.yaml) |
+| 💰 **Financial** | [financial-service.md](./services/financial-service.md) | [openapi.yaml](./services/openapi/financial-openapi.yaml) |
+| 🏋️ **Gym** | [gym-service.md](./services/gym-service.md) | [openapi.yaml](./services/openapi/gym-openapi.yaml) |
+| 📧 **Notification** | [notification-service.md](./services/notification-service.md) | [openapi.yaml](./services/openapi/notification-openapi.yaml) |
+
+### Diagramas Arquiteturais
+
+| Diagrama | Arquivo | Descrição |
+|----------|---------|-----------|
+| Users Service Context | [users-service-context.mmd](./services/diagrams/users-service-context.mmd) | C4 Context - Users API, PostgreSQL, RabbitMQ |
+| Financial Service Context | [financial-service-context.mmd](./services/diagrams/financial-service-context.mmd) | C4 Context - Financial API, PostgreSQL |
+| User Registration Flow | [user-registration-sequence.mmd](./services/diagrams/user-registration-sequence.mmd) | Sequência - registro → RabbitMQ → Notification |
+| Recurring Transaction Flow | [recurring-transaction-sequence.mmd](./services/diagrams/recurring-transaction-sequence.mmd) | Sequência - BackgroundService → Transaction generation |
 
 ### Documentação Complementar de Serviços
 
@@ -56,6 +69,15 @@ Cada arquivo cobre: visão geral, estrutura de pastas, modelo de domínio (entid
 | [FEATURE-ROADMAP.md](./architecture/FEATURE-ROADMAP.md) | Roadmap de features futuras |
 | [IMPLEMENTATION-SUMMARY.md](./architecture/IMPLEMENTATION-SUMMARY.md) | Resumo de implementação |
 | [IMPLEMENTATION-TASKS.md](./architecture/IMPLEMENTATION-TASKS.md) | Tarefas de implementação pendentes |
+
+### Architecture Decision Records (ADRs)
+
+| ADR | Título | Descrição |
+|-----|--------|-----------|
+| [ADR-001](./architecture/adr/ADR-001-email-strategy-pattern.md) | Strategy Pattern for Email Templates | Strategy Pattern no Notification Service para resolver templates de email |
+| [ADR-002](./architecture/adr/ADR-002-money-value-object.md) | Money Value Object | Value Object Money para suporte multi-moeda no Financial Service |
+| [ADR-003](./architecture/adr/ADR-003-rabbitmq-integration.md) | RabbitMQ for Service Integration | Uso de RabbitMQ como event bus para integração entre serviços |
+| [ADR-004](./architecture/adr/ADR-004-cqrs-result-pattern.md) | CQRS + Result Pattern | Adoção de CQRS + Result Pattern em todos os serviços |
 
 ---
 
