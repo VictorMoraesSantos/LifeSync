@@ -31,6 +31,14 @@ namespace LifeSyncApp
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
+#if ANDROID
+            // Force WebAuthenticator to initialize early in Release builds with AOT.
+            // This ensures the static event handlers are registered before the first OAuth flow,
+            // avoiding race conditions that occur due to AOT compilation timing differences.
+            _ = Microsoft.Maui.Authentication.WebAuthenticator.Default;
+#endif
+
             builder
                 .UseMauiApp<App>()
                 .ConfigureMauiHandlers(handlers =>
