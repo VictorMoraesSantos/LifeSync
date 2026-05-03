@@ -1,8 +1,9 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.TaskManager.TaskLabel;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Models.TaskManager.Enums;
-using LifeSyncApp.Services.TaskManager.Implementation;
+using LifeSyncApp.Services.TaskManager;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -11,7 +12,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
 {
     public class TaskLabelViewModel : BaseViewModel
     {
-        private readonly TaskLabelService _taskLabelService;
+        private readonly ITaskLabelService _taskLabelService;
         private readonly IUserSession _userSession;
         private bool _isLoadingLabels;
         public bool IsLoadingLabels
@@ -97,7 +98,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
         public ICommand SaveLabelCommand { get; set; }
         public ICommand SelectColorCommand { get; set; }
 
-        public TaskLabelViewModel(TaskLabelService taskLabelService, IUserSession userSession)
+        public TaskLabelViewModel(ITaskLabelService taskLabelService, IUserSession userSession)
         {
             _taskLabelService = taskLabelService;
             _userSession = userSession;
@@ -208,7 +209,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
                 SelectedLabelColor = LabelColor.Blue;
             }
 
-            await Shell.Current.GoToAsync("ManageTaskLabelModal");
+            await Shell.Current.GoToAsync(AppRoutes.ManageTaskLabelModal);
         }
 
         private void SelectColor(LabelColor color)

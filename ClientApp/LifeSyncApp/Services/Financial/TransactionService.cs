@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace LifeSyncApp.Services.Financial
 {
-    public class TransactionService
+    public class TransactionService : ITransactionService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly JsonSerializerOptions _jsonOptions;

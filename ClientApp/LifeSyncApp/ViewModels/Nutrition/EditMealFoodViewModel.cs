@@ -1,3 +1,4 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.MealFood;
 using LifeSyncApp.Services.Nutrition;
 using System.Windows.Input;
@@ -6,7 +7,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class EditMealFoodViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
 
         private MealFoodDTO? _mealFood;
         private string _quantityText = string.Empty;
@@ -64,7 +65,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
-        public EditMealFoodViewModel(NutritionService nutritionService)
+        public EditMealFoodViewModel(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
             Title = "Editar Alimento";
@@ -116,7 +117,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (_mealFood == null) return;
             // Navigate to food search to swap
             OnCancelled?.Invoke(this, EventArgs.Empty);
-            await Shell.Current.GoToAsync("FoodSearchPage", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.FoodSearchPage, new Dictionary<string, object>
             {
                 { "MealId", MealId }
             });

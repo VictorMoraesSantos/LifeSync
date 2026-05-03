@@ -1,3 +1,4 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.Diary;
 using LifeSyncApp.DTOs.Nutrition.Liquid;
 using LifeSyncApp.DTOs.Nutrition.Meal;
@@ -10,7 +11,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class DiaryDetailViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
         private static readonly CultureInfo PtBr = new("pt-BR");
 
         private DiaryDTO? _diary;
@@ -58,7 +59,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         public event EventHandler? DiaryDeleted;
 
-        public DiaryDetailViewModel(NutritionService nutritionService)
+        public DiaryDetailViewModel(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
 
@@ -109,7 +110,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (_diary == null) return;
             try
             {
-                await Shell.Current.GoToAsync("ManageMealModal", new Dictionary<string, object>
+                await Shell.Current.GoToAsync(AppRoutes.ManageMealModal, new Dictionary<string, object>
                 {
                     { "DiaryId", _diary.Id }
                 });
@@ -125,7 +126,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (meal == null || _diary == null) return;
             try
             {
-                await Shell.Current.GoToAsync("ManageMealModal", new Dictionary<string, object>
+                await Shell.Current.GoToAsync(AppRoutes.ManageMealModal, new Dictionary<string, object>
                 {
                     { "DiaryId", _diary.Id },
                     { "Meal", meal }
@@ -165,7 +166,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (_diary == null) return;
             try
             {
-                await Shell.Current.GoToAsync("ManageLiquidModal", new Dictionary<string, object>
+                await Shell.Current.GoToAsync(AppRoutes.ManageLiquidModal, new Dictionary<string, object>
                 {
                     { "DiaryId", _diary.Id }
                 });
@@ -181,7 +182,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (liquid == null || _diary == null) return;
             try
             {
-                await Shell.Current.GoToAsync("ManageLiquidModal", new Dictionary<string, object>
+                await Shell.Current.GoToAsync(AppRoutes.ManageLiquidModal, new Dictionary<string, object>
                 {
                     { "DiaryId", _diary.Id },
                     { "Liquid", liquid }

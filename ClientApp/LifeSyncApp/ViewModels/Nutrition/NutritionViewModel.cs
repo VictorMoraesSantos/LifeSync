@@ -1,3 +1,4 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.DailyProgress;
 using LifeSyncApp.DTOs.Nutrition.Diary;
 using LifeSyncApp.DTOs.Nutrition.Liquid;
@@ -12,7 +13,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class NutritionViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
         private readonly IUserSession _userSession;
         private static readonly CultureInfo PtBr = new("pt-BR");
 
@@ -202,7 +203,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public ICommand EditLiquidCommand { get; }
         public ICommand DeleteLiquidCommand { get; }
 
-        public NutritionViewModel(NutritionService nutritionService, IUserSession userSession)
+        public NutritionViewModel(INutritionService nutritionService, IUserSession userSession)
         {
             _nutritionService = nutritionService;
             _userSession = userSession;
@@ -219,7 +220,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             OpenMealDetailCommand = new Command<MealDTO>(async (m) => await OpenMealDetailAsync(m));
             OpenDiaryDetailCommand = new Command(async () => await OpenDiaryDetailAsync());
             OpenDailyProgressCommand = new Command(async () => await OpenDailyProgressAsync());
-            OpenDiaryHistoryCommand = new Command(async () => await Shell.Current.GoToAsync("DiaryHistoryPage"));
+            OpenDiaryHistoryCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.DiaryHistoryPage));
             EditLiquidCommand = new Command<LiquidDTO>(async (l) => await EditLiquidAsync(l));
             DeleteLiquidCommand = new Command<LiquidDTO>(async (l) => await DeleteLiquidAsync(l));
         }
@@ -398,7 +399,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             await EnsureDiaryExistsAsync();
             if (TodayDiary == null) return;
 
-            await Shell.Current.GoToAsync("ManageMealModal", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.ManageMealModal, new Dictionary<string, object>
             {
                 { "DiaryId", TodayDiary.Id }
             });
@@ -409,7 +410,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             await EnsureDiaryExistsAsync();
             if (TodayDiary == null) return;
 
-            await Shell.Current.GoToAsync("ManageLiquidModal", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.ManageLiquidModal, new Dictionary<string, object>
             {
                 { "DiaryId", TodayDiary.Id }
             });
@@ -418,7 +419,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         private async Task OpenMealDetailAsync(MealDTO? meal)
         {
             if (meal == null) return;
-            await Shell.Current.GoToAsync("MealDetailPage", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.MealDetailPage, new Dictionary<string, object>
             {
                 { "Meal", meal }
             });
@@ -427,7 +428,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         private async Task OpenDiaryDetailAsync()
         {
             if (TodayDiary == null) return;
-            await Shell.Current.GoToAsync("DiaryDetailPage", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.DiaryDetailPage, new Dictionary<string, object>
             {
                 { "Diary", TodayDiary }
             });
@@ -467,7 +468,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     return;
                 }
 
-                await Shell.Current.GoToAsync("DailyProgressPage", new Dictionary<string, object>
+                await Shell.Current.GoToAsync(AppRoutes.DailyProgressPage, new Dictionary<string, object>
                 {
                     { "DailyProgress", DailyProgress }
                 });
@@ -484,7 +485,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (liquid == null || TodayDiary == null) return;
 
-            await Shell.Current.GoToAsync("ManageLiquidModal", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.ManageLiquidModal, new Dictionary<string, object>
             {
                 { "DiaryId", TodayDiary.Id },
                 { "Liquid", liquid }

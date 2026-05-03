@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using LifeSyncApp.Constants;
 using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.Profile;
 
@@ -7,7 +8,7 @@ namespace LifeSyncApp.ViewModels.Profile
     public class ProfileViewModel : BaseViewModel
     {
         private readonly IAuthService _authService;
-        private readonly UserProfileService _userProfileService;
+        private readonly IUserProfileService _userProfileService;
 
         private string _userName = string.Empty;
         public string UserName
@@ -51,15 +52,15 @@ namespace LifeSyncApp.ViewModels.Profile
 
         private DateTime? _lastRefresh;
 
-        public ProfileViewModel(IAuthService authService, UserProfileService userProfileService)
+        public ProfileViewModel(IAuthService authService, IUserProfileService userProfileService)
         {
             _authService = authService;
             _userProfileService = userProfileService;
             Title = "Configurações";
             LogoutCommand = new Command(async () => await LogoutAsync());
-            ChangeNameCommand = new Command(async () => await Shell.Current.GoToAsync("ChangeNameModal"));
-            ChangeEmailCommand = new Command(async () => await Shell.Current.GoToAsync("ChangeEmailModal"));
-            ChangePasswordCommand = new Command(async () => await Shell.Current.GoToAsync("ChangePasswordModal"));
+            ChangeNameCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.ChangeNameModal));
+            ChangeEmailCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.ChangeEmailModal));
+            ChangePasswordCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.ChangePasswordModal));
         }
 
         public void InvalidateCache()

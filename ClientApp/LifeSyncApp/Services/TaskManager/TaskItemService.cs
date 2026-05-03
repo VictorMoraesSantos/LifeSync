@@ -1,10 +1,11 @@
 ﻿using LifeSyncApp.DTOs.TaskManager.TaskItem;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Services.ApiService.Interface;
+using LifeSyncApp.Services.TaskManager;
 
 namespace LifeSyncApp.Services.TaskManager.Implementation
 {
-    public class TaskItemService
+    public class TaskItemService : ITaskItemService
     {
         private readonly IApiService<TaskItem> _apiService;
         private const string BaseUrl = "/taskmanager-service/api/task-items";

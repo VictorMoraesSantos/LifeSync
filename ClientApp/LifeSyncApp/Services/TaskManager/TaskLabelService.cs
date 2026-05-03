@@ -1,10 +1,11 @@
 ﻿using LifeSyncApp.DTOs.TaskManager.TaskLabel;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Services.ApiService.Interface;
+using LifeSyncApp.Services.TaskManager;
 
 namespace LifeSyncApp.Services.TaskManager.Implementation
 {
-    public class TaskLabelService
+    public class TaskLabelService : ITaskLabelService
     {
         private readonly IApiService<TaskLabel> _apiService;
         private const string BaseUrl = "/taskmanager-service/api/task-labels";

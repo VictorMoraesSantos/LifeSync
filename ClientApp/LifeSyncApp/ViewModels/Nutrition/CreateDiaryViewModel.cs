@@ -7,7 +7,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class CreateDiaryViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
         private readonly IUserSession _userSession;
 
         private DateTime _selectedDate = DateTime.Today;
@@ -24,7 +24,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public event EventHandler? OnCreated;
         public event EventHandler? OnCancelled;
 
-        public CreateDiaryViewModel(NutritionService nutritionService, IUserSession userSession)
+        public CreateDiaryViewModel(INutritionService nutritionService, IUserSession userSession)
         {
             _nutritionService = nutritionService;
             _userSession = userSession;

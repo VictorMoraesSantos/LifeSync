@@ -8,7 +8,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
     public class TransactionDetailViewModel : BaseViewModel
     {
-        private readonly TransactionService _transactionService;
+        private readonly ITransactionService _transactionService;
         private TransactionDTO? _transaction;
 
         public TransactionDTO? Transaction
@@ -47,7 +47,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         public event EventHandler<TransactionDTO>? OnEditRequested;
         public event EventHandler<int>? OnDeleted;
 
-        public TransactionDetailViewModel(TransactionService transactionService)
+        public TransactionDetailViewModel(ITransactionService transactionService)
         {
             _transactionService = transactionService;
             Title = "Detalhes da Transação";

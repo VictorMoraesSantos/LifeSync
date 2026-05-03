@@ -7,7 +7,7 @@ namespace LifeSyncApp.ViewModels.Financial.Category
 {
     public class ManageCategoryViewModel : BaseViewModel
     {
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
         private readonly IUserSession _userSession;
         private CategoryDTO? _category;
 
@@ -49,7 +49,7 @@ namespace LifeSyncApp.ViewModels.Financial.Category
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
-        public ManageCategoryViewModel(CategoryService categoryService, IUserSession userSession)
+        public ManageCategoryViewModel(ICategoryService categoryService, IUserSession userSession)
         {
             _categoryService = categoryService;
             _userSession = userSession;

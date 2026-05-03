@@ -8,7 +8,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class FoodSearchViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
         private CancellationTokenSource? _searchCts;
 
         private string _searchText = string.Empty;
@@ -98,7 +98,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
-        public FoodSearchViewModel(NutritionService nutritionService)
+        public FoodSearchViewModel(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
             Title = "Buscar Alimento";

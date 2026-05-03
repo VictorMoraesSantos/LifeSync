@@ -1,3 +1,4 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.Diary;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.UserSession;
@@ -8,7 +9,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class DiaryHistoryViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
         private readonly IUserSession _userSession;
 
         private string _dateFromText = string.Empty;
@@ -59,7 +60,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
 
-        public DiaryHistoryViewModel(NutritionService nutritionService, IUserSession userSession)
+        public DiaryHistoryViewModel(INutritionService nutritionService, IUserSession userSession)
         {
             _nutritionService = nutritionService;
             _userSession = userSession;
@@ -72,7 +73,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
             SearchCommand = new Command(async () => { CurrentPage = 1; await LoadDiariesAsync(); });
-            OpenCreateDiaryCommand = new Command(async () => await Shell.Current.GoToAsync("CreateDiaryModal"));
+            OpenCreateDiaryCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.CreateDiaryModal));
             OpenDiaryDetailCommand = new Command<DiaryDTO>(async (d) => await OpenDiaryDetailAsync(d));
             NextPageCommand = new Command(async () => { if (CurrentPage < TotalPages) { CurrentPage++; await LoadDiariesAsync(); } });
             PreviousPageCommand = new Command(async () => { if (CurrentPage > 1) { CurrentPage--; await LoadDiariesAsync(); } });
@@ -120,7 +121,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         private async Task OpenDiaryDetailAsync(DiaryDTO? diary)
         {
             if (diary == null) return;
-            await Shell.Current.GoToAsync("DiaryDetailPage", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.DiaryDetailPage, new Dictionary<string, object>
             {
                 { "Diary", diary }
             });

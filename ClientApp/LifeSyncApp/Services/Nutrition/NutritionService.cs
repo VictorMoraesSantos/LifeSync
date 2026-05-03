@@ -12,7 +12,7 @@ using System.Text.Json;
 
 namespace LifeSyncApp.Services.Nutrition
 {
-    public class NutritionService
+    public class NutritionService : INutritionService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly JsonSerializerOptions _jsonOptions;

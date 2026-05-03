@@ -7,7 +7,7 @@ namespace LifeSyncApp.ViewModels.Profile
 {
     public class ChangeEmailViewModel : BaseViewModel
     {
-        private readonly UserProfileService _userProfileService;
+        private readonly IUserProfileService _userProfileService;
         private readonly IAuthService _authService;
 
         private string _newEmail = string.Empty;
@@ -41,7 +41,7 @@ namespace LifeSyncApp.ViewModels.Profile
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public ChangeEmailViewModel(UserProfileService userProfileService, IAuthService authService)
+        public ChangeEmailViewModel(IUserProfileService userProfileService, IAuthService authService)
         {
             _userProfileService = userProfileService;
             _authService = authService;

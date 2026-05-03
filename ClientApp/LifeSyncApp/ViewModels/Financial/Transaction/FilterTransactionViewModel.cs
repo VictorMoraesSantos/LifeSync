@@ -10,7 +10,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
     public class FilterTransactionViewModel : BaseViewModel
     {
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
         private readonly IUserSession _userSession;
 
         private string _selectedType = "";
@@ -48,7 +48,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         public event EventHandler<TransactionFilterDTO>? OnFiltersApplied;
         public event EventHandler? OnCancelled;
 
-        public FilterTransactionViewModel(CategoryService categoryService, IUserSession userSession)
+        public FilterTransactionViewModel(ICategoryService categoryService, IUserSession userSession)
         {
             _categoryService = categoryService;
             _userSession = userSession;

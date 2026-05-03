@@ -6,7 +6,7 @@ namespace LifeSyncApp.ViewModels.Profile
 {
     public class ChangePasswordViewModel : BaseViewModel
     {
-        private readonly UserProfileService _userProfileService;
+        private readonly IUserProfileService _userProfileService;
 
         private string _currentPassword = string.Empty;
         public string CurrentPassword
@@ -47,7 +47,7 @@ namespace LifeSyncApp.ViewModels.Profile
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public ChangePasswordViewModel(UserProfileService userProfileService)
+        public ChangePasswordViewModel(IUserProfileService userProfileService)
         {
             _userProfileService = userProfileService;
             Title = "Alterar Senha";

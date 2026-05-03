@@ -8,7 +8,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class ManageLiquidViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
 
         private bool _isEditing;
         private int _liquidId;
@@ -68,7 +68,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
-        public ManageLiquidViewModel(NutritionService nutritionService)
+        public ManageLiquidViewModel(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
             Title = "Adicionar Líquido";

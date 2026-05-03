@@ -1,3 +1,4 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Financial;
@@ -9,7 +10,7 @@ namespace LifeSyncApp.ViewModels.Financial.Category
 {
     public class CategoriesViewModel : BaseViewModel
     {
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
         private readonly IUserSession _userSession;
 
         private bool _isLoadingCategories;
@@ -27,7 +28,7 @@ namespace LifeSyncApp.ViewModels.Financial.Category
         public ICommand EditCategoryCommand { get; }
         public ICommand DeleteCategoryCommand { get; }
 
-        public CategoriesViewModel(CategoryService categoryService, IUserSession userSession)
+        public CategoriesViewModel(ICategoryService categoryService, IUserSession userSession)
         {
             _categoryService = categoryService;
             _userSession = userSession;
@@ -82,7 +83,7 @@ namespace LifeSyncApp.ViewModels.Financial.Category
 
         private async Task AddCategoryAsync()
         {
-            await Shell.Current.GoToAsync("ManageCategoryModal");
+            await Shell.Current.GoToAsync(AppRoutes.ManageCategoryModal);
         }
 
         private async Task EditCategoryAsync(CategoryDTO category)
@@ -92,7 +93,7 @@ namespace LifeSyncApp.ViewModels.Financial.Category
                 { "Category", category }
             };
 
-            await Shell.Current.GoToAsync("ManageCategoryModal", parameters);
+            await Shell.Current.GoToAsync(AppRoutes.ManageCategoryModal, parameters);
         }
 
         private async Task DeleteCategoryAsync(CategoryDTO category)

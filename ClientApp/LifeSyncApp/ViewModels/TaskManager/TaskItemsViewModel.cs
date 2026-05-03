@@ -1,9 +1,10 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.TaskManager.TaskItem;
 using LifeSyncApp.DTOs.TaskManager.TaskLabel;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Models.TaskManager.Enums;
-using LifeSyncApp.Services.TaskManager.Implementation;
+using LifeSyncApp.Services.TaskManager;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -12,8 +13,8 @@ namespace LifeSyncApp.ViewModels.TaskManager
 {
     public class TaskItemsViewModel : BaseViewModel
     {
-        private readonly TaskItemService _taskItemService;
-        private readonly TaskLabelService _taskLabelService;
+        private readonly ITaskItemService _taskItemService;
+        private readonly ITaskLabelService _taskLabelService;
         private readonly IUserSession _userSession;
         private bool _isLoadingTasks;
         public bool IsLoadingTasks
@@ -155,7 +156,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             set => SetProperty(ref _availableLabels, value);
         }
 
-        public TaskItemsViewModel(TaskItemService taskItemService, TaskLabelService taskLabelService, IUserSession userSession)
+        public TaskItemsViewModel(ITaskItemService taskItemService, ITaskLabelService taskLabelService, IUserSession userSession)
         {
             _taskItemService = taskItemService;
             _taskLabelService = taskLabelService;
@@ -270,7 +271,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             try
             {
                 _lastLabelsRefresh = null;
-                await Shell.Current.GoToAsync("tasklabels");
+                await Shell.Current.GoToAsync(AppRoutes.TaskLabels);
             }
             catch (Exception ex)
             {
@@ -348,12 +349,12 @@ namespace LifeSyncApp.ViewModels.TaskManager
 
             await LoadLabelsAsync(selectedIds);
 
-            await Shell.Current.GoToAsync("ManageTaskItemModal");
+            await Shell.Current.GoToAsync(AppRoutes.ManageTaskItemModal);
         }
 
         private async Task OpenFiltersModalAsync()
         {
-            await Shell.Current.GoToAsync("FilterTaskItemPopup");
+            await Shell.Current.GoToAsync(AppRoutes.FilterTaskItemPopup);
         }
 
         private async Task NavigateToTaskDetailAsync(TaskItem task)

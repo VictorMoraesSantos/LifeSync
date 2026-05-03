@@ -6,7 +6,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class ManageMealViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
 
         private string _name = string.Empty;
         private string _description = string.Empty;
@@ -42,7 +42,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
-        public ManageMealViewModel(NutritionService nutritionService)
+        public ManageMealViewModel(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
             Title = "Nova Refeição";

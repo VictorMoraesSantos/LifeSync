@@ -1,3 +1,4 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Helpers;
@@ -12,8 +13,8 @@ namespace LifeSyncApp.ViewModels.Financial
 {
     public class FinancialViewModel : BaseViewModel
     {
-        private readonly TransactionService _transactionService;
-        private readonly CategoryService _categoryService;
+        private readonly ITransactionService _transactionService;
+        private readonly ICategoryService _categoryService;
         private readonly IUserSession _userSession;
 
         private bool _isLoadingData;
@@ -122,7 +123,7 @@ namespace LifeSyncApp.ViewModels.Financial
         public ICommand OpenHighestIncomeDetailCommand { get; }
         public ICommand OpenHighestExpenseDetailCommand { get; }
 
-        public FinancialViewModel(TransactionService transactionService, CategoryService categoryService, IUserSession userSession)
+        public FinancialViewModel(ITransactionService transactionService, ICategoryService categoryService, IUserSession userSession)
         {
             _transactionService = transactionService;
             _categoryService = categoryService;
@@ -301,7 +302,7 @@ namespace LifeSyncApp.ViewModels.Financial
         {
             try
             {
-                await Shell.Current.GoToAsync("ManageTransactionModal");
+                await Shell.Current.GoToAsync(AppRoutes.ManageTransactionModal);
             }
             catch (Exception ex)
             {
@@ -313,7 +314,7 @@ namespace LifeSyncApp.ViewModels.Financial
         {
             try
             {
-                await Shell.Current.GoToAsync("CategoriesPage");
+                await Shell.Current.GoToAsync(AppRoutes.CategoriesPage);
             }
             catch (Exception ex)
             {
@@ -323,14 +324,14 @@ namespace LifeSyncApp.ViewModels.Financial
 
         private async Task ViewAllTransactionsAsync()
         {
-            await Shell.Current.GoToAsync("TransactionListPage");
+            await Shell.Current.GoToAsync(AppRoutes.TransactionListPage);
         }
 
         private async Task OpenDetailAsync(TransactionDTO? transaction)
         {
             if (transaction == null) return;
 
-            await Shell.Current.GoToAsync("TransactionDetailModal", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.TransactionDetailModal, new Dictionary<string, object>
             {
                 { "Transaction", transaction }
             });
@@ -352,7 +353,7 @@ namespace LifeSyncApp.ViewModels.Financial
                 TransactionDateTo: endOfMonth
             );
 
-            await Shell.Current.GoToAsync("TransactionListPage", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.TransactionListPage, new Dictionary<string, object>
             {
                 { "Filter", filter }
             });

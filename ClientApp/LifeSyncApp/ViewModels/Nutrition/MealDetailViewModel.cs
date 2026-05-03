@@ -1,3 +1,4 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.Meal;
 using LifeSyncApp.DTOs.Nutrition.MealFood;
 using LifeSyncApp.Helpers;
@@ -8,7 +9,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class MealDetailViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
 
         private MealDTO? _meal;
 
@@ -52,7 +53,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         public event EventHandler? MealDeleted;
 
-        public MealDetailViewModel(NutritionService nutritionService)
+        public MealDetailViewModel(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
 
@@ -116,7 +117,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (_meal == null) return;
             try
             {
-                await Shell.Current.GoToAsync("ManageMealModal", new Dictionary<string, object>
+                await Shell.Current.GoToAsync(AppRoutes.ManageMealModal, new Dictionary<string, object>
                 {
                     { "DiaryId", _meal.DiaryId },
                     { "Meal", _meal }
@@ -161,7 +162,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (_meal == null) return;
             try
             {
-                await Shell.Current.GoToAsync("FoodSearchPage", new Dictionary<string, object>
+                await Shell.Current.GoToAsync(AppRoutes.FoodSearchPage, new Dictionary<string, object>
                 {
                     { "MealId", _meal.Id }
                 });
@@ -177,7 +178,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             if (food == null || _meal == null) return;
             try
             {
-                await Shell.Current.GoToAsync("EditMealFoodModal", new Dictionary<string, object>
+                await Shell.Current.GoToAsync(AppRoutes.EditMealFoodModal, new Dictionary<string, object>
                 {
                     { "MealFood", food }
                 });

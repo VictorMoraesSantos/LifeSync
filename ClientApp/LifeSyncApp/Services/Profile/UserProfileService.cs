@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace LifeSyncApp.Services.Profile
 {
-    public class UserProfileService
+    public class UserProfileService : IUserProfileService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly JsonSerializerOptions _jsonOptions;

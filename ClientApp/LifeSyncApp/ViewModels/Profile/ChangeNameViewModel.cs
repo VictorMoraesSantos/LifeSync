@@ -7,7 +7,7 @@ namespace LifeSyncApp.ViewModels.Profile
 {
     public class ChangeNameViewModel : BaseViewModel
     {
-        private readonly UserProfileService _userProfileService;
+        private readonly IUserProfileService _userProfileService;
         private readonly IAuthService _authService;
 
         private string _firstName = string.Empty;
@@ -40,7 +40,7 @@ namespace LifeSyncApp.ViewModels.Profile
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public ChangeNameViewModel(UserProfileService userProfileService, IAuthService authService)
+        public ChangeNameViewModel(IUserProfileService userProfileService, IAuthService authService)
         {
             _userProfileService = userProfileService;
             _authService = authService;

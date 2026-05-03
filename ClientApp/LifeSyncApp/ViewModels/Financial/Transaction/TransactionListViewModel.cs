@@ -1,3 +1,4 @@
+using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.Financial;
@@ -11,7 +12,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
     [QueryProperty(nameof(Filter), "Filter")]
     public class TransactionListViewModel : BaseViewModel
     {
-        private readonly TransactionService _transactionService;
+        private readonly ITransactionService _transactionService;
         private readonly IUserSession _userSession;
         private TransactionFilterDTO _currentFilter = new();
         private bool _filterSetFromNavigation = false;
@@ -47,7 +48,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         public ICommand OpenDetailCommand { get; }
         public ICommand OpenFilterCommand { get; }
 
-        public TransactionListViewModel(TransactionService transactionService, IUserSession userSession)
+        public TransactionListViewModel(ITransactionService transactionService, IUserSession userSession)
         {
             _transactionService = transactionService;
             _userSession = userSession;
@@ -131,14 +132,14 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 
         private async Task OpenManageTransactionModalAsync()
         {
-            await Shell.Current.GoToAsync("ManageTransactionModal");
+            await Shell.Current.GoToAsync(AppRoutes.ManageTransactionModal);
         }
 
         private async Task OpenDetailAsync(TransactionDTO? transaction)
         {
             if (transaction == null) return;
 
-            await Shell.Current.GoToAsync("TransactionDetailModal", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.TransactionDetailModal, new Dictionary<string, object>
             {
                 { "Transaction", transaction }
             });
@@ -146,7 +147,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 
         private async Task OpenFilterAsync()
         {
-            await Shell.Current.GoToAsync("FilterTransactionModal", new Dictionary<string, object>
+            await Shell.Current.GoToAsync(AppRoutes.FilterTransactionModal, new Dictionary<string, object>
             {
                 { "ExistingFilter", _currentFilter }
             });

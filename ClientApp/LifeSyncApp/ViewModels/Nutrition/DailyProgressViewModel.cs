@@ -9,7 +9,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 {
     public class DailyProgressViewModel : BaseViewModel
     {
-        private readonly NutritionService _nutritionService;
+        private readonly INutritionService _nutritionService;
         private readonly IUserSession _userSession;
         private static readonly CultureInfo PtBr = new("pt-BR");
 
@@ -139,7 +139,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public ICommand SaveGoalCommand { get; }
         public ICommand ResetGoalCommand { get; }
 
-        public DailyProgressViewModel(NutritionService nutritionService, IUserSession userSession)
+        public DailyProgressViewModel(INutritionService nutritionService, IUserSession userSession)
         {
             _nutritionService = nutritionService;
             _userSession = userSession;

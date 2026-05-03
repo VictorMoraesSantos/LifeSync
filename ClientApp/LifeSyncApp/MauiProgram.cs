@@ -4,6 +4,7 @@ using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.Profile;
+using LifeSyncApp.Services.TaskManager;
 using LifeSyncApp.Services.TaskManager.Implementation;
 using LifeSyncApp.Services.UserSession;
 using LifeSyncApp.ViewModels.Auth;
@@ -107,18 +108,18 @@ namespace LifeSyncApp
             builder.Services.AddSingleton<IUserSession, UserSession>();
 
             // Business Services
-            builder.Services.AddSingleton<TaskItemService>();
-            builder.Services.AddSingleton<TaskLabelService>();
+            builder.Services.AddSingleton<ITaskItemService, TaskItemService>();
+            builder.Services.AddSingleton<ITaskLabelService, TaskLabelService>();
 
             // Financial Services
-            builder.Services.AddSingleton<TransactionService>();
-            builder.Services.AddSingleton<CategoryService>();
+            builder.Services.AddSingleton<ITransactionService, TransactionService>();
+            builder.Services.AddSingleton<ICategoryService, CategoryService>();
 
             // Nutrition Services
-            builder.Services.AddSingleton<NutritionService>();
+            builder.Services.AddSingleton<INutritionService, NutritionService>();
 
             // Profile Services
-            builder.Services.AddSingleton<UserProfileService>();
+            builder.Services.AddSingleton<IUserProfileService, UserProfileService>();
 
             // Auth ViewModels
             builder.Services.AddTransient<LoginViewModel>();

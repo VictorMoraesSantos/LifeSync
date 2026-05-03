@@ -11,8 +11,8 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
     public class ManageTransactionViewModel : BaseViewModel
     {
-        private readonly TransactionService _transactionService;
-        private readonly CategoryService _categoryService;
+        private readonly ITransactionService _transactionService;
+        private readonly ICategoryService _categoryService;
         private readonly IUserSession _userSession;
 
         private TransactionDTO? _transaction;
@@ -163,7 +163,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
-        public ManageTransactionViewModel(TransactionService transactionService, CategoryService categoryService, IUserSession userSession)
+        public ManageTransactionViewModel(ITransactionService transactionService, ICategoryService categoryService, IUserSession userSession)
         {
             _transactionService = transactionService;
             _categoryService = categoryService;
