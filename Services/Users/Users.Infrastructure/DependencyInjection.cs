@@ -105,6 +105,7 @@ namespace Users.Infrastructure
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+            services.AddHttpClient();
 
             services.AddAuthorization();
 

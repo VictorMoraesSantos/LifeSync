@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.Features.Auth.Commands.ChangePassword;
 using Users.Application.Features.Auth.Commands.ForgotPassword;
+using Users.Application.Features.Auth.Commands.GoogleCallback;
 using Users.Application.Features.Auth.Commands.Login;
 using Users.Application.Features.Auth.Commands.Logout;
 using Users.Application.Features.Auth.Commands.ResetPassword;
 using Users.Application.Features.Auth.Commands.SendEmailConfirmation;
 using Users.Application.Features.Auth.Commands.ExternalLogin;
+using Users.Application.Features.Auth.Queries.GetGoogleLoginUrl;
 using Users.Application.DTOs.Auth;
 using Users.Application.Features.Auth.Commands.SignUp;
 
@@ -61,20 +63,15 @@ namespace Users.API.Controllers
 
         [AllowAnonymous]
         [HttpGet("google-login")]
-        public IActionResult GoogleLogin([FromQuery] string state)
+        public async Task<IActionResult> GoogleLogin([FromQuery] string state, CancellationToken cancellationToken)
         {
-            var clientId = _configuration["GoogleAuth:ClientId"];
-            var redirectUri = _configuration["GoogleAuth:RedirectUri"];
+            var query = new GetGoogleLoginUrlQuery(state);
+            var result = await _sender.Send(query, cancellationToken);
 
-            var googleUrl = "https://accounts.google.com/o/oauth2/v2/auth" +
-                $"?client_id={clientId}" +
-                $"&redirect_uri={Uri.EscapeDataString(redirectUri!)}" +
-                "&response_type=code" +
-                "&scope=openid email profile" +
-                "&access_type=offline" +
-                $"&state={Uri.EscapeDataString(state ?? "")}";
+            if (!result.IsSuccess)
+                return BadRequest(result.Error!.Description);
 
-            return Redirect(googleUrl);
+            return Redirect(result.Value!.Url);
         }
 
         [AllowAnonymous]
@@ -84,57 +81,21 @@ namespace Users.API.Controllers
         {
             var appScheme = _configuration["GoogleAuth:AppScheme"] ?? "com.lifesync.app";
 
-            if (string.IsNullOrEmpty(code))
-                return Redirect($"{appScheme}://callback?error=no_code");
+            var command = new GoogleCallbackCommand(code, state);
+            var result = await _sender.Send(command, cancellationToken);
 
-            try
-            {
-                var clientId = _configuration["GoogleAuth:ClientId"];
-                var clientSecret = _configuration["GoogleAuth:ClientSecret"];
-                var redirectUri = _configuration["GoogleAuth:RedirectUri"];
+            if (!result.IsSuccess)
+                return Redirect($"{appScheme}://callback?error={Uri.EscapeDataString(result.Error!.Description)}");
 
-                using var httpClient = new HttpClient();
-                var tokenResponse = await httpClient.PostAsync("https://oauth2.googleapis.com/token",
-                    new FormUrlEncodedContent(new Dictionary<string, string>
-                    {
-                        ["code"] = code,
-                        ["client_id"] = clientId!,
-                        ["client_secret"] = clientSecret!,
-                        ["redirect_uri"] = redirectUri!,
-                        ["grant_type"] = "authorization_code"
-                    }), cancellationToken);
+            var authResult = result.Value!;
+            var callbackUrl =
+                $"{appScheme}://callback" +
+                $"?access_token={Uri.EscapeDataString(authResult.AccessToken)}" +
+                $"&refresh_token={Uri.EscapeDataString(authResult.RefreshToken)}" +
+                $"&user_id={Uri.EscapeDataString(authResult.User.Id)}" +
+                $"&state={Uri.EscapeDataString(state ?? "")}";
 
-                var tokenJson = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
-
-                if (!tokenResponse.IsSuccessStatusCode)
-                    return Redirect($"{appScheme}://callback?error=token_exchange_failed");
-
-                var tokenDoc = System.Text.Json.JsonDocument.Parse(tokenJson);
-                var idToken = tokenDoc.RootElement.GetProperty("id_token").GetString();
-
-                if (string.IsNullOrEmpty(idToken))
-                    return Redirect($"{appScheme}://callback?error=no_id_token");
-
-                var command = new ExternalLoginCommand(idToken, "Google");
-                var result = await _sender.Send(command, cancellationToken);
-
-                if (!result.IsSuccess)
-                    return Redirect($"{appScheme}://callback?error={Uri.EscapeDataString(result.Error!.Description)}");
-
-                var authResult = result.Value!;
-                var callbackUrl =
-                    $"{appScheme}://callback" +
-                    $"?access_token={Uri.EscapeDataString(authResult.AccessToken)}" +
-                    $"&refresh_token={Uri.EscapeDataString(authResult.RefreshToken)}" +
-                    $"&user_id={Uri.EscapeDataString(authResult.User.Id)}" +
-                    $"&state={Uri.EscapeDataString(state ?? "")}";
-
-                return Redirect(callbackUrl);
-            }
-            catch (Exception ex)
-            {
-                return Redirect($"{appScheme}://callback?error={Uri.EscapeDataString(ex.Message)}");
-            }
+            return Redirect(callbackUrl);
         }
 
         [HttpPost("logout")]
