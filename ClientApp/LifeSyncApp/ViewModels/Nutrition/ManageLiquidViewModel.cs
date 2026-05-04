@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LifeSyncApp.DTOs.Nutrition.Liquid;
-using LifeSyncApp.DTOs.Nutrition.LiquidType;
+using LifeSyncApp.Models.Nutrition.Liquid;
+using LifeSyncApp.Models.Nutrition.LiquidType;
 using LifeSyncApp.Services.Nutrition;
 using System.Collections.ObjectModel;
 

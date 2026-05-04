@@ -1,4 +1,4 @@
-using LifeSyncApp.DTOs.Financial.Category;
+using LifeSyncApp.Models.Financial.Category;
 using LifeSyncApp.ViewModels.Financial;
 using LifeSyncApp.ViewModels.Financial.Category;
 

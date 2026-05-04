@@ -1,4 +1,4 @@
-using LifeSyncApp.DTOs.Financial.Category;
+using LifeSyncApp.Models.Financial.Category;
 
 namespace LifeSyncApp.Services.Financial
 {

@@ -1,4 +1,3 @@
-﻿using LifeSyncApp.DTOs.TaskManager.TaskItem;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Services.ApiService.Interface;
 

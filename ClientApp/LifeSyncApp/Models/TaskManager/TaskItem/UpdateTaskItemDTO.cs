@@ -1,0 +1,12 @@
+using LifeSyncApp.Models.TaskManager.Enums;
+
+namespace LifeSyncApp.Models.TaskManager
+{
+    public record UpdateTaskItemDTO(
+        string Title,
+        string Description,
+        Status Status,
+        Priority Priority,
+        DateOnly DueDate,
+        List<int>? TaskLabelsId);
+}

@@ -1,4 +1,4 @@
-using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Models.Financial.Transaction;
 using LifeSyncApp.ViewModels.Financial;
 using LifeSyncApp.ViewModels.Financial.Transaction;
 

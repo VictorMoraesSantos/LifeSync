@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LifeSyncApp.DTOs.Auth;
+using LifeSyncApp.Models.Auth;
 using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.UserSession;
 

@@ -1,4 +1,4 @@
-using LifeSyncApp.DTOs.Nutrition.Meal;
+using LifeSyncApp.Models.Nutrition.Meal;
 using LifeSyncApp.ViewModels.Nutrition;
 
 namespace LifeSyncApp.Views.Nutrition;

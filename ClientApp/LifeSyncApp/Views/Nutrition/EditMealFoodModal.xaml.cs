@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
-using LifeSyncApp.DTOs.Nutrition.MealFood;
+using LifeSyncApp.Models.Nutrition.MealFood;
 using LifeSyncApp.Messages;
 using LifeSyncApp.ViewModels.Nutrition;
 

@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
-using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Models.Financial.Transaction;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;

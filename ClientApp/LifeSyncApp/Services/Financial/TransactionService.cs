@@ -1,6 +1,6 @@
-using LifeSyncApp.DTOs.Common;
-using LifeSyncApp.DTOs.Financial.RecurrenceSchedule;
-using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Models.Common;
+using LifeSyncApp.Models.Financial.RecurrenceSchedule;
+using LifeSyncApp.Models.Financial.Transaction;
 using System.Net.Http.Json;
 using System.Text.Json;
 

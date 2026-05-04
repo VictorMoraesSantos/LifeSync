@@ -1,4 +1,4 @@
-using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Models.Financial.Transaction;
 using System.Collections.ObjectModel;
 
 namespace LifeSyncApp.Models.Financial

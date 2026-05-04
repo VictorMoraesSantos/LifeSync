@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
-using LifeSyncApp.DTOs.Nutrition.Diary;
-using LifeSyncApp.DTOs.Nutrition.Liquid;
-using LifeSyncApp.DTOs.Nutrition.Meal;
+using LifeSyncApp.Models.Nutrition.Diary;
+using LifeSyncApp.Models.Nutrition.Liquid;
+using LifeSyncApp.Models.Nutrition.Meal;
 using LifeSyncApp.Services.Nutrition;
 using System.Collections.ObjectModel;
 using System.Globalization;

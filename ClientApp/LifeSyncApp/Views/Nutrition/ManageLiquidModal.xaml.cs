@@ -1,4 +1,4 @@
-using LifeSyncApp.DTOs.Nutrition.Liquid;
+using LifeSyncApp.Models.Nutrition.Liquid;
 using LifeSyncApp.ViewModels.Nutrition;
 using System.ComponentModel;
 
@@ -81,7 +81,7 @@ public partial class ManageLiquidModal : ContentPage, IQueryAttributable
         var selectedItem = _viewModel.SelectedLiquidType;
         foreach (var child in LiquidTypesLayout.GetVisualTreeDescendants())
         {
-            if (child is Border border && border.BindingContext is DTOs.Nutrition.LiquidType.LiquidTypeDTO dto)
+            if (child is Border border && border.BindingContext is Models.Nutrition.LiquidType.LiquidTypeDTO dto)
                 UpdateLiquidTypeItemStyle(border, dto == selectedItem);
         }
     }

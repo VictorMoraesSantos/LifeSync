@@ -1,4 +1,4 @@
-using LifeSyncApp.DTOs.Nutrition.DailyProgress;
+using LifeSyncApp.Models.Nutrition.DailyProgress;
 using LifeSyncApp.ViewModels.Nutrition;
 
 namespace LifeSyncApp.Views.Nutrition;

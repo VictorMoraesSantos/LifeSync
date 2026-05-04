@@ -1,5 +1,5 @@
-using LifeSyncApp.DTOs.Auth;
-using LifeSyncApp.DTOs.Profile;
+using LifeSyncApp.Models.Auth;
+using LifeSyncApp.Models.Profile;
 
 namespace LifeSyncApp.Services.Profile
 {

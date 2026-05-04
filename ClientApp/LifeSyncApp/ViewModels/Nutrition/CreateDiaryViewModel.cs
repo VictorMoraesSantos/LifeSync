@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LifeSyncApp.DTOs.Nutrition.Diary;
+using LifeSyncApp.Models.Nutrition.Diary;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.UserSession;
 

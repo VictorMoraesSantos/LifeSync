@@ -1,8 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
-using LifeSyncApp.DTOs.TaskManager.TaskItem;
-using LifeSyncApp.DTOs.TaskManager.TaskLabel;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.TaskManager;
 using LifeSyncApp.Models.TaskManager.Enums;

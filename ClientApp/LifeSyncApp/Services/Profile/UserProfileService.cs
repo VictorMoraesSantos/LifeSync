@@ -1,5 +1,5 @@
-using LifeSyncApp.DTOs.Auth;
-using LifeSyncApp.DTOs.Profile;
+using LifeSyncApp.Models.Auth;
+using LifeSyncApp.Models.Profile;
 using System.Net.Http.Json;
 using System.Text.Json;
 

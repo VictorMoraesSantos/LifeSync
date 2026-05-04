@@ -1,5 +1,5 @@
-using LifeSyncApp.DTOs.Common;
-using LifeSyncApp.DTOs.Financial.Category;
+using LifeSyncApp.Models.Common;
+using LifeSyncApp.Models.Financial.Category;
 using System.Net.Http.Json;
 using System.Text.Json;
 

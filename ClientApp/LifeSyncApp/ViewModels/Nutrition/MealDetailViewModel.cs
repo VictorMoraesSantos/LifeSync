@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
-using LifeSyncApp.DTOs.Nutrition.Meal;
-using LifeSyncApp.DTOs.Nutrition.MealFood;
+using LifeSyncApp.Models.Nutrition.Meal;
+using LifeSyncApp.Models.Nutrition.MealFood;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Nutrition;
 

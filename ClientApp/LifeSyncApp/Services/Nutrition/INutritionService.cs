@@ -1,10 +1,10 @@
-using LifeSyncApp.DTOs.Nutrition.DailyProgress;
-using LifeSyncApp.DTOs.Nutrition.Diary;
-using LifeSyncApp.DTOs.Nutrition.Food;
-using LifeSyncApp.DTOs.Nutrition.Liquid;
-using LifeSyncApp.DTOs.Nutrition.LiquidType;
-using LifeSyncApp.DTOs.Nutrition.Meal;
-using LifeSyncApp.DTOs.Nutrition.MealFood;
+using LifeSyncApp.Models.Nutrition.DailyProgress;
+using LifeSyncApp.Models.Nutrition.Diary;
+using LifeSyncApp.Models.Nutrition.Food;
+using LifeSyncApp.Models.Nutrition.Liquid;
+using LifeSyncApp.Models.Nutrition.LiquidType;
+using LifeSyncApp.Models.Nutrition.Meal;
+using LifeSyncApp.Models.Nutrition.MealFood;
 
 namespace LifeSyncApp.Services.Nutrition
 {

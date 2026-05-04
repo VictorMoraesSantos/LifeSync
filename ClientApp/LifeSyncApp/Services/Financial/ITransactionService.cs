@@ -1,5 +1,5 @@
-using LifeSyncApp.DTOs.Financial.RecurrenceSchedule;
-using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Models.Financial.RecurrenceSchedule;
+using LifeSyncApp.Models.Financial.Transaction;
 
 namespace LifeSyncApp.Services.Financial
 {

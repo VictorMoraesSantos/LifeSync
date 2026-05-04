@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LifeSyncApp.DTOs.Financial.RecurrenceSchedule;
-using LifeSyncApp.DTOs.Financial.Transaction;
+using LifeSyncApp.Models.Financial.RecurrenceSchedule;
+using LifeSyncApp.Models.Financial.Transaction;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
 

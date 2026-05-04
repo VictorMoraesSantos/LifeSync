@@ -1,4 +1,4 @@
-using LifeSyncApp.DTOs.Auth;
+using LifeSyncApp.Models.Auth;
 
 namespace LifeSyncApp.Services.Auth
 {

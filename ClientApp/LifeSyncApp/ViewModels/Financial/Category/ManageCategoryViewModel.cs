@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LifeSyncApp.DTOs.Financial.Category;
+using LifeSyncApp.Models.Financial.Category;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.UserSession;
 

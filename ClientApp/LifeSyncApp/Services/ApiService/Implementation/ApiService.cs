@@ -1,4 +1,4 @@
-﻿using LifeSyncApp.DTOs.Common;
+using LifeSyncApp.Models.Common;
 using LifeSyncApp.Services.ApiService.Interface;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;

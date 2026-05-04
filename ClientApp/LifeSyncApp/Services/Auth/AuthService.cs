@@ -1,5 +1,5 @@
-using LifeSyncApp.DTOs.Auth;
-using LifeSyncApp.DTOs.Common;
+using LifeSyncApp.Models.Auth;
+using LifeSyncApp.Models.Common;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
