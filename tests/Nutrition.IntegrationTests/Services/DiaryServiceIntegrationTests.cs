@@ -1,11 +1,9 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Nutrition.Application.DTOs.Diary;
 using Nutrition.Infrastructure.Persistence.Repositories;
 using Nutrition.Infrastructure.Services;
 using Nutrition.IntegrationTests.Fixtures;
-using Nutrition.IntegrationTests.Helpers;
 
 namespace Nutrition.IntegrationTests.Services
 {

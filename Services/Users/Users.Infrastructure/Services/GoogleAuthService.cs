@@ -1,7 +1,7 @@
-using System.Text.Json;
 using BuildingBlocks.Results;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 using Users.Application.Contracts;
 
 namespace Users.Infrastructure.Services

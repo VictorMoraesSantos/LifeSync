@@ -3,7 +3,6 @@ using Financial.Domain.Errors;
 using Financial.Infrastructure.Persistence.Repositories;
 using Financial.Infrastructure.Services;
 using Financial.IntegrationTests.Fixtures;
-using Financial.IntegrationTests.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 

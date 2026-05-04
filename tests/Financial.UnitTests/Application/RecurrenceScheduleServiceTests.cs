@@ -1,4 +1,3 @@
-using BuildingBlocks.Results;
 using Financial.Application.DTOs.RecurrenceSchedule;
 using Financial.Domain.Entities;
 using Financial.Domain.Enums;
@@ -9,7 +8,6 @@ using Financial.Infrastructure.Services;
 using FinancialControl.Domain.ValueObjects;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 

@@ -1,8 +1,6 @@
 using Financial.Application.DTOs.RecurrenceSchedule;
 using Financial.Application.Mappings;
-using Financial.Domain.Entities;
 using Financial.Domain.Enums;
-using FinancialControl.Domain.ValueObjects;
 using FluentAssertions;
 
 namespace Financial.UnitTests.Application.Mappers

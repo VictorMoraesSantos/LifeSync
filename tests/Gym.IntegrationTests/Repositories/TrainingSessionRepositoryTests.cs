@@ -1,8 +1,8 @@
+using FluentAssertions;
 using Gym.Domain.Entities;
 using Gym.Infrastructure.Persistence.Repositories;
 using Gym.IntegrationTests.Fixtures;
 using Gym.IntegrationTests.Helpers;
-using FluentAssertions;
 
 namespace Gym.IntegrationTests.Repositories
 {

@@ -1,4 +1,3 @@
-using BuildingBlocks.Results;
 using Financial.Application.DTOs.Category;
 using Financial.Domain.Entities;
 using Financial.Domain.Errors;

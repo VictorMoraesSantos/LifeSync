@@ -1,6 +1,4 @@
 using FluentAssertions;
-using Nutrition.Domain.Entities;
-using Nutrition.Domain.Filters;
 using Nutrition.Domain.ValueObjects;
 using Nutrition.Infrastructure.Persistence.Repositories;
 using Nutrition.IntegrationTests.Fixtures;

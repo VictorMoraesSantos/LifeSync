@@ -4,7 +4,6 @@ using Nutrition.Application.DTOs.DailyProgress;
 using Nutrition.Infrastructure.Persistence.Repositories;
 using Nutrition.Infrastructure.Services;
 using Nutrition.IntegrationTests.Fixtures;
-using Nutrition.IntegrationTests.Helpers;
 
 namespace Nutrition.IntegrationTests.Services
 {

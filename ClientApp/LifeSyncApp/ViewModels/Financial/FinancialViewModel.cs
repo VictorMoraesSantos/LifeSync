@@ -5,7 +5,6 @@ using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.UserSession;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Input;
 

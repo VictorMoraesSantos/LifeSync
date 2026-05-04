@@ -5,7 +5,6 @@ using Nutrition.Application.DTOs.Meal;
 using Nutrition.Infrastructure.Persistence.Repositories;
 using Nutrition.Infrastructure.Services;
 using Nutrition.IntegrationTests.Fixtures;
-using Nutrition.IntegrationTests.Helpers;
 
 namespace Nutrition.IntegrationTests.Services
 {

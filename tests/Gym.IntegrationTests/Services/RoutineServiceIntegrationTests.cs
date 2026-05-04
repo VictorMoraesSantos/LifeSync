@@ -1,8 +1,8 @@
+using FluentAssertions;
 using Gym.Application.DTOs.Routine;
 using Gym.Infrastructure.Persistence.Repositories;
 using Gym.Infrastructure.Services;
 using Gym.IntegrationTests.Fixtures;
-using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Gym.IntegrationTests.Services

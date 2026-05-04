@@ -3,7 +3,6 @@ using Financial.Domain.Entities;
 using Financial.Domain.Enums;
 using Financial.Domain.Errors;
 using Financial.UnitTests.Helpers.Builders;
-using FinancialControl.Domain.ValueObjects;
 using FluentAssertions;
 
 namespace Financial.UnitTests.Domain.Entities

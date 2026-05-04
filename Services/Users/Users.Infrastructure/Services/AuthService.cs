@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-using Users.Application.DTOs.Auth;
 using Users.Application.DTOs.User;
 using Users.Application.Interfaces;
 using Users.Application.Mapping;
@@ -58,13 +57,13 @@ namespace Users.Infrastructure.Services
             {
                 var user = await _userManager.FindByEmailAsync(email);
 
-                if(user is null)
+                if (user is null)
                 {
                     var name = new Name(firstname, lastname);
                     var contact = new Contact(email);
                     user = new User(name, contact);
                     var createResult = await _userManager.CreateAsync(user);
-                    if(!createResult.Succeeded)
+                    if (!createResult.Succeeded)
                         return Result<UserDTO>.Failure(Error.Problem(string.Join("; ", createResult.Errors.Select(e => e.Description))));
 
                     await _userManager.AddToRoleAsync(user, "User");

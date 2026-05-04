@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
+using System.Security.Claims;
 using Users.Application.Contracts;
 using Users.Application.DTOs.Auth;
 using Users.Application.Interfaces;

@@ -1,8 +1,6 @@
 using Core.Domain.Exceptions;
 using FluentAssertions;
 using Gym.Domain.Entities;
-using Gym.Domain.Enums;
-using Gym.Domain.ValueObjects;
 using Gym.UnitTests.Helpers.Builders;
 
 namespace Gym.UnitTests.Domain.Entities;

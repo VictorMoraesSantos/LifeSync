@@ -1,7 +1,7 @@
-using System.Windows.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.Profile;
+using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Profile
 {

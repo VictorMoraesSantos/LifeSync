@@ -1,6 +1,6 @@
-using System.Net;
 using Financial.E2ETests.Fixtures;
 using FluentAssertions;
+using System.Net;
 
 namespace Financial.E2ETests.Tests
 {

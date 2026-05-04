@@ -28,11 +28,11 @@ namespace Financial.Domain.Entities
             int? maxOccurrences = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(transactionId);
-            
-            if(endDate.HasValue && endDate.Value <= startDate) 
+
+            if (endDate.HasValue && endDate.Value <= startDate)
                 throw new DomainException(RecurrenceScheduleErrors.EndDateBeforeStartDate);
 
-            if(maxOccurrences.HasValue && maxOccurrences.Value <= 0) 
+            if (maxOccurrences.HasValue && maxOccurrences.Value <= 0)
                 throw new DomainException(RecurrenceScheduleErrors.InvalidMaxOccurrences);
 
             TransactionId = transactionId;
@@ -49,10 +49,10 @@ namespace Financial.Domain.Entities
             DateTime? endDate = null,
             int? maxOccurrences = null)
         {
-            if(endDate.HasValue && endDate.Value <= StartDate) 
+            if (endDate.HasValue && endDate.Value <= StartDate)
                 throw new DomainException(RecurrenceScheduleErrors.EndDateBeforeStartDate);
 
-            if(maxOccurrences.HasValue && maxOccurrences.Value <= 0) 
+            if (maxOccurrences.HasValue && maxOccurrences.Value <= 0)
                 throw new DomainException(RecurrenceScheduleErrors.InvalidMaxOccurrences);
 
             Frequency = frequency;
@@ -66,8 +66,8 @@ namespace Financial.Domain.Entities
         {
             if (!IsActive)
                 throw new DomainException(RecurrenceScheduleErrors.InactiveSchedule);
-            
-            if(!CanGenerateNext())
+
+            if (!CanGenerateNext())
                 throw new DomainException(RecurrenceScheduleErrors.MaxOccurrencesReached);
 
             if (Transaction == null)
@@ -116,8 +116,8 @@ namespace Financial.Domain.Entities
         public bool CanGenerateNext()
         {
             if (!IsActive) return false;
-            if(MaxOccurrences.HasValue && OccurrencesGenerated >= MaxOccurrences.Value) return false;
-            if(EndDate.HasValue && NextOccurrence > EndDate.Value) return false;
+            if (MaxOccurrences.HasValue && OccurrencesGenerated >= MaxOccurrences.Value) return false;
+            if (EndDate.HasValue && NextOccurrence > EndDate.Value) return false;
             return true;
         }
 

@@ -6,7 +6,6 @@ using Financial.Infrastructure.Persistence.Repositories;
 using Financial.Infrastructure.Services;
 using Financial.IntegrationTests.Fixtures;
 using Financial.IntegrationTests.Helpers;
-using FinancialControl.Domain.ValueObjects;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 

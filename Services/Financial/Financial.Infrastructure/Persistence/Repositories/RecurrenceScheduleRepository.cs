@@ -1,11 +1,9 @@
-﻿using BuildingBlocks.CQRS.Requests.Queries;
-using Core.Infrastructure.Persistence.Specifications;
+﻿using Core.Infrastructure.Persistence.Specifications;
 using Financial.Domain.Entities;
 using Financial.Domain.Filters;
 using Financial.Domain.Filters.Specifications;
 using Financial.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Update;
 using System.Linq.Expressions;
 
 namespace Financial.Infrastructure.Persistence.Repositories

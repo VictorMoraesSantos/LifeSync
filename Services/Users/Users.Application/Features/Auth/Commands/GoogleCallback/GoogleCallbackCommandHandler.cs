@@ -1,9 +1,8 @@
-using System.Security.Claims;
 using BuildingBlocks.CQRS.Handlers;
 using BuildingBlocks.Results;
+using System.Security.Claims;
 using Users.Application.Contracts;
 using Users.Application.DTOs.Auth;
-using Users.Application.Features.Auth.Commands.ExternalLogin;
 using Users.Application.Interfaces;
 
 namespace Users.Application.Features.Auth.Commands.GoogleCallback

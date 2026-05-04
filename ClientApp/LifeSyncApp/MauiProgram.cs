@@ -62,12 +62,12 @@ namespace LifeSyncApp
                 });
 
             // Configure a URL base baseado na plataforma
-            var baseUrl = "https://api.lifesync.tech";  // VPS produção
+            //var baseUrl = "https://api.lifesync.tech";  // VPS produção
 
             // Para desenvolvimento local, descomente abaixo e comente a linha acima:
-            // var baseUrl = DeviceInfo.Platform == DevicePlatform.Android && DeviceInfo.DeviceType == DeviceType.Virtual
-            //     ? "http://10.0.2.2:6006"  // Emulador Android
-            //     : "http://192.168.0.36:6006";  // Dispositivo físico
+            var baseUrl = DeviceInfo.Platform == DevicePlatform.Android && DeviceInfo.DeviceType == DeviceType.Virtual
+                ? "http://10.0.2.2:6006"  // Emulador Android
+                : "http://192.168.0.36:6006";  // Dispositivo físico
 
             // Auth DelegatingHandler - adds JWT token to every request
             builder.Services.AddTransient<AuthDelegatingHandler>();

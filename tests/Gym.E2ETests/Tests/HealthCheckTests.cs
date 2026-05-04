@@ -1,6 +1,6 @@
-using System.Net;
-using Gym.E2ETests.Fixtures;
 using FluentAssertions;
+using Gym.E2ETests.Fixtures;
+using System.Net;
 
 namespace Gym.E2ETests.Tests
 {

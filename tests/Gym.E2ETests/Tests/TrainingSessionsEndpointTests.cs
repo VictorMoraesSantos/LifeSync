@@ -1,8 +1,7 @@
-using System.Net;
-using Gym.Domain.Enums;
+using FluentAssertions;
 using Gym.E2ETests.Fixtures;
 using Gym.E2ETests.Helpers;
-using FluentAssertions;
+using System.Net;
 
 namespace Gym.E2ETests.Tests
 {

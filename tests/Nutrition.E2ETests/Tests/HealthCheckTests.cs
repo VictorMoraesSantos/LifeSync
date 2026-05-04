@@ -1,6 +1,6 @@
-using System.Net;
 using FluentAssertions;
 using Nutrition.E2ETests.Fixtures;
+using System.Net;
 
 namespace Nutrition.E2ETests.Tests
 {

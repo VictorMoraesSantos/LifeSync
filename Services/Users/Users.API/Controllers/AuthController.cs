@@ -3,17 +3,17 @@ using BuildingBlocks.Results;
 using Core.API.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Users.Application.DTOs.Auth;
 using Users.Application.Features.Auth.Commands.ChangePassword;
+using Users.Application.Features.Auth.Commands.ExternalLogin;
 using Users.Application.Features.Auth.Commands.ForgotPassword;
 using Users.Application.Features.Auth.Commands.GoogleCallback;
 using Users.Application.Features.Auth.Commands.Login;
 using Users.Application.Features.Auth.Commands.Logout;
 using Users.Application.Features.Auth.Commands.ResetPassword;
 using Users.Application.Features.Auth.Commands.SendEmailConfirmation;
-using Users.Application.Features.Auth.Commands.ExternalLogin;
-using Users.Application.Features.Auth.Queries.GetGoogleLoginUrl;
-using Users.Application.DTOs.Auth;
 using Users.Application.Features.Auth.Commands.SignUp;
+using Users.Application.Features.Auth.Queries.GetGoogleLoginUrl;
 
 namespace Users.API.Controllers
 {
