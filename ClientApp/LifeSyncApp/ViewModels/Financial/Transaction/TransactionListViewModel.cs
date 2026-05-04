@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Helpers;
@@ -5,12 +7,11 @@ using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
     [QueryProperty(nameof(Filter), "Filter")]
-    public class TransactionListViewModel : BaseViewModel
+    public partial class TransactionListViewModel : BaseViewModel
     {
         private readonly ITransactionService _transactionService;
         private readonly IUserSession _userSession;
@@ -18,13 +19,9 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
         private bool _filterSetFromNavigation = false;
         private DateTime? _lastTransactionsRefresh;
         private TransactionFilterDTO? _cachedFilter;
-        private bool _isLoadingData;
 
-        public bool IsLoadingData
-        {
-            get => _isLoadingData;
-            private set => SetProperty(ref _isLoadingData, value);
-        }
+        [ObservableProperty]
+        private bool _isLoadingData;
 
         public ObservableCollection<TransactionGroup> GroupedTransactions { get; } = new();
 
@@ -42,23 +39,11 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             }
         }
 
-        public ICommand GoBackCommand { get; }
-        public ICommand OpenManageTransactionModalCommand { get; }
-        public ICommand RefreshCommand { get; }
-        public ICommand OpenDetailCommand { get; }
-        public ICommand OpenFilterCommand { get; }
-
         public TransactionListViewModel(ITransactionService transactionService, IUserSession userSession)
         {
             _transactionService = transactionService;
             _userSession = userSession;
             Title = "Transações";
-
-            GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
-            OpenManageTransactionModalCommand = new Command(async () => await OpenManageTransactionModalAsync());
-            RefreshCommand = new Command(async () => await LoadTransactionsAsync(forceRefresh: true));
-            OpenDetailCommand = new Command<TransactionDTO>(async (transaction) => await OpenDetailAsync(transaction));
-            OpenFilterCommand = new Command(async () => await OpenFilterAsync());
         }
 
         public async Task InitializeAsync()
@@ -130,11 +115,25 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             }
         }
 
+        [RelayCommand]
+        private async Task GoBackAsync()
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+
+        [RelayCommand]
         private async Task OpenManageTransactionModalAsync()
         {
             await Shell.Current.GoToAsync(AppRoutes.ManageTransactionModal);
         }
 
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            await LoadTransactionsAsync(forceRefresh: true);
+        }
+
+        [RelayCommand]
         private async Task OpenDetailAsync(TransactionDTO? transaction)
         {
             if (transaction == null) return;
@@ -145,6 +144,7 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             });
         }
 
+        [RelayCommand]
         private async Task OpenFilterAsync()
         {
             await Shell.Current.GoToAsync(AppRoutes.FilterTransactionModal, new Dictionary<string, object>

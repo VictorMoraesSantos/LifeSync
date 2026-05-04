@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.DailyProgress;
 using LifeSyncApp.DTOs.Nutrition.Diary;
@@ -7,11 +9,10 @@ using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.UserSession;
 using System.Globalization;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class NutritionViewModel : BaseViewModel
+    public partial class NutritionViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
         private readonly IUserSession _userSession;
@@ -19,37 +20,52 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         private Task? _loadingTask;
         private DateTime? _lastDataRefresh;
-        private DateOnly _selectedDate;
 
+        [ObservableProperty]
         private bool _isLoadingData;
-        public bool IsLoadingData
-        {
-            get => _isLoadingData;
-            private set => SetProperty(ref _isLoadingData, value);
-        }
 
+        [ObservableProperty]
         private DiaryDTO? _todayDiary;
+
+        [ObservableProperty]
         private DailyProgressDTO? _dailyProgress;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CaloriesPercentage))]
+        [NotifyPropertyChangedFor(nameof(CaloriesProgressValue))]
+        [NotifyPropertyChangedFor(nameof(CaloriesDisplay))]
         private int _caloriesConsumed;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CaloriesPercentage))]
+        [NotifyPropertyChangedFor(nameof(CaloriesProgressValue))]
+        [NotifyPropertyChangedFor(nameof(CaloriesDisplay))]
+        [NotifyPropertyChangedFor(nameof(CaloriesGoalDisplay))]
         private int _caloriesGoal = 2000;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LiquidsPercentage))]
+        [NotifyPropertyChangedFor(nameof(LiquidsProgressValue))]
+        [NotifyPropertyChangedFor(nameof(LiquidsDisplay))]
         private int _liquidsConsumedMl;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LiquidsPercentage))]
+        [NotifyPropertyChangedFor(nameof(LiquidsProgressValue))]
+        [NotifyPropertyChangedFor(nameof(LiquidsDisplay))]
+        [NotifyPropertyChangedFor(nameof(LiquidsGoalDisplay))]
         private int _liquidsGoalMl = 2500;
+
+        [ObservableProperty]
         private string _dateLabel = string.Empty;
+
+        [ObservableProperty]
         private int _mealsCount;
+
+        [ObservableProperty]
         private int _liquidsCount;
 
-        public DiaryDTO? TodayDiary
-        {
-            get => _todayDiary;
-            set => SetProperty(ref _todayDiary, value);
-        }
-
-        public DailyProgressDTO? DailyProgress
-        {
-            get => _dailyProgress;
-            set => SetProperty(ref _dailyProgress, value);
-        }
-
+        private DateOnly _selectedDate;
         public DateOnly SelectedDate
         {
             get => _selectedDate;
@@ -60,37 +76,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     UpdateDateLabel();
                     _ = LoadDataAsync(forceRefresh: true);
                 }
-            }
-        }
-
-        public string DateLabel
-        {
-            get => _dateLabel;
-            set => SetProperty(ref _dateLabel, value);
-        }
-
-        public int CaloriesConsumed
-        {
-            get => _caloriesConsumed;
-            set
-            {
-                SetProperty(ref _caloriesConsumed, value);
-                OnPropertyChanged(nameof(CaloriesPercentage));
-                OnPropertyChanged(nameof(CaloriesProgressValue));
-                OnPropertyChanged(nameof(CaloriesDisplay));
-            }
-        }
-
-        public int CaloriesGoal
-        {
-            get => _caloriesGoal;
-            set
-            {
-                SetProperty(ref _caloriesGoal, value);
-                OnPropertyChanged(nameof(CaloriesPercentage));
-                OnPropertyChanged(nameof(CaloriesProgressValue));
-                OnPropertyChanged(nameof(CaloriesDisplay));
-                OnPropertyChanged(nameof(CaloriesGoalDisplay));
             }
         }
 
@@ -105,31 +90,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public string CaloriesDisplay => $"{CaloriesConsumed:N0}";
         public string CaloriesGoalDisplay => $"de {CaloriesGoal:N0} kcal";
 
-        public int LiquidsConsumedMl
-        {
-            get => _liquidsConsumedMl;
-            set
-            {
-                SetProperty(ref _liquidsConsumedMl, value);
-                OnPropertyChanged(nameof(LiquidsPercentage));
-                OnPropertyChanged(nameof(LiquidsProgressValue));
-                OnPropertyChanged(nameof(LiquidsDisplay));
-            }
-        }
-
-        public int LiquidsGoalMl
-        {
-            get => _liquidsGoalMl;
-            set
-            {
-                SetProperty(ref _liquidsGoalMl, value);
-                OnPropertyChanged(nameof(LiquidsPercentage));
-                OnPropertyChanged(nameof(LiquidsProgressValue));
-                OnPropertyChanged(nameof(LiquidsDisplay));
-                OnPropertyChanged(nameof(LiquidsGoalDisplay));
-            }
-        }
-
         public int LiquidsPercentage => LiquidsGoalMl > 0
             ? Math.Min((int)Math.Round(LiquidsConsumedMl * 100.0 / LiquidsGoalMl), 100)
             : 0;
@@ -141,46 +101,21 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public string LiquidsDisplay => $"{LiquidsConsumedMl:N0}";
         public string LiquidsGoalDisplay => $"de {LiquidsGoalMl:N0} ml";
 
-        public int MealsCount
-        {
-            get => _mealsCount;
-            set => SetProperty(ref _mealsCount, value);
-        }
-
-        public int LiquidsCount
-        {
-            get => _liquidsCount;
-            set => SetProperty(ref _liquidsCount, value);
-        }
-
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalProteinDisplay))]
         private decimal _totalProtein;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalCarbsDisplay))]
         private decimal _totalCarbs;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalLipidsDisplay))]
         private decimal _totalLipids;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TotalSodiumDisplay))]
         private decimal _totalSodium;
-
-        public decimal TotalProtein
-        {
-            get => _totalProtein;
-            set => SetProperty(ref _totalProtein, value);
-        }
-
-        public decimal TotalCarbs
-        {
-            get => _totalCarbs;
-            set => SetProperty(ref _totalCarbs, value);
-        }
-
-        public decimal TotalLipids
-        {
-            get => _totalLipids;
-            set => SetProperty(ref _totalLipids, value);
-        }
-
-        public decimal TotalSodium
-        {
-            get => _totalSodium;
-            set => SetProperty(ref _totalSodium, value);
-        }
 
         public string TotalProteinDisplay => $"{TotalProtein:0.##}g";
         public string TotalCarbsDisplay => $"{TotalCarbs:0.##}g";
@@ -190,19 +125,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public SafeObservableCollection<MealDTO> Meals { get; } = new();
         public SafeObservableCollection<LiquidDTO> Liquids { get; } = new();
 
-        public ICommand LoadDataCommand { get; }
-        public ICommand RefreshCommand { get; }
-        public ICommand PreviousDayCommand { get; }
-        public ICommand NextDayCommand { get; }
-        public ICommand OpenManageMealModalCommand { get; }
-        public ICommand OpenManageLiquidModalCommand { get; }
-        public ICommand OpenMealDetailCommand { get; }
-        public ICommand OpenDiaryDetailCommand { get; }
-        public ICommand OpenDailyProgressCommand { get; }
-        public ICommand OpenDiaryHistoryCommand { get; }
-        public ICommand EditLiquidCommand { get; }
-        public ICommand DeleteLiquidCommand { get; }
-
         public NutritionViewModel(INutritionService nutritionService, IUserSession userSession)
         {
             _nutritionService = nutritionService;
@@ -210,19 +132,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
             Title = "Nutrição";
             _selectedDate = DateOnly.FromDateTime(DateTime.Today);
             UpdateDateLabel();
-
-            LoadDataCommand = new Command(async () => await LoadDataAsync());
-            RefreshCommand = new Command(async () => await LoadDataAsync(forceRefresh: true));
-            PreviousDayCommand = new Command(() => SelectedDate = SelectedDate.AddDays(-1));
-            NextDayCommand = new Command(() => SelectedDate = SelectedDate.AddDays(1));
-            OpenManageMealModalCommand = new Command(async () => await OpenManageMealModalAsync());
-            OpenManageLiquidModalCommand = new Command(async () => await OpenManageLiquidModalAsync());
-            OpenMealDetailCommand = new Command<MealDTO>(async (m) => await OpenMealDetailAsync(m));
-            OpenDiaryDetailCommand = new Command(async () => await OpenDiaryDetailAsync());
-            OpenDailyProgressCommand = new Command(async () => await OpenDailyProgressAsync());
-            OpenDiaryHistoryCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.DiaryHistoryPage));
-            EditLiquidCommand = new Command<LiquidDTO>(async (l) => await EditLiquidAsync(l));
-            DeleteLiquidCommand = new Command<LiquidDTO>(async (l) => await DeleteLiquidAsync(l));
         }
 
         private void UpdateDateLabel()
@@ -263,7 +172,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
                 var date = _selectedDate;
 
-                // Fetch diaries and progresses in parallel (off main thread for deserialization)
                 var diariesTask = _nutritionService.GetDiariesByUserIdAsync(_userSession.UserId);
                 var progressTask = _nutritionService.GetDailyProgressByUserIdAsync(_userSession.UserId);
                 await Task.WhenAll(diariesTask, progressTask).ConfigureAwait(false);
@@ -272,7 +180,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 var todayDiary = allDiaries.FirstOrDefault(d => d.Date == date);
                 var todayProgress = progressTask.Result.FirstOrDefault(p => p.Date == date);
 
-                // Load meals and liquids in parallel if diary exists
                 List<MealDTO> meals = [];
                 List<LiquidDTO> liquids = [];
 
@@ -285,7 +192,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     liquids = liquidsTask.Result;
                 }
 
-                // Update UI on main thread in a single batch
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     TodayDiary = todayDiary;
@@ -309,17 +215,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
                     LiquidsConsumedMl = liquids.Sum(l => l.Quantity);
                     LiquidsCount = liquids.Count;
 
-                    // Calculate macronutrients from all meal foods
-                    // Protein, Lipids, Carbohydrates are in grams per 100g; Sodium is in mg per 100g
                     var allFoods = meals.SelectMany(m => m.MealFoods).ToList();
                     TotalProtein = allFoods.Sum(f => (f.Protein ?? 0) * f.Quantity / 100m);
                     TotalCarbs = allFoods.Sum(f => (f.Carbohydrates ?? 0) * f.Quantity / 100m);
                     TotalLipids = allFoods.Sum(f => (f.Lipids ?? 0) * f.Quantity / 100m);
                     TotalSodium = allFoods.Sum(f => (f.Sodium ?? 0) * f.Quantity / 100m);
-                    OnPropertyChanged(nameof(TotalProteinDisplay));
-                    OnPropertyChanged(nameof(TotalCarbsDisplay));
-                    OnPropertyChanged(nameof(TotalLipidsDisplay));
-                    OnPropertyChanged(nameof(TotalSodiumDisplay));
 
                     IsLoadingData = false;
                     IsBusy = false;
@@ -345,6 +245,14 @@ namespace LifeSyncApp.ViewModels.Nutrition
             _nutritionService.InvalidateAllCache();
         }
 
+        [RelayCommand]
+        private async Task RefreshAsync() => await LoadDataAsync(forceRefresh: true);
+
+        [RelayCommand]
+        private void PreviousDay() => SelectedDate = SelectedDate.AddDays(-1);
+
+        [RelayCommand]
+        private void NextDay() => SelectedDate = SelectedDate.AddDays(1);
 
         private async Task EnsureDiaryExistsAsync()
         {
@@ -352,16 +260,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             var date = _selectedDate;
 
-            // First, try to get just the diary for this date (lightweight call)
             var diary = await _nutritionService.GetDiaryByDateAsync(_userSession.UserId, date);
-
             if (diary != null)
             {
                 TodayDiary = diary;
                 return;
             }
 
-            // Diary doesn't exist, create it directly
             var dto = new CreateDiaryDTO(_userSession.UserId, date);
             var (diaryId, error) = await _nutritionService.CreateDiaryAsync(dto);
 
@@ -369,7 +274,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
             {
                 if (error != null && error.Contains("Já existe"))
                 {
-                    // Race condition: diary was created by another request, fetch it
                     diary = await _nutritionService.GetDiaryByDateAsync(_userSession.UserId, date);
                     if (diary != null)
                     {
@@ -381,7 +285,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 return;
             }
 
-            // Create succeeded - set the diary locally without full refresh
             TodayDiary = new DiaryDTO(
                 diaryId.Value,
                 _userSession.UserId,
@@ -394,6 +297,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             );
         }
 
+        [RelayCommand]
         private async Task OpenManageMealModalAsync()
         {
             await EnsureDiaryExistsAsync();
@@ -405,6 +309,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             });
         }
 
+        [RelayCommand]
         private async Task OpenManageLiquidModalAsync()
         {
             await EnsureDiaryExistsAsync();
@@ -416,6 +321,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             });
         }
 
+        [RelayCommand]
         private async Task OpenMealDetailAsync(MealDTO? meal)
         {
             if (meal == null) return;
@@ -425,6 +331,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             });
         }
 
+        [RelayCommand]
         private async Task OpenDiaryDetailAsync()
         {
             if (TodayDiary == null) return;
@@ -434,6 +341,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             });
         }
 
+        [RelayCommand]
         private async Task OpenDailyProgressAsync()
         {
             try
@@ -481,6 +389,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
+        private async Task OpenDiaryHistoryAsync()
+        {
+            await Shell.Current.GoToAsync(AppRoutes.DiaryHistoryPage);
+        }
+
+        [RelayCommand]
         private async Task EditLiquidAsync(LiquidDTO? liquid)
         {
             if (liquid == null || TodayDiary == null) return;
@@ -492,6 +407,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             });
         }
 
+        [RelayCommand]
         private async Task DeleteLiquidAsync(LiquidDTO? liquid)
         {
             if (liquid == null) return;

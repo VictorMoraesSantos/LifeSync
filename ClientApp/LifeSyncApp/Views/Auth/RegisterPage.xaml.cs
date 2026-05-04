@@ -15,9 +15,9 @@ public partial class RegisterPage : ContentPage
         BindingContext = viewModel;
     }
 
-    private async void OnRegisterClicked(object sender, EventArgs e)
+    private void OnRegisterClicked(object sender, EventArgs e)
     {
-        await _viewModel.RegisterAsync();
+        _viewModel.RegisterCommand.Execute(null);
     }
 
     private void OnTogglePasswordTapped(object sender, TappedEventArgs e)
@@ -34,13 +34,13 @@ public partial class RegisterPage : ContentPage
         ConfirmPasswordEyeIcon.Source = _isConfirmPasswordVisible ? "eye_off.png" : "eye_on.png";
     }
 
-    private async void OnBackTapped(object sender, TappedEventArgs e)
+    private void OnBackTapped(object sender, TappedEventArgs e)
     {
-        await _viewModel.GoToLoginAsync();
+        _viewModel.GoToLoginCommand.Execute(null);
     }
 
-    private async void OnLoginTapped(object sender, TappedEventArgs e)
+    private void OnLoginTapped(object sender, TappedEventArgs e)
     {
-        await _viewModel.GoToLoginAsync();
+        _viewModel.GoToLoginCommand.Execute(null);
     }
 }

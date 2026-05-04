@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.DTOs.Financial.Transaction;
@@ -6,101 +8,52 @@ using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.UserSession;
 using System.Globalization;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial
 {
-    public class FinancialViewModel : BaseViewModel
+    public partial class FinancialViewModel : BaseViewModel
     {
         private readonly ITransactionService _transactionService;
         private readonly ICategoryService _categoryService;
         private readonly IUserSession _userSession;
 
+        [ObservableProperty]
         private bool _isLoadingData;
-        public bool IsLoadingData
-        {
-            get => _isLoadingData;
-            private set => SetProperty(ref _isLoadingData, value);
-        }
+
         private DateTime? _lastDataRefresh;
 
+        [ObservableProperty]
         private string _currentMonthLabel = string.Empty;
-        public string CurrentMonthLabel
-        {
-            get => _currentMonthLabel;
-            set => SetProperty(ref _currentMonthLabel, value);
-        }
 
+        [ObservableProperty]
         private decimal _balance;
+
+        [ObservableProperty]
         private decimal _totalIncome;
+
+        [ObservableProperty]
         private decimal _totalExpense;
+
+        [ObservableProperty]
         private int _transactionCount;
+
+        [ObservableProperty]
         private int _incomeCount;
+
+        [ObservableProperty]
         private int _expenseCount;
+
+        [ObservableProperty]
         private decimal _highestIncome;
+
+        [ObservableProperty]
         private decimal _highestExpense;
+
+        [ObservableProperty]
         private TransactionDTO? _highestIncomeTransaction;
+
+        [ObservableProperty]
         private TransactionDTO? _highestExpenseTransaction;
-
-        public decimal Balance
-        {
-            get => _balance;
-            set => SetProperty(ref _balance, value);
-        }
-
-        public decimal TotalIncome
-        {
-            get => _totalIncome;
-            set => SetProperty(ref _totalIncome, value);
-        }
-
-        public decimal TotalExpense
-        {
-            get => _totalExpense;
-            set => SetProperty(ref _totalExpense, value);
-        }
-
-        public int TransactionCount
-        {
-            get => _transactionCount;
-            set => SetProperty(ref _transactionCount, value);
-        }
-
-        public int IncomeCount
-        {
-            get => _incomeCount;
-            set => SetProperty(ref _incomeCount, value);
-        }
-
-        public int ExpenseCount
-        {
-            get => _expenseCount;
-            set => SetProperty(ref _expenseCount, value);
-        }
-
-        public decimal HighestIncome
-        {
-            get => _highestIncome;
-            set => SetProperty(ref _highestIncome, value);
-        }
-
-        public decimal HighestExpense
-        {
-            get => _highestExpense;
-            set => SetProperty(ref _highestExpense, value);
-        }
-
-        public TransactionDTO? HighestIncomeTransaction
-        {
-            get => _highestIncomeTransaction;
-            private set => SetProperty(ref _highestIncomeTransaction, value);
-        }
-
-        public TransactionDTO? HighestExpenseTransaction
-        {
-            get => _highestExpenseTransaction;
-            private set => SetProperty(ref _highestExpenseTransaction, value);
-        }
 
         public SafeObservableCollection<TransactionDTO> RecentTransactions { get; } = new();
         public SafeObservableCollection<CategoryExpense> TopCategories { get; } = new();
@@ -112,32 +65,12 @@ namespace LifeSyncApp.ViewModels.Financial
         public bool HasTopCategories => TopCategories.Count > 0;
         public bool HasNoTopCategories => TopCategories.Count == 0;
 
-        public ICommand LoadDataCommand { get; }
-        public ICommand OpenManageTransactionModalCommand { get; }
-        public ICommand OpenDetailCommand { get; }
-        public ICommand GoToCategoriesCommand { get; }
-        public ICommand ViewAllTransactionsCommand { get; }
-        public ICommand RefreshCommand { get; }
-        public ICommand OpenCategoryTransactionsCommand { get; }
-        public ICommand OpenHighestIncomeDetailCommand { get; }
-        public ICommand OpenHighestExpenseDetailCommand { get; }
-
         public FinancialViewModel(ITransactionService transactionService, ICategoryService categoryService, IUserSession userSession)
         {
             _transactionService = transactionService;
             _categoryService = categoryService;
             _userSession = userSession;
             Title = "Financeiro";
-
-            LoadDataCommand = new Command(async () => await LoadDataAsync());
-            OpenManageTransactionModalCommand = new Command(async () => await OpenManageTransactionModalAsync());
-            OpenDetailCommand = new Command<TransactionDTO>(async (t) => await OpenDetailAsync(t));
-            GoToCategoriesCommand = new Command(async () => await GoToCategoriesAsync());
-            ViewAllTransactionsCommand = new Command(async () => await ViewAllTransactionsAsync());
-            RefreshCommand = new Command(async () => await LoadDataAsync(forceRefresh: true));
-            OpenCategoryTransactionsCommand = new Command<CategoryExpense>(async (cat) => await OpenCategoryTransactionsAsync(cat));
-            OpenHighestIncomeDetailCommand = new Command(async () => await OpenHighestIncomeDetailAsync());
-            OpenHighestExpenseDetailCommand = new Command(async () => await OpenHighestExpenseDetailAsync());
         }
 
         public async Task InitializeAsync()
@@ -145,7 +78,8 @@ namespace LifeSyncApp.ViewModels.Financial
             await LoadDataAsync();
         }
 
-        public async Task LoadDataAsync(bool forceRefresh = false)
+        [RelayCommand]
+        private async Task LoadDataAsync(bool forceRefresh = false)
         {
             if (!forceRefresh && !IsCacheExpired(_lastDataRefresh) && RecentTransactions.Any()) return;
 
@@ -156,7 +90,6 @@ namespace LifeSyncApp.ViewModels.Financial
                 IsLoadingData = true;
                 IsBusy = true;
 
-                // Fetch categories and transactions in parallel, off the main thread
                 var categoriesTask = _categoryService.GetCategoriesByUserIdAsync(_userSession.UserId);
 
                 var now = DateTime.Now;
@@ -173,7 +106,6 @@ namespace LifeSyncApp.ViewModels.Financial
                 var categories = categoriesTask.Result;
                 var transactions = transactionsTask.Result;
 
-                // Calculate statistics off main thread
                 var incomes = transactions.Where(t => t.TransactionType == TransactionType.Income).ToList();
                 var expenses = transactions.Where(t => t.TransactionType == TransactionType.Expense).ToList();
 
@@ -190,11 +122,6 @@ namespace LifeSyncApp.ViewModels.Financial
 
                 var recentTransactions = transactions.OrderByDescending(t => t.TransactionDate).Take(5).ToList();
 
-                System.Diagnostics.Debug.WriteLine($"[FinancialVM] Total transactions: {transactions.Count}, Expenses: {expenses.Count}");
-                System.Diagnostics.Debug.WriteLine($"[FinancialVM] Expenses with Category != null: {expenses.Count(t => t.Category != null)}");
-                foreach (var exp in expenses.Take(3))
-                    System.Diagnostics.Debug.WriteLine($"[FinancialVM] Expense sample: Id={exp.Id}, Category={exp.Category?.Name ?? "NULL"}, Amount={exp.Amount?.ToDecimal()}");
-
                 var topCategories = expenses
                     .Where(t => t.Category != null)
                     .GroupBy(t => t.Category!.Id)
@@ -209,11 +136,6 @@ namespace LifeSyncApp.ViewModels.Financial
                     .Take(5)
                     .ToList();
 
-                System.Diagnostics.Debug.WriteLine($"[FinancialVM] TopCategories count: {topCategories.Count}");
-                foreach (var cat in topCategories)
-                    System.Diagnostics.Debug.WriteLine($"[FinancialVM] TopCategory: {cat.CategoryName} = R${cat.Amount:N2} ({cat.Percentage:F1}%)");
-
-                // Batch all UI updates on main thread
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     Categories.ReplaceAll(categories);
@@ -233,7 +155,6 @@ namespace LifeSyncApp.ViewModels.Financial
                     OnPropertyChanged(nameof(HasNoRecentTransactions));
                     OnPropertyChanged(nameof(HasTopCategories));
                     OnPropertyChanged(nameof(HasNoTopCategories));
-                    System.Diagnostics.Debug.WriteLine($"[FinancialVM] UI updated - TopCategories.Count: {TopCategories.Count}, HasTopCategories: {HasTopCategories}");
                     IsBusy = false;
                 });
 
@@ -241,9 +162,7 @@ namespace LifeSyncApp.ViewModels.Financial
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[FinancialVM] {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
-                if (ex.InnerException != null)
-                    System.Diagnostics.Debug.WriteLine($"[FinancialVM] Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
+                System.Diagnostics.Debug.WriteLine($"[FinancialVM] {ex.GetType().Name}: {ex.Message}");
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     IsBusy = false;
@@ -261,42 +180,13 @@ namespace LifeSyncApp.ViewModels.Financial
             _lastDataRefresh = null;
         }
 
-        private void CalculateStatistics(List<TransactionDTO> transactions)
+        [RelayCommand]
+        private async Task RefreshAsync()
         {
-            var incomes = transactions.Where(t => t.TransactionType == TransactionType.Income).ToList();
-            var expenses = transactions.Where(t => t.TransactionType == TransactionType.Expense).ToList();
-
-            TotalIncome = incomes.Sum(t => t.Amount?.ToDecimal() ?? 0m);
-            TotalExpense = expenses.Sum(t => t.Amount?.ToDecimal() ?? 0m);
-            Balance = TotalIncome - TotalExpense;
-
-            TransactionCount = transactions.Count;
-            IncomeCount = incomes.Count;
-            ExpenseCount = expenses.Count;
-
-            HighestIncome = incomes.Any() ? incomes.Max(t => t.Amount?.ToDecimal() ?? 0m) : 0;
-            HighestExpense = expenses.Any() ? expenses.Max(t => t.Amount?.ToDecimal() ?? 0m) : 0;
+            await LoadDataAsync(forceRefresh: true);
         }
 
-        private void CalculateTopCategories(List<TransactionDTO> transactions)
-        {
-            var expenses = transactions.Where(t => t.TransactionType == TransactionType.Expense && t.Category != null);
-            var totalExpenses = TotalExpense;
-            var categoryGroups = expenses
-                .GroupBy(t => t.Category!.Id)
-                .Select(g => new CategoryExpense
-                {
-                    CategoryId = g.Key,
-                    CategoryName = g.First().Category!.Name,
-                    Amount = g.Sum(t => t.Amount?.ToDecimal() ?? 0m),
-                    Percentage = totalExpenses > 0 ? (double)((g.Sum(t => t.Amount?.ToDecimal() ?? 0m) / totalExpenses) * 100) : 0
-                })
-                .OrderByDescending(c => c.Amount)
-                .Take(5);
-
-            TopCategories.ReplaceAll(categoryGroups);
-        }
-
+        [RelayCommand]
         private async Task OpenManageTransactionModalAsync()
         {
             try
@@ -309,6 +199,18 @@ namespace LifeSyncApp.ViewModels.Financial
             }
         }
 
+        [RelayCommand]
+        private async Task OpenDetailAsync(TransactionDTO? transaction)
+        {
+            if (transaction == null) return;
+
+            await Shell.Current.GoToAsync(AppRoutes.TransactionDetailModal, new Dictionary<string, object>
+            {
+                { "Transaction", transaction }
+            });
+        }
+
+        [RelayCommand]
         private async Task GoToCategoriesAsync()
         {
             try
@@ -321,21 +223,13 @@ namespace LifeSyncApp.ViewModels.Financial
             }
         }
 
+        [RelayCommand]
         private async Task ViewAllTransactionsAsync()
         {
             await Shell.Current.GoToAsync(AppRoutes.TransactionListPage);
         }
 
-        private async Task OpenDetailAsync(TransactionDTO? transaction)
-        {
-            if (transaction == null) return;
-
-            await Shell.Current.GoToAsync(AppRoutes.TransactionDetailModal, new Dictionary<string, object>
-            {
-                { "Transaction", transaction }
-            });
-        }
-
+        [RelayCommand]
         private async Task OpenCategoryTransactionsAsync(CategoryExpense? category)
         {
             if (category == null) return;
@@ -358,12 +252,14 @@ namespace LifeSyncApp.ViewModels.Financial
             });
         }
 
+        [RelayCommand]
         private async Task OpenHighestIncomeDetailAsync()
         {
             if (HighestIncomeTransaction == null) return;
             await OpenDetailAsync(HighestIncomeTransaction);
         }
 
+        [RelayCommand]
         private async Task OpenHighestExpenseDetailAsync()
         {
             if (HighestExpenseTransaction == null) return;

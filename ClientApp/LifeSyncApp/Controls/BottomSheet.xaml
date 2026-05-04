@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeSyncApp.Controls.BottomSheet"
+             VerticalOptions="Fill"
+             HorizontalOptions="Fill">
+
+    <Border x:Name="SheetBorder"
+            VerticalOptions="End"
+            HorizontalOptions="Fill"
+            BackgroundColor="{StaticResource FinCardBg}"
+            StrokeThickness="0"
+            StrokeShape="RoundRectangle 24,24,0,0">
+        <Border.Shadow>
+            <Shadow Brush="#1A1918" Offset="0,-4" Radius="24" Opacity="0.08"/>
+        </Border.Shadow>
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer/>
+        </Border.GestureRecognizers>
+
+        <VerticalStackLayout Spacing="0">
+
+            <!-- Drag Handle -->
+            <HorizontalStackLayout HorizontalOptions="Center" Padding="0,12,0,4">
+                <BoxView WidthRequest="40" HeightRequest="4" CornerRadius="100" Color="#D1D0CD"/>
+            </HorizontalStackLayout>
+
+            <!-- Header -->
+            <Grid x:Name="HeaderGrid" ColumnDefinitions="*,Auto" Padding="20,16">
+                <Label x:Name="TitleLabel"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="18"
+                       TextColor="#1A1918"
+                       VerticalOptions="Center"/>
+                <Border x:Name="CloseButton"
+                        Grid.Column="1"
+                        StrokeThickness="0"
+                        BackgroundColor="Transparent"
+                        Padding="8"
+                        HeightRequest="36"
+                        WidthRequest="36">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="CloseTap"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="✕"
+                           FontSize="18"
+                           TextColor="#1A1918"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Border>
+            </Grid>
+
+            <!-- Content Placeholder -->
+            <ContentView x:Name="SheetContent"/>
+
+        </VerticalStackLayout>
+    </Border>
+
+</ContentView>

@@ -1,10 +1,12 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Auth;
 using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.UserSession;
 
 namespace LifeSyncApp.ViewModels.Auth
 {
-    public class RegisterViewModel : BaseViewModel
+    public partial class RegisterViewModel : BaseViewModel
     {
         private readonly IAuthService _authService;
         private readonly IUserSession _userSession;
@@ -16,56 +18,29 @@ namespace LifeSyncApp.ViewModels.Auth
             Title = "Criar Conta";
         }
 
+        [ObservableProperty]
         private string _firstName = string.Empty;
-        public string FirstName
-        {
-            get => _firstName;
-            set => SetProperty(ref _firstName, value);
-        }
 
+        [ObservableProperty]
         private string _lastName = string.Empty;
-        public string LastName
-        {
-            get => _lastName;
-            set => SetProperty(ref _lastName, value);
-        }
 
+        [ObservableProperty]
         private string _email = string.Empty;
-        public string Email
-        {
-            get => _email;
-            set => SetProperty(ref _email, value);
-        }
 
+        [ObservableProperty]
         private string _password = string.Empty;
-        public string Password
-        {
-            get => _password;
-            set => SetProperty(ref _password, value);
-        }
 
+        [ObservableProperty]
         private string _confirmPassword = string.Empty;
-        public string ConfirmPassword
-        {
-            get => _confirmPassword;
-            set => SetProperty(ref _confirmPassword, value);
-        }
 
+        [ObservableProperty]
         private string _errorMessage = string.Empty;
-        public string ErrorMessage
-        {
-            get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
-        }
 
+        [ObservableProperty]
         private bool _hasError;
-        public bool HasError
-        {
-            get => _hasError;
-            set => SetProperty(ref _hasError, value);
-        }
 
-        public async Task RegisterAsync()
+        [RelayCommand]
+        private async Task RegisterAsync()
         {
             if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName) ||
                 string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
@@ -119,7 +94,8 @@ namespace LifeSyncApp.ViewModels.Auth
             }
         }
 
-        public async Task GoToLoginAsync()
+        [RelayCommand]
+        private async Task GoToLoginAsync()
         {
             await Shell.Current.GoToAsync("//LoginPage");
         }

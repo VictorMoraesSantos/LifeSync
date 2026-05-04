@@ -1,25 +1,18 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Nutrition.Diary;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.UserSession;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class CreateDiaryViewModel : BaseViewModel
+    public partial class CreateDiaryViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
         private readonly IUserSession _userSession;
 
+        [ObservableProperty]
         private DateTime _selectedDate = DateTime.Today;
-
-        public DateTime SelectedDate
-        {
-            get => _selectedDate;
-            set => SetProperty(ref _selectedDate, value);
-        }
-
-        public ICommand CreateCommand { get; }
-        public ICommand CancelCommand { get; }
 
         public event EventHandler? OnCreated;
         public event EventHandler? OnCancelled;
@@ -29,9 +22,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
             _nutritionService = nutritionService;
             _userSession = userSession;
             Title = "Novo Diário";
-
-            CreateCommand = new Command(async () => await CreateAsync());
-            CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
         }
 
         public void Initialize()
@@ -39,6 +29,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             SelectedDate = DateTime.Today;
         }
 
+        [RelayCommand]
         private async Task CreateAsync()
         {
             if (IsBusy) return;
@@ -65,5 +56,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 IsBusy = false;
             }
         }
+
+        [RelayCommand]
+        private void Cancel() => OnCancelled?.Invoke(this, EventArgs.Empty);
     }
 }

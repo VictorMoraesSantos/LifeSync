@@ -16,7 +16,7 @@ public partial class LoginPage : ContentPage
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
-        await _viewModel.LoginAsync();
+        _viewModel.LoginCommand.Execute(null);
     }
 
     private void OnTogglePasswordTapped(object sender, TappedEventArgs e)
@@ -33,11 +33,11 @@ public partial class LoginPage : ContentPage
 
     private async void OnGoogleLoginTapped(object sender, TappedEventArgs e)
     {
-        await _viewModel.GoogleLoginAsync();
+        _viewModel.GoogleLoginCommand.Execute(null);
     }
 
     private async void OnRegisterTapped(object sender, TappedEventArgs e)
     {
-        await _viewModel.GoToRegisterAsync();
+        _viewModel.GoToRegisterCommand.Execute(null);
     }
 }

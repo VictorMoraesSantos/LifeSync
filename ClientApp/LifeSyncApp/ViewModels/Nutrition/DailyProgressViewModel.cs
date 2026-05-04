@@ -1,45 +1,59 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Nutrition.DailyProgress;
 using LifeSyncApp.Services.Nutrition;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class DailyProgressViewModel : BaseViewModel
+    public partial class DailyProgressViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
         private readonly IUserSession _userSession;
         private static readonly CultureInfo PtBr = new("pt-BR");
 
+        [ObservableProperty]
         private bool _isLoadingData = true;
-        public bool IsLoadingData
-        {
-            get => _isLoadingData;
-            private set => SetProperty(ref _isLoadingData, value);
-        }
 
-        private DailyProgressDTO? _dailyProgress;
-        private DateOnly _selectedDate;
+        [ObservableProperty]
+        private DailyProgressDTO? _currentProgress;
+
+        [ObservableProperty]
         private string _dateLabel = string.Empty;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CaloriesPercentage))]
+        [NotifyPropertyChangedFor(nameof(CaloriesProgressValue))]
+        [NotifyPropertyChangedFor(nameof(CaloriesInfo))]
         private int _caloriesConsumed;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CaloriesPercentage))]
+        [NotifyPropertyChangedFor(nameof(CaloriesProgressValue))]
+        [NotifyPropertyChangedFor(nameof(CaloriesInfo))]
         private int _caloriesGoal = 2000;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LiquidsPercentage))]
+        [NotifyPropertyChangedFor(nameof(LiquidsProgressValue))]
+        [NotifyPropertyChangedFor(nameof(LiquidsInfo))]
         private int _liquidsConsumedMl;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LiquidsPercentage))]
+        [NotifyPropertyChangedFor(nameof(LiquidsProgressValue))]
+        [NotifyPropertyChangedFor(nameof(LiquidsInfo))]
         private int _liquidsGoalMl = 2500;
+
+        [ObservableProperty]
         private string _caloriesGoalText = "2000";
+
+        [ObservableProperty]
         private string _liquidsGoalText = "2500";
 
-        private DateOnly _initialDate;
-        private int _initialCaloriesConsumed;
-        private int _initialLiquidsConsumedMl;
-
-        public DailyProgressDTO? CurrentProgress
-        {
-            get => _dailyProgress;
-            set => SetProperty(ref _dailyProgress, value);
-        }
-
+        private DateOnly _selectedDate;
         public DateOnly SelectedDate
         {
             get => _selectedDate;
@@ -53,59 +67,9 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        public string DateLabel
-        {
-            get => _dateLabel;
-            set => SetProperty(ref _dateLabel, value);
-        }
-
-        public int CaloriesConsumed
-        {
-            get => _caloriesConsumed;
-            set
-            {
-                SetProperty(ref _caloriesConsumed, value);
-                OnPropertyChanged(nameof(CaloriesPercentage));
-                OnPropertyChanged(nameof(CaloriesProgressValue));
-                OnPropertyChanged(nameof(CaloriesInfo));
-            }
-        }
-
-        public int CaloriesGoal
-        {
-            get => _caloriesGoal;
-            set
-            {
-                SetProperty(ref _caloriesGoal, value);
-                OnPropertyChanged(nameof(CaloriesPercentage));
-                OnPropertyChanged(nameof(CaloriesProgressValue));
-                OnPropertyChanged(nameof(CaloriesInfo));
-            }
-        }
-
-        public int LiquidsConsumedMl
-        {
-            get => _liquidsConsumedMl;
-            set
-            {
-                SetProperty(ref _liquidsConsumedMl, value);
-                OnPropertyChanged(nameof(LiquidsPercentage));
-                OnPropertyChanged(nameof(LiquidsProgressValue));
-                OnPropertyChanged(nameof(LiquidsInfo));
-            }
-        }
-
-        public int LiquidsGoalMl
-        {
-            get => _liquidsGoalMl;
-            set
-            {
-                SetProperty(ref _liquidsGoalMl, value);
-                OnPropertyChanged(nameof(LiquidsPercentage));
-                OnPropertyChanged(nameof(LiquidsProgressValue));
-                OnPropertyChanged(nameof(LiquidsInfo));
-            }
-        }
+        private DateOnly _initialDate;
+        private int _initialCaloriesConsumed;
+        private int _initialLiquidsConsumedMl;
 
         public int CaloriesPercentage => CaloriesGoal > 0
             ? Math.Min((int)Math.Round(CaloriesConsumed * 100.0 / CaloriesGoal), 100) : 0;
@@ -119,37 +83,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
             ? Math.Min(LiquidsConsumedMl / (double)LiquidsGoalMl, 1.0) : 0.0;
         public string LiquidsInfo => $"{LiquidsConsumedMl} / {LiquidsGoalMl}";
 
-        public string CaloriesGoalText
-        {
-            get => _caloriesGoalText;
-            set => SetProperty(ref _caloriesGoalText, value);
-        }
-
-        public string LiquidsGoalText
-        {
-            get => _liquidsGoalText;
-            set => SetProperty(ref _liquidsGoalText, value);
-        }
-
         public ObservableCollection<DailyProgressDTO> RecentHistory { get; } = new();
-
-        public ICommand GoBackCommand { get; }
-        public ICommand PreviousDayCommand { get; }
-        public ICommand NextDayCommand { get; }
-        public ICommand SaveGoalCommand { get; }
-        public ICommand ResetGoalCommand { get; }
 
         public DailyProgressViewModel(INutritionService nutritionService, IUserSession userSession)
         {
             _nutritionService = nutritionService;
             _userSession = userSession;
             Title = "Progresso Diário";
-
-            GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
-            PreviousDayCommand = new Command(() => SelectedDate = SelectedDate.AddDays(-1));
-            NextDayCommand = new Command(() => SelectedDate = SelectedDate.AddDays(1));
-            SaveGoalCommand = new Command(async () => await SaveGoalAsync());
-            ResetGoalCommand = new Command(async () => await ResetGoalAsync());
         }
 
         public void Initialize(DailyProgressDTO? progress, int caloriesConsumed = 0, int liquidsConsumedMl = 0)
@@ -187,6 +127,15 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             DateLabel = _selectedDate.ToString("dd 'de' MMMM, yyyy", PtBr);
         }
+
+        [RelayCommand]
+        private async Task GoBackAsync() => await Shell.Current.GoToAsync("..");
+
+        [RelayCommand]
+        private void PreviousDay() => SelectedDate = SelectedDate.AddDays(-1);
+
+        [RelayCommand]
+        private void NextDay() => SelectedDate = SelectedDate.AddDays(1);
 
         private async Task LoadProgressAsync()
         {
@@ -277,9 +226,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task SaveGoalAsync()
         {
-            if (_dailyProgress == null || IsBusy) return;
+            if (CurrentProgress == null || IsBusy) return;
 
             if (!int.TryParse(CaloriesGoalText, out var calGoal) || calGoal <= 0)
             {
@@ -297,7 +247,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             {
                 var goal = new DailyGoalDTO(calGoal, liqGoal);
                 var dto = new SetGoalDTO(goal);
-                var (success, error) = await _nutritionService.SetGoalAsync(_dailyProgress.Id, dto);
+                var (success, error) = await _nutritionService.SetGoalAsync(CurrentProgress.Id, dto);
                 if (success)
                 {
                     CaloriesGoal = calGoal;
@@ -316,6 +266,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task ResetGoalAsync()
         {
             CaloriesGoalText = "2000";

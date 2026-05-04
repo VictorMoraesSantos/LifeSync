@@ -1,25 +1,21 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.Meal;
 using LifeSyncApp.DTOs.Nutrition.MealFood;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Nutrition;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class MealDetailViewModel : BaseViewModel
+    public partial class MealDetailViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
 
-        private MealDTO? _meal;
-
+        [ObservableProperty]
         private bool _isLoadingMeal = true;
-        public bool IsLoadingMeal
-        {
-            get => _isLoadingMeal;
-            private set => SetProperty(ref _isLoadingMeal, value);
-        }
 
+        private MealDTO? _meal;
         public MealDTO? Meal
         {
             get => _meal;
@@ -44,25 +40,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public decimal TotalLipids => Foods.Sum(f => (f.Lipids ?? 0) * f.Quantity / 100m);
         public decimal TotalCarbs => Foods.Sum(f => (f.Carbohydrates ?? 0) * f.Quantity / 100m);
 
-        public ICommand GoBackCommand { get; }
-        public ICommand OpenEditMealModalCommand { get; }
-        public ICommand DeleteMealCommand { get; }
-        public ICommand OpenAddFoodCommand { get; }
-        public ICommand OpenEditFoodCommand { get; }
-        public ICommand DeleteFoodCommand { get; }
-
         public event EventHandler? MealDeleted;
 
         public MealDetailViewModel(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
-
-            GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
-            OpenEditMealModalCommand = new Command(async () => await OpenEditMealModalAsync());
-            DeleteMealCommand = new Command(async () => await DeleteMealAsync());
-            OpenAddFoodCommand = new Command(async () => await OpenAddFoodAsync());
-            OpenEditFoodCommand = new Command<MealFoodDTO>(async (f) => await OpenEditFoodAsync(f));
-            DeleteFoodCommand = new Command<MealFoodDTO>(async (f) => await DeleteFoodAsync(f));
         }
 
         public async Task RefreshMealAsync()
@@ -73,14 +55,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
             {
                 IsBusy = true;
                 _nutritionService.InvalidateAllCache();
-                System.Diagnostics.Debug.WriteLine($"[MealDetailVM] RefreshMealAsync - fetching meal {mealId}");
                 var updated = await _nutritionService.GetMealByIdAsync(mealId);
-                System.Diagnostics.Debug.WriteLine($"[MealDetailVM] RefreshMealAsync - got meal: {updated != null}, foods: {updated?.MealFoods?.Count ?? 0}");
                 if (updated != null)
                 {
                     _meal = null;
                     Meal = updated;
-                    System.Diagnostics.Debug.WriteLine($"[MealDetailVM] RefreshMealAsync - Foods.Count after sync: {Foods.Count}");
                 }
             }
             catch (Exception ex)
@@ -112,6 +91,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
+        private async Task GoBackAsync()
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+
+        [RelayCommand]
         private async Task OpenEditMealModalAsync()
         {
             if (_meal == null) return;
@@ -129,6 +115,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task DeleteMealAsync()
         {
             if (_meal == null) return;
@@ -157,6 +144,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task OpenAddFoodAsync()
         {
             if (_meal == null) return;
@@ -173,14 +161,15 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        private async Task OpenEditFoodAsync(MealFoodDTO? food)
+        [RelayCommand]
+        private async Task OpenEditFoodAsync(MealFoodDTO? f)
         {
-            if (food == null || _meal == null) return;
+            if (f == null || _meal == null) return;
             try
             {
                 await Shell.Current.GoToAsync(AppRoutes.EditMealFoodModal, new Dictionary<string, object>
                 {
-                    { "MealFood", food }
+                    { "MealFood", f }
                 });
             }
             catch (Exception ex)
@@ -189,18 +178,19 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        private async Task DeleteFoodAsync(MealFoodDTO? food)
+        [RelayCommand]
+        private async Task DeleteFoodAsync(MealFoodDTO? f)
         {
-            if (food == null || _meal == null) return;
+            if (f == null || _meal == null) return;
 
             var confirm = await Application.Current!.MainPage!.DisplayAlert(
-                "Confirmar", $"Remover '{food.Name}' da refeição?", "Sim", "Não");
+                "Confirmar", $"Remover '{f.Name}' da refeição?", "Sim", "Não");
             if (!confirm) return;
 
             IsBusy = true;
             try
             {
-                var (success, error) = await _nutritionService.RemoveFoodFromMealAsync(_meal.Id, food.Id);
+                var (success, error) = await _nutritionService.RemoveFoodFromMealAsync(_meal.Id, f.Id);
                 if (success)
                     await RefreshMealAsync();
                 else

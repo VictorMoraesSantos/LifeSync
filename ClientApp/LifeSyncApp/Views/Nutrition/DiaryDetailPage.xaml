@@ -7,6 +7,7 @@
              xmlns:nutconv="clr-namespace:LifeSyncApp.Converters.Nutrition"
              x:Class="LifeSyncApp.Views.Nutrition.DiaryDetailPage"
              x:DataType="viewmodel:DiaryDetailViewModel"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              x:Name="page"
              BackgroundColor="#F5F4F1"
              Shell.NavBarIsVisible="False">
@@ -21,14 +22,8 @@
             <!-- Header -->
             <VerticalStackLayout Spacing="8" Padding="0,12,0,0">
                 <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
-                    <Image Source="arrow_back.svg"
-                           WidthRequest="22"
-                           HeightRequest="22"
-                           VerticalOptions="Center">
-                        <Image.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
-                        </Image.GestureRecognizers>
-                    </Image>
+                    <controls:BackNavigationHeader Command="{Binding GoBackCommand}"
+                                                   BackText=""/>
 
                     <Label Text="{Binding DateTitle}"
                            FontSize="22"

@@ -1,53 +1,36 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Profile;
 using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.Profile;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Profile
 {
-    public class ChangeEmailViewModel : BaseViewModel
+    public partial class ChangeEmailViewModel : BaseViewModel
     {
         private readonly IUserProfileService _userProfileService;
         private readonly IAuthService _authService;
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         private string _newEmail = string.Empty;
-        public string NewEmail
-        {
-            get => _newEmail;
-            set
-            {
-                if (SetProperty(ref _newEmail, value))
-                    ((Command)SaveCommand).ChangeCanExecute();
-            }
-        }
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         private string _currentPassword = string.Empty;
-        public string CurrentPassword
-        {
-            get => _currentPassword;
-            set
-            {
-                if (SetProperty(ref _currentPassword, value))
-                    ((Command)SaveCommand).ChangeCanExecute();
-            }
-        }
 
         public string CurrentFirstName { get; set; } = string.Empty;
         public string CurrentLastName { get; set; } = string.Empty;
+        public string UpdatedEmail { get; private set; } = string.Empty;
 
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
-
-        public ICommand SaveCommand { get; }
-        public ICommand CancelCommand { get; }
 
         public ChangeEmailViewModel(IUserProfileService userProfileService, IAuthService authService)
         {
             _userProfileService = userProfileService;
             _authService = authService;
             Title = "Alterar Email";
-            SaveCommand = new Command(async () => await SaveAsync(), CanSave);
-            CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
         }
 
         public void Initialize(string firstName, string lastName)
@@ -60,6 +43,7 @@ namespace LifeSyncApp.ViewModels.Profile
 
         private bool CanSave() => !string.IsNullOrWhiteSpace(NewEmail) && !string.IsNullOrWhiteSpace(CurrentPassword);
 
+        [RelayCommand(CanExecute = nameof(CanSave))]
         private async Task SaveAsync()
         {
             if (IsBusy) return;
@@ -90,6 +74,10 @@ namespace LifeSyncApp.ViewModels.Profile
             }
         }
 
-        public string UpdatedEmail { get; private set; } = string.Empty;
+        [RelayCommand]
+        private void Cancel()
+        {
+            OnCancelled?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

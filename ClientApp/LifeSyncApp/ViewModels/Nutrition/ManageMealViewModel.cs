@@ -1,31 +1,24 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Nutrition.Meal;
 using LifeSyncApp.Services.Nutrition;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class ManageMealViewModel : BaseViewModel
+    public partial class ManageMealViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
 
-        private string _name = string.Empty;
-        private string _description = string.Empty;
-        private bool _isEditing;
         private int _mealId;
         private int _diaryId;
 
-        public string Name
-        {
-            get => _name;
-            set => SetProperty(ref _name, value);
-        }
+        [ObservableProperty]
+        private string _name = string.Empty;
 
-        public string Description
-        {
-            get => _description;
-            set => SetProperty(ref _description, value);
-        }
+        [ObservableProperty]
+        private string _description = string.Empty;
 
+        private bool _isEditing;
         public bool IsEditing
         {
             get => _isEditing;
@@ -36,9 +29,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        public ICommand SaveCommand { get; }
-        public ICommand CancelCommand { get; }
-
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
@@ -46,9 +36,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             _nutritionService = nutritionService;
             Title = "Nova Refeição";
-
-            SaveCommand = new Command(async () => await SaveAsync());
-            CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
         }
 
         public void Initialize(int diaryId, MealDTO? meal = null)
@@ -70,6 +57,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task SaveAsync()
         {
             if (IsBusy || string.IsNullOrWhiteSpace(Name))
@@ -106,5 +94,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 IsBusy = false;
             }
         }
+
+        [RelayCommand]
+        private void Cancel() => OnCancelled?.Invoke(this, EventArgs.Empty);
     }
 }

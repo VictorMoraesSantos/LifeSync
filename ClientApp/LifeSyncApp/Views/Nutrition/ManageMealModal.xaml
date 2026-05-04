@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              x:Class="LifeSyncApp.Views.Nutrition.ManageMealModal"
              x:DataType="viewmodel:ManageMealViewModel"
              Shell.PresentationMode="ModalNotAnimated"
@@ -53,41 +54,19 @@
                 </HorizontalStackLayout>
 
                 <!-- Form Card -->
-                <Border BackgroundColor="White"
-                        StrokeThickness="1"
-                        Stroke="#E5E4E1"
-                        Padding="20"
-                        StrokeShape="RoundRectangle 16">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
-                    </Border.Shadow>
+                <controls:SectionCard CardPadding="20">
                     <VerticalStackLayout Spacing="20">
 
                         <!-- Name Field -->
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Nome *"
-                                   FontSize="13"
-                                   FontFamily="OutfitSemiBold"
-                                   TextColor="#1A1918"/>
-                            <Border BackgroundColor="#F5F4F1"
-                                    StrokeThickness="1"
-                                    Stroke="#E5E4E1"
-                                    Padding="16,12"
-                                    StrokeShape="RoundRectangle 12">
-                                <Entry Text="{Binding Name}"
-                                       Placeholder="Ex: Café da manhã"
-                                       MaxLength="100"
-                                       PlaceholderColor="#9C9B99"
-                                       TextColor="#1A1918"
-                                       FontSize="15"
-                                       FontFamily="OutfitRegular"
-                                       BackgroundColor="Transparent"/>
-                            </Border>
-                            <Label Text="Máximo 100 caracteres"
-                                   FontSize="11"
-                                   FontFamily="OutfitRegular"
-                                   TextColor="#9C9B99"/>
-                        </VerticalStackLayout>
+                        <controls:FormEntry LabelText="Nome *"
+                                            Placeholder="Ex: Café da manhã"
+                                            Text="{Binding Name}"
+                                            MaxLength="100"/>
+                        <Label Text="Máximo 100 caracteres"
+                               FontSize="11"
+                               FontFamily="OutfitRegular"
+                               TextColor="#9C9B99"
+                               Margin="0,-12,0,0"/>
 
                         <!-- Description Field -->
                         <VerticalStackLayout Spacing="8">
@@ -117,7 +96,7 @@
                                    TextColor="#9C9B99"/>
                         </VerticalStackLayout>
                     </VerticalStackLayout>
-                </Border>
+                </controls:SectionCard>
 
                 <!-- Buttons -->
                 <VerticalStackLayout Spacing="12">

@@ -1,38 +1,31 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.MealFood;
 using LifeSyncApp.Services.Nutrition;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class EditMealFoodViewModel : BaseViewModel
+    public partial class EditMealFoodViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(FoodName))]
+        [NotifyPropertyChangedFor(nameof(CaloriesInfo))]
+        [NotifyPropertyChangedFor(nameof(ProteinInfo))]
+        [NotifyPropertyChangedFor(nameof(LipidsInfo))]
+        [NotifyPropertyChangedFor(nameof(CarbsInfo))]
+        [NotifyPropertyChangedFor(nameof(TotalEstimated))]
         private MealFoodDTO? _mealFood;
+
+        public string FoodName => MealFood?.Name ?? string.Empty;
+        public string CaloriesInfo => MealFood != null ? $"{MealFood.Calories} kcal / 100g" : string.Empty;
+        public string ProteinInfo => MealFood?.Protein != null ? $"Prot {MealFood.Protein:F1}g / 100g" : string.Empty;
+        public string LipidsInfo => MealFood?.Lipids != null ? $"Lip {MealFood.Lipids:F1}g / 100g" : string.Empty;
+        public string CarbsInfo => MealFood?.Carbohydrates != null ? $"Carb {MealFood.Carbohydrates:F1}g / 100g" : string.Empty;
+
         private string _quantityText = string.Empty;
-
-        public MealFoodDTO? MealFood
-        {
-            get => _mealFood;
-            set
-            {
-                SetProperty(ref _mealFood, value);
-                OnPropertyChanged(nameof(FoodName));
-                OnPropertyChanged(nameof(CaloriesInfo));
-                OnPropertyChanged(nameof(ProteinInfo));
-                OnPropertyChanged(nameof(LipidsInfo));
-                OnPropertyChanged(nameof(CarbsInfo));
-                OnPropertyChanged(nameof(TotalEstimated));
-            }
-        }
-
-        public string FoodName => _mealFood?.Name ?? string.Empty;
-        public string CaloriesInfo => _mealFood != null ? $"{_mealFood.Calories} kcal / 100g" : string.Empty;
-        public string ProteinInfo => _mealFood?.Protein != null ? $"Prot {_mealFood.Protein:F1}g / 100g" : string.Empty;
-        public string LipidsInfo => _mealFood?.Lipids != null ? $"Lip {_mealFood.Lipids:F1}g / 100g" : string.Empty;
-        public string CarbsInfo => _mealFood?.Carbohydrates != null ? $"Carb {_mealFood.Carbohydrates:F1}g / 100g" : string.Empty;
-
         public string QuantityText
         {
             get => _quantityText;
@@ -47,9 +40,9 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             get
             {
-                if (_mealFood != null && int.TryParse(_quantityText, out var qty) && qty > 0)
+                if (MealFood != null && int.TryParse(_quantityText, out var qty) && qty > 0)
                 {
-                    var total = qty * _mealFood.Calories / 100;
+                    var total = qty * MealFood.Calories / 100;
                     return $"{total} kcal";
                 }
                 return "0 kcal";
@@ -58,10 +51,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         public int MealId { get; private set; }
 
-        public ICommand SaveCommand { get; }
-        public ICommand CancelCommand { get; }
-        public ICommand SwapFoodCommand { get; }
-
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
 
@@ -69,10 +58,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             _nutritionService = nutritionService;
             Title = "Editar Alimento";
-
-            SaveCommand = new Command(async () => await SaveAsync());
-            CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
-            SwapFoodCommand = new Command(async () => await SwapFoodAsync());
         }
 
         public void Initialize(int mealId, MealFoodDTO? mealFood)
@@ -82,9 +67,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
             QuantityText = mealFood?.Quantity.ToString() ?? string.Empty;
         }
 
+        [RelayCommand]
         private async Task SaveAsync()
         {
-            if (IsBusy || _mealFood == null) return;
+            if (IsBusy || MealFood == null) return;
 
             if (!int.TryParse(_quantityText, out var qty) || qty <= 0)
             {
@@ -95,8 +81,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBusy = true;
             try
             {
-                var dto = new UpdateMealFoodDTO(_mealFood.Id, _mealFood.FoodId, qty);
-                var (success, error) = await _nutritionService.UpdateMealFoodAsync(_mealFood.Id, dto);
+                var dto = new UpdateMealFoodDTO(MealFood.Id, MealFood.FoodId, qty);
+                var (success, error) = await _nutritionService.UpdateMealFoodAsync(MealFood.Id, dto);
                 if (success)
                     OnSaved?.Invoke(this, EventArgs.Empty);
                 else
@@ -112,10 +98,13 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
+        private void Cancel() => OnCancelled?.Invoke(this, EventArgs.Empty);
+
+        [RelayCommand]
         private async Task SwapFoodAsync()
         {
-            if (_mealFood == null) return;
-            // Navigate to food search to swap
+            if (MealFood == null) return;
             OnCancelled?.Invoke(this, EventArgs.Empty);
             await Shell.Current.GoToAsync(AppRoutes.FoodSearchPage, new Dictionary<string, object>
             {

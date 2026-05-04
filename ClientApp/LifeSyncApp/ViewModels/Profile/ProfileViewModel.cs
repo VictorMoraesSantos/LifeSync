@@ -1,54 +1,30 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.Profile;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Profile
 {
-    public class ProfileViewModel : BaseViewModel
+    public partial class ProfileViewModel : BaseViewModel
     {
         private readonly IAuthService _authService;
         private readonly IUserProfileService _userProfileService;
 
+        [ObservableProperty]
         private string _userName = string.Empty;
-        public string UserName
-        {
-            get => _userName;
-            set => SetProperty(ref _userName, value);
-        }
 
+        [ObservableProperty]
         private string _userEmail = string.Empty;
-        public string UserEmail
-        {
-            get => _userEmail;
-            set => SetProperty(ref _userEmail, value);
-        }
 
+        [ObservableProperty]
         private string _userInitials = string.Empty;
-        public string UserInitials
-        {
-            get => _userInitials;
-            set => SetProperty(ref _userInitials, value);
-        }
 
+        [ObservableProperty]
         private bool _notificationsEnabled = true;
-        public bool NotificationsEnabled
-        {
-            get => _notificationsEnabled;
-            set => SetProperty(ref _notificationsEnabled, value);
-        }
 
-        public ICommand LogoutCommand { get; }
-        public ICommand ChangeNameCommand { get; }
-        public ICommand ChangeEmailCommand { get; }
-        public ICommand ChangePasswordCommand { get; }
-
+        [ObservableProperty]
         private bool _isLoadingData;
-        public bool IsLoadingData
-        {
-            get => _isLoadingData;
-            private set => SetProperty(ref _isLoadingData, value);
-        }
 
         private DateTime? _lastRefresh;
 
@@ -57,10 +33,6 @@ namespace LifeSyncApp.ViewModels.Profile
             _authService = authService;
             _userProfileService = userProfileService;
             Title = "Configurações";
-            LogoutCommand = new Command(async () => await LogoutAsync());
-            ChangeNameCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.ChangeNameModal));
-            ChangeEmailCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.ChangeEmailModal));
-            ChangePasswordCommand = new Command(async () => await Shell.Current.GoToAsync(AppRoutes.ChangePasswordModal));
         }
 
         public void InvalidateCache()
@@ -138,6 +110,7 @@ namespace LifeSyncApp.ViewModels.Profile
             }
         }
 
+        [RelayCommand]
         private async Task LogoutAsync()
         {
             if (IsBusy) return;
@@ -156,6 +129,24 @@ namespace LifeSyncApp.ViewModels.Profile
             {
                 IsBusy = false;
             }
+        }
+
+        [RelayCommand]
+        private async Task ChangeNameAsync()
+        {
+            await Shell.Current.GoToAsync(AppRoutes.ChangeNameModal);
+        }
+
+        [RelayCommand]
+        private async Task ChangeEmailAsync()
+        {
+            await Shell.Current.GoToAsync(AppRoutes.ChangeEmailModal);
+        }
+
+        [RelayCommand]
+        private async Task ChangePasswordAsync()
+        {
+            await Shell.Current.GoToAsync(AppRoutes.ChangePasswordModal);
         }
     }
 }

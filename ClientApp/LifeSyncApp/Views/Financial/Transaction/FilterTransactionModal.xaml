@@ -5,6 +5,7 @@
              xmlns:models="clr-namespace:LifeSyncApp.Models.Financial"
              x:Class="LifeSyncApp.Views.Financial.FilterTransactionModal"
              x:DataType="viewmodel:FilterTransactionViewModel"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              x:Name="page"
              Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
@@ -14,54 +15,11 @@
             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
         </Grid.GestureRecognizers>
 
-        <!-- Bottom Sheet -->
-        <Border VerticalOptions="End"
-                HorizontalOptions="Fill"
-                BackgroundColor="{StaticResource FinCardBg}"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 24,24,0,0">
-            <Border.Shadow>
-                <Shadow Brush="#1A1918" Offset="0,-4" Radius="24" Opacity="0.08"/>
-            </Border.Shadow>
-
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer/>
-            </Border.GestureRecognizers>
-
-            <Grid RowDefinitions="Auto,Auto,*,Auto">
-
-                <!-- Drag Handle -->
-                <HorizontalStackLayout Grid.Row="0"
-                                       HorizontalOptions="Center"
-                                       Padding="0,12,0,0">
-                    <BoxView WidthRequest="40"
-                             HeightRequest="4"
-                             CornerRadius="100"
-                             Color="#D1D0CD"/>
-                </HorizontalStackLayout>
-
-                <!-- Sheet Header -->
-                <Grid Grid.Row="1"
-                      ColumnDefinitions="*,Auto"
-                      Padding="20,16">
-                    <Label Grid.Column="0"
-                           Text="Filtros"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource FinDark}"
-                           VerticalOptions="Center"/>
-                    <Image Grid.Column="1"
-                           Source="close.svg"
-                           WidthRequest="22"
-                           HeightRequest="22">
-                        <Image.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding CancelCommand}"/>
-                        </Image.GestureRecognizers>
-                    </Image>
-                </Grid>
-
-                <!-- Scrollable Content -->
-                <ScrollView Grid.Row="2">
+        <controls:BottomSheet Title="Filtros"
+                              CloseCommand="{Binding CancelCommand}">
+            <controls:BottomSheet.SheetBody>
+            <Grid RowDefinitions="*,Auto">
+                <ScrollView Grid.Row="0">
                     <VerticalStackLayout Padding="20,0,20,20"
                                          Spacing="24">
 
@@ -231,7 +189,7 @@
                 </ScrollView>
 
                 <!-- Action Buttons -->
-                <Grid Grid.Row="3"
+                <Grid Grid.Row="1"
                       ColumnDefinitions="*,*"
                       ColumnSpacing="12"
                       Padding="20,12,20,24">
@@ -269,6 +227,7 @@
                     </Border>
                 </Grid>
             </Grid>
-        </Border>
+            </controls:BottomSheet.SheetBody>
+        </controls:BottomSheet>
     </Grid>
 </ContentPage>

@@ -4,6 +4,7 @@
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial.Transaction"
              x:Class="LifeSyncApp.Views.Financial.TransactionDetailModal"
              x:DataType="viewmodel:TransactionDetailViewModel"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              Shell.PresentationMode="ModalAnimated"
              BackgroundColor="{StaticResource FinBackground}">
 
@@ -14,21 +15,8 @@
               ColumnDefinitions="Auto,*,Auto"
               Padding="20,8">
 
-            <HorizontalStackLayout Grid.Column="0"
-                                   Spacing="4"
-                                   VerticalOptions="Center">
-                <HorizontalStackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding CloseCommand}"/>
-                </HorizontalStackLayout.GestureRecognizers>
-                <Image Source="arrow_back.svg"
-                       WidthRequest="20"
-                       HeightRequest="20"
-                       VerticalOptions="Center"/>
-                <Label Text="Voltar"
-                       FontSize="15"
-                       TextColor="{StaticResource FinDark}"
-                       VerticalOptions="Center"/>
-            </HorizontalStackLayout>
+            <controls:BackNavigationHeader Grid.Column="0"
+                                           Command="{Binding CloseCommand}"/>
 
             <HorizontalStackLayout Grid.Column="2"
                                    Spacing="16"

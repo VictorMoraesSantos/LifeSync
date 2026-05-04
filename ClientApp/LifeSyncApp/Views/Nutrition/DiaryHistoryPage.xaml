@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
              xmlns:diary="clr-namespace:LifeSyncApp.DTOs.Nutrition.Diary"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              x:Class="LifeSyncApp.Views.Nutrition.DiaryHistoryPage"
              x:DataType="viewmodel:DiaryHistoryViewModel"
              Shell.NavBarIsVisible="False"
@@ -37,14 +38,7 @@
             <VerticalStackLayout Padding="24,0,24,24" Spacing="24">
 
                 <!-- Filters Card -->
-                <Border BackgroundColor="White"
-                        StrokeThickness="1"
-                        Stroke="#E5E4E1"
-                        Padding="16"
-                        StrokeShape="RoundRectangle 16">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
-                    </Border.Shadow>
+                <controls:SectionCard CardPadding="16">
                     <VerticalStackLayout Spacing="12">
                         <Label Text="Filtros" FontSize="15" FontFamily="OutfitSemiBold" TextColor="#1A1918"/>
 
@@ -70,7 +64,7 @@
                             <Label Text="Buscar" FontSize="14" FontFamily="OutfitSemiBold" TextColor="White" HorizontalOptions="Center"/>
                         </Border>
                     </VerticalStackLayout>
-                </Border>
+                </controls:SectionCard>
 
                 <!-- Diary List -->
                 <VerticalStackLayout BindableLayout.ItemsSource="{Binding Diaries}" Spacing="10">

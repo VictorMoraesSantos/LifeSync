@@ -2,21 +2,13 @@
 
 namespace LifeSyncApp.ViewModels
 {
-    public class BaseViewModel : ObservableObject
+    public partial class BaseViewModel : ObservableObject
     {
+        [ObservableProperty]
         private bool _isBusy;
-        public bool IsBusy
-        {
-            get => _isBusy;
-            set => SetProperty(ref _isBusy, value);
-        }
 
-        private string _title;
-        public string Title
-        {
-            get => _title;
-            set => SetProperty(ref _title, value);
-        }
+        [ObservableProperty]
+        private string _title = string.Empty;
 
         protected const int DefaultCacheMinutes = 5;
 

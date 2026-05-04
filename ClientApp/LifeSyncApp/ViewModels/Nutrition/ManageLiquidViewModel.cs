@@ -1,37 +1,26 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Nutrition.Liquid;
 using LifeSyncApp.DTOs.Nutrition.LiquidType;
 using LifeSyncApp.Services.Nutrition;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class ManageLiquidViewModel : BaseViewModel
+    public partial class ManageLiquidViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
 
-        private bool _isEditing;
         private int _liquidId;
-        private string _quantityText = string.Empty;
-        private string? _selectedQuickQuantity;
         private bool _settingFromButton;
+
+        [ObservableProperty]
         private LiquidTypeDTO? _selectedLiquidType;
+
+        [ObservableProperty]
         private bool _isLoadingTypes;
 
-        public ObservableCollection<LiquidTypeDTO> LiquidTypes { get; } = new();
-
-        public LiquidTypeDTO? SelectedLiquidType
-        {
-            get => _selectedLiquidType;
-            set => SetProperty(ref _selectedLiquidType, value);
-        }
-
-        public bool IsLoadingTypes
-        {
-            get => _isLoadingTypes;
-            set => SetProperty(ref _isLoadingTypes, value);
-        }
-
+        private bool _isEditing;
         public bool IsEditing
         {
             get => _isEditing;
@@ -42,6 +31,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        private string _quantityText = string.Empty;
         public string QuantityText
         {
             get => _quantityText;
@@ -52,18 +42,12 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        public string? SelectedQuickQuantity
-        {
-            get => _selectedQuickQuantity;
-            set => SetProperty(ref _selectedQuickQuantity, value);
-        }
+        [ObservableProperty]
+        private string? _selectedQuickQuantity;
 
         public int DiaryId { get; private set; }
 
-        public ICommand SaveCommand { get; }
-        public ICommand CancelCommand { get; }
-        public ICommand SetQuickQuantityCommand { get; }
-        public ICommand SelectLiquidTypeCommand { get; }
+        public ObservableCollection<LiquidTypeDTO> LiquidTypes { get; } = new();
 
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
@@ -72,20 +56,21 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             _nutritionService = nutritionService;
             Title = "Adicionar Líquido";
+        }
 
-            SaveCommand = new Command(async () => await SaveAsync());
-            CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
-            SetQuickQuantityCommand = new Command<string>(ml =>
-            {
-                _settingFromButton = true;
-                QuantityText = ml;
-                SelectedQuickQuantity = ml;
-                _settingFromButton = false;
-            });
-            SelectLiquidTypeCommand = new Command<LiquidTypeDTO>(type =>
-            {
-                SelectedLiquidType = type;
-            });
+        [RelayCommand]
+        private void SetQuickQuantity(string ml)
+        {
+            _settingFromButton = true;
+            QuantityText = ml;
+            SelectedQuickQuantity = ml;
+            _settingFromButton = false;
+        }
+
+        [RelayCommand]
+        private void SelectLiquidType(LiquidTypeDTO type)
+        {
+            SelectedLiquidType = type;
         }
 
         public async Task InitializeAsync(int diaryId, LiquidDTO? liquid = null)
@@ -103,7 +88,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 SelectedQuickQuantity = liquid.Quantity.ToString();
                 _settingFromButton = false;
 
-                // Select the liquid type that matches the liquid's name
                 var matchingType = LiquidTypes.FirstOrDefault(lt =>
                     lt.Name.Equals(liquid.Name, StringComparison.OrdinalIgnoreCase));
                 SelectedLiquidType = matchingType ?? LiquidTypes.FirstOrDefault();
@@ -117,7 +101,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 SelectedQuickQuantity = "250";
                 _settingFromButton = false;
 
-                // Default to "Água" if available
                 var waterType = LiquidTypes.FirstOrDefault(lt =>
                     lt.Name.Equals("Água", StringComparison.OrdinalIgnoreCase));
                 SelectedLiquidType = waterType ?? LiquidTypes.FirstOrDefault();
@@ -144,6 +127,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task SaveAsync()
         {
             if (IsBusy) return;
@@ -192,5 +176,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 IsBusy = false;
             }
         }
+
+        [RelayCommand]
+        private void Cancel() => OnCancelled?.Invoke(this, EventArgs.Empty);
     }
 }

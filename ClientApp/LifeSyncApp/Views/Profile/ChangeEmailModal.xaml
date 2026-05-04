@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:LifeSyncApp.ViewModels.Profile"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              x:Class="LifeSyncApp.Views.Profile.ChangeEmailModal"
              x:DataType="viewmodels:ChangeEmailViewModel"
              Shell.PresentationMode="ModalNotAnimated"
@@ -12,140 +13,31 @@
             <TapGestureRecognizer Command="{Binding CancelCommand}"/>
         </Grid.GestureRecognizers>
 
-        <Border VerticalOptions="End"
-                HorizontalOptions="Fill"
-                BackgroundColor="{StaticResource FinCardBg}"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 24,24,0,0">
-            <Border.Shadow>
-                <Shadow Brush="#1A1918" Offset="0,-4" Radius="24" Opacity="0.08"/>
-            </Border.Shadow>
+        <controls:BottomSheet Title="Alterar Email"
+                              CloseCommand="{Binding CancelCommand}">
+            <controls:BottomSheet.SheetBody>
+            <VerticalStackLayout Spacing="20" Padding="20,0,20,20">
 
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer/>
-            </Border.GestureRecognizers>
+                <Label Text="Informe o novo email e confirme com sua senha."
+                       FontFamily="OutfitRegular"
+                       FontSize="13"
+                       TextColor="#6D6C6A"/>
 
-            <VerticalStackLayout Spacing="0">
+                <controls:FormEntry LabelText="Novo Email"
+                                    Placeholder="seu@email.com"
+                                    Text="{Binding NewEmail}"
+                                    Keyboard="Email"/>
 
-                <!-- Drag Handle -->
-                <HorizontalStackLayout HorizontalOptions="Center" Padding="0,12,0,4">
-                    <BoxView WidthRequest="40" HeightRequest="4" CornerRadius="100" Color="#D1D0CD"/>
-                </HorizontalStackLayout>
+                <controls:FormEntry LabelText="Senha atual"
+                                    Placeholder="Digite sua senha"
+                                    Text="{Binding CurrentPassword}"
+                                    IsPassword="True"/>
 
-                <!-- Header -->
-                <Grid ColumnDefinitions="*,Auto" Padding="20,16">
-                    <Label Text="Alterar Email"
-                           FontFamily="OutfitSemiBold"
-                           FontSize="18"
-                           TextColor="#1A1918"
-                           VerticalOptions="Center"/>
-                    <ImageButton Grid.Column="1"
-                                 Source="close.svg"
-                                 BackgroundColor="Transparent"
-                                 Padding="8"
-                                 Command="{Binding CancelCommand}"/>
-                </Grid>
+                <controls:ModalButtonBar CancelCommand="{Binding CancelCommand}"
+                                         SaveCommand="{Binding SaveCommand}"/>
 
-                <!-- Form Content -->
-                <VerticalStackLayout Spacing="20" Padding="20,0,20,20">
-
-                    <!-- Info Text -->
-                    <Label Text="Informe o novo email e confirme com sua senha."
-                           FontFamily="OutfitRegular"
-                           FontSize="13"
-                           TextColor="#6D6C6A"/>
-
-                    <!-- Novo Email -->
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="Novo Email"
-                               FontFamily="OutfitSemiBold"
-                               FontSize="14"
-                               TextColor="#1A1918"/>
-                        <Border Stroke="#E5E4E1"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 12"
-                                BackgroundColor="#FAFAF8"
-                                HeightRequest="44">
-                            <Entry Placeholder="seu@email.com"
-                                   PlaceholderColor="#9C9B99"
-                                   Text="{Binding NewEmail}"
-                                   Keyboard="Email"
-                                   FontFamily="OutfitRegular"
-                                   FontSize="14"
-                                   TextColor="#1A1918"
-                                   BackgroundColor="Transparent"
-                                   Margin="16,0"/>
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!-- Senha atual -->
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="Senha atual"
-                               FontFamily="OutfitSemiBold"
-                               FontSize="14"
-                               TextColor="#1A1918"/>
-                        <Border Stroke="#E5E4E1"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 12"
-                                BackgroundColor="#FAFAF8"
-                                HeightRequest="44">
-                            <Entry Placeholder="Digite sua senha"
-                                   PlaceholderColor="#9C9B99"
-                                   Text="{Binding CurrentPassword}"
-                                   IsPassword="True"
-                                   FontFamily="OutfitRegular"
-                                   FontSize="14"
-                                   TextColor="#1A1918"
-                                   BackgroundColor="Transparent"
-                                   Margin="16,0"/>
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!-- Action Buttons -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                        <Border Grid.Column="0"
-                                StrokeShape="RoundRectangle 100"
-                                Stroke="#E5E4E1"
-                                StrokeThickness="1"
-                                BackgroundColor="White"
-                                HeightRequest="50">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding CancelCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="Cancelar"
-                                   FontFamily="OutfitRegular"
-                                   FontSize="14"
-                                   TextColor="#6D6C6A"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-
-                        <Border Grid.Column="1"
-                                StrokeShape="RoundRectangle 100"
-                                StrokeThickness="0"
-                                BackgroundColor="#3D8A5A"
-                                HeightRequest="50">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding SaveCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Border.Triggers>
-                                <DataTrigger TargetType="Border"
-                                             Binding="{Binding IsBusy}"
-                                             Value="True">
-                                    <Setter Property="Opacity" Value="0.5"/>
-                                </DataTrigger>
-                            </Border.Triggers>
-                            <Label Text="Salvar"
-                                   FontFamily="OutfitSemiBold"
-                                   FontSize="14"
-                                   TextColor="White"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
-
-                </VerticalStackLayout>
             </VerticalStackLayout>
-        </Border>
+            </controls:BottomSheet.SheetBody>
+        </controls:BottomSheet>
     </Grid>
 </ContentPage>

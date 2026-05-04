@@ -4,6 +4,7 @@
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
              x:Class="LifeSyncApp.Views.Nutrition.EditMealFoodModal"
              x:DataType="viewmodel:EditMealFoodViewModel"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              Shell.PresentationMode="ModalNotAnimated"
              BackgroundColor="Transparent">
 
@@ -52,14 +53,7 @@
                 </HorizontalStackLayout>
 
                 <!-- Food Info Card -->
-                <Border BackgroundColor="White"
-                        StrokeThickness="1"
-                        Stroke="#E5E4E1"
-                        Padding="18"
-                        StrokeShape="RoundRectangle 16">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Offset="0,2" Radius="12" Opacity="0.03"/>
-                    </Border.Shadow>
+                <controls:SectionCard CardPadding="18">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="{Binding FoodName}"
                                FontSize="16"
@@ -84,7 +78,7 @@
                                    TextColor="#D4A64A"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
-                </Border>
+                </controls:SectionCard>
 
                 <!-- Quantity -->
                 <VerticalStackLayout Spacing="8">

@@ -5,6 +5,7 @@
              xmlns:dp="clr-namespace:LifeSyncApp.DTOs.Nutrition.DailyProgress"
              x:Class="LifeSyncApp.Views.Nutrition.DailyProgressPage"
              x:DataType="viewmodel:DailyProgressViewModel"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#F5F4F1">
 
@@ -12,15 +13,7 @@
 
         <!-- Header -->
         <HorizontalStackLayout Grid.Row="0" Padding="24,16" Spacing="12">
-            <Label Text="←"
-                   FontSize="22"
-                   FontFamily="OutfitSemiBold"
-                   TextColor="#1A1918"
-                   VerticalOptions="Center">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
-                </Label.GestureRecognizers>
-            </Label>
+            <controls:BackNavigationHeader Command="{Binding GoBackCommand}"/>
 
             <!-- Header skeleton placeholder -->
             <Border HeightRequest="22" WidthRequest="200" BackgroundColor="#EDECEA" StrokeShape="RoundRectangle 6" Stroke="Transparent" StrokeThickness="0" VerticalOptions="Center"

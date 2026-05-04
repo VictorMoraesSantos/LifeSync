@@ -6,6 +6,7 @@
              xmlns:converters="clr-namespace:LifeSyncApp.Converters"
              x:Class="LifeSyncApp.Views.TaskManager.TaskLabel.TaskLabelPage"
              x:DataType="viewmodels:TaskLabelViewModel"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              Title=""
              Shell.NavBarIsVisible="False"
              BackgroundColor="#F5F4F1">
@@ -23,23 +24,8 @@
                   Padding="20,12,20,0"
                   BackgroundColor="#F5F4F1">
 
-                <HorizontalStackLayout Grid.Column="0"
-                                       Spacing="6"
-                                       VerticalOptions="Center">
-                    <HorizontalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoBackCommand}" />
-                    </HorizontalStackLayout.GestureRecognizers>
-
-                    <Image Source="arrow_back.svg"
-                           WidthRequest="20"
-                           HeightRequest="20"
-                           VerticalOptions="Center"/>
-
-                    <Label Text="Voltar"
-                           TextColor="#1A1918"
-                           FontSize="15"
-                           VerticalOptions="Center"/>
-                </HorizontalStackLayout>
+                <controls:BackNavigationHeader Grid.Column="0"
+                                               Command="{Binding GoBackCommand}"/>
 
                 <Label Grid.Column="2"
                        Text="Etiquetas"

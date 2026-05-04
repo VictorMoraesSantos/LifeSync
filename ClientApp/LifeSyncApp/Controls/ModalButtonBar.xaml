@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeSyncApp.Controls.ModalButtonBar">
+
+    <Grid x:Name="ButtonGrid"
+          ColumnDefinitions="*,*"
+          ColumnSpacing="12">
+
+        <!-- Cancel Button -->
+        <Border Grid.Column="0"
+                x:Name="CancelBorder"
+                StrokeShape="RoundRectangle 100"
+                Stroke="#E5E4E1"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                HeightRequest="50">
+            <Label x:Name="CancelLabel"
+                   Text="Cancelar"
+                   FontFamily="OutfitRegular"
+                   FontSize="14"
+                   TextColor="#6D6C6A"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Border>
+
+        <!-- Save/Confirm Button -->
+        <Border Grid.Column="1"
+                x:Name="SaveBorder"
+                StrokeShape="RoundRectangle 100"
+                StrokeThickness="0"
+                BackgroundColor="#3D8A5A"
+                HeightRequest="50">
+            <Border.Triggers>
+                <DataTrigger TargetType="Border"
+                             Binding="{Binding IsBusy}"
+                             Value="True">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </DataTrigger>
+            </Border.Triggers>
+            <Label x:Name="SaveLabel"
+                   Text="Salvar"
+                   FontFamily="OutfitSemiBold"
+                   FontSize="14"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Border>
+    </Grid>
+
+</ContentView>

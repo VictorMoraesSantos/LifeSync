@@ -1,10 +1,12 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Auth;
 using LifeSyncApp.Services.Auth;
 using LifeSyncApp.Services.UserSession;
 
 namespace LifeSyncApp.ViewModels.Auth
 {
-    public class LoginViewModel : BaseViewModel
+    public partial class LoginViewModel : BaseViewModel
     {
         private readonly IAuthService _authService;
         private readonly IUserSession _userSession;
@@ -16,35 +18,20 @@ namespace LifeSyncApp.ViewModels.Auth
             Title = "Login";
         }
 
+        [ObservableProperty]
         private string _email = string.Empty;
-        public string Email
-        {
-            get => _email;
-            set => SetProperty(ref _email, value);
-        }
 
+        [ObservableProperty]
         private string _password = string.Empty;
-        public string Password
-        {
-            get => _password;
-            set => SetProperty(ref _password, value);
-        }
 
+        [ObservableProperty]
         private string _errorMessage = string.Empty;
-        public string ErrorMessage
-        {
-            get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
-        }
 
+        [ObservableProperty]
         private bool _hasError;
-        public bool HasError
-        {
-            get => _hasError;
-            set => SetProperty(ref _hasError, value);
-        }
 
-        public async Task LoginAsync()
+        [RelayCommand]
+        private async Task LoginAsync()
         {
             if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
@@ -83,12 +70,12 @@ namespace LifeSyncApp.ViewModels.Auth
             }
         }
 
-        public async Task GoogleLoginAsync()
+        [RelayCommand]
+        private async Task GoogleLoginAsync()
         {
             if (IsBusy) return;
             IsBusy = true;
             HasError = false;
-            System.Diagnostics.Debug.WriteLine("[LoginVM] Google login started");
 
             try
             {
@@ -96,19 +83,16 @@ namespace LifeSyncApp.ViewModels.Auth
                 await _userSession.InitializeAsync();
 
                 await Shell.Current.GoToAsync("//MainPage");
-                System.Diagnostics.Debug.WriteLine("[LoginVM] Google login completed successfully");
             }
             catch (TimeoutException ex)
             {
                 HasError = true;
                 ErrorMessage = ex.Message;
-                System.Diagnostics.Debug.WriteLine($"[LoginVM] Google login timeout: {ex.Message}");
             }
             catch (TaskCanceledException ex)
             {
                 HasError = true;
                 ErrorMessage = ex.Message;
-                System.Diagnostics.Debug.WriteLine($"[LoginVM] Google login canceled: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -119,11 +103,11 @@ namespace LifeSyncApp.ViewModels.Auth
             finally
             {
                 IsBusy = false;
-                System.Diagnostics.Debug.WriteLine("[LoginVM] Google login flow finalized (IsBusy=false)");
             }
         }
 
-        public async Task GoToRegisterAsync()
+        [RelayCommand]
+        private async Task GoToRegisterAsync()
         {
             await Shell.Current.GoToAsync("//RegisterPage");
         }

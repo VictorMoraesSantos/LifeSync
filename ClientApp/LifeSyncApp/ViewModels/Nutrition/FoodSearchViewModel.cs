@@ -1,22 +1,18 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Nutrition.Food;
 using LifeSyncApp.DTOs.Nutrition.MealFood;
 using LifeSyncApp.Services.Nutrition;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class FoodSearchViewModel : BaseViewModel
+    public partial class FoodSearchViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
         private CancellationTokenSource? _searchCts;
 
         private string _searchText = string.Empty;
-        private FoodDTO? _selectedFood;
-        private bool _isBottomSheetVisible;
-        private string _quantityText = string.Empty;
-        private int _resultCount;
-
         public string SearchText
         {
             get => _searchText;
@@ -29,32 +25,21 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
         public ObservableCollection<FoodDTO> SearchResults { get; } = new();
 
-        public int ResultCount
-        {
-            get => _resultCount;
-            private set => SetProperty(ref _resultCount, value);
-        }
+        [ObservableProperty]
+        private int _resultCount;
 
-        public FoodDTO? SelectedFood
-        {
-            get => _selectedFood;
-            private set
-            {
-                SetProperty(ref _selectedFood, value);
-                OnPropertyChanged(nameof(SelectedFoodCaloriesText));
-                OnPropertyChanged(nameof(SelectedFoodProtein));
-                OnPropertyChanged(nameof(SelectedFoodLipids));
-                OnPropertyChanged(nameof(SelectedFoodCarbs));
-                OnPropertyChanged(nameof(TotalCalories));
-            }
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SelectedFoodCaloriesText))]
+        [NotifyPropertyChangedFor(nameof(SelectedFoodProtein))]
+        [NotifyPropertyChangedFor(nameof(SelectedFoodLipids))]
+        [NotifyPropertyChangedFor(nameof(SelectedFoodCarbs))]
+        [NotifyPropertyChangedFor(nameof(TotalCalories))]
+        private FoodDTO? _selectedFood;
 
-        public bool IsBottomSheetVisible
-        {
-            get => _isBottomSheetVisible;
-            private set => SetProperty(ref _isBottomSheetVisible, value);
-        }
+        [ObservableProperty]
+        private bool _isBottomSheetVisible;
 
+        private string _quantityText = string.Empty;
         public string QuantityText
         {
             get => _quantityText;
@@ -66,34 +51,28 @@ namespace LifeSyncApp.ViewModels.Nutrition
         }
 
         public string SelectedFoodCaloriesText =>
-            _selectedFood != null ? $"{_selectedFood.Calories} kcal / 100g" : string.Empty;
+            SelectedFood != null ? $"{SelectedFood.Calories} kcal / 100g" : string.Empty;
 
         public string SelectedFoodProtein =>
-            _selectedFood?.Protein != null ? $"{_selectedFood.Protein:0.#}g" : "0g";
+            SelectedFood?.Protein != null ? $"{SelectedFood.Protein:0.#}g" : "0g";
 
         public string SelectedFoodLipids =>
-            _selectedFood?.Lipids != null ? $"{_selectedFood.Lipids:0.#}g" : "0g";
+            SelectedFood?.Lipids != null ? $"{SelectedFood.Lipids:0.#}g" : "0g";
 
         public string SelectedFoodCarbs =>
-            _selectedFood?.Carbohydrates != null ? $"{_selectedFood.Carbohydrates:0.#}g" : "0g";
+            SelectedFood?.Carbohydrates != null ? $"{SelectedFood.Carbohydrates:0.#}g" : "0g";
 
         public int TotalCalories
         {
             get
             {
-                if (_selectedFood != null && int.TryParse(_quantityText, out var qty) && qty > 0)
-                    return (int)Math.Round(_selectedFood.Calories * qty / 100.0);
+                if (SelectedFood != null && int.TryParse(_quantityText, out var qty) && qty > 0)
+                    return (int)Math.Round(SelectedFood.Calories * qty / 100.0);
                 return 0;
             }
         }
 
         public int MealId { get; private set; }
-
-        public ICommand SearchCommand { get; }
-        public ICommand SelectFoodCommand { get; }
-        public ICommand CloseBottomSheetCommand { get; }
-        public ICommand AddFoodCommand { get; }
-        public ICommand CancelCommand { get; }
 
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
@@ -102,12 +81,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             _nutritionService = nutritionService;
             Title = "Buscar Alimento";
-
-            SearchCommand = new Command(async () => await SearchAsync());
-            SelectFoodCommand = new Command<FoodDTO>(SelectFood);
-            CloseBottomSheetCommand = new Command(CloseBottomSheet);
-            AddFoodCommand = new Command(async () => await AddFoodAsync());
-            CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
         }
 
         public void Initialize(int mealId)
@@ -135,10 +108,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (TaskCanceledException)
             {
-                // Debounce cancelled, expected behavior
             }
         }
 
+        [RelayCommand]
         private async Task SearchAsync(CancellationToken ct = default)
         {
             if (IsBusy) return;
@@ -172,6 +145,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private void SelectFood(FoodDTO? food)
         {
             if (food == null) return;
@@ -180,6 +154,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBottomSheetVisible = true;
         }
 
+        [RelayCommand]
         private void CloseBottomSheet()
         {
             IsBottomSheetVisible = false;
@@ -187,19 +162,14 @@ namespace LifeSyncApp.ViewModels.Nutrition
             QuantityText = string.Empty;
         }
 
+        [RelayCommand]
         private async Task AddFoodAsync()
         {
-            System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFoodAsync called - IsBusy: {IsBusy}, SelectedFood: {_selectedFood?.Name ?? "null"}, MealId: {MealId}, QuantityText: '{_quantityText}'");
-
-            if (IsBusy || _selectedFood == null)
-            {
-                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFood blocked - IsBusy: {IsBusy}, SelectedFood is null: {_selectedFood == null}");
+            if (IsBusy || SelectedFood == null)
                 return;
-            }
 
             if (!int.TryParse(_quantityText, out var qty) || qty <= 0)
             {
-                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFood invalid quantity: '{_quantityText}'");
                 await Application.Current!.MainPage!.DisplayAlert("Atenção", "Informe uma quantidade válida em gramas.", "OK");
                 return;
             }
@@ -207,12 +177,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
             IsBusy = true;
             try
             {
-                var dto = new CreateMealFoodDTO(MealId, _selectedFood.Id, qty);
-                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] Calling AddFoodToMealAsync - MealId: {MealId}, FoodId: {_selectedFood.Id}, Qty: {qty}");
-
+                var dto = new CreateMealFoodDTO(MealId, SelectedFood.Id, qty);
                 var (success, error) = await _nutritionService.AddFoodToMealAsync(MealId, dto);
-
-                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFoodToMealAsync returned: {success}");
 
                 if (success)
                 {
@@ -226,7 +192,6 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[FoodSearchVM] AddFood error: {ex.Message}");
                 await Application.Current!.MainPage!.DisplayAlert("Erro", $"Erro inesperado: {ex.Message}", "OK");
             }
             finally
@@ -234,5 +199,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 IsBusy = false;
             }
         }
+
+        [RelayCommand]
+        private void Cancel() => OnCancelled?.Invoke(this, EventArgs.Empty);
     }
 }

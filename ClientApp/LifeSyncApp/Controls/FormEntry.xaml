@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LifeSyncApp.Controls.FormEntry">
+
+    <VerticalStackLayout Spacing="8">
+        <Label x:Name="FieldLabel"
+               FontFamily="OutfitSemiBold"
+               FontSize="14"
+               TextColor="#1A1918"/>
+        <Border x:Name="FieldBorder"
+                Stroke="#E5E4E1"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 12"
+                BackgroundColor="#FAFAF8"
+                HeightRequest="44">
+            <Entry x:Name="FieldEntry"
+                   PlaceholderColor="#9C9B99"
+                   FontFamily="OutfitRegular"
+                   FontSize="14"
+                   TextColor="#1A1918"
+                   BackgroundColor="Transparent"
+                   Margin="16,0"/>
+        </Border>
+    </VerticalStackLayout>
+
+</ContentView>

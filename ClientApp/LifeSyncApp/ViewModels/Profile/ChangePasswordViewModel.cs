@@ -1,58 +1,33 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Profile;
 using LifeSyncApp.Services.Profile;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Profile
 {
-    public class ChangePasswordViewModel : BaseViewModel
+    public partial class ChangePasswordViewModel : BaseViewModel
     {
         private readonly IUserProfileService _userProfileService;
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         private string _currentPassword = string.Empty;
-        public string CurrentPassword
-        {
-            get => _currentPassword;
-            set
-            {
-                if (SetProperty(ref _currentPassword, value))
-                    ((Command)SaveCommand).ChangeCanExecute();
-            }
-        }
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         private string _newPassword = string.Empty;
-        public string NewPassword
-        {
-            get => _newPassword;
-            set
-            {
-                if (SetProperty(ref _newPassword, value))
-                    ((Command)SaveCommand).ChangeCanExecute();
-            }
-        }
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         private string _confirmPassword = string.Empty;
-        public string ConfirmPassword
-        {
-            get => _confirmPassword;
-            set
-            {
-                if (SetProperty(ref _confirmPassword, value))
-                    ((Command)SaveCommand).ChangeCanExecute();
-            }
-        }
 
         public event EventHandler? OnSaved;
         public event EventHandler? OnCancelled;
-
-        public ICommand SaveCommand { get; }
-        public ICommand CancelCommand { get; }
 
         public ChangePasswordViewModel(IUserProfileService userProfileService)
         {
             _userProfileService = userProfileService;
             Title = "Alterar Senha";
-            SaveCommand = new Command(async () => await SaveAsync(), CanSave);
-            CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
         }
 
         public void Initialize()
@@ -67,6 +42,7 @@ namespace LifeSyncApp.ViewModels.Profile
             !string.IsNullOrWhiteSpace(NewPassword) &&
             !string.IsNullOrWhiteSpace(ConfirmPassword);
 
+        [RelayCommand(CanExecute = nameof(CanSave))]
         private async Task SaveAsync()
         {
             if (IsBusy) return;
@@ -98,6 +74,12 @@ namespace LifeSyncApp.ViewModels.Profile
             {
                 IsBusy = false;
             }
+        }
+
+        [RelayCommand]
+        private void Cancel()
+        {
+            OnCancelled?.Invoke(this, EventArgs.Empty);
         }
     }
 }

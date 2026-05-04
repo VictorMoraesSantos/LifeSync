@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Nutrition.Diary;
 using LifeSyncApp.DTOs.Nutrition.Liquid;
@@ -5,17 +6,15 @@ using LifeSyncApp.DTOs.Nutrition.Meal;
 using LifeSyncApp.Services.Nutrition;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Nutrition
 {
-    public class DiaryDetailViewModel : BaseViewModel
+    public partial class DiaryDetailViewModel : BaseViewModel
     {
         private readonly INutritionService _nutritionService;
         private static readonly CultureInfo PtBr = new("pt-BR");
 
         private DiaryDTO? _diary;
-
         public DiaryDTO? Diary
         {
             get => _diary;
@@ -47,31 +46,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
         public ObservableCollection<MealDTO> Meals { get; } = new();
         public ObservableCollection<LiquidDTO> Liquids { get; } = new();
 
-        public ICommand GoBackCommand { get; }
-        public ICommand OpenAddMealCommand { get; }
-        public ICommand OpenEditMealCommand { get; }
-        public ICommand DeleteMealCommand { get; }
-        public ICommand OpenAddLiquidCommand { get; }
-        public ICommand EditLiquidCommand { get; }
-        public ICommand DeleteLiquidCommand { get; }
-        public ICommand EditDateCommand { get; }
-        public ICommand DeleteDiaryCommand { get; }
-
         public event EventHandler? DiaryDeleted;
 
         public DiaryDetailViewModel(INutritionService nutritionService)
         {
             _nutritionService = nutritionService;
-
-            GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
-            OpenAddMealCommand = new Command(async () => await OpenAddMealAsync());
-            OpenEditMealCommand = new Command<MealDTO>(async (m) => await OpenEditMealAsync(m));
-            DeleteMealCommand = new Command<MealDTO>(async (m) => await DeleteMealAsync(m));
-            OpenAddLiquidCommand = new Command(async () => await OpenAddLiquidAsync());
-            EditLiquidCommand = new Command<LiquidDTO>(async (l) => await EditLiquidAsync(l));
-            DeleteLiquidCommand = new Command<LiquidDTO>(async (l) => await DeleteLiquidAsync(l));
-            EditDateCommand = new Command(async () => await EditDateAsync());
-            DeleteDiaryCommand = new Command(async () => await DeleteDiaryAsync());
         }
 
         public async Task RefreshDiaryAsync()
@@ -105,6 +84,10 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 Liquids.Add(liquid);
         }
 
+        [RelayCommand]
+        private async Task GoBackAsync() => await Shell.Current.GoToAsync("..");
+
+        [RelayCommand]
         private async Task OpenAddMealAsync()
         {
             if (_diary == null) return;
@@ -121,15 +104,16 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        private async Task OpenEditMealAsync(MealDTO? meal)
+        [RelayCommand]
+        private async Task OpenEditMealAsync(MealDTO? m)
         {
-            if (meal == null || _diary == null) return;
+            if (m == null || _diary == null) return;
             try
             {
                 await Shell.Current.GoToAsync(AppRoutes.ManageMealModal, new Dictionary<string, object>
                 {
                     { "DiaryId", _diary.Id },
-                    { "Meal", meal }
+                    { "Meal", m }
                 });
             }
             catch (Exception ex)
@@ -138,18 +122,19 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        private async Task DeleteMealAsync(MealDTO? meal)
+        [RelayCommand]
+        private async Task DeleteMealAsync(MealDTO? m)
         {
-            if (meal == null) return;
+            if (m == null) return;
 
             var confirm = await Application.Current!.MainPage!.DisplayAlert(
-                "Confirmar", $"Deseja remover a refeição '{meal.Name}'?", "Sim", "Não");
+                "Confirmar", $"Deseja remover a refeição '{m.Name}'?", "Sim", "Não");
             if (!confirm) return;
 
             IsBusy = true;
             try
             {
-                var (success, error) = await _nutritionService.DeleteMealAsync(meal.Id);
+                var (success, error) = await _nutritionService.DeleteMealAsync(m.Id);
                 if (success)
                     await RefreshDiaryAsync();
                 else
@@ -161,6 +146,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task OpenAddLiquidAsync()
         {
             if (_diary == null) return;
@@ -177,15 +163,16 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        private async Task EditLiquidAsync(LiquidDTO? liquid)
+        [RelayCommand]
+        private async Task EditLiquidAsync(LiquidDTO? l)
         {
-            if (liquid == null || _diary == null) return;
+            if (l == null || _diary == null) return;
             try
             {
                 await Shell.Current.GoToAsync(AppRoutes.ManageLiquidModal, new Dictionary<string, object>
                 {
                     { "DiaryId", _diary.Id },
-                    { "Liquid", liquid }
+                    { "Liquid", l }
                 });
             }
             catch (Exception ex)
@@ -194,18 +181,19 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
-        private async Task DeleteLiquidAsync(LiquidDTO? liquid)
+        [RelayCommand]
+        private async Task DeleteLiquidAsync(LiquidDTO? l)
         {
-            if (liquid == null) return;
+            if (l == null) return;
 
             var confirm = await Application.Current!.MainPage!.DisplayAlert(
-                "Confirmar", $"Deseja remover '{liquid.Name}'?", "Sim", "Não");
+                "Confirmar", $"Deseja remover '{l.Name}'?", "Sim", "Não");
             if (!confirm) return;
 
             IsBusy = true;
             try
             {
-                var (success, error) = await _nutritionService.DeleteLiquidAsync(liquid.Id);
+                var (success, error) = await _nutritionService.DeleteLiquidAsync(l.Id);
                 if (success)
                     await RefreshDiaryAsync();
                 else
@@ -217,11 +205,11 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task EditDateAsync()
         {
             if (_diary == null) return;
 
-            var currentDate = _diary.Date.ToDateTime(TimeOnly.MinValue);
             var result = await Application.Current!.MainPage!.DisplayPromptAsync(
                 "Editar data", "Nova data (dd/MM/yyyy):", initialValue: _diary.Date.ToString("dd/MM/yyyy"));
 
@@ -248,6 +236,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
         }
 
+        [RelayCommand]
         private async Task DeleteDiaryAsync()
         {
             if (_diary == null) return;

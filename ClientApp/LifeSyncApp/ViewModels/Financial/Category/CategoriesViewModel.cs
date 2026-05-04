@@ -1,43 +1,31 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Constants;
 using LifeSyncApp.DTOs.Financial.Category;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial.Category
 {
-    public class CategoriesViewModel : BaseViewModel
+    public partial class CategoriesViewModel : BaseViewModel
     {
         private readonly ICategoryService _categoryService;
         private readonly IUserSession _userSession;
 
+        [ObservableProperty]
         private bool _isLoadingCategories;
-        public bool IsLoadingCategories
-        {
-            get => _isLoadingCategories;
-            private set => SetProperty(ref _isLoadingCategories, value);
-        }
+
         private DateTime? _lastCategoriesRefresh;
 
         public ObservableCollection<CategoryDTO> Categories { get; } = new();
-
-        public ICommand GoBackCommand { get; }
-        public ICommand AddCategoryCommand { get; }
-        public ICommand EditCategoryCommand { get; }
-        public ICommand DeleteCategoryCommand { get; }
 
         public CategoriesViewModel(ICategoryService categoryService, IUserSession userSession)
         {
             _categoryService = categoryService;
             _userSession = userSession;
             Title = "Categorias";
-
-            GoBackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
-            AddCategoryCommand = new Command(async () => await AddCategoryAsync());
-            EditCategoryCommand = new Command<CategoryDTO>(async (category) => await EditCategoryAsync(category));
-            DeleteCategoryCommand = new Command<CategoryDTO>(async (category) => await DeleteCategoryAsync(category));
         }
 
         public async Task InitializeAsync()
@@ -81,11 +69,19 @@ namespace LifeSyncApp.ViewModels.Financial.Category
             _lastCategoriesRefresh = null;
         }
 
+        [RelayCommand]
+        private async Task GoBackAsync()
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+
+        [RelayCommand]
         private async Task AddCategoryAsync()
         {
             await Shell.Current.GoToAsync(AppRoutes.ManageCategoryModal);
         }
 
+        [RelayCommand]
         private async Task EditCategoryAsync(CategoryDTO category)
         {
             var parameters = new Dictionary<string, object>
@@ -96,6 +92,7 @@ namespace LifeSyncApp.ViewModels.Financial.Category
             await Shell.Current.GoToAsync(AppRoutes.ManageCategoryModal, parameters);
         }
 
+        [RelayCommand]
         private async Task DeleteCategoryAsync(CategoryDTO category)
         {
             if (category == null) return;

@@ -5,6 +5,7 @@
              xmlns:dto="clr-namespace:LifeSyncApp.DTOs.Financial.Category"
              x:Class="LifeSyncApp.Views.Financial.CategoriesPage"
              x:DataType="viewmodel:CategoriesViewModel"
+             xmlns:controls="clr-namespace:LifeSyncApp.Controls"
              BackgroundColor="{StaticResource FinBackground}"
              Title=""
              Shell.NavBarIsVisible="False">
@@ -16,21 +17,8 @@
               Padding="20,12"
               ColumnDefinitions="Auto,*,Auto">
 
-            <HorizontalStackLayout Grid.Column="0"
-                                   Spacing="6"
-                                   VerticalOptions="Center">
-                <HorizontalStackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
-                </HorizontalStackLayout.GestureRecognizers>
-                <Image Source="arrow_back.svg"
-                       WidthRequest="20"
-                       HeightRequest="20"
-                       VerticalOptions="Center"/>
-                <Label Text="Voltar"
-                       FontSize="15"
-                       TextColor="{StaticResource FinDark}"
-                       VerticalOptions="Center"/>
-            </HorizontalStackLayout>
+            <controls:BackNavigationHeader Grid.Column="0"
+                                           Command="{Binding GoBackCommand}"/>
 
             <Border Grid.Column="2"
                     HeightRequest="36"

@@ -1,49 +1,29 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.DTOs.Financial.Transaction;
 using LifeSyncApp.Helpers;
 using LifeSyncApp.Models.Financial;
 using LifeSyncApp.Services.Financial;
 using LifeSyncApp.Services.UserSession;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.Financial.Transaction
 {
-    public class FilterTransactionViewModel : BaseViewModel
+    public partial class FilterTransactionViewModel : BaseViewModel
     {
         private readonly ICategoryService _categoryService;
         private readonly IUserSession _userSession;
 
+        [ObservableProperty]
         private string _selectedType = "";
+
+        [ObservableProperty]
         private string _selectedPaymentMethod = "";
+
+        [ObservableProperty]
         private string _selectedDateFilter = "";
 
-        public string SelectedType
-        {
-            get => _selectedType;
-            set => SetProperty(ref _selectedType, value);
-        }
-
-        public string SelectedPaymentMethod
-        {
-            get => _selectedPaymentMethod;
-            set => SetProperty(ref _selectedPaymentMethod, value);
-        }
-
-        public string SelectedDateFilter
-        {
-            get => _selectedDateFilter;
-            set => SetProperty(ref _selectedDateFilter, value);
-        }
-
         public ObservableCollection<SelectableCategoryItem> SelectableCategories { get; } = new();
-
-        public ICommand SelectTypeCommand { get; }
-        public ICommand SelectPaymentMethodCommand { get; }
-        public ICommand SelectCategoryCommand { get; }
-        public ICommand SelectDateFilterCommand { get; }
-        public ICommand ApplyCommand { get; }
-        public ICommand ClearCommand { get; }
-        public ICommand CancelCommand { get; }
 
         public event EventHandler<TransactionFilterDTO>? OnFiltersApplied;
         public event EventHandler? OnCancelled;
@@ -53,15 +33,6 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             _categoryService = categoryService;
             _userSession = userSession;
             Title = "Filtrar Transações";
-
-            SelectTypeCommand = new Command<string>(t => SelectedType = t ?? "");
-            SelectPaymentMethodCommand = new Command<string>(p => SelectedPaymentMethod = p ?? "");
-            SelectDateFilterCommand = new Command<string>(d => SelectedDateFilter = d ?? "");
-            SelectCategoryCommand = new Command<SelectableCategoryItem>(OnSelectCategory);
-
-            ApplyCommand = new Command(OnApply);
-            ClearCommand = new Command(OnClear);
-            CancelCommand = new Command(() => OnCancelled?.Invoke(this, EventArgs.Empty));
         }
 
         public async Task InitializeAsync(TransactionFilterDTO? existingFilter = null)
@@ -115,7 +86,26 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             };
         }
 
-        private void OnSelectCategory(SelectableCategoryItem? item)
+        [RelayCommand]
+        private void SelectType(string t)
+        {
+            SelectedType = t ?? "";
+        }
+
+        [RelayCommand]
+        private void SelectPaymentMethod(string p)
+        {
+            SelectedPaymentMethod = p ?? "";
+        }
+
+        [RelayCommand]
+        private void SelectDateFilter(string d)
+        {
+            SelectedDateFilter = d ?? "";
+        }
+
+        [RelayCommand]
+        private void SelectCategory(SelectableCategoryItem? item)
         {
             if (item == null) return;
 
@@ -125,7 +115,8 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             item.IsSelected = true;
         }
 
-        private void OnApply()
+        [RelayCommand]
+        private void Apply()
         {
             TransactionType? selectedType = SelectedType switch
             {
@@ -183,13 +174,20 @@ namespace LifeSyncApp.ViewModels.Financial.Transaction
             OnFiltersApplied?.Invoke(this, filter);
         }
 
-        private void OnClear()
+        [RelayCommand]
+        private void Clear()
         {
             SelectedType = "";
             SelectedPaymentMethod = "";
             SelectedDateFilter = "";
             foreach (var cat in SelectableCategories)
                 cat.IsSelected = cat.Id == -1;
+        }
+
+        [RelayCommand]
+        private void Cancel()
+        {
+            OnCancelled?.Invoke(this, EventArgs.Empty);
         }
     }
 }

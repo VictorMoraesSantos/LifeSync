@@ -1,5 +1,6 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LifeSyncApp.Models.TaskManager.Enums;
-using System.Windows.Input;
 
 namespace LifeSyncApp.ViewModels.TaskManager
 {
@@ -22,84 +23,37 @@ namespace LifeSyncApp.ViewModels.TaskManager
         }
     }
 
-    public class FilterTaskItemViewModel : BaseViewModel
+    public partial class FilterTaskItemViewModel : BaseViewModel
     {
+        [ObservableProperty]
+        private string _selectedStatus = "";
 
-        private string _selectedStatus;
-        public string SelectedStatus
-        {
-            get => _selectedStatus;
-            set
-            {
-                if (_selectedStatus == value) return;
-                _selectedStatus = value;
-                OnPropertyChanged(nameof(SelectedStatus));
-            }
-        }
+        [ObservableProperty]
+        private string _selectedPriority = "";
 
-        private string _selectedPriority;
-        public string SelectedPriority
-        {
-            get => _selectedPriority;
-            set
-            {
-                if (_selectedPriority == value) return;
-                _selectedPriority = value;
-                OnPropertyChanged(nameof(SelectedPriority));
-            }
-        }
-
-        private string _selectedDateFilter;
-        public string SelectedDateFilter
-        {
-            get => _selectedDateFilter;
-            set
-            {
-                if (_selectedDateFilter == value) return;
-                _selectedDateFilter = value;
-                OnPropertyChanged(nameof(SelectedDateFilter));
-            }
-        }
-
-        public ICommand CloseModalCommand { get; set; }
-        public ICommand SelectStatusCommand { get; set; }
-        public ICommand SelectPriorityCommand { get; set; }
-        public ICommand SelectDateFilterCommand { get; set; }
-        public ICommand ClearFiltersCommand { get; set; }
-        public ICommand ApplyFiltersCommand { get; set; }
+        [ObservableProperty]
+        private string _selectedDateFilter = "";
 
         public event EventHandler<FilterAppliedEventArgs>? FiltersApplied;
         public event EventHandler? Closed;
 
         public FilterTaskItemViewModel()
         {
-            SelectedStatus = "";
-            SelectedPriority = "";
-            SelectedDateFilter = "";
-
-            CloseModalCommand = new Command(() => Closed?.Invoke(this, EventArgs.Empty));
-            SelectStatusCommand = new Command<string>(SelectStatus);
-            SelectPriorityCommand = new Command<string>(SelectPriority);
-            SelectDateFilterCommand = new Command<string>(SelectDateFilter);
-            ClearFiltersCommand = new Command(ClearFilters);
-            ApplyFiltersCommand = new Command(ApplyFilters);
         }
 
-        private void SelectStatus(string status)
-        {
-            SelectedStatus = status ?? "";
-        }
+        [RelayCommand]
+        private void CloseModal() => Closed?.Invoke(this, EventArgs.Empty);
 
-        private void SelectPriority(string priority)
-        {
-            SelectedPriority = priority ?? "";
-        }
+        [RelayCommand]
+        private void SelectStatus(string status) => SelectedStatus = status ?? "";
 
-        private void SelectDateFilter(string dateOption)
-        {
-            SelectedDateFilter = dateOption ?? "";
-        }
+        [RelayCommand]
+        private void SelectPriority(string priority) => SelectedPriority = priority ?? "";
 
+        [RelayCommand]
+        private void SelectDateFilter(string dateOption) => SelectedDateFilter = dateOption ?? "";
+
+        [RelayCommand]
         private void ClearFilters()
         {
             SelectedStatus = "";
@@ -107,6 +61,7 @@ namespace LifeSyncApp.ViewModels.TaskManager
             SelectedDateFilter = "";
         }
 
+        [RelayCommand]
         private void ApplyFilters()
         {
             Status? statusEnum = SelectedStatus switch
