@@ -95,13 +95,7 @@ namespace LifeSyncApp.ViewModels.Auth
 
             try
             {
-                var request = new RegisterRequest
-                {
-                    FirstName = FirstName.Trim(),
-                    LastName = LastName.Trim(),
-                    Email = Email.Trim(),
-                    Password = Password
-                };
+                var request = new RegisterRequest(FirstName.Trim(), LastName.Trim(), Email.Trim(), Password);
 
                 await _authService.RegisterAsync(request);
                 await _userSession.InitializeAsync();

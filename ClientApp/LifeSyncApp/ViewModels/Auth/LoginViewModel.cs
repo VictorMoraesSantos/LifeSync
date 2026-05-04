@@ -59,11 +59,7 @@ namespace LifeSyncApp.ViewModels.Auth
 
             try
             {
-                var request = new LoginRequest
-                {
-                    Email = Email.Trim(),
-                    Password = Password
-                };
+                var request = new LoginRequest(Email.Trim(), Password);
 
                 await _authService.LoginAsync(request);
                 await _userSession.InitializeAsync();

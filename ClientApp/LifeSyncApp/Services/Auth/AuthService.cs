@@ -132,12 +132,10 @@ namespace LifeSyncApp.Services.Auth
                 _googleSignInAttemptTracker.TryMarkSucceeded(attempt.AttemptId);
                 LogGoogleSignInEvent("sign_in_success", attempt.AttemptId);
 
-                return new AuthResult
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken,
-                    User = new UserDTO { Id = userId }
-                };
+                return new AuthResult(
+                    accessToken,
+                    refreshToken,
+                    new UserDTO(userId, string.Empty, string.Empty, string.Empty, string.Empty, true, []));
             }
             catch (TaskCanceledException ex) when (!timeoutCts.IsCancellationRequested)
             {

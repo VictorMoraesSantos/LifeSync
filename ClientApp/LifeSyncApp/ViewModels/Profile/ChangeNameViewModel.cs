@@ -66,12 +66,7 @@ namespace LifeSyncApp.ViewModels.Profile
             try
             {
                 var userId = await _authService.GetUserIdAsync();
-                var dto = new UpdateUserRequest
-                {
-                    FirstName = FirstName.Trim(),
-                    LastName = LastName.Trim(),
-                    Email = CurrentEmail
-                };
+                var dto = new UpdateUserRequest(FirstName.Trim(), LastName.Trim(), CurrentEmail);
 
                 var (success, error) = await _userProfileService.UpdateUserAsync(userId, dto);
 

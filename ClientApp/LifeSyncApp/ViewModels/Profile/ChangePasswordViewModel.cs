@@ -81,11 +81,7 @@ namespace LifeSyncApp.ViewModels.Profile
 
             try
             {
-                var dto = new ChangePasswordRequest
-                {
-                    CurrentPassword = CurrentPassword,
-                    NewPassword = NewPassword
-                };
+                var dto = new ChangePasswordRequest(CurrentPassword, NewPassword);
 
                 var (success, error) = await _userProfileService.ChangePasswordAsync(dto);
 
