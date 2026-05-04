@@ -170,7 +170,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
 
             if (!int.TryParse(_quantityText, out var qty) || qty <= 0)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Atenção", "Informe uma quantidade válida em gramas.", "OK");
+                await ShowAlertAsync("Atenção", "Informe uma quantidade válida em gramas.");
                 return;
             }
 
@@ -187,12 +187,12 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 }
                 else
                 {
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível adicionar o alimento.", "OK");
+                    await ShowAlertAsync("Erro", error ?? "Não foi possível adicionar o alimento.");
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", $"Erro inesperado: {ex.Message}", "OK");
+                await ShowAlertAsync("Erro", $"Erro inesperado: {ex.Message}");
             }
             finally
             {

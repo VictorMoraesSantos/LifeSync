@@ -83,11 +83,12 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 if (success)
                     OnSaved?.Invoke(this, EventArgs.Empty);
                 else
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível salvar a refeição.", "OK");
+                    await ShowAlertAsync("Erro", error ?? "Não foi possível salvar a refeição.");
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+                System.Diagnostics.Debug.WriteLine($"[ManageMealVM] SaveAsync error: {ex}");
+                await ShowAlertAsync("Erro", ex.Message);
             }
             finally
             {

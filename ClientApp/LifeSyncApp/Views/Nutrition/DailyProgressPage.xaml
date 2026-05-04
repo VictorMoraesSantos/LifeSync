@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Nutrition"
-             xmlns:dp="clr-namespace:LifeSyncApp.DTOs.Nutrition.DailyProgress"
+             xmlns:dp="clr-namespace:LifeSyncApp.Models.Nutrition.DailyProgress"
              x:Class="LifeSyncApp.Views.Nutrition.DailyProgressPage"
              x:DataType="viewmodel:DailyProgressViewModel"
              xmlns:controls="clr-namespace:LifeSyncApp.Controls"

@@ -100,7 +100,9 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+                System.Diagnostics.Debug.WriteLine($"[DiaryDetail] OpenAddMeal error: {ex}");
+                if (Shell.Current?.CurrentPage is Page currentPage)
+                    await currentPage.DisplayAlert("Erro", ex.Message, "OK");
             }
         }
 
@@ -118,7 +120,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+                System.Diagnostics.Debug.WriteLine($"[DiaryDetail] OpenEditMeal error: {ex}");
+                await ShowAlertAsync("Erro", ex.Message);
             }
         }
 
@@ -127,8 +130,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (m == null) return;
 
-            var confirm = await Application.Current!.MainPage!.DisplayAlert(
-                "Confirmar", $"Deseja remover a refeição '{m.Name}'?", "Sim", "Não");
+            var confirm = await ShowConfirmAsync(
+                "Confirmar", $"Deseja remover a refeição '{m.Name}'?");
             if (!confirm) return;
 
             IsBusy = true;
@@ -138,7 +141,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 if (success)
                     await RefreshDiaryAsync();
                 else
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível remover a refeição.", "OK");
+                    await ShowAlertAsync("Erro", error ?? "Não foi possível remover a refeição.");
             }
             finally
             {
@@ -159,7 +162,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+                await ShowAlertAsync("Erro", ex.Message);
             }
         }
 
@@ -177,7 +180,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+                await ShowAlertAsync("Erro", ex.Message);
             }
         }
 
@@ -186,8 +189,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (l == null) return;
 
-            var confirm = await Application.Current!.MainPage!.DisplayAlert(
-                "Confirmar", $"Deseja remover '{l.Name}'?", "Sim", "Não");
+            var confirm = await ShowConfirmAsync(
+                "Confirmar", $"Deseja remover '{l.Name}'?");
             if (!confirm) return;
 
             IsBusy = true;
@@ -197,7 +200,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 if (success)
                     await RefreshDiaryAsync();
                 else
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível remover o líquido.", "OK");
+                    await ShowAlertAsync("Erro", error ?? "Não foi possível remover o líquido.");
             }
             finally
             {
@@ -210,14 +213,14 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (_diary == null) return;
 
-            var result = await Application.Current!.MainPage!.DisplayPromptAsync(
+            var result = await ShowPromptAsync(
                 "Editar data", "Nova data (dd/MM/yyyy):", initialValue: _diary.Date.ToString("dd/MM/yyyy"));
 
             if (string.IsNullOrWhiteSpace(result)) return;
 
             if (!DateOnly.TryParseExact(result, "dd/MM/yyyy", PtBr, DateTimeStyles.None, out var newDate))
             {
-                await Application.Current.MainPage.DisplayAlert("Erro", "Formato de data inválido. Use dd/MM/yyyy.", "OK");
+                await ShowAlertAsync("Erro", "Formato de data inválido. Use dd/MM/yyyy.");
                 return;
             }
 
@@ -228,7 +231,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 if (success)
                     await RefreshDiaryAsync();
                 else
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível atualizar a data.", "OK");
+                    await ShowAlertAsync("Erro", error ?? "Não foi possível atualizar a data.");
             }
             finally
             {
@@ -241,7 +244,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (_diary == null) return;
 
-            var confirm = await Application.Current!.MainPage!.DisplayAlert(
+            var confirm = await ShowConfirmAsync(
                 "Confirmar", "Deseja excluir este diário? Esta ação não pode ser desfeita.", "Excluir", "Cancelar");
             if (!confirm) return;
 
@@ -256,7 +259,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 }
                 else
                 {
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível excluir o diário.", "OK");
+                    await ShowAlertAsync("Erro", error ?? "Não foi possível excluir o diário.");
                 }
             }
             finally

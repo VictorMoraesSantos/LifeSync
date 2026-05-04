@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial.Category"
-             xmlns:dto="clr-namespace:LifeSyncApp.DTOs.Financial.Category"
+             xmlns:dto="clr-namespace:LifeSyncApp.Models.Financial.Category"
              x:Class="LifeSyncApp.Views.Financial.CategoriesPage"
              x:DataType="viewmodel:CategoriesViewModel"
              xmlns:controls="clr-namespace:LifeSyncApp.Controls"

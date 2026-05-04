@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:LifeSyncApp.ViewModels.Financial.Transaction"
              xmlns:models="clr-namespace:LifeSyncApp.Models.Financial"
-             xmlns:dto="clr-namespace:LifeSyncApp.DTOs.Financial.Transaction"
+             xmlns:dto="clr-namespace:LifeSyncApp.Models.Financial.Transaction"
              x:Class="LifeSyncApp.Views.Financial.TransactionListPage"
              x:DataType="viewmodel:TransactionListViewModel"
              xmlns:controls="clr-namespace:LifeSyncApp.Controls"

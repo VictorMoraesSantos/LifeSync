@@ -111,7 +111,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+                await ShowAlertAsync("Erro", ex.Message);
             }
         }
 
@@ -120,8 +120,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (_meal == null) return;
 
-            var confirm = await Application.Current!.MainPage!.DisplayAlert(
-                "Confirmar", $"Deseja remover a refeição '{_meal.Name}'?", "Sim", "Não");
+            var confirm = await ShowConfirmAsync(
+                "Confirmar", $"Deseja remover a refeição '{_meal.Name}'?");
             if (!confirm) return;
 
             IsBusy = true;
@@ -135,7 +135,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 }
                 else
                 {
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível remover a refeição.", "OK");
+                    await ShowAlertAsync("Erro", error ?? "Não foi possível remover a refeição.");
                 }
             }
             finally
@@ -157,7 +157,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+                await ShowAlertAsync("Erro", ex.Message);
             }
         }
 
@@ -174,7 +174,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage!.DisplayAlert("Erro", ex.Message, "OK");
+                await ShowAlertAsync("Erro", ex.Message);
             }
         }
 
@@ -183,8 +183,8 @@ namespace LifeSyncApp.ViewModels.Nutrition
         {
             if (f == null || _meal == null) return;
 
-            var confirm = await Application.Current!.MainPage!.DisplayAlert(
-                "Confirmar", $"Remover '{f.Name}' da refeição?", "Sim", "Não");
+            var confirm = await ShowConfirmAsync(
+                "Confirmar", $"Remover '{f.Name}' da refeição?");
             if (!confirm) return;
 
             IsBusy = true;
@@ -194,7 +194,7 @@ namespace LifeSyncApp.ViewModels.Nutrition
                 if (success)
                     await RefreshMealAsync();
                 else
-                    await Application.Current!.MainPage!.DisplayAlert("Erro", error ?? "Não foi possível remover o alimento.", "OK");
+                    await ShowAlertAsync("Erro", error ?? "Não foi possível remover o alimento.");
             }
             finally
             {
