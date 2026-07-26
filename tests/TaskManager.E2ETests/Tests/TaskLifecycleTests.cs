@@ -21,12 +21,12 @@ namespace TaskManager.E2ETests.Tests
             _client = factory.CreateClient();
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await _factory.ResetDatabaseAsync();
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         [Fact]
         public async Task CompleteTaskLifecycle_CreateUpdateAddLabelComplete()

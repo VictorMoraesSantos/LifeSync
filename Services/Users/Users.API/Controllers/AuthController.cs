@@ -63,9 +63,9 @@ namespace Users.API.Controllers
 
         [AllowAnonymous]
         [HttpGet("google-login")]
-        public async Task<IActionResult> GoogleLogin([FromQuery] string state, CancellationToken cancellationToken)
+        public async Task<IActionResult> GoogleLogin([FromQuery] string? state, CancellationToken cancellationToken)
         {
-            var query = new GetGoogleLoginUrlQuery(state);
+            var query = new GetGoogleLoginUrlQuery(state ?? string.Empty);
             var result = await _sender.Send(query, cancellationToken);
 
             if (!result.IsSuccess)
@@ -77,25 +77,47 @@ namespace Users.API.Controllers
         [AllowAnonymous]
         [HttpGet("google-callback")]
         public async Task<IActionResult> GoogleCallback(
-            [FromQuery] string code, [FromQuery] string state, CancellationToken cancellationToken)
+            [FromQuery] string? code,
+            [FromQuery] string? state,
+            [FromQuery] string? error,
+            CancellationToken cancellationToken)
         {
-            var appScheme = _configuration["GoogleAuth:AppScheme"] ?? "com.lifesync.app";
+            // Este endpoint sempre redireciona para o app scheme, inclusive em caso de erro.
+            // Se ele responder JSON/400, o WebAuthenticator do MAUI nunca recebe o callback
+            // e o usuario fica preso ate o timeout do fluxo.
 
-            var command = new GoogleCallbackCommand(code, state);
+            // Quando o usuario cancela o consentimento, o Google devolve ?error=access_denied
+            // sem o parametro code.
+            if (!string.IsNullOrWhiteSpace(error))
+                return RedirectToAppCallback(ErrorQuery(error, state));
+
+            if (string.IsNullOrWhiteSpace(code))
+                return RedirectToAppCallback(ErrorQuery("missing_authorization_code", state));
+
+            var command = new GoogleCallbackCommand(code, state ?? string.Empty);
             var result = await _sender.Send(command, cancellationToken);
 
             if (!result.IsSuccess)
-                return Redirect($"{appScheme}://callback?error={Uri.EscapeDataString(result.Error!.Description)}");
+                return RedirectToAppCallback(ErrorQuery(result.Error!.Description, state));
 
             var authResult = result.Value!;
-            var callbackUrl =
-                $"{appScheme}://callback" +
-                $"?access_token={Uri.EscapeDataString(authResult.AccessToken)}" +
+            var successQuery =
+                $"access_token={Uri.EscapeDataString(authResult.AccessToken)}" +
                 $"&refresh_token={Uri.EscapeDataString(authResult.RefreshToken)}" +
                 $"&user_id={Uri.EscapeDataString(authResult.User.Id)}" +
-                $"&state={Uri.EscapeDataString(state ?? "")}";
+                $"&state={Uri.EscapeDataString(state ?? string.Empty)}";
 
-            return Redirect(callbackUrl);
+            return RedirectToAppCallback(successQuery);
+        }
+
+        private static string ErrorQuery(string error, string? state) =>
+            $"error={Uri.EscapeDataString(error)}" +
+            $"&state={Uri.EscapeDataString(state ?? string.Empty)}";
+
+        private IActionResult RedirectToAppCallback(string query)
+        {
+            var appScheme = _configuration["GoogleAuth:AppScheme"] ?? "com.lifesync.app";
+            return Redirect($"{appScheme}://callback?{query}");
         }
 
         [HttpPost("logout")]

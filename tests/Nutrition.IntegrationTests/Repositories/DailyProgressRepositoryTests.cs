@@ -18,14 +18,14 @@ namespace Nutrition.IntegrationTests.Repositories
             _fixture = fixture;
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await _fixture.ResetDatabaseAsync();
             var context = _fixture.CreateNewContext();
             _repository = new DailyProgressRepository(context);
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         [Fact]
         public async Task Create_ShouldPersistDailyProgress()

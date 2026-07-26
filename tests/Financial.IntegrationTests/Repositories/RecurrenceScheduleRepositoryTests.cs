@@ -21,13 +21,13 @@ namespace Financial.IntegrationTests.Repositories
             _repository = new RecurrenceScheduleRepository(_fixture.DbContext);
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await _fixture.ResetDatabaseAsync();
             _repository = new RecurrenceScheduleRepository(_fixture.CreateNewContext());
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         #region Helpers
 

@@ -19,7 +19,7 @@ namespace Nutrition.IntegrationTests.Repositories
             _fixture = fixture;
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await _fixture.ResetDatabaseAsync();
             var context = _fixture.CreateNewContext();
@@ -27,7 +27,7 @@ namespace Nutrition.IntegrationTests.Repositories
             _diaryRepository = new DiaryRepository(context);
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         private async Task<Diary> CreateDiaryAsync()
         {

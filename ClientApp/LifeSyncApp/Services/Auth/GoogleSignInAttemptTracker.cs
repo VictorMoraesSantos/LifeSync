@@ -48,6 +48,14 @@ namespace LifeSyncApp.Services.Auth
 
     public sealed class GoogleSignInAttemptTracker
     {
+        /// <summary>
+        /// Apos esse intervalo uma tentativa nao finalizada e considerada orfa e
+        /// descartada. Sem isso, um fluxo que morre sem passar pelos catches (app
+        /// morto em background durante o Custom Tab, por exemplo) deixaria o
+        /// tracker travado e o login Google inutilizavel ate reiniciar o app.
+        /// </summary>
+        private static readonly TimeSpan AbandonedAttemptThreshold = TimeSpan.FromMinutes(5);
+
         private readonly object _sync = new();
         private GoogleSignInAttempt? _activeAttempt;
         private readonly Dictionary<string, GoogleSignInAttemptState> _completedAttemptStates = new(StringComparer.Ordinal);
@@ -58,7 +66,12 @@ namespace LifeSyncApp.Services.Auth
             {
                 if (_activeAttempt is not null && !_activeAttempt.IsTerminal)
                 {
-                    throw new InvalidOperationException("Ja existe uma tentativa de login Google em andamento.");
+                    if (DateTime.UtcNow - _activeAttempt.StartedAtUtc < AbandonedAttemptThreshold)
+                        throw new InvalidOperationException("Ja existe uma tentativa de login Google em andamento.");
+
+                    _activeAttempt.MoveTo(GoogleSignInAttemptState.Failed, "Tentativa anterior abandonada.");
+                    _completedAttemptStates[_activeAttempt.AttemptId] = GoogleSignInAttemptState.Failed;
+                    _activeAttempt = null;
                 }
 
                 var attempt = new GoogleSignInAttempt(Guid.NewGuid().ToString("N"));

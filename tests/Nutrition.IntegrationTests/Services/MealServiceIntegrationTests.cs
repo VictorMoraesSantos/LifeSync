@@ -21,13 +21,13 @@ namespace Nutrition.IntegrationTests.Services
             _fixture = fixture;
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await _fixture.ResetDatabaseAsync();
             RecreateServices();
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         /// <summary>
         /// Creates new services backed by a fresh DbContext so that

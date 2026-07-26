@@ -1,3 +1,4 @@
+using LifeSyncApp.Configuration;
 using LifeSyncApp.Services.ApiService.Implementation;
 using LifeSyncApp.Services.ApiService.Interface;
 using LifeSyncApp.Services.Auth;
@@ -61,13 +62,9 @@ namespace LifeSyncApp
                     fonts.AddFont("Outfit-SemiBold.ttf", "OutfitSemiBold");
                 });
 
-            // Configure a URL base baseado na plataforma
-            //var baseUrl = "https://api.lifesync.tech";  // VPS produção
-
-            // Para desenvolvimento local, descomente abaixo e comente a linha acima:
-            var baseUrl = DeviceInfo.Platform == DevicePlatform.Android && DeviceInfo.DeviceType == DeviceType.Virtual
-                ? "http://10.0.2.2:6006"  // Emulador Android
-                : "http://192.168.0.36:6006";  // Dispositivo físico
+            // Endereco da API: ApiConfiguration.DebugEnvironment alterna entre o
+            // gateway local (docker compose, porta 6006) e o dominio de producao.
+            var baseUrl = ApiConfiguration.BaseUrl;
 
             // Auth DelegatingHandler - adds JWT token to every request
             builder.Services.AddTransient<AuthDelegatingHandler>();

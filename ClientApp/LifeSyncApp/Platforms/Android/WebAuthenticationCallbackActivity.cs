@@ -28,12 +28,25 @@ public class WebAuthenticationCallbackActivity : Microsoft.Maui.Authentication.W
 
     private static void LogIntent(string lifecycleEvent, Intent? intent)
     {
-        var data = intent?.Data;
-        Log.Info(Tag, "Event={Event} Action={Action} Scheme={Scheme} Host={Host} Path={Path}",
-            lifecycleEvent,
-            intent?.Action ?? "-",
-            data?.Scheme ?? "-",
-            data?.Host ?? "-",
-            data?.Path ?? "-");
+        // Android.Util.Log usa semantica de String.Format ({0}, {1}), nao os placeholders
+        // nomeados do ILogger. Passar "{Event}" fazia o String.Format tentar ler "Event"
+        // como indice e lancar FormatException aqui no OnCreate, matando o processo antes
+        // do callback do OAuth chegar ao WebAuthenticator. Interpolamos antes e mandamos
+        // uma unica string, que resolve para a sobrecarga que nao formata.
+        try
+        {
+            var data = intent?.Data;
+            Log.Info(Tag,
+                $"Event={lifecycleEvent} " +
+                $"Action={intent?.Action ?? "-"} " +
+                $"Scheme={data?.Scheme ?? "-"} " +
+                $"Host={data?.Host ?? "-"} " +
+                $"Path={data?.Path ?? "-"}");
+        }
+        catch (Exception ex)
+        {
+            // Log e diagnostico: nunca pode derrubar o fluxo de autenticacao.
+            Log.Warn(Tag, $"Falha ao logar o intent de callback: {ex.Message}");
+        }
     }
 }

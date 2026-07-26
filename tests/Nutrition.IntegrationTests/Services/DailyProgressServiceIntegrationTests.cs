@@ -20,7 +20,7 @@ namespace Nutrition.IntegrationTests.Services
             _fixture = fixture;
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await _fixture.ResetDatabaseAsync();
             var context = _fixture.CreateNewContext();
@@ -29,7 +29,7 @@ namespace Nutrition.IntegrationTests.Services
             _service = new DailyProgressService(_repository, logger);
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         [Fact]
         public async Task CreateAsync_ShouldCreateDailyProgress()

@@ -18,7 +18,7 @@ namespace Nutrition.E2ETests.Fixtures
         private PostgreSqlContainer? _postgresContainer;
         public string ConnectionString { get; private set; } = string.Empty;
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             _postgresContainer = new PostgreSqlBuilder()
                 .WithImage("postgres:16")
@@ -76,12 +76,14 @@ namespace Nutrition.E2ETests.Fixtures
             await respawner.ResetAsync(connection);
         }
 
-        async Task IAsyncLifetime.DisposeAsync()
+        public override async ValueTask DisposeAsync()
         {
             if (_postgresContainer != null)
             {
                 await _postgresContainer.DisposeAsync();
             }
+
+            await base.DisposeAsync();
         }
     }
 }

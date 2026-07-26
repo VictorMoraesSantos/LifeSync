@@ -22,12 +22,12 @@ namespace TaskManager.IntegrationTests.Repositories
             _repository = new TaskItemRepository(_fixture.DbContext);
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await _fixture.ResetDatabaseAsync();
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         #region Create
 

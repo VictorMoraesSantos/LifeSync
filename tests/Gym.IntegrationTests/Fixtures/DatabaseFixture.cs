@@ -12,7 +12,7 @@ namespace Gym.IntegrationTests.Fixtures
         public ApplicationDbContext DbContext { get; private set; } = null!;
         public string ConnectionString { get; private set; } = string.Empty;
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             _postgresContainer = new PostgreSqlBuilder()
                 .WithImage("postgres:16")
@@ -35,7 +35,7 @@ namespace Gym.IntegrationTests.Fixtures
             await DbContext.Database.MigrateAsync();
         }
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             await DbContext.DisposeAsync();
             if (_postgresContainer != null)

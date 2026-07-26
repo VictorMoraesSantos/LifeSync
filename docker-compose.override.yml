@@ -102,6 +102,8 @@ services:
       - RabbitMQSettings__Password=guest
       - GoogleAuth__ClientId=${GOOGLE_CLIENT_ID}
       - GoogleAuth__ClientSecret=${GOOGLE_CLIENT_SECRET}
+      - GoogleAuth__RedirectUri=${GOOGLE_REDIRECT_URI:-http://localhost:6006/auth/google-callback}
+      - GoogleAuth__AppScheme=${GOOGLE_APP_SCHEME:-com.lifesync.app}
     depends_on:
       lifesyncdb:
         condition: service_healthy

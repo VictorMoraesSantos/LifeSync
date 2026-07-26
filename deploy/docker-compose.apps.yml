@@ -46,6 +46,8 @@ services:
       - RabbitMQSettings__Password=${RABBIT_PASSWORD}
       - GoogleAuth__ClientId=${GOOGLE_CLIENT_ID}
       - GoogleAuth__ClientSecret=${GOOGLE_CLIENT_SECRET}
+      - GoogleAuth__RedirectUri=${GOOGLE_REDIRECT_URI:-https://${API_DOMAIN}/auth/google-callback}
+      - GoogleAuth__AppScheme=${GOOGLE_APP_SCHEME:-com.lifesync.app}
     networks: [lifesync]
     restart: unless-stopped
 

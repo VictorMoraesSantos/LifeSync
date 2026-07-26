@@ -34,5 +34,20 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<!-- Custom scheme do callback OAuth. Precisa bater com GoogleAuth:AppScheme na API
+	     e com ApiConfiguration.AppScheme no app. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.lifesync.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.lifesync.app</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -1,3 +1,4 @@
+using LifeSyncApp.Configuration;
 using LifeSyncApp.Models.Auth;
 using LifeSyncApp.Models.Common;
 using Microsoft.Extensions.Logging;
@@ -79,17 +80,14 @@ namespace LifeSyncApp.Services.Auth
 
             try
             {
-                var baseAddress = _httpClient.BaseAddress?.ToString().TrimEnd('/');
-                if (string.IsNullOrWhiteSpace(baseAddress))
-                {
-                    throw new InvalidOperationException("BaseAddress da API nao configurada para login Google.");
-                }
-
+                // O fluxo OAuth usa ApiConfiguration.OAuthBaseUrl (e nao o BaseAddress do
+                // HttpClient) porque o Google so aceita localhost ou dominio publico como
+                // redirect URI -- IPs de rede privada sao recusados.
                 var authResult = await WebAuthenticator.Default.AuthenticateAsync(
                     new WebAuthenticatorOptions
                     {
-                        Url = new Uri($"{baseAddress}/auth/google-login?state={attempt.AttemptId}"),
-                        CallbackUrl = new Uri("com.lifesync.app://callback")
+                        Url = new Uri(ApiConfiguration.GoogleLoginUrl(attempt.AttemptId)),
+                        CallbackUrl = new Uri(ApiConfiguration.OAuthCallbackUrl)
                     },
                     timeoutCts.Token);
 

@@ -63,13 +63,47 @@ MAUI App                     YARP Gateway                  Users.API            
 1. Acessar [console.cloud.google.com](https://console.cloud.google.com)
 2. Criar/selecionar projeto
 3. Em **APIs & Services > Credentials**, criar **OAuth 2.0 Client ID** do tipo **Web Application**
-4. Configurar:
-   - **Authorized JavaScript origins**: `https://api.lifesync.tech`
-   - **Authorized redirect URIs**: `https://api.lifesync.tech/auth/google-callback`
-5. Em **OAuth Consent Screen**, configurar escopos: `email`, `profile`, `openid`
-6. Anotar o **Client ID** e o **Client Secret**
+4. Configurar **Authorized redirect URIs** com as duas URLs (producao e local):
+   - `https://api.lifesync.tech/auth/google-callback`
+   - `http://localhost:6006/auth/google-callback`
+5. **Authorized JavaScript origins**: `https://api.lifesync.tech`
+6. Em **OAuth Consent Screen**, configurar escopos: `email`, `profile`, `openid`
+7. Anotar o **Client ID** e o **Client Secret**
 
 > **Importante**: O Client Secret e usado apenas no backend (server-side). Nunca expor no app mobile.
+
+> **O Google recusa IPs de rede privada** (`10.0.2.2`, `192.168.x.x`) como redirect URI —
+> apenas `localhost`/`127.0.0.1` ou dominio publico sao aceitos. Por isso o fluxo local
+> passa por `localhost:6006` e o Android precisa de `adb reverse` (ver secao abaixo).
+
+---
+
+## Desenvolvimento local
+
+O `RedirectUri` precisa ser **identico** na URL de consentimento e na troca do code por
+token; qualquer divergencia gera `redirect_uri_mismatch`. Ele vem da configuracao, com a
+seguinte precedencia:
+
+| Origem | Valor | Quando aplica |
+|---|---|---|
+| `appsettings.json` | `https://api.lifesync.tech/auth/google-callback` | fallback padrao (producao) |
+| `appsettings.Development.json` | `http://localhost:6006/auth/google-callback` | `ASPNETCORE_ENVIRONMENT=Development` |
+| `GoogleAuth__RedirectUri` (env) | `${GOOGLE_REDIRECT_URI}` | sobrescreve os anteriores |
+
+### Passos
+
+1. Copiar `.env.example` para `.env` na raiz e preencher `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
+2. Subir a stack: `docker compose up -d` (o gateway fica em `http://localhost:6006`).
+3. No app MAUI, `ApiConfiguration.DebugEnvironment` ja vem como `ApiEnvironment.Local`.
+   Trocar para `ApiEnvironment.Production` para testar contra o dominio.
+4. **Android** (emulador ou device fisico via USB), liberar o loopback do host:
+
+```bash
+adb reverse tcp:6006 tcp:6006
+```
+
+Sem esse comando o `localhost:6006` do device aponta para o proprio device e tanto as
+chamadas de API quanto o callback do OAuth falham.
 
 ---
 
@@ -107,10 +141,19 @@ MAUI App                     YARP Gateway                  Users.API            
 #### Variaveis de Ambiente (Docker)
 
 ```yaml
-# docker-compose.override.yml / docker-compose.apps.yml
+# docker-compose.override.yml (local)
 environment:
   - GoogleAuth__ClientId=${GOOGLE_CLIENT_ID}
   - GoogleAuth__ClientSecret=${GOOGLE_CLIENT_SECRET}
+  - GoogleAuth__RedirectUri=${GOOGLE_REDIRECT_URI:-http://localhost:6006/auth/google-callback}
+  - GoogleAuth__AppScheme=${GOOGLE_APP_SCHEME:-com.lifesync.app}
+
+# deploy/docker-compose.apps.yml (producao)
+environment:
+  - GoogleAuth__ClientId=${GOOGLE_CLIENT_ID}
+  - GoogleAuth__ClientSecret=${GOOGLE_CLIENT_SECRET}
+  - GoogleAuth__RedirectUri=${GOOGLE_REDIRECT_URI:-https://${API_DOMAIN}/auth/google-callback}
+  - GoogleAuth__AppScheme=${GOOGLE_APP_SCHEME:-com.lifesync.app}
 ```
 
 Arquivo `.env` (ignorado pelo git):

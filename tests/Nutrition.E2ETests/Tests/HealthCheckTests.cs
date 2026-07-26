@@ -16,16 +16,16 @@ namespace Nutrition.E2ETests.Tests
             _factory = factory;
         }
 
-        public Task InitializeAsync()
+        public ValueTask InitializeAsync()
         {
             _client = _factory.CreateClient();
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
-        public Task DisposeAsync()
+        public ValueTask DisposeAsync()
         {
             _client?.Dispose();
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         [Fact]

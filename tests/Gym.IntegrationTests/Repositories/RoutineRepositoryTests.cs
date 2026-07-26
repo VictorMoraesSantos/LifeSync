@@ -18,13 +18,13 @@ namespace Gym.IntegrationTests.Repositories
             _repository = new RoutineRepository(_fixture.DbContext);
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             await _fixture.ResetDatabaseAsync();
             _repository = new RoutineRepository(_fixture.CreateNewContext());
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
         #region Create Tests
 
